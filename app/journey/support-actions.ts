@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { getActiveMembership } from "@/lib/data";
+import { notify } from "@/lib/notify";
 
 /** Midnight UTC for "today" — matches Prisma's @db.Date storage. */
 function utcToday(): Date {
@@ -25,11 +26,38 @@ export async function markSupport(kind: "prayed" | "reachedOut") {
   const { userId, journeyId } = await requireMember();
   const day = utcToday();
   const flag = kind === "prayed" ? { prayed: true } : { reachedOut: true };
+
+  const existing = await prisma.supportDay.findUnique({
+    where: { journeyId_userId_day: { journeyId, userId, day } },
+  });
+  const alreadyDone = kind === "prayed" ? existing?.prayed : existing?.reachedOut;
+
   await prisma.supportDay.upsert({
     where: { journeyId_userId_day: { journeyId, userId, day } },
     create: { journeyId, userId, day, ...flag },
     update: flag,
   });
+
+  // Notify her once per day per kind — never on repeat taps.
+  if (!alreadyDone) {
+    const [journey, actor] = await Promise.all([
+      prisma.journey.findUnique({ where: { id: journeyId }, select: { ownerId: true } }),
+      prisma.user.findUnique({ where: { id: userId }, select: { name: true } }),
+    ]);
+    if (journey && journey.ownerId !== userId) {
+      const who = actor?.name?.trim() || "Someone in your circle";
+      await notify({
+        userId: journey.ownerId,
+        type: kind === "prayed" ? "prayer" : "reached_out",
+        title:
+          kind === "prayed"
+            ? `${who} prayed for you today.`
+            : `${who} is reaching out to you today.`,
+        href: "/journey",
+      });
+    }
+  }
+
   revalidatePath("/journey");
 }
 
@@ -55,6 +83,30 @@ export async function sendEncouragement(formData: FormData) {
   await prisma.encouragement.create({
     data: { journeyId, authorId: userId, body, verseRef },
   });
+
+  // Notify the other member(s) — this is an intentional message, so email too.
+  const [others, actor] = await Promise.all([
+    prisma.membership.findMany({
+      where: { journeyId, userId: { not: userId } },
+      select: { userId: true },
+    }),
+    prisma.user.findUnique({ where: { id: userId }, select: { name: true } }),
+  ]);
+  const who = actor?.name?.trim() || "Someone in your circle";
+  const preview = body.length > 140 ? `${body.slice(0, 140)}…` : body;
+  await Promise.all(
+    others.map((m) =>
+      notify({
+        userId: m.userId,
+        type: "encouragement",
+        title: `${who} sent you a word of encouragement.`,
+        body: preview,
+        href: "/journey",
+        email: true,
+      }),
+    ),
+  );
+
   revalidatePath("/journey");
   revalidatePath("/care");
 }

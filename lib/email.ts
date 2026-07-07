@@ -7,6 +7,7 @@ import { type Role } from "@prisma/client";
  * never breaks sign-up or invites.
  */
 const RESEND_ENDPOINT = "https://api.resend.com/emails";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://oyun.cotek.app";
 
 function fromAddress(): string {
   return process.env.EMAIL_FROM ?? "Agbebi <agbebi@oyun.cotek.app>";
@@ -164,6 +165,100 @@ export async function sendInviteEmail({
   ].join("\n");
 
   return sendEmail({ to, subject: `${motherName} invited you to walk with them on Oyun`, html, text });
+}
+
+export async function sendNotificationEmail({
+  to,
+  name,
+  title,
+  body,
+  href,
+}: {
+  to: string;
+  name?: string | null;
+  title: string;
+  body?: string;
+  href?: string;
+}): Promise<boolean> {
+  const link = href ? `${SITE_URL}${href}` : SITE_URL;
+  const html = shell(`
+    <p style="font-size:16px;line-height:1.6;color:#ECE8DE;">${escapeHtml(name?.trim() || "Hello")},</p>
+    <p style="font-size:15px;line-height:1.7;color:#ECE8DE;">${escapeHtml(title)}</p>
+    ${body ? `<p style="font-size:14px;line-height:1.7;color:#8A9099;">${escapeHtml(body)}</p>` : ""}
+    <p style="margin:24px 0;">
+      <a href="${link}" style="display:inline-block;background:#E6A94E;color:#0B0E14;text-decoration:none;font-weight:600;padding:12px 20px;border-radius:8px;font-size:14px;">Open Oyun</a>
+    </p>
+  `);
+  const text = `${title}\n${body ?? ""}\n\nOpen Oyun: ${link}`;
+  return sendEmail({ to, subject: title, html, text });
+}
+
+export interface DigestSection {
+  heading: string;
+  lines: string[];
+}
+
+export async function sendWeeklyDigest({
+  to,
+  name,
+  subject,
+  intro,
+  verse,
+  sections,
+  ctaLabel,
+  ctaHref,
+}: {
+  to: string;
+  name?: string | null;
+  subject: string;
+  intro: string;
+  verse?: { text: string; ref: string };
+  sections: DigestSection[];
+  ctaLabel: string;
+  ctaHref: string;
+}): Promise<boolean> {
+  const sectionsHtml = sections
+    .map(
+      (s) => `
+      <div style="margin-top:20px;">
+        <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#E6A94E;">${escapeHtml(s.heading)}</div>
+        ${s.lines
+          .map(
+            (l) =>
+              `<p style="font-size:14px;line-height:1.7;color:#ECE8DE;margin:6px 0 0;">${escapeHtml(l)}</p>`,
+          )
+          .join("")}
+      </div>`,
+    )
+    .join("");
+
+  const verseHtml = verse
+    ? `<div style="margin-top:20px;padding:16px;border:1px solid #232833;border-radius:12px;">
+         <p style="font-family:Georgia,serif;font-size:16px;line-height:1.5;color:#ECE8DE;margin:0;">&ldquo;${escapeHtml(verse.text)}&rdquo;</p>
+         <p style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#E6A94E;margin:8px 0 0;">${escapeHtml(verse.ref)}</p>
+       </div>`
+    : "";
+
+  const link = `${SITE_URL}${ctaHref}`;
+  const html = shell(`
+    <p style="font-size:16px;line-height:1.6;color:#ECE8DE;">Peace to you, ${escapeHtml(name?.trim() || "friend")}.</p>
+    <p style="font-size:14px;line-height:1.7;color:#ECE8DE;">${escapeHtml(intro)}</p>
+    ${verseHtml}
+    ${sectionsHtml}
+    <p style="margin:24px 0 0;">
+      <a href="${link}" style="display:inline-block;background:#E6A94E;color:#0B0E14;text-decoration:none;font-weight:600;padding:12px 20px;border-radius:8px;font-size:14px;">${escapeHtml(ctaLabel)}</a>
+    </p>
+  `);
+
+  const text = [
+    `Peace to you, ${name?.trim() || "friend"}.`,
+    intro,
+    verse ? `\n"${verse.text}" — ${verse.ref}` : "",
+    ...sections.map((s) => `\n${s.heading}\n${s.lines.join("\n")}`),
+    `\n${ctaLabel}: ${link}`,
+  ].join("\n");
+
+  return sendEmail({ to, subject, html, text });
 }
 
 function escapeHtml(s: string): string {

@@ -15,6 +15,8 @@ model User {
   emailVerified DateTime?
   image         String?
   passwordHash  String?
+  notifyByEmail Boolean   @default(true)
+  weeklyDigest  Boolean   @default(true)
 
   accounts    Account[]
   sessions    Session[]
@@ -25,8 +27,24 @@ model User {
   nudges      Nudge[]
   encouragements Encouragement[]
   supportDays SupportDay[]
+  notifications Notification[]
 
   createdAt DateTime @default(now())
+}
+
+/// In-app notification for a user (bell menu). Some also trigger an email.
+model Notification {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String
+  title     String
+  body      String?
+  href      String?
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId, createdAt])
 }
 
 model Account {

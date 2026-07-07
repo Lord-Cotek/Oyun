@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { notify } from "@/lib/notify";
 import { Role } from "@prisma/client";
 
 /** Mother creates her journey. `dueDate` is the due date, or the birth date if already born. */
@@ -58,7 +59,7 @@ export async function acceptInvite(formData: FormData) {
 
   const invite = await prisma.invite.findUnique({
     where: { token },
-    include: { journey: { include: { owner: { select: { name: true } } } } },
+    include: { journey: { include: { owner: { select: { id: true, name: true } } } } },
   });
   if (!invite) throw new Error("This invite could not be found.");
   if (invite.acceptedAt) throw new Error("This invite has already been used.");
@@ -71,6 +72,7 @@ export async function acceptInvite(formData: FormData) {
   }
 
   const motherName = invite.journey.owner.name ?? "her";
+  const joinerName = name || session.user.name || "Someone you invited";
   const soon = new Date();
   soon.setDate(soon.getDate() + 1);
 
@@ -101,6 +103,17 @@ export async function acceptInvite(formData: FormData) {
     }),
   ]);
 
+  // Let the mother know her circle grew.
+  await notify({
+    userId: invite.journey.owner.id,
+    type: "invite_accepted",
+    title: `${joinerName} joined your journey.`,
+    body: "They can now support and pray for you each week.",
+    href: "/circle",
+    email: true,
+  });
+
   revalidatePath("/journey");
+  revalidatePath("/circle");
   redirect("/journey?welcome=1");
 }
