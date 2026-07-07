@@ -100,6 +100,38 @@ export async function sendWelcomeEmail({
   return sendEmail({ to, subject: "Welcome to Oyun", html, text });
 }
 
+export async function sendPasswordResetEmail({
+  to,
+  link,
+}: {
+  to: string;
+  link: string;
+}): Promise<boolean> {
+  const html = shell(`
+    <p style="font-size:16px;line-height:1.6;color:#ECE8DE;">Let's get you back in.</p>
+    <p style="font-size:14px;line-height:1.7;color:#ECE8DE;">
+      We received a request to reset your Oyun password. Click below to choose a
+      new one. This link expires in one hour.
+    </p>
+    <p style="margin:24px 0;">
+      <a href="${link}" style="display:inline-block;background:#E6A94E;color:#0B0E14;text-decoration:none;font-weight:600;padding:12px 20px;border-radius:8px;font-size:14px;">Reset your password</a>
+    </p>
+    <p style="font-size:12px;line-height:1.6;color:#8A9099;">
+      If you didn't ask for this, you can safely ignore this email — your password
+      won't change. Or paste this link into your browser:<br/>${escapeHtml(link)}
+    </p>
+  `);
+  const text = [
+    "We received a request to reset your Oyun password.",
+    "",
+    `Choose a new password (link expires in 1 hour): ${link}`,
+    "",
+    "If you didn't ask for this, you can safely ignore this email.",
+  ].join("\n");
+
+  return sendEmail({ to, subject: "Reset your Oyun password", html, text });
+}
+
 export async function sendInviteEmail({
   to,
   link,

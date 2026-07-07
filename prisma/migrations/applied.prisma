@@ -62,6 +62,17 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
+/// Single-use, time-limited token backing the "forgot password" flow.
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  email     String
+  token     String   @unique
+  expires   DateTime
+  createdAt DateTime @default(now())
+
+  @@index([email])
+}
+
 // ── Oyun domain ──────────────────────────────────────────────────────────
 enum Role {
   MOTHER

@@ -65,6 +65,14 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
         />
       </label>
       {error && <p className="font-mono text-xs text-negative">{error}</p>}
+      <div className="flex justify-end">
+        <Link
+          href="/forgot-password"
+          className="font-mono text-xs text-muted underline underline-offset-4 hover:text-accent"
+        >
+          Forgot password?
+        </Link>
+      </div>
       <button
         type="submit"
         disabled={busy}

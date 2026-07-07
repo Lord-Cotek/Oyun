@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -25,14 +26,15 @@ export default async function Onboarding({
 }: {
   searchParams: { invite?: string };
 }) {
-  const session = await auth();
-  if (!session?.user?.id) redirect("/sign-in?callbackUrl=/onboarding");
-
-  // Already set up? Go to the dashboard.
-  const active = await getActiveMembership(session.user.id);
-  if (active) redirect("/journey");
-
   const inviteToken = searchParams.invite?.trim();
+
+  const session = await auth();
+  if (!session?.user?.id) {
+    // Preserve the invite token through the sign-in / sign-up round-trip.
+    const dest = inviteToken ? `/onboarding?invite=${inviteToken}` : "/onboarding";
+    redirect(`/sign-in?callbackUrl=${encodeURIComponent(dest)}`);
+  }
+
   const invite = inviteToken
     ? await prisma.invite.findUnique({
         where: { token: inviteToken },
@@ -43,6 +45,15 @@ export default async function Onboarding({
         },
       })
     : null;
+
+  // A pending invite takes precedence — let them accept it even if they already
+  // belong to another journey. Otherwise, if they're already set up, move on.
+  const active = await getActiveMembership(session.user.id);
+  const hasPendingInvite = !!invite && !invite.acceptedAt;
+  if (!hasPendingInvite && active) redirect("/journey");
+
+  // A token was supplied but doesn't match any invite.
+  const inviteNotFound = !!inviteToken && !invite;
 
   return (
     <main className="mx-auto flex min-h-[86dvh] max-w-shell items-center justify-center px-6 py-16">
@@ -91,6 +102,23 @@ export default async function Onboarding({
             <p className="mt-3 font-mono text-sm text-muted">
               If that was you, just sign in to reach the journey.
             </p>
+          </div>
+        ) : inviteNotFound ? (
+          <div className="rounded-2xl border border-border bg-surface p-8">
+            <Eyebrow className="mb-4">Invite not found</Eyebrow>
+            <h1 className="font-serif text-2xl text-ink">
+              We couldn&rsquo;t find that invite.
+            </h1>
+            <p className="mt-3 font-mono text-sm leading-relaxed text-muted">
+              The link may be mistyped or expired. Ask whoever invited you to send
+              a fresh one — or begin your own journey below.
+            </p>
+            <Link
+              href="/onboarding"
+              className="mt-6 inline-block font-mono text-xs text-accent underline underline-offset-4"
+            >
+              Start my own journey
+            </Link>
           </div>
         ) : (
           <div className="rounded-2xl border border-border bg-surface p-8">
