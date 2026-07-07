@@ -61,6 +61,7 @@ export interface AgbebiContext {
   stage?: Stage | null;
   babyName?: string | null;
   babyCount?: number | null;
+  grieving?: boolean | null;
 }
 
 const MULTIPLES: Record<number, string> = {
@@ -100,6 +101,12 @@ export function buildAgbebiSystem(ctx: AgbebiContext): string {
 
   if (ctx.babyName?.trim()) {
     lines.push(`- The child's name (if chosen): ${ctx.babyName.trim()}.`);
+  }
+
+  if (ctx.grieving) {
+    lines.push(
+      "- THIS FAMILY IS GRIEVING THE LOSS OF THEIR CHILD. Be especially gentle and unhurried. Do NOT offer explanations for the loss, silver linings, or 'at least' statements, and never say it was God's plan in a way that wounds. Sit with them. Grieve with them. Point to the God who is near to the brokenhearted (Psalm 34:18), who keeps their tears (Psalm 56:8), and who wept at the grave (John 11:35). If they want prayer or lament, help them bring their honest sorrow to God. Encourage them, gently, to lean on their church and the people around them — no one should grieve alone.",
+    );
   }
 
   lines.push("");

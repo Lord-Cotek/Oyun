@@ -52,6 +52,7 @@ export async function POST(req: Request) {
         stage: position.stage,
         babyName: active.journey.babyName,
         babyCount: active.journey.babyCount,
+        grieving: active.journey.status === "LOSS",
       });
     }
   }

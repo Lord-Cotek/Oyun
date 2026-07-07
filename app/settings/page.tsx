@@ -14,6 +14,7 @@ import {
   JourneyForm,
 } from "@/components/settings/SettingsForms";
 import { PushToggle } from "@/components/PushToggle";
+import { MarkLoss } from "@/components/settings/MarkLoss";
 
 export const metadata: Metadata = {
   title: "Settings",
@@ -78,6 +79,13 @@ export default async function SettingsPage() {
                 babyName={active.journey.babyName ?? ""}
                 babyCount={active.journey.babyCount}
               />
+            </Card>
+          )}
+
+          {isMother && active?.journey.status === "ACTIVE" && (
+            <Card className="border-accent2/20 p-8">
+              <Eyebrow className="mb-4 text-accent2">If the road turns hard</Eyebrow>
+              <MarkLoss />
             </Card>
           )}
 

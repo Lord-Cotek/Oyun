@@ -27,6 +27,8 @@ import { Encouragements } from "@/components/journey/Encouragements";
 import { DailyVerse } from "@/components/journey/DailyVerse";
 import { FamilyWorship } from "@/components/journey/FamilyWorship";
 import { BirthMoment } from "@/components/journey/BirthMoment";
+import { LamentView } from "@/components/lament/LamentView";
+import { LamentPartnerView } from "@/components/lament/LamentPartnerView";
 
 // Static so Tailwind can extract these classes.
 const MOOD_TONE_TEXT: Record<string, string> = {
@@ -51,6 +53,33 @@ export default async function JourneyPage() {
   if (!active) return <EmptyState />;
 
   const { role, journey } = active;
+
+  // When a journey is walking through loss, it becomes a grief companion.
+  if (journey.status === "LOSS") {
+    const me = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { name: true },
+    });
+    return (
+      <>
+        <SiteHeader active="journey" />
+        {role === "MOTHER" ? (
+          <LamentView
+            journeyId={journey.id}
+            babyName={journey.babyName}
+            lossAt={journey.lossAt}
+            viewerName={me?.name ?? null}
+          />
+        ) : (
+          <LamentPartnerView
+            journeyId={journey.id}
+            motherName={journey.owner.name ?? "She"}
+          />
+        )}
+      </>
+    );
+  }
+
   const position = computePosition(journey.dueDate);
   const { stage } = position;
 

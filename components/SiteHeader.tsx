@@ -21,6 +21,7 @@ export async function SiteHeader({
   const session = await auth();
   let unread = 0;
   let isMother = false;
+  let inLoss = false;
   if (session?.user?.id) {
     const [count, membership] = await Promise.all([
       prisma.notification.count({ where: { userId: session.user.id, readAt: null } }),
@@ -28,16 +29,17 @@ export async function SiteHeader({
     ]);
     unread = count;
     isMother = membership?.role === "MOTHER";
+    inLoss = membership?.journey.status === "LOSS";
   }
 
   // The full nav, used inline on desktop and inside the mobile menu.
   const links: { href: string; label: string; current: boolean }[] = [
     { href: "/journey", label: "Journey", current: active === "journey" },
     { href: "/prayer", label: "Prayer", current: active === "prayer" },
-    ...(showCare && isMother
+    ...(showCare && isMother && !inLoss
       ? [{ href: "/care", label: "Care", current: active === "care" }]
       : []),
-    ...(isMother
+    ...(isMother && !inLoss
       ? [{ href: "/child", label: "Nursery", current: active === "nursery" }]
       : []),
     ...(isMother

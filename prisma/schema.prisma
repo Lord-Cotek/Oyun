@@ -31,8 +31,23 @@ model User {
   prayerRequests PrayerRequest[]
   prayerPrays    PrayerPray[]
   pushSubscriptions PushSubscription[]
+  remembrances   Remembrance[]
 
   createdAt DateTime @default(now())
+}
+
+/// A word written in memory of a child who was lost — from the mother or,
+/// just as importantly, from the circle who grieves with her.
+model Remembrance {
+  id        String   @id @default(cuid())
+  journeyId String
+  journey   Journey  @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  body      String
+  createdAt DateTime @default(now())
+
+  @@index([journeyId, createdAt])
 }
 
 /// A specific prayer request the circle can pray against and mark answered.
@@ -144,6 +159,11 @@ enum Role {
   ACCOUNTABILITY
 }
 
+enum JourneyStatus {
+  ACTIVE
+  LOSS
+}
+
 enum Mood {
   HEAVY // 1
   LOW // 2
@@ -171,6 +191,8 @@ model Journey {
   dueDate   DateTime
   babyName  String?
   babyCount Int      @default(1)
+  status    JourneyStatus @default(ACTIVE)
+  lossAt    DateTime?
   createdAt DateTime @default(now())
 
   memberships    Membership[]
@@ -183,6 +205,7 @@ model Journey {
   supportDays    SupportDay[]
   children       Child[]
   prayerRequests PrayerRequest[]
+  remembrances   Remembrance[]
 }
 
 /// A child profile (0-2 years). One per baby — supports twins and multiples.

@@ -2,6 +2,9 @@
 CREATE TYPE "Role" AS ENUM ('MOTHER', 'PARTNER', 'ACCOUNTABILITY');
 
 -- CreateEnum
+CREATE TYPE "JourneyStatus" AS ENUM ('ACTIVE', 'LOSS');
+
+-- CreateEnum
 CREATE TYPE "Mood" AS ENUM ('HEAVY', 'LOW', 'STEADY', 'BRIGHT', 'RADIANT');
 
 -- CreateEnum
@@ -20,6 +23,17 @@ CREATE TABLE "User" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Remembrance" (
+    "id" TEXT NOT NULL,
+    "journeyId" TEXT NOT NULL,
+    "authorId" TEXT NOT NULL,
+    "body" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "Remembrance_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -124,6 +138,8 @@ CREATE TABLE "Journey" (
     "dueDate" TIMESTAMP(3) NOT NULL,
     "babyName" TEXT,
     "babyCount" INTEGER NOT NULL DEFAULT 1,
+    "status" "JourneyStatus" NOT NULL DEFAULT 'ACTIVE',
+    "lossAt" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Journey_pkey" PRIMARY KEY ("id")
@@ -247,6 +263,9 @@ CREATE TABLE "SupportDay" (
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
+CREATE INDEX "Remembrance_journeyId_createdAt_idx" ON "Remembrance"("journeyId", "createdAt");
+
+-- CreateIndex
 CREATE INDEX "PrayerRequest_journeyId_createdAt_idx" ON "PrayerRequest"("journeyId", "createdAt");
 
 -- CreateIndex
@@ -311,6 +330,12 @@ CREATE INDEX "SupportDay_journeyId_userId_idx" ON "SupportDay"("journeyId", "use
 
 -- CreateIndex
 CREATE UNIQUE INDEX "SupportDay_journeyId_userId_day_key" ON "SupportDay"("journeyId", "userId", "day");
+
+-- AddForeignKey
+ALTER TABLE "Remembrance" ADD CONSTRAINT "Remembrance_journeyId_fkey" FOREIGN KEY ("journeyId") REFERENCES "Journey"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Remembrance" ADD CONSTRAINT "Remembrance_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "PrayerRequest" ADD CONSTRAINT "PrayerRequest_journeyId_fkey" FOREIGN KEY ("journeyId") REFERENCES "Journey"("id") ON DELETE CASCADE ON UPDATE CASCADE;
