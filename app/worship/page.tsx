@@ -22,6 +22,7 @@ export default async function WorshipPage() {
 
   const active = await getActiveMembership(session.user.id);
   if (!active) redirect("/onboarding");
+  if (active.role === "ACCOUNTABILITY") redirect("/journey");
   if (active.journey.status === "LOSS") redirect("/journey");
 
   const born = computePosition(active.journey.dueDate).born;

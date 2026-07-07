@@ -28,6 +28,7 @@ export async function SiteHeader({
   const session = await auth();
   let unread = 0;
   let isMother = false;
+  let isHousehold = false;
   let inLoss = false;
   if (session?.user?.id) {
     const [count, membership] = await Promise.all([
@@ -36,6 +37,7 @@ export async function SiteHeader({
     ]);
     unread = count;
     isMother = membership?.role === "MOTHER";
+    isHousehold = membership?.role === "MOTHER" || membership?.role === "PARTNER";
     inLoss = membership?.journey.status === "LOSS";
   }
 
@@ -43,7 +45,7 @@ export async function SiteHeader({
   const links: { href: string; label: string; current: boolean }[] = [
     { href: "/journey", label: "Journey", current: active === "journey" },
     { href: "/prayer", label: "Prayer", current: active === "prayer" },
-    ...(!inLoss
+    ...(!inLoss && isHousehold
       ? [{ href: "/worship", label: "Worship", current: active === "worship" }]
       : []),
     ...(showCare && isMother && !inLoss

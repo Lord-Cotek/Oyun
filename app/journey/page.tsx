@@ -28,6 +28,7 @@ import { Encouragements } from "@/components/journey/Encouragements";
 import { DailyVerse } from "@/components/journey/DailyVerse";
 import { FamilyWorship } from "@/components/journey/FamilyWorship";
 import { BirthMoment } from "@/components/journey/BirthMoment";
+import { AccountabilityView } from "@/components/journey/AccountabilityView";
 import { LamentView } from "@/components/lament/LamentView";
 import { LamentPartnerView } from "@/components/lament/LamentPartnerView";
 
@@ -233,7 +234,25 @@ export default async function JourneyPage() {
     );
   }
 
-  // ── Partner / Accountability view ──────────────────────────────────────
+  // ── Accountability partner — a distinct, non-household view ─────────────
+  if (role === "ACCOUNTABILITY") {
+    return (
+      <>
+        <SiteHeader active="journey" />
+        <AccountabilityView
+          journeyId={journey.id}
+          userId={session.user.id}
+          motherName={journey.owner.name ?? "her"}
+          stage={stage}
+          stageLabel={stageLabel}
+          progress={position.progress}
+          born={position.born}
+        />
+      </>
+    );
+  }
+
+  // ── Husband / Partner view ─────────────────────────────────────────────
   const [latest, nudges, support, received] = await Promise.all([
     getLatestMotherCheckIn(journey.id),
     getOpenNudges(journey.id, session.user.id),
