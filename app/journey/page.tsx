@@ -26,6 +26,7 @@ import { EncouragementBox } from "@/components/journey/EncouragementBox";
 import { Encouragements } from "@/components/journey/Encouragements";
 import { DailyVerse } from "@/components/journey/DailyVerse";
 import { FamilyWorship } from "@/components/journey/FamilyWorship";
+import { BirthMoment } from "@/components/journey/BirthMoment";
 
 // Static so Tailwind can extract these classes.
 const MOOD_TONE_TEXT: Record<string, string> = {
@@ -58,18 +59,32 @@ export default async function JourneyPage() {
     : `Week ${position.week} of 40`;
 
   if (role === "MOTHER") {
-    const [milestoneCount, supporterCount, encouragements] = await Promise.all([
-      prisma.milestone.count({ where: { journeyId: journey.id } }),
-      prisma.membership.count({
-        where: { journeyId: journey.id, role: { in: ["PARTNER", "ACCOUNTABILITY"] } },
-      }),
-      getEncouragementsForViewer(journey.id, session.user.id),
-    ]);
+    const [milestoneCount, supporterCount, encouragements, birthRecorded] =
+      await Promise.all([
+        prisma.milestone.count({ where: { journeyId: journey.id } }),
+        prisma.membership.count({
+          where: { journeyId: journey.id, role: { in: ["PARTNER", "ACCOUNTABILITY"] } },
+        }),
+        getEncouragementsForViewer(journey.id, session.user.id),
+        prisma.milestone.count({
+          where: { journeyId: journey.id, kind: "BIRTH" },
+        }),
+      ]);
+
+    // Offer the birth moment once she's near/past due and hasn't recorded the
+    // birth yet — recording it corrects the timeline and starts the nursery.
+    const showBirth =
+      birthRecorded === 0 && (position.born || position.daysToGo <= 21);
 
     return (
       <>
         <SiteHeader active="journey" />
         <main className="mx-auto max-w-shell px-6 py-10">
+          {showBirth && (
+            <div className="mb-6 animate-fade-up">
+              <BirthMoment babyCount={journey.babyCount} overdue={position.born} />
+            </div>
+          )}
           <div className="animate-fade-up">
             <Eyebrow className="mb-3">
               {position.born ? "Infancy" : "Pregnancy"} · {stageLabel}
