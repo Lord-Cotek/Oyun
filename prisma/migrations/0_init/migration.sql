@@ -151,6 +151,31 @@ CREATE TABLE "Nudge" (
     CONSTRAINT "Nudge_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "Encouragement" (
+    "id" TEXT NOT NULL,
+    "journeyId" TEXT NOT NULL,
+    "authorId" TEXT NOT NULL,
+    "body" TEXT NOT NULL,
+    "verseRef" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "Encouragement_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "SupportDay" (
+    "id" TEXT NOT NULL,
+    "journeyId" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "day" DATE NOT NULL,
+    "prayed" BOOLEAN NOT NULL DEFAULT false,
+    "reachedOut" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "SupportDay_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
@@ -193,6 +218,15 @@ CREATE INDEX "Milestone_journeyId_occurredAt_idx" ON "Milestone"("journeyId", "o
 -- CreateIndex
 CREATE INDEX "Nudge_journeyId_dueAt_idx" ON "Nudge"("journeyId", "dueAt");
 
+-- CreateIndex
+CREATE INDEX "Encouragement_journeyId_createdAt_idx" ON "Encouragement"("journeyId", "createdAt");
+
+-- CreateIndex
+CREATE INDEX "SupportDay_journeyId_userId_idx" ON "SupportDay"("journeyId", "userId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "SupportDay_journeyId_userId_day_key" ON "SupportDay"("journeyId", "userId", "day");
+
 -- AddForeignKey
 ALTER TABLE "Account" ADD CONSTRAINT "Account_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
@@ -231,4 +265,16 @@ ALTER TABLE "Nudge" ADD CONSTRAINT "Nudge_journeyId_fkey" FOREIGN KEY ("journeyI
 
 -- AddForeignKey
 ALTER TABLE "Nudge" ADD CONSTRAINT "Nudge_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Encouragement" ADD CONSTRAINT "Encouragement_journeyId_fkey" FOREIGN KEY ("journeyId") REFERENCES "Journey"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Encouragement" ADD CONSTRAINT "Encouragement_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "SupportDay" ADD CONSTRAINT "SupportDay_journeyId_fkey" FOREIGN KEY ("journeyId") REFERENCES "Journey"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "SupportDay" ADD CONSTRAINT "SupportDay_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 

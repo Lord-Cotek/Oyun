@@ -2,6 +2,7 @@ import Link from "next/link";
 import { OyunMark } from "@/components/ui/OyunMark";
 import { SignOutButton } from "@/components/SignOutButton";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { InstallButton } from "@/components/InstallButton";
 
 export function SiteHeader({
   active,
@@ -22,6 +23,7 @@ export function SiteHeader({
           {showCare && (
             <NavLink href="/care" label="Care" current={active === "care"} />
           )}
+          <InstallButton className="mr-1 hidden sm:block" />
           <span className="mx-1 h-4 w-px bg-border" aria-hidden />
           <SignOutButton />
           <ThemeToggle className="ml-1" />

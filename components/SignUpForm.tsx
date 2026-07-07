@@ -5,9 +5,15 @@ import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { registerUser } from "@/app/sign-up/actions";
 
-export function SignUpForm({ callbackUrl }: { callbackUrl?: string }) {
+export function SignUpForm({
+  callbackUrl,
+  initialEmail,
+}: {
+  callbackUrl?: string;
+  initialEmail?: string;
+}) {
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(initialEmail ?? "");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);

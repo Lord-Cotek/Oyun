@@ -56,3 +56,61 @@ export async function getOpenNudges(journeyId: string, userId: string) {
     take: 10,
   });
 }
+
+/** Recent encouragements written by someone OTHER than the viewer. */
+export async function getEncouragementsForViewer(
+  journeyId: string,
+  viewerId: string,
+  take = 5,
+) {
+  return prisma.encouragement.findMany({
+    where: { journeyId, authorId: { not: viewerId } },
+    orderBy: { createdAt: "desc" },
+    take,
+    include: { author: { select: { name: true } } },
+  });
+}
+
+function utcDay(d: Date): Date {
+  return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
+}
+
+/** Today's support state plus a faithfulness streak of consecutive prayed days. */
+export async function getSupportSummary(journeyId: string, userId: string) {
+  const since = new Date();
+  since.setUTCDate(since.getUTCDate() - 60);
+  const days = await prisma.supportDay.findMany({
+    where: { journeyId, userId, day: { gte: utcDay(since) } },
+    orderBy: { day: "desc" },
+  });
+
+  const today = utcDay(new Date());
+  const todayRow = days.find((d) => d.day.getTime() === today.getTime());
+
+  // Count consecutive days (ending today or yesterday) with prayed = true.
+  const prayedSet = new Set(
+    days.filter((d) => d.prayed).map((d) => d.day.getTime()),
+  );
+  let streak = 0;
+  const cursor = new Date(today);
+  // Allow the streak to be "alive" if they prayed today or yesterday.
+  if (!prayedSet.has(today.getTime())) cursor.setUTCDate(cursor.getUTCDate() - 1);
+  while (prayedSet.has(cursor.getTime())) {
+    streak += 1;
+    cursor.setUTCDate(cursor.getUTCDate() - 1);
+  }
+
+  const last7 = new Set<number>();
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(today);
+    d.setUTCDate(d.getUTCDate() - i);
+    if (prayedSet.has(d.getTime())) last7.add(d.getTime());
+  }
+
+  return {
+    prayedToday: !!todayRow?.prayed,
+    reachedOutToday: !!todayRow?.reachedOut,
+    streak,
+    prayedLast7: last7.size,
+  };
+}

@@ -7,6 +7,8 @@ import {
   getActiveMembership,
   getLatestMotherCheckIn,
   getOpenNudges,
+  getEncouragementsForViewer,
+  getSupportSummary,
 } from "@/lib/data";
 import { computePosition } from "@/lib/stage";
 import { MOOD_META } from "@/lib/moods";
@@ -18,6 +20,11 @@ import { Verse } from "@/components/ui/Verse";
 import { Button } from "@/components/ui/Button";
 import { JourneyProgress } from "@/components/JourneyProgress";
 import { InvitePanel } from "@/components/InvitePanel";
+import { SupportActions } from "@/components/journey/SupportActions";
+import { NudgeList } from "@/components/journey/NudgeList";
+import { EncouragementBox } from "@/components/journey/EncouragementBox";
+import { Encouragements } from "@/components/journey/Encouragements";
+import { DailyVerse } from "@/components/journey/DailyVerse";
 
 // Static so Tailwind can extract these classes.
 const MOOD_TONE_TEXT: Record<string, string> = {
@@ -50,11 +57,12 @@ export default async function JourneyPage() {
     : `Week ${position.week} of 40`;
 
   if (role === "MOTHER") {
-    const [milestoneCount, supporterCount] = await Promise.all([
+    const [milestoneCount, supporterCount, encouragements] = await Promise.all([
       prisma.milestone.count({ where: { journeyId: journey.id } }),
       prisma.membership.count({
         where: { journeyId: journey.id, role: { in: ["PARTNER", "ACCOUNTABILITY"] } },
       }),
+      getEncouragementsForViewer(journey.id, session.user.id),
     ]);
 
     return (
@@ -93,6 +101,10 @@ export default async function JourneyPage() {
             <JourneyProgress progress={position.progress} label={stageLabel} />
           </div>
 
+          <div className="mt-4">
+            <DailyVerse />
+          </div>
+
           <div className="mt-10 grid gap-4 lg:grid-cols-[1.4fr_1fr]">
             <Card className="p-8">
               <Verse text={stage.verse.text} reference={stage.verse.ref} size="lg" />
@@ -115,6 +127,20 @@ export default async function JourneyPage() {
                   {stage.prayerPoint}
                 </p>
               </Card>
+              {(encouragements.length > 0 || supporterCount > 0) && (
+                <Card className="border-accent2/30 bg-accent2/[0.05]">
+                  <Encouragements
+                    items={encouragements.map((e) => ({
+                      id: e.id,
+                      body: e.body,
+                      verseRef: e.verseRef,
+                      createdAt: e.createdAt,
+                      authorName: e.author.name,
+                    }))}
+                    emptyHint="When your partner sends you a word of encouragement, it will appear here."
+                  />
+                </Card>
+              )}
               <Card>
                 <Eyebrow className="mb-3">Care</Eyebrow>
                 <p className="mb-4 font-mono text-xs leading-relaxed text-muted">
@@ -136,9 +162,11 @@ export default async function JourneyPage() {
   }
 
   // ── Partner / Accountability view ──────────────────────────────────────
-  const [latest, nudges] = await Promise.all([
+  const [latest, nudges, support, received] = await Promise.all([
     getLatestMotherCheckIn(journey.id),
     getOpenNudges(journey.id, session.user.id),
+    getSupportSummary(journey.id, session.user.id),
+    getEncouragementsForViewer(journey.id, session.user.id),
   ]);
   const motherName = journey.owner.name ?? "her";
   const mood = latest ? MOOD_META[latest.mood] : null;
@@ -168,6 +196,26 @@ export default async function JourneyPage() {
                 {stage.partnerFocus}
               </p>
             </Card>
+
+            <Card className="p-8">
+              <SupportActions
+                prayedToday={support.prayedToday}
+                reachedOutToday={support.reachedOutToday}
+                streak={support.streak}
+                prayedLast7={support.prayedLast7}
+                motherName={motherName}
+              />
+            </Card>
+
+            <Card className="p-8">
+              <Eyebrow className="mb-3">Send her a word</Eyebrow>
+              <p className="mb-4 font-mono text-xs leading-relaxed text-muted">
+                A single sentence of Scripture or encouragement, sent straight to
+                her. She&rsquo;ll see it on her journey.
+              </p>
+              <EncouragementBox toName={motherName} verseRef={stage.verse.ref} />
+            </Card>
+
             <Card className="p-8">
               <Eyebrow className="mb-3">Pray for her</Eyebrow>
               <p className="font-mono text-sm leading-relaxed text-muted">
@@ -180,6 +228,20 @@ export default async function JourneyPage() {
           </div>
 
           <div className="space-y-4">
+            {received.length > 0 && (
+              <Card className="border-accent2/30 bg-accent2/[0.05]">
+                <Encouragements
+                  items={received.map((e) => ({
+                    id: e.id,
+                    body: e.body,
+                    verseRef: e.verseRef,
+                    createdAt: e.createdAt,
+                    authorName: e.author.name,
+                  }))}
+                  emptyHint=""
+                />
+              </Card>
+            )}
             <Card>
               <Eyebrow className="mb-3">Her heart, lately</Eyebrow>
               {mood ? (
@@ -202,30 +264,14 @@ export default async function JourneyPage() {
 
             <Card>
               <Eyebrow className="mb-3">This week</Eyebrow>
-              {nudges.length > 0 ? (
-                <ul className="space-y-3">
-                  {nudges.map((n) => (
-                    <li key={n.id} className="flex gap-2.5">
-                      <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent" />
-                      <div>
-                        <p className="font-mono text-sm text-ink">{n.text}</p>
-                        <p className="font-mono text-[0.68rem] text-muted">
-                          {n.dueAt.toLocaleDateString(undefined, {
-                            weekday: "short",
-                            month: "short",
-                            day: "numeric",
-                          })}
-                        </p>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="font-mono text-xs leading-relaxed text-muted">
-                  No reminders right now. The simplest nudge still holds: check
-                  in on {motherName} today.
-                </p>
-              )}
+              <NudgeList
+                motherName={motherName}
+                nudges={nudges.map((n) => ({
+                  id: n.id,
+                  text: n.text,
+                  dueAt: n.dueAt.toISOString(),
+                }))}
+              />
             </Card>
           </div>
         </div>

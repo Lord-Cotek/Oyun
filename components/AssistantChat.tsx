@@ -168,21 +168,93 @@ export function AssistantChat() {
 
 function Bubble({ msg, streaming }: { msg: Msg; streaming: boolean }) {
   const isUser = msg.role === "user";
+
+  if (isUser) {
+    return (
+      <div className="flex justify-end">
+        <div className="max-w-[85%] whitespace-pre-wrap rounded-2xl rounded-br-md bg-accent/15 px-3.5 py-2 font-mono text-sm leading-relaxed text-ink">
+          {msg.content}
+        </div>
+      </div>
+    );
+  }
+
+  const empty = msg.content.trim().length === 0;
   return (
-    <div className={isUser ? "flex justify-end" : "flex justify-start"}>
-      <div
-        className={
-          isUser
-            ? "max-w-[85%] rounded-2xl rounded-br-sm bg-accent/15 px-3.5 py-2 font-mono text-sm text-ink"
-            : "max-w-[90%] whitespace-pre-wrap rounded-2xl rounded-bl-sm bg-bg px-3.5 py-2 font-mono text-sm leading-relaxed text-ink"
-        }
-      >
-        {msg.content}
-        {streaming && !isUser && (
-          <span className="ml-0.5 inline-block h-3.5 w-1.5 animate-pulse bg-accent align-middle" />
-        )}
+    <div className="flex justify-start">
+      <div className="max-w-[92%] rounded-2xl rounded-bl-md bg-accent2/[0.08] px-4 py-2.5 text-[0.92rem] leading-relaxed text-ink">
+        {empty && streaming ? <TypingDots /> : <AgbebiText text={msg.content} />}
       </div>
     </div>
+  );
+}
+
+/** Renders Agbebi's words warmly: soft paragraphs, tidy bullets, gentle bold —
+ *  and quietly cleans up any stray markdown so it never reads as "AI output". */
+function AgbebiText({ text }: { text: string }) {
+  const blocks = text
+    .replace(/\r/g, "")
+    .split(/\n{2,}/)
+    .map((b) => b.trim())
+    .filter(Boolean);
+
+  return (
+    <div className="space-y-2.5">
+      {blocks.map((block, i) => {
+        const lines = block.split("\n").map((l) => l.trim());
+        const isList = lines.every((l) => /^([-*•]|\d+[.)])\s+/.test(l));
+        if (isList && lines.length > 1) {
+          return (
+            <ul key={i} className="space-y-1">
+              {lines.map((l, j) => (
+                <li key={j} className="flex gap-2">
+                  <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-accent" />
+                  <span>{renderInline(l.replace(/^([-*•]|\d+[.)])\s+/, ""))}</span>
+                </li>
+              ))}
+            </ul>
+          );
+        }
+        return (
+          <p key={i}>
+            {block.split("\n").map((l, j) => (
+              <span key={j}>
+                {renderInline(l.replace(/^([-*•]|\d+[.)])\s+/, "• "))}
+                {j < block.split("\n").length - 1 && <br />}
+              </span>
+            ))}
+          </p>
+        );
+      })}
+    </div>
+  );
+}
+
+/** Turns **bold** into real bold and drops stray emphasis markers. */
+function renderInline(s: string) {
+  const parts = s.split(/\*\*(.+?)\*\*/g);
+  return parts.map((p, i) =>
+    i % 2 === 1 ? (
+      <strong key={i} className="font-medium text-ink">
+        {p}
+      </strong>
+    ) : (
+      <span key={i}>{p.replace(/\*/g, "")}</span>
+    ),
+  );
+}
+
+function TypingDots() {
+  return (
+    <span className="flex items-center gap-1 py-1" aria-label="Agbebi is writing">
+      {[0, 1, 2].map((i) => (
+        <span
+          key={i}
+          className="h-1.5 w-1.5 animate-bounce rounded-full bg-accent2"
+          style={{ animationDelay: `${i * 0.15}s` }}
+        />
+      ))}
+    </span>
   );
 }
 

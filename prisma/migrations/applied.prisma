@@ -23,6 +23,8 @@ model User {
   checkIns    CheckIn[]
   letters     Letter[]
   nudges      Nudge[]
+  encouragements Encouragement[]
+  supportDays SupportDay[]
 
   createdAt DateTime @default(now())
 }
@@ -108,12 +110,14 @@ model Journey {
   babyName  String?
   createdAt DateTime @default(now())
 
-  memberships Membership[]
-  invites     Invite[]
-  checkIns    CheckIn[]
-  letters     Letter[]
-  milestones  Milestone[]
-  nudges      Nudge[]
+  memberships    Membership[]
+  invites        Invite[]
+  checkIns       CheckIn[]
+  letters        Letter[]
+  milestones     Milestone[]
+  nudges         Nudge[]
+  encouragements Encouragement[]
+  supportDays    SupportDay[]
 }
 
 /// Links a User to a Journey with a role.
@@ -198,4 +202,36 @@ model Nudge {
   createdAt DateTime  @default(now())
 
   @@index([journeyId, dueAt])
+}
+
+/// A short word of encouragement or Scripture from one member to another —
+/// the two-way connective tissue between the mother and her supporter.
+model Encouragement {
+  id        String   @id @default(cuid())
+  journeyId String
+  journey   Journey  @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  body      String
+  verseRef  String?
+  createdAt DateTime @default(now())
+
+  @@index([journeyId, createdAt])
+}
+
+/// One row per supporter per day: did they pray for her / reach out today?
+/// Powers the partner's faithfulness streak.
+model SupportDay {
+  id         String   @id @default(cuid())
+  journeyId  String
+  journey    Journey  @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  day        DateTime @db.Date
+  prayed     Boolean  @default(false)
+  reachedOut Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  @@unique([journeyId, userId, day])
+  @@index([journeyId, userId])
 }

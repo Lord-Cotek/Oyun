@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/Card";
 import { OyunMark } from "@/components/ui/OyunMark";
 import { Verse } from "@/components/ui/Verse";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { InstallButton } from "@/components/InstallButton";
 
 export const metadata: Metadata = {
   title: "Walk the whole journey, together",
@@ -61,6 +62,7 @@ export default function Landing() {
             <Button href="/sign-in" variant="ghost">
               I already have an account
             </Button>
+            <InstallButton />
           </div>
         </div>
       </section>

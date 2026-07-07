@@ -3,6 +3,7 @@ import { Playfair_Display, DM_Mono } from "next/font/google";
 import "./globals.css";
 import { AssistantChat } from "@/components/AssistantChat";
 import { Disclaimer } from "@/components/Disclaimer";
+import { PwaRegister } from "@/components/PwaRegister";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -79,6 +80,7 @@ export default function RootLayout({
           <Disclaimer />
         </div>
         <AssistantChat />
+        <PwaRegister />
       </body>
     </html>
   );

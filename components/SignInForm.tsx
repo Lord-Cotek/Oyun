@@ -4,8 +4,14 @@ import { useState } from "react";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 
-export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
-  const [email, setEmail] = useState("");
+export function SignInForm({
+  callbackUrl,
+  initialEmail,
+}: {
+  callbackUrl?: string;
+  initialEmail?: string;
+}) {
+  const [email, setEmail] = useState(initialEmail ?? "");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);

@@ -32,6 +32,22 @@ export default async function Onboarding({
   if (!session?.user?.id) {
     // Preserve the invite token through the sign-in / sign-up round-trip.
     const dest = inviteToken ? `/onboarding?invite=${inviteToken}` : "/onboarding";
+    if (inviteToken) {
+      const pending = await prisma.invite.findUnique({
+        where: { token: inviteToken },
+      });
+      if (pending && !pending.acceptedAt) {
+        // Route a brand-new invitee to sign-up (existing accounts to sign-in),
+        // with their invited email prefilled either way.
+        const existing = await prisma.user.findUnique({
+          where: { email: pending.email },
+        });
+        const base = existing?.passwordHash ? "/sign-in" : "/sign-up";
+        redirect(
+          `${base}?callbackUrl=${encodeURIComponent(dest)}&email=${encodeURIComponent(pending.email)}`,
+        );
+      }
+    }
     redirect(`/sign-in?callbackUrl=${encodeURIComponent(dest)}`);
   }
 
