@@ -13,6 +13,7 @@ import {
   NotificationForm,
   JourneyForm,
 } from "@/components/settings/SettingsForms";
+import { PushToggle } from "@/components/PushToggle";
 
 export const metadata: Metadata = {
   title: "Settings",
@@ -64,6 +65,9 @@ export default async function SettingsPage() {
               notifyByEmail={user.notifyByEmail}
               weeklyDigest={user.weeklyDigest}
             />
+            <div className="mt-6 border-t border-border pt-6">
+              <PushToggle />
+            </div>
           </Card>
 
           {isMother && active && (

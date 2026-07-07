@@ -28,8 +28,52 @@ model User {
   encouragements Encouragement[]
   supportDays SupportDay[]
   notifications Notification[]
+  prayerRequests PrayerRequest[]
+  prayerPrays    PrayerPray[]
+  pushSubscriptions PushSubscription[]
 
   createdAt DateTime @default(now())
+}
+
+/// A specific prayer request the circle can pray against and mark answered.
+model PrayerRequest {
+  id         String       @id @default(cuid())
+  journeyId  String
+  journey    Journey      @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  authorId   String
+  author     User         @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  title      String
+  body       String?
+  answeredAt DateTime?
+  createdAt  DateTime     @default(now())
+  prayers    PrayerPray[]
+
+  @@index([journeyId, createdAt])
+}
+
+/// One row per person who has prayed for a request.
+model PrayerPray {
+  id        String        @id @default(cuid())
+  requestId String
+  request   PrayerRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime      @default(now())
+
+  @@unique([requestId, userId])
+}
+
+/// A Web Push subscription for a user's device.
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+
+  @@index([userId])
 }
 
 /// In-app notification for a user (bell menu). Some also trigger an email.
@@ -138,6 +182,7 @@ model Journey {
   encouragements Encouragement[]
   supportDays    SupportDay[]
   children       Child[]
+  prayerRequests PrayerRequest[]
 }
 
 /// A child profile (0-2 years). One per baby — supports twins and multiples.

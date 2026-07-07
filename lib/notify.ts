@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { sendNotificationEmail } from "@/lib/email";
+import { sendPushToUser } from "@/lib/push";
 
 export type NotificationType =
   | "prayer"
@@ -33,6 +34,13 @@ export async function notify(input: NotifyInput): Promise<void> {
         href: input.href,
       },
     });
+
+    // Push to the user's devices (best-effort; no-op without VAPID keys).
+    await sendPushToUser(input.userId, {
+      title: input.title,
+      body: input.body,
+      href: input.href,
+    }).catch(() => {});
 
     if (input.email) {
       const user = await prisma.user.findUnique({

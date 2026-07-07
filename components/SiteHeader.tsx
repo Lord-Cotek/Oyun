@@ -12,7 +12,7 @@ export async function SiteHeader({
   active,
   showCare = true,
 }: {
-  active?: "journey" | "care" | "circle" | "settings";
+  active?: "journey" | "care" | "circle" | "settings" | "prayer";
   showCare?: boolean;
 }) {
   const session = await auth();
@@ -36,6 +36,7 @@ export async function SiteHeader({
         </Link>
         <nav className="flex items-center gap-1 font-mono text-xs">
           <NavLink href="/journey" label="Journey" current={active === "journey"} />
+          <NavLink href="/prayer" label="Prayer" current={active === "prayer"} />
           {showCare && isMother && (
             <NavLink href="/care" label="Care" current={active === "care"} />
           )}

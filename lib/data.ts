@@ -75,6 +75,31 @@ function utcDay(d: Date): Date {
   return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
 }
 
+/** Prayer requests for a journey, with prayer counts and whether the viewer prayed. */
+export async function getPrayerRequests(journeyId: string, viewerId: string) {
+  const requests = await prisma.prayerRequest.findMany({
+    where: { journeyId },
+    orderBy: [{ createdAt: "desc" }],
+    include: {
+      author: { select: { name: true } },
+      _count: { select: { prayers: true } },
+      prayers: { where: { userId: viewerId }, select: { id: true }, take: 1 },
+    },
+    take: 50,
+  });
+  return requests.map((r) => ({
+    id: r.id,
+    title: r.title,
+    body: r.body,
+    authorId: r.authorId,
+    authorName: r.author.name,
+    answeredAt: r.answeredAt,
+    createdAt: r.createdAt,
+    prayerCount: r._count.prayers,
+    didIPray: r.prayers.length > 0,
+  }));
+}
+
 /** Today's support state plus a faithfulness streak of consecutive prayed days. */
 export async function getSupportSummary(journeyId: string, userId: string) {
   const since = new Date();
