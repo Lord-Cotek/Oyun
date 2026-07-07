@@ -2,7 +2,6 @@ import {
   getLatestMotherCheckIn,
   getOpenNudges,
   getSupportSummary,
-  getEncouragementsForViewer,
 } from "@/lib/data";
 import { dailyAccountabilityPractice } from "@/lib/accountability";
 import { type Stage } from "@/lib/journey";
@@ -14,7 +13,6 @@ import { JourneyProgress } from "@/components/JourneyProgress";
 import { SupportActions } from "@/components/journey/SupportActions";
 import { NudgeList } from "@/components/journey/NudgeList";
 import { EncouragementBox } from "@/components/journey/EncouragementBox";
-import { Encouragements } from "@/components/journey/Encouragements";
 
 const MOOD_TONE_TEXT: Record<string, string> = {
   negative: "text-negative",
@@ -46,11 +44,10 @@ export async function AccountabilityView({
   progress: number;
   born: boolean;
 }) {
-  const [latest, nudges, support, received] = await Promise.all([
+  const [latest, nudges, support] = await Promise.all([
     getLatestMotherCheckIn(journeyId),
     getOpenNudges(journeyId, userId),
     getSupportSummary(journeyId, userId),
-    getEncouragementsForViewer(journeyId, userId),
   ]);
   const mood = latest ? MOOD_META[latest.mood] : null;
   const practice = dailyAccountabilityPractice();
@@ -113,21 +110,6 @@ export async function AccountabilityView({
         </div>
 
         <div className="space-y-4">
-          {received.length > 0 && (
-            <Card className="border-accent2/30 bg-accent2/[0.05]">
-              <Encouragements
-                items={received.map((e) => ({
-                  id: e.id,
-                  body: e.body,
-                  verseRef: e.verseRef,
-                  createdAt: e.createdAt,
-                  authorName: e.author.name,
-                }))}
-                emptyHint=""
-              />
-            </Card>
-          )}
-
           <Card>
             <Eyebrow className="mb-3">Her heart, lately</Eyebrow>
             {mood ? (

@@ -94,6 +94,16 @@ export async function acceptInvite(formData: FormData) {
     redirect("/journey");
   }
 
+  // A journey may only have one husband/partner.
+  if (invite.role === Role.PARTNER) {
+    const existingPartner = await prisma.membership.findFirst({
+      where: { journeyId: invite.journeyId, role: Role.PARTNER },
+    });
+    if (existingPartner) {
+      throw new Error("This journey already has a husband/partner.");
+    }
+  }
+
   if (name) {
     await prisma.user.update({
       where: { id: session.user.id },

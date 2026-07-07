@@ -29,6 +29,31 @@ export async function createInvite(
   }
   const role = roleRaw === "ACCOUNTABILITY" ? Role.ACCOUNTABILITY : Role.PARTNER;
 
+  // A journey has exactly one husband/partner (but any number of accountability
+  // partners). Block a second partner invite when one already exists.
+  if (role === Role.PARTNER) {
+    const [existingPartner, pendingPartner] = await Promise.all([
+      prisma.membership.findFirst({
+        where: { journeyId: active.journey.id, role: Role.PARTNER },
+      }),
+      prisma.invite.findFirst({
+        where: { journeyId: active.journey.id, role: Role.PARTNER, acceptedAt: null },
+      }),
+    ]);
+    if (existingPartner) {
+      return {
+        ok: false,
+        error: "You already have a husband/partner. Remove them first to invite another.",
+      };
+    }
+    if (pendingPartner) {
+      return {
+        ok: false,
+        error: "You already have a pending husband/partner invite. Cancel it first.",
+      };
+    }
+  }
+
   const invite = await prisma.invite.create({
     data: { journeyId: active.journey.id, email, role },
   });

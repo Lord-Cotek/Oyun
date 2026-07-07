@@ -253,11 +253,10 @@ export default async function JourneyPage() {
   }
 
   // ── Husband / Partner view ─────────────────────────────────────────────
-  const [latest, nudges, support, received] = await Promise.all([
+  const [latest, nudges, support] = await Promise.all([
     getLatestMotherCheckIn(journey.id),
     getOpenNudges(journey.id, session.user.id),
     getSupportSummary(journey.id, session.user.id),
-    getEncouragementsForViewer(journey.id, session.user.id),
   ]);
   const motherName = journey.owner.name ?? "her";
   const mood = latest ? MOOD_META[latest.mood] : null;
@@ -319,20 +318,6 @@ export default async function JourneyPage() {
           </div>
 
           <div className="space-y-4">
-            {received.length > 0 && (
-              <Card className="border-accent2/30 bg-accent2/[0.05]">
-                <Encouragements
-                  items={received.map((e) => ({
-                    id: e.id,
-                    body: e.body,
-                    verseRef: e.verseRef,
-                    createdAt: e.createdAt,
-                    authorName: e.author.name,
-                  }))}
-                  emptyHint=""
-                />
-              </Card>
-            )}
             <Card>
               <Eyebrow className="mb-3">Her heart, lately</Eyebrow>
               {mood ? (

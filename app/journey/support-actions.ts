@@ -74,7 +74,7 @@ export async function completeNudge(nudgeId: string) {
   revalidatePath("/journey");
 }
 
-/** Send a short word of encouragement to the rest of the journey. */
+/** A supporter sends a word of encouragement TO the mother (the one carrying the child). */
 export async function sendEncouragement(formData: FormData) {
   const { userId, journeyId } = await requireMember();
   const body = String(formData.get("body") ?? "").trim();
@@ -86,28 +86,24 @@ export async function sendEncouragement(formData: FormData) {
     data: { journeyId, authorId: userId, body, verseRef },
   });
 
-  // Notify the other member(s) — this is an intentional message, so email too.
-  const [others, actor] = await Promise.all([
-    prisma.membership.findMany({
-      where: { journeyId, userId: { not: userId } },
-      select: { userId: true },
-    }),
+  // Encouragements are FOR the mother. Notify only the journey owner (and only
+  // when someone other than her wrote it) — supporters never receive these.
+  const [journey, actor] = await Promise.all([
+    prisma.journey.findUnique({ where: { id: journeyId }, select: { ownerId: true } }),
     prisma.user.findUnique({ where: { id: userId }, select: { name: true } }),
   ]);
-  const who = actor?.name?.trim() || "Someone in your circle";
-  const preview = body.length > 140 ? `${body.slice(0, 140)}…` : body;
-  await Promise.all(
-    others.map((m) =>
-      notify({
-        userId: m.userId,
-        type: "encouragement",
-        title: `${who} sent you a word of encouragement.`,
-        body: preview,
-        href: "/journey",
-        email: true,
-      }),
-    ),
-  );
+  if (journey && journey.ownerId !== userId) {
+    const who = actor?.name?.trim() || "Someone in your circle";
+    const preview = body.length > 140 ? `${body.slice(0, 140)}…` : body;
+    await notify({
+      userId: journey.ownerId,
+      type: "encouragement",
+      title: `${who} sent you a word of encouragement.`,
+      body: preview,
+      href: "/journey",
+      email: true,
+    });
+  }
 
   revalidatePath("/journey");
   revalidatePath("/care");
