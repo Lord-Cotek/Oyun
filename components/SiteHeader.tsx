@@ -9,7 +9,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getActiveMembership } from "@/lib/data";
 
-type ActiveKey = "journey" | "care" | "circle" | "settings" | "prayer";
+type ActiveKey = "journey" | "care" | "circle" | "settings" | "prayer" | "nursery";
 
 export async function SiteHeader({
   active,
@@ -36,6 +36,9 @@ export async function SiteHeader({
     { href: "/prayer", label: "Prayer", current: active === "prayer" },
     ...(showCare && isMother
       ? [{ href: "/care", label: "Care", current: active === "care" }]
+      : []),
+    ...(isMother
+      ? [{ href: "/child", label: "Nursery", current: active === "nursery" }]
       : []),
     ...(isMother
       ? [{ href: "/circle", label: "Circle", current: active === "circle" }]

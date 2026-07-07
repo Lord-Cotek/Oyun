@@ -45,7 +45,7 @@ export default async function ChildPage() {
 
   return (
     <>
-      <SiteHeader active="journey" />
+      <SiteHeader active="nursery" />
       <main className="mx-auto max-w-shell px-6 py-10">
         <div className="animate-fade-up">
           <Eyebrow className="mb-3">The nursery</Eyebrow>

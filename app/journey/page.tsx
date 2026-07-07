@@ -158,21 +158,21 @@ export default async function JourneyPage() {
                   Open Care
                 </Button>
               </Card>
-              {(position.born || journey.babyCount > 1) && (
-                <Card className="border-accent2/30 bg-accent2/[0.05]">
-                  <Eyebrow className="mb-3">The nursery</Eyebrow>
-                  <p className="mb-4 font-mono text-xs leading-relaxed text-muted">
-                    {position.born
-                      ? journey.babyCount > 1
-                        ? "Your little ones have arrived. Give each a profile — name, birthday, a photo."
-                        : "Keep your little one's profile — name, birthday, a photo, and every first."
-                      : "Expecting more than one? Set up a profile for each when they arrive."}
-                  </p>
-                  <Button href="/child" variant="ghost" className="w-full">
-                    Open the nursery
-                  </Button>
-                </Card>
-              )}
+              <Card className="border-accent2/30 bg-accent2/[0.05]">
+                <Eyebrow className="mb-3">The nursery</Eyebrow>
+                <p className="mb-4 font-mono text-xs leading-relaxed text-muted">
+                  {position.born
+                    ? journey.babyCount > 1
+                      ? "Your little ones have arrived. Give each a profile — name, birthday, a photo."
+                      : "Keep your little one's profile — name, birthday, a photo, and every first."
+                    : journey.babyCount > 1
+                      ? `You're expecting ${journey.babyCount}. Add a profile for each — now or when they arrive.`
+                      : "A place for your baby's profile — name, birthday, a photo, and every first. Set it up whenever you like."}
+                </p>
+                <Button href="/child" variant="ghost" className="w-full">
+                  Open the nursery
+                </Button>
+              </Card>
               <Card>
                 <InvitePanel hasSupporter={supporterCount > 0} />
               </Card>

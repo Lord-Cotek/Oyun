@@ -168,15 +168,25 @@ function Toggle({
 export function JourneyForm({
   dueDate,
   babyName,
+  babyCount,
 }: {
   dueDate: string;
   babyName: string;
+  babyCount: number;
 }) {
   const { busy, result, run } = useAction(updateJourney);
   return (
     <form action={run} className="space-y-3">
       <Field label="Due date or birth date">
         <input name="dueDate" type="date" defaultValue={dueDate} required className={inputClass} />
+      </Field>
+      <Field label="How many babies?">
+        <select name="babyCount" defaultValue={String(babyCount)} className={inputClass}>
+          <option value="1">One</option>
+          <option value="2">Twins</option>
+          <option value="3">Triplets</option>
+          <option value="4">More than three</option>
+        </select>
       </Field>
       <Field label="Baby's name (optional)">
         <input name="babyName" defaultValue={babyName} placeholder="If you've chosen one" className={inputClass} />

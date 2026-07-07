@@ -81,13 +81,14 @@ export async function updateJourney(_prev: unknown, formData: FormData): Promise
 
   const dateStr = String(formData.get("dueDate") ?? "").trim();
   const babyName = String(formData.get("babyName") ?? "").trim() || null;
+  const babyCount = Math.min(4, Math.max(1, parseInt(String(formData.get("babyCount") ?? "1"), 10) || 1));
   if (!dateStr) return { ok: false, error: "A due or birth date is required." };
   const dueDate = new Date(dateStr);
   if (Number.isNaN(dueDate.getTime())) return { ok: false, error: "That date isn't valid." };
 
   await prisma.journey.update({
     where: { id: active.journey.id },
-    data: { dueDate, babyName },
+    data: { dueDate, babyName, babyCount },
   });
   revalidatePath("/journey");
   revalidatePath("/settings");

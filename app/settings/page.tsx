@@ -76,6 +76,7 @@ export default async function SettingsPage() {
               <JourneyForm
                 dueDate={toDateInput(active.journey.dueDate)}
                 babyName={active.journey.babyName ?? ""}
+                babyCount={active.journey.babyCount}
               />
             </Card>
           )}
