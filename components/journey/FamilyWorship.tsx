@@ -1,13 +1,21 @@
+import Link from "next/link";
 import { familyWorship } from "@/lib/worship";
 import { Card } from "@/components/ui/Card";
 import { Eyebrow } from "@/components/ui/Eyebrow";
+import { WorshipTracker } from "@/components/journey/WorshipTracker";
 
 /**
- * Today's family-worship rhythm. During pregnancy we show the read-together
- * verse and prayer over the child; once the baby has arrived (`showCatechism`)
- * we add the rotating children's-catechism question.
+ * Today's family-worship rhythm on the journey — a compact preview that links
+ * to the full page. During pregnancy we show the read-together verse and
+ * prayer; once the baby has arrived (`showCatechism`) we add the catechism.
  */
-export function FamilyWorship({ showCatechism = false }: { showCatechism?: boolean }) {
+export function FamilyWorship({
+  showCatechism = false,
+  streak,
+}: {
+  showCatechism?: boolean;
+  streak?: { doneToday: boolean; streak: number; last7: number };
+}) {
   const { liturgy, catechism, catechismNumber } = familyWorship();
   return (
     <Card className="p-8">
@@ -41,6 +49,24 @@ export function FamilyWorship({ showCatechism = false }: { showCatechism?: boole
             </p>
           </div>
         )}
+      </div>
+
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-4 border-t border-border pt-5">
+        {streak ? (
+          <WorshipTracker
+            doneToday={streak.doneToday}
+            streak={streak.streak}
+            last7={streak.last7}
+          />
+        ) : (
+          <span />
+        )}
+        <Link
+          href="/worship"
+          className="font-mono text-xs text-accent hover:underline"
+        >
+          Open family worship &rarr;
+        </Link>
       </div>
     </Card>
   );

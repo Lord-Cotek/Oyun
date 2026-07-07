@@ -206,6 +206,19 @@ model Journey {
   children       Child[]
   prayerRequests PrayerRequest[]
   remembrances   Remembrance[]
+  worshipDays    WorshipDay[]
+}
+
+/// One row per day the household kept family worship — a shared streak.
+model WorshipDay {
+  id        String   @id @default(cuid())
+  journeyId String
+  journey   Journey  @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  day       DateTime @db.Date
+  createdAt DateTime @default(now())
+
+  @@unique([journeyId, day])
+  @@index([journeyId])
 }
 
 /// A child profile (0-2 years). One per baby — supports twins and multiples.

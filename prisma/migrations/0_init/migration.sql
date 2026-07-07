@@ -146,6 +146,16 @@ CREATE TABLE "Journey" (
 );
 
 -- CreateTable
+CREATE TABLE "WorshipDay" (
+    "id" TEXT NOT NULL,
+    "journeyId" TEXT NOT NULL,
+    "day" DATE NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "WorshipDay_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "Child" (
     "id" TEXT NOT NULL,
     "journeyId" TEXT NOT NULL,
@@ -300,6 +310,12 @@ CREATE UNIQUE INDEX "PasswordResetToken_token_key" ON "PasswordResetToken"("toke
 CREATE INDEX "PasswordResetToken_email_idx" ON "PasswordResetToken"("email");
 
 -- CreateIndex
+CREATE INDEX "WorshipDay_journeyId_idx" ON "WorshipDay"("journeyId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "WorshipDay_journeyId_day_key" ON "WorshipDay"("journeyId", "day");
+
+-- CreateIndex
 CREATE INDEX "Child_journeyId_idx" ON "Child"("journeyId");
 
 -- CreateIndex
@@ -364,6 +380,9 @@ ALTER TABLE "Session" ADD CONSTRAINT "Session_userId_fkey" FOREIGN KEY ("userId"
 
 -- AddForeignKey
 ALTER TABLE "Journey" ADD CONSTRAINT "Journey_ownerId_fkey" FOREIGN KEY ("ownerId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "WorshipDay" ADD CONSTRAINT "WorshipDay_journeyId_fkey" FOREIGN KEY ("journeyId") REFERENCES "Journey"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Child" ADD CONSTRAINT "Child_journeyId_fkey" FOREIGN KEY ("journeyId") REFERENCES "Journey"("id") ON DELETE CASCADE ON UPDATE CASCADE;

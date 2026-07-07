@@ -9,7 +9,14 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getActiveMembership } from "@/lib/data";
 
-type ActiveKey = "journey" | "care" | "circle" | "settings" | "prayer" | "nursery";
+type ActiveKey =
+  | "journey"
+  | "care"
+  | "circle"
+  | "settings"
+  | "prayer"
+  | "nursery"
+  | "worship";
 
 export async function SiteHeader({
   active,
@@ -36,6 +43,9 @@ export async function SiteHeader({
   const links: { href: string; label: string; current: boolean }[] = [
     { href: "/journey", label: "Journey", current: active === "journey" },
     { href: "/prayer", label: "Prayer", current: active === "prayer" },
+    ...(!inLoss
+      ? [{ href: "/worship", label: "Worship", current: active === "worship" }]
+      : []),
     ...(showCare && isMother && !inLoss
       ? [{ href: "/care", label: "Care", current: active === "care" }]
       : []),
@@ -57,8 +67,8 @@ export async function SiteHeader({
         </Link>
 
         <div className="flex items-center gap-1">
-          {/* Inline nav — desktop / tablet only */}
-          <nav className="hidden items-center gap-1 font-mono text-xs md:flex">
+          {/* Inline nav — larger screens only */}
+          <nav className="hidden items-center gap-1 font-mono text-xs lg:flex">
             {links.map((l) => (
               <NavLink key={l.href} {...l} />
             ))}

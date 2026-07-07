@@ -9,6 +9,7 @@ import {
   getOpenNudges,
   getEncouragementsForViewer,
   getSupportSummary,
+  getWorshipStreak,
 } from "@/lib/data";
 import { computePosition } from "@/lib/stage";
 import { MOOD_META } from "@/lib/moods";
@@ -82,6 +83,7 @@ export default async function JourneyPage() {
 
   const position = computePosition(journey.dueDate);
   const { stage } = position;
+  const worship = await getWorshipStreak(journey.id);
 
   const stageLabel = position.born
     ? `Month ${position.month}`
@@ -224,7 +226,7 @@ export default async function JourneyPage() {
           </div>
 
           <div className="mt-4">
-            <FamilyWorship showCatechism={position.born} />
+            <FamilyWorship showCatechism={position.born} streak={worship} />
           </div>
         </main>
       </>
@@ -347,7 +349,7 @@ export default async function JourneyPage() {
         </div>
 
         <div className="mt-4">
-          <FamilyWorship showCatechism={position.born} />
+          <FamilyWorship showCatechism={position.born} streak={worship} />
         </div>
       </main>
     </>

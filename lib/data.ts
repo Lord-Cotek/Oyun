@@ -100,6 +100,37 @@ export async function getPrayerRequests(journeyId: string, viewerId: string) {
   }));
 }
 
+/** The household's family-worship streak (journey-level, shared by both parents). */
+export async function getWorshipStreak(journeyId: string) {
+  const since = new Date();
+  since.setUTCDate(since.getUTCDate() - 60);
+  const days = await prisma.worshipDay.findMany({
+    where: { journeyId, day: { gte: utcDay(since) } },
+    orderBy: { day: "desc" },
+  });
+
+  const today = utcDay(new Date());
+  const set = new Set(days.map((d) => d.day.getTime()));
+  const doneToday = set.has(today.getTime());
+
+  let streak = 0;
+  const cursor = new Date(today);
+  if (!doneToday) cursor.setUTCDate(cursor.getUTCDate() - 1);
+  while (set.has(cursor.getTime())) {
+    streak += 1;
+    cursor.setUTCDate(cursor.getUTCDate() - 1);
+  }
+
+  let last7 = 0;
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(today);
+    d.setUTCDate(d.getUTCDate() - i);
+    if (set.has(d.getTime())) last7 += 1;
+  }
+
+  return { doneToday, streak, last7 };
+}
+
 /** Today's support state plus a faithfulness streak of consecutive prayed days. */
 export async function getSupportSummary(journeyId: string, userId: string) {
   const since = new Date();
