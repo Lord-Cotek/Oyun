@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { getActiveMembership } from "@/lib/data";
+import { uploadMilestonePhoto } from "@/lib/blob";
 import { Mood, MilestoneKind } from "@prisma/client";
 
 async function requireMother() {
@@ -49,8 +50,10 @@ export async function addMilestone(formData: FormData) {
   const occurredAt = dateStr ? new Date(dateStr) : new Date();
   if (Number.isNaN(occurredAt.getTime())) throw new Error("That date isn't valid.");
 
+  const photoUrl = await uploadMilestonePhoto(formData.get("photo"));
+
   await prisma.milestone.create({
-    data: { journeyId, kind: kindRaw as MilestoneKind, note, occurredAt },
+    data: { journeyId, kind: kindRaw as MilestoneKind, note, occurredAt, photoUrl },
   });
   revalidatePath("/care");
   revalidatePath("/journey");

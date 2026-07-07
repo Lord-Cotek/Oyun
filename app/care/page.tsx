@@ -148,6 +148,15 @@ export default async function CarePage() {
                           year: "numeric",
                         })}
                       </p>
+                      {m.photoUrl && (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={m.photoUrl}
+                          alt={`${KIND_LABEL[m.kind] ?? "A first"} — photo`}
+                          className="mt-2 max-h-48 w-auto rounded-lg border border-border object-cover"
+                          loading="lazy"
+                        />
+                      )}
                     </li>
                   ))}
                 </ol>

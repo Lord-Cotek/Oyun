@@ -56,6 +56,15 @@ export function MilestoneForm() {
         placeholder="A note to remember it by (optional)"
         className="w-full rounded-lg border border-border bg-bg px-3.5 py-2.5 font-mono text-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none"
       />
+      <label className="block">
+        <span className="eyebrow mb-1.5 block text-muted">Photo (optional)</span>
+        <input
+          type="file"
+          name="photo"
+          accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
+          className="w-full font-mono text-xs text-muted file:mr-3 file:rounded-md file:border file:border-border file:bg-bg file:px-3 file:py-1.5 file:font-mono file:text-xs file:text-ink hover:file:border-accent hover:file:text-accent"
+        />
+      </label>
       <Submit />
     </form>
   );

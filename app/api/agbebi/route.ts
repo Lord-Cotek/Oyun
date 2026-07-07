@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { anthropic, modelFor } from "@/lib/anthropic";
+import { anthropic, modelChain, isModelError } from "@/lib/anthropic";
 import { buildAgbebiSystem } from "@/lib/agbebi";
 import { auth } from "@/lib/auth";
 import { getActiveMembership } from "@/lib/data";
@@ -58,28 +58,45 @@ export async function POST(req: Request) {
   const encoder = new TextEncoder();
   const stream = new ReadableStream<Uint8Array>({
     async start(controller) {
-      try {
-        const anthropicStream = anthropic.messages.stream({
-          model: modelFor("default"),
-          max_tokens: 1024,
-          system,
-          messages,
-        });
+      const models = modelChain("default");
+      let started = false;
+      let lastErr: unknown = null;
 
-        anthropicStream.on("text", (text) => {
-          controller.enqueue(encoder.encode(text));
-        });
+      // Walk the model chain: if a model id is misconfigured (404 / not_found),
+      // fall through to a known-good model so the user still gets a reply.
+      // Once tokens have started streaming we never switch — no double output.
+      for (const model of models) {
+        try {
+          const anthropicStream = anthropic.messages.stream({
+            model,
+            max_tokens: 1024,
+            system,
+            messages,
+          });
 
-        await anthropicStream.finalMessage();
-        controller.close();
-      } catch (err) {
+          anthropicStream.on("text", (text) => {
+            started = true;
+            controller.enqueue(encoder.encode(text));
+          });
+
+          await anthropicStream.finalMessage();
+          lastErr = null;
+          break;
+        } catch (err) {
+          lastErr = err;
+          if (started || !isModelError(err)) break;
+          // else: try the next model in the chain
+        }
+      }
+
+      if (lastErr && !started) {
         const message =
-          err instanceof Error ? err.message : "Agbebi is unavailable right now.";
+          lastErr instanceof Error ? lastErr.message : "Agbebi is unavailable right now.";
         controller.enqueue(
           encoder.encode(`\n\n[Agbebi could not respond: ${message}]`),
         );
-        controller.close();
       }
+      controller.close();
     },
   });
 
