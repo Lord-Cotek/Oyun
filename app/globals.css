@@ -59,6 +59,13 @@
     text-rendering: optimizeLegibility;
   }
 
+  html,
+  body {
+    /* Never allow a stray wide element to make the whole page scroll sideways. */
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
   body {
     background-color: var(--bg);
     color: var(--ink);
@@ -95,6 +102,25 @@
 }
 
 @layer components {
+  /* Respect device safe areas (notch / home indicator) in standalone PWA. */
+  .safe-top {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  /* Mobile menu sits just below the (safe-area-aware) 64px header. */
+  .app-menu-top {
+    top: calc(env(safe-area-inset-top, 0px) + 64px);
+  }
+  /* Floating controls, lifted above the iOS home indicator. */
+  .fab-bottom {
+    bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
+  }
+  .fab-panel-bottom {
+    bottom: calc(6.25rem + env(safe-area-inset-bottom, 0px));
+  }
+
   /* The signature COTEK section marker */
   .eyebrow {
     font-family: var(--font-dm-mono), "DM Mono", ui-monospace, monospace;

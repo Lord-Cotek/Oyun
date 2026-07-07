@@ -93,7 +93,7 @@ export function AssistantChat() {
         aria-label={open ? "Close Agbebi" : "Open Agbebi"}
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
-        className="fixed bottom-5 right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full border border-border bg-surface text-ink shadow-lg transition-colors hover:border-accent"
+        className="fab-bottom fixed right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full border border-border bg-surface text-ink shadow-lg transition-colors hover:border-accent"
       >
         <OyunMark size={30} title="Agbebi" className={open ? "opacity-70" : "animate-breathe"} />
       </button>
@@ -102,7 +102,7 @@ export function AssistantChat() {
         <section
           role="dialog"
           aria-label="Agbebi, your companion"
-          className="fixed bottom-24 right-5 z-40 flex h-[min(32rem,75dvh)] w-[min(24rem,calc(100vw-2.5rem))] flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-2xl animate-fade-up"
+          className="fab-panel-bottom fixed right-5 z-40 flex h-[min(32rem,70dvh)] w-[min(24rem,calc(100vw-2.5rem))] flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-2xl animate-fade-up"
         >
           <header className="flex items-center gap-3 border-b border-border px-4 py-3">
             <OyunMark size={26} title="Agbebi" />
