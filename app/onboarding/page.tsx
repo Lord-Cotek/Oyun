@@ -1,0 +1,178 @@
+import type { Metadata } from "next";
+import { redirect } from "next/navigation";
+import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import { getActiveMembership } from "@/lib/data";
+import { Eyebrow } from "@/components/ui/Eyebrow";
+import { OyunMark } from "@/components/ui/OyunMark";
+import { createJourney, acceptInvite } from "./actions";
+
+export const metadata: Metadata = {
+  title: "Begin",
+  description: "Set up your journey.",
+  robots: { index: false },
+};
+
+const ROLE_LABEL: Record<string, string> = {
+  MOTHER: "Mother",
+  PARTNER: "Husband / Partner",
+  ACCOUNTABILITY: "Accountability partner",
+};
+
+export default async function Onboarding({
+  searchParams,
+}: {
+  searchParams: { invite?: string };
+}) {
+  const session = await auth();
+  if (!session?.user?.id) redirect("/sign-in?callbackUrl=/onboarding");
+
+  // Already set up? Go to the dashboard.
+  const active = await getActiveMembership(session.user.id);
+  if (active) redirect("/journey");
+
+  const inviteToken = searchParams.invite?.trim();
+  const invite = inviteToken
+    ? await prisma.invite.findUnique({
+        where: { token: inviteToken },
+        include: {
+          journey: {
+            include: { owner: { select: { name: true, email: true } } },
+          },
+        },
+      })
+    : null;
+
+  return (
+    <main className="mx-auto flex min-h-[86dvh] max-w-shell items-center justify-center px-6 py-16">
+      <div className="w-full max-w-lg animate-fade-up">
+        <div className="mb-8 flex items-center gap-3">
+          <OyunMark size={40} className="text-ink" />
+          <span className="font-serif text-xl text-ink">Oyun</span>
+        </div>
+
+        {invite && !invite.acceptedAt ? (
+          <div className="rounded-2xl border border-border bg-surface p-8">
+            <Eyebrow className="mb-4">You&rsquo;ve been invited</Eyebrow>
+            <h1 className="font-serif text-3xl leading-snug text-ink">
+              Walk with{" "}
+              {invite.journey.owner.name ?? invite.journey.owner.email ?? "her"}.
+            </h1>
+            <p className="mt-3 font-mono text-sm leading-relaxed text-muted">
+              You&rsquo;re joining as{" "}
+              <span className="text-accent">{ROLE_LABEL[invite.role]}</span>. Your
+              part is to support and pray — Oyun will show you how, right where
+              she is each week.
+            </p>
+            <form action={acceptInvite} className="mt-6 space-y-4">
+              <input type="hidden" name="token" value={invite.token} />
+              <Field
+                label="Your name"
+                name="name"
+                placeholder="How she knows you"
+                defaultValue={session.user.name ?? ""}
+              />
+              <button
+                type="submit"
+                className="w-full rounded-lg bg-accent px-5 py-3 font-mono text-sm font-medium text-[#0B0E14] transition-colors hover:bg-accent-deep hover:text-ink"
+              >
+                Accept &amp; begin
+              </button>
+            </form>
+          </div>
+        ) : invite && invite.acceptedAt ? (
+          <div className="rounded-2xl border border-border bg-surface p-8">
+            <Eyebrow className="mb-4">Already accepted</Eyebrow>
+            <h1 className="font-serif text-2xl text-ink">
+              This invite has already been used.
+            </h1>
+            <p className="mt-3 font-mono text-sm text-muted">
+              If that was you, just sign in to reach the journey.
+            </p>
+          </div>
+        ) : (
+          <div className="rounded-2xl border border-border bg-surface p-8">
+            <Eyebrow className="mb-4">Begin your journey</Eyebrow>
+            <h1 className="font-serif text-3xl leading-snug text-ink">
+              Tell Agbebi where you are.
+            </h1>
+            <p className="mt-3 font-mono text-sm leading-relaxed text-muted">
+              Set your due date — or, if your little one has already arrived,
+              their birth date. Oyun will meet you at the right stage.
+            </p>
+
+            <form action={createJourney} className="mt-6 space-y-4">
+              <Field
+                label="Your name"
+                name="name"
+                placeholder="What Agbebi should call you"
+                defaultValue={session.user.name ?? ""}
+              />
+              <Field
+                label="Due date or birth date"
+                name="dueDate"
+                type="date"
+                required
+              />
+              <Field
+                label="Baby's name (optional)"
+                name="babyName"
+                placeholder="If you've chosen one"
+              />
+
+              <label className="flex items-start gap-2 pt-1">
+                <input
+                  type="checkbox"
+                  required
+                  className="mt-0.5 h-4 w-4 accent-[color:var(--accent)]"
+                />
+                <span className="font-mono text-[0.7rem] leading-relaxed text-muted">
+                  I understand Oyun and Agbebi offer spiritual companionship and
+                  encouragement — not medical advice — and I&rsquo;ll consult my
+                  doctor or midwife for health decisions.
+                </span>
+              </label>
+
+              <button
+                type="submit"
+                className="w-full rounded-lg bg-accent px-5 py-3 font-mono text-sm font-medium text-[#0B0E14] transition-colors hover:bg-accent-deep hover:text-ink"
+              >
+                Start the journey
+              </button>
+            </form>
+          </div>
+        )}
+      </div>
+    </main>
+  );
+}
+
+function Field({
+  label,
+  name,
+  type = "text",
+  placeholder,
+  required,
+  defaultValue,
+}: {
+  label: string;
+  name: string;
+  type?: string;
+  placeholder?: string;
+  required?: boolean;
+  defaultValue?: string;
+}) {
+  return (
+    <label className="block">
+      <span className="eyebrow mb-2 block text-muted">{label}</span>
+      <input
+        type={type}
+        name={name}
+        placeholder={placeholder}
+        required={required}
+        defaultValue={defaultValue}
+        className="w-full rounded-lg border border-border bg-bg px-4 py-3 font-mono text-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none [color-scheme:dark]"
+      />
+    </label>
+  );
+}

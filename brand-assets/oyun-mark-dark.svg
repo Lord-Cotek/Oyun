@@ -1,0 +1,8 @@
+<svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Oyun">
+  <g transform="translate(60,60)">
+    <path d="M 0 -46 C 42 -46 56 -6 56 12 C 56 40 33 52 0 52 C -33 52 -56 40 -56 12 C -56 -6 -42 -46 0 -46"
+          fill="none" stroke="#ECE8DE" stroke-width="6" stroke-linecap="round"/>
+    <path d="M -3 -20 C 22 -18 30 8 18 28 C 11 40 -7 43 -17 33 C -26 24 -22 10 -10 10 C -3 10 -1 -4 -3 -20 Z"
+          fill="#E6A94E"/>
+  </g>
+</svg>
