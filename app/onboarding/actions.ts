@@ -66,6 +66,34 @@ export async function acceptInvite(formData: FormData) {
   if (!invite) throw new Error("This invite could not be found.");
   if (invite.acceptedAt) throw new Error("This invite has already been used.");
 
+  const me = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { email: true, name: true },
+  });
+
+  // Guard 1: the journey owner can never accept an invite to their own journey.
+  if (invite.journey.owner.id === session.user.id) {
+    throw new Error("You own this journey — you don't need an invitation to it.");
+  }
+  // Guard 2: only the person the invite was addressed to may accept it. This
+  // stops a signed-in user (e.g. the mother) accepting someone else's invite.
+  if (!me?.email || me.email.toLowerCase() !== invite.email.toLowerCase()) {
+    throw new Error(
+      `This invitation was sent to ${invite.email}. Please sign in with that email to accept it.`,
+    );
+  }
+  // Guard 3: never overwrite an existing role (especially not a MOTHER).
+  const existingMembership = await prisma.membership.findUnique({
+    where: {
+      journeyId_userId: { journeyId: invite.journeyId, userId: session.user.id },
+    },
+  });
+  if (existingMembership) {
+    // Already a member — just mark the invite used, don't change their role.
+    await prisma.invite.update({ where: { token }, data: { acceptedAt: new Date() } });
+    redirect("/journey");
+  }
+
   if (name) {
     await prisma.user.update({
       where: { id: session.user.id },

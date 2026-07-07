@@ -66,6 +66,18 @@ export default async function Onboarding({
   // belong to another journey. Otherwise, if they're already set up, move on.
   const active = await getActiveMembership(session.user.id);
   const hasPendingInvite = !!invite && !invite.acceptedAt;
+
+  // The signed-in account must match the invited email — otherwise the wrong
+  // person (e.g. the mother herself) could attach the invite to their account.
+  const me = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { email: true },
+  });
+  const wrongAccount =
+    hasPendingInvite &&
+    !!invite &&
+    me?.email?.toLowerCase() !== invite.email.toLowerCase();
+
   if (!hasPendingInvite && active) redirect("/journey");
 
   // A token was supplied but doesn't match any invite.
@@ -80,7 +92,25 @@ export default async function Onboarding({
           <span className="font-serif text-xl text-ink">Oyun</span>
         </div>
 
-        {invite && !invite.acceptedAt ? (
+        {wrongAccount && invite ? (
+          <div className="rounded-2xl border border-border bg-surface p-8">
+            <Eyebrow className="mb-4 text-accent2">Wrong account</Eyebrow>
+            <h1 className="font-serif text-2xl leading-snug text-ink">
+              This invitation was sent to {invite.email}.
+            </h1>
+            <p className="mt-3 font-mono text-sm leading-relaxed text-muted">
+              You&rsquo;re signed in with a different account. Sign out, then sign in
+              (or create an account) using <span className="text-ink">{invite.email}</span>{" "}
+              to accept this invitation.
+            </p>
+            <Link
+              href="/settings"
+              className="mt-6 inline-block font-mono text-xs text-accent underline underline-offset-4"
+            >
+              Go to settings to sign out
+            </Link>
+          </div>
+        ) : hasPendingInvite && invite ? (
           <div className="rounded-2xl border border-border bg-surface p-8">
             <Eyebrow className="mb-4">You&rsquo;ve been invited</Eyebrow>
             <h1 className="font-serif text-3xl leading-snug text-ink">
