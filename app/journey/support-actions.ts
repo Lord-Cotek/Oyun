@@ -25,12 +25,14 @@ async function requireMember() {
 export async function markSupport(kind: "prayed" | "reachedOut") {
   const { userId, journeyId } = await requireMember();
   const day = utcToday();
-  const flag = kind === "prayed" ? { prayed: true } : { reachedOut: true };
 
   const existing = await prisma.supportDay.findUnique({
     where: { journeyId_userId_day: { journeyId, userId, day } },
   });
   const alreadyDone = kind === "prayed" ? existing?.prayed : existing?.reachedOut;
+  // Toggle: tapping an already-marked action clears it (fixes accidental taps).
+  const next = !alreadyDone;
+  const flag = kind === "prayed" ? { prayed: next } : { reachedOut: next };
 
   await prisma.supportDay.upsert({
     where: { journeyId_userId_day: { journeyId, userId, day } },
@@ -38,8 +40,8 @@ export async function markSupport(kind: "prayed" | "reachedOut") {
     update: flag,
   });
 
-  // Notify her once per day per kind — never on repeat taps.
-  if (!alreadyDone) {
+  // Notify her only when turning an action ON — never on toggling off.
+  if (next) {
     const [journey, actor] = await Promise.all([
       prisma.journey.findUnique({ where: { id: journeyId }, select: { ownerId: true } }),
       prisma.user.findUnique({ where: { id: userId }, select: { name: true } }),

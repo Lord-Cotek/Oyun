@@ -74,12 +74,13 @@ function ActionButton({
     <button
       type="button"
       onClick={onClick}
-      disabled={disabled || done}
+      disabled={disabled}
       aria-pressed={done}
-      className={`flex items-center justify-center gap-2 rounded-lg border px-3 py-2.5 font-mono text-xs transition-colors ${
+      title={done ? "Tap to undo" : undefined}
+      className={`flex items-center justify-center gap-2 rounded-lg border px-3 py-2.5 font-mono text-xs transition-colors disabled:opacity-50 ${
         done
           ? "border-accent/50 bg-accent/10 text-accent"
-          : "border-border text-ink hover:border-accent hover:text-accent disabled:opacity-50"
+          : "border-border text-ink hover:border-accent hover:text-accent"
       }`}
     >
       {done ? (

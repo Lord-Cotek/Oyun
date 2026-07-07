@@ -18,12 +18,13 @@ export function WorshipTracker({
     <div className="flex flex-wrap items-center gap-4">
       <button
         type="button"
-        disabled={pending || doneToday}
+        disabled={pending}
         onClick={() => start(() => markWorship())}
-        className={`flex items-center gap-2 rounded-lg border px-4 py-2 font-mono text-xs transition-colors ${
+        title={doneToday ? "Tap to undo" : undefined}
+        className={`flex items-center gap-2 rounded-lg border px-4 py-2 font-mono text-xs transition-colors disabled:opacity-50 ${
           doneToday
             ? "border-accent/50 bg-accent/10 text-accent"
-            : "border-border text-ink hover:border-accent hover:text-accent disabled:opacity-50"
+            : "border-border text-ink hover:border-accent hover:text-accent"
         }`}
       >
         {doneToday ? (
