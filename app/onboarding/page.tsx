@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { getActiveMembership } from "@/lib/data";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { OyunMark } from "@/components/ui/OyunMark";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { createJourney, acceptInvite } from "./actions";
 
 export const metadata: Metadata = {
@@ -45,6 +46,7 @@ export default async function Onboarding({
 
   return (
     <main className="mx-auto flex min-h-[86dvh] max-w-shell items-center justify-center px-6 py-16">
+      <ThemeToggle className="fixed right-5 top-5 z-30" />
       <div className="w-full max-w-lg animate-fade-up">
         <div className="mb-8 flex items-center gap-3">
           <OyunMark size={40} className="text-ink" />
@@ -74,7 +76,7 @@ export default async function Onboarding({
               />
               <button
                 type="submit"
-                className="w-full rounded-lg bg-accent px-5 py-3 font-mono text-sm font-medium text-[#0B0E14] transition-colors hover:bg-accent-deep hover:text-ink"
+                className="w-full rounded-lg bg-accent px-5 py-3 font-mono text-sm font-medium text-on-accent transition-colors hover:bg-accent-deep"
               >
                 Accept &amp; begin
               </button>
@@ -135,7 +137,7 @@ export default async function Onboarding({
 
               <button
                 type="submit"
-                className="w-full rounded-lg bg-accent px-5 py-3 font-mono text-sm font-medium text-[#0B0E14] transition-colors hover:bg-accent-deep hover:text-ink"
+                className="w-full rounded-lg bg-accent px-5 py-3 font-mono text-sm font-medium text-on-accent transition-colors hover:bg-accent-deep"
               >
                 Start the journey
               </button>
@@ -171,7 +173,7 @@ function Field({
         placeholder={placeholder}
         required={required}
         defaultValue={defaultValue}
-        className="w-full rounded-lg border border-border bg-bg px-4 py-3 font-mono text-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none [color-scheme:dark]"
+        className="w-full rounded-lg border border-border bg-bg px-4 py-3 font-mono text-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none"
       />
     </label>
   );

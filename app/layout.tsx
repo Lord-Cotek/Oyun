@@ -50,9 +50,14 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0B0E14",
-  colorScheme: "dark",
+  themeColor: [
+    { media: "(prefers-color-scheme: dark)", color: "#0B0E14" },
+    { media: "(prefers-color-scheme: light)", color: "#F4F1EA" },
+  ],
 };
+
+// Set the theme before first paint to avoid a flash of the wrong theme.
+const themeInit = `(function(){try{var t=localStorage.getItem('oyun-theme');if(t!=='light'&&t!=='dark'){t=window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';}document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();`;
 
 export default function RootLayout({
   children,
@@ -60,7 +65,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${playfair.variable} ${dmMono.variable}`}>
+    <html
+      lang="en"
+      className={`${playfair.variable} ${dmMono.variable}`}
+      suppressHydrationWarning
+    >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInit }} />
+      </head>
       <body className="grain">
         <div className="relative z-10 flex min-h-dvh flex-col">
           <div className="flex-1">{children}</div>

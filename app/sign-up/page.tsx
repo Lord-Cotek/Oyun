@@ -4,16 +4,16 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { OyunMark } from "@/components/ui/OyunMark";
-import { SignInForm } from "@/components/SignInForm";
+import { SignUpForm } from "@/components/SignUpForm";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
 export const metadata: Metadata = {
-  title: "Sign in",
-  description: "Enter Oyun.",
+  title: "Create your account",
+  description: "Begin your journey with Oyun.",
   robots: { index: false },
 };
 
-export default async function SignInPage({
+export default async function SignUpPage({
   searchParams,
 }: {
   searchParams: { callbackUrl?: string };
@@ -31,14 +31,16 @@ export default async function SignInPage({
         </Link>
 
         <div className="rounded-2xl border border-border bg-surface p-8">
-          <Eyebrow className="mb-4">Enter Oyun</Eyebrow>
+          <Eyebrow className="mb-4">Begin the journey</Eyebrow>
           <h1 className="font-serif text-3xl leading-snug text-ink">
-            Welcome back.
+            Create your account.
           </h1>
           <p className="mt-3 font-mono text-sm leading-relaxed text-muted">
-            Sign in with your email and password to continue your journey.
+            We&rsquo;ll send you a warm welcome, then set you where you are on the
+            journey. No account is ever a promise of outcome — only a companion
+            for the road.
           </p>
-          <SignInForm callbackUrl={searchParams.callbackUrl} />
+          <SignUpForm callbackUrl={searchParams.callbackUrl} />
         </div>
 
         <p className="mt-6 max-w-md font-mono text-[0.68rem] leading-relaxed text-muted">

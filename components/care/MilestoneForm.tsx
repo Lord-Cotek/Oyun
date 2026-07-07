@@ -46,7 +46,7 @@ export function MilestoneForm() {
           <input
             type="date"
             name="occurredAt"
-            className="w-full rounded-lg border border-border bg-bg px-3 py-2.5 font-mono text-sm text-ink focus:border-accent focus:outline-none [color-scheme:dark]"
+            className="w-full rounded-lg border border-border bg-bg px-3 py-2.5 font-mono text-sm text-ink focus:border-accent focus:outline-none"
           />
         </label>
       </div>
@@ -76,7 +76,7 @@ function Submit() {
     <button
       type="submit"
       disabled={pending}
-      className="rounded-lg bg-accent px-4 py-2 font-mono text-sm font-medium text-[#0B0E14] transition-colors hover:bg-accent-deep hover:text-ink disabled:opacity-50"
+      className="rounded-lg bg-accent px-4 py-2 font-mono text-sm font-medium text-on-accent transition-colors hover:bg-accent-deep disabled:opacity-50"
     >
       {pending ? "Remembering…" : "Remember this first"}
     </button>

@@ -17,6 +17,7 @@ const config: Config = {
         muted: "var(--muted)",
         accent: "var(--accent)",
         "accent-deep": "var(--accent-deep)",
+        "on-accent": "var(--on-accent)",
         positive: "var(--positive)",
         negative: "var(--negative)",
         accent2: "var(--accent2)",

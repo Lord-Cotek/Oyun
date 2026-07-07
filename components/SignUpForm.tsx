@@ -3,8 +3,10 @@
 import { useState } from "react";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
+import { registerUser } from "@/app/sign-up/actions";
 
-export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
+export function SignUpForm({ callbackUrl }: { callbackUrl?: string }) {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
@@ -12,34 +14,54 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!email.trim() || !password || busy) return;
+    if (busy) return;
     setBusy(true);
     setError(null);
-    try {
-      const res = await signIn("credentials", {
-        email: email.trim(),
-        password,
-        redirect: false,
-        callbackUrl: callbackUrl ?? "/journey",
-      });
-      if (res?.error) {
-        setError("That email or password doesn't match. Please try again.");
-        setBusy(false);
-      } else {
-        window.location.href = res?.url ?? callbackUrl ?? "/journey";
-      }
-    } catch {
-      setError("Something went wrong. Please try again.");
+
+    const fd = new FormData();
+    fd.set("name", name);
+    fd.set("email", email);
+    fd.set("password", password);
+
+    const res = await registerUser(null, fd);
+    if (!res.ok) {
+      setError(res.error ?? "We couldn't create your account.");
       setBusy(false);
+      return;
     }
+
+    // Account created + welcome email sent — sign them straight in.
+    const signInRes = await signIn("credentials", {
+      email: email.trim(),
+      password,
+      redirect: false,
+      callbackUrl: callbackUrl ?? "/onboarding",
+    });
+    if (signInRes?.error) {
+      // Account exists; send them to sign in manually.
+      window.location.href = "/sign-in";
+      return;
+    }
+    window.location.href = signInRes?.url ?? callbackUrl ?? "/onboarding";
   }
 
-  const signUpHref = callbackUrl
-    ? `/sign-up?callbackUrl=${encodeURIComponent(callbackUrl)}`
-    : "/sign-up";
+  const signInHref = callbackUrl
+    ? `/sign-in?callbackUrl=${encodeURIComponent(callbackUrl)}`
+    : "/sign-in";
 
   return (
     <form onSubmit={onSubmit} className="mt-6 space-y-3">
+      <label className="block">
+        <span className="eyebrow mb-2 block text-muted">Your name</span>
+        <input
+          type="text"
+          autoComplete="name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="What Agbebi should call you"
+          className="w-full rounded-lg border border-border bg-bg px-4 py-3 font-mono text-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none"
+        />
+      </label>
       <label className="block">
         <span className="eyebrow mb-2 block text-muted">Email</span>
         <input
@@ -57,10 +79,11 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
         <input
           type="password"
           required
-          autoComplete="current-password"
+          autoComplete="new-password"
+          minLength={8}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder="Your password"
+          placeholder="At least 8 characters"
           className="w-full rounded-lg border border-border bg-bg px-4 py-3 font-mono text-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none"
         />
       </label>
@@ -70,12 +93,12 @@ export function SignInForm({ callbackUrl }: { callbackUrl?: string }) {
         disabled={busy}
         className="w-full rounded-lg bg-accent px-5 py-3 font-mono text-sm font-medium text-on-accent transition-colors hover:bg-accent-deep disabled:opacity-50"
       >
-        {busy ? "Signing in…" : "Sign in"}
+        {busy ? "Creating your account…" : "Create account"}
       </button>
       <p className="pt-1 text-center font-mono text-xs text-muted">
-        New to Oyun?{" "}
-        <Link href={signUpHref} className="text-accent underline underline-offset-4">
-          Create an account
+        Already have an account?{" "}
+        <Link href={signInHref} className="text-accent underline underline-offset-4">
+          Sign in
         </Link>
       </p>
     </form>

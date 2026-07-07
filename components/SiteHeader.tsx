@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { OyunMark } from "@/components/ui/OyunMark";
 import { SignOutButton } from "@/components/SignOutButton";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export function SiteHeader({
   active,
@@ -23,6 +24,7 @@ export function SiteHeader({
           )}
           <span className="mx-1 h-4 w-px bg-border" aria-hidden />
           <SignOutButton />
+          <ThemeToggle className="ml-1" />
         </nav>
       </div>
     </header>

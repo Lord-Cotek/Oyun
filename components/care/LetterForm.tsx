@@ -69,7 +69,7 @@ function Submit() {
     <button
       type="submit"
       disabled={pending}
-      className="rounded-lg bg-accent px-4 py-2 font-mono text-sm font-medium text-[#0B0E14] transition-colors hover:bg-accent-deep hover:text-ink disabled:opacity-50"
+      className="rounded-lg bg-accent px-4 py-2 font-mono text-sm font-medium text-on-accent transition-colors hover:bg-accent-deep disabled:opacity-50"
     >
       {pending ? "Keeping…" : "Keep this letter"}
     </button>

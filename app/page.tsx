@@ -4,6 +4,7 @@ import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Card } from "@/components/ui/Card";
 import { OyunMark } from "@/components/ui/OyunMark";
 import { Verse } from "@/components/ui/Verse";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export const metadata: Metadata = {
   title: "Walk the whole journey, together",
@@ -32,6 +33,7 @@ const PILLARS = [
 export default function Landing() {
   return (
     <main className="mx-auto max-w-shell px-6">
+      <ThemeToggle className="fixed right-5 top-5 z-30" />
       {/* Hero */}
       <section className="flex min-h-[88dvh] flex-col justify-center py-20">
         <div className="animate-fade-up">
@@ -55,9 +57,9 @@ export default function Landing() {
           </p>
 
           <div className="mt-9 flex flex-wrap items-center gap-3">
-            <Button href="/sign-in">Begin the journey</Button>
+            <Button href="/sign-up">Begin the journey</Button>
             <Button href="/sign-in" variant="ghost">
-              I have an invite
+              I already have an account
             </Button>
           </div>
         </div>
@@ -123,7 +125,7 @@ export default function Landing() {
           Start where you are. Agbebi will meet you there.
         </h2>
         <div className="mt-8 flex justify-center">
-          <Button href="/sign-in">Enter Oyun</Button>
+          <Button href="/sign-up">Enter Oyun</Button>
         </div>
       </section>
     </main>
