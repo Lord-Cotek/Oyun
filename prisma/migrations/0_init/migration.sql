@@ -213,6 +213,7 @@ CREATE TABLE "Milestone" (
     "journeyId" TEXT NOT NULL,
     "childId" TEXT,
     "kind" "MilestoneKind" NOT NULL,
+    "title" TEXT,
     "note" TEXT,
     "occurredAt" TIMESTAMP(3) NOT NULL,
     "photoUrl" TEXT,

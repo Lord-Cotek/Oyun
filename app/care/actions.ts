@@ -41,30 +41,74 @@ export async function addLetter(formData: FormData) {
   revalidatePath("/care");
 }
 
+async function resolveChildId(journeyId: string, raw: string): Promise<string | null> {
+  const childIdRaw = raw.trim();
+  if (!childIdRaw) return null;
+  const child = await prisma.child.findFirst({
+    where: { id: childIdRaw, journeyId },
+    select: { id: true },
+  });
+  return child?.id ?? null;
+}
+
 export async function addMilestone(formData: FormData) {
   const { journeyId } = await requireMother();
   const kindRaw = String(formData.get("kind") ?? "");
+  const title = String(formData.get("title") ?? "").trim() || null;
   const note = String(formData.get("note") ?? "").trim() || null;
   const dateStr = String(formData.get("occurredAt") ?? "").trim();
   if (!(kindRaw in MilestoneKind)) throw new Error("Please choose a kind.");
+  if (kindRaw === "CUSTOM" && !title) {
+    throw new Error("Please name this first.");
+  }
   const occurredAt = dateStr ? new Date(dateStr) : new Date();
   if (Number.isNaN(occurredAt.getTime())) throw new Error("That date isn't valid.");
 
   const photoUrl = await uploadMilestonePhoto(formData.get("photo"));
-  const childIdRaw = String(formData.get("childId") ?? "").trim();
-  // Only attach a child that belongs to this journey.
-  let childId: string | null = null;
-  if (childIdRaw) {
-    const child = await prisma.child.findFirst({
-      where: { id: childIdRaw, journeyId },
-      select: { id: true },
-    });
-    childId = child?.id ?? null;
-  }
+  const childId = await resolveChildId(journeyId, String(formData.get("childId") ?? ""));
 
   await prisma.milestone.create({
-    data: { journeyId, kind: kindRaw as MilestoneKind, note, occurredAt, photoUrl, childId },
+    data: { journeyId, kind: kindRaw as MilestoneKind, title, note, occurredAt, photoUrl, childId },
   });
+  revalidatePath("/care");
+  revalidatePath("/journey");
+}
+
+export async function updateMilestone(formData: FormData) {
+  const { journeyId } = await requireMother();
+  const id = String(formData.get("id") ?? "");
+  const kindRaw = String(formData.get("kind") ?? "");
+  const title = String(formData.get("title") ?? "").trim() || null;
+  const note = String(formData.get("note") ?? "").trim() || null;
+  const dateStr = String(formData.get("occurredAt") ?? "").trim();
+  if (!(kindRaw in MilestoneKind)) throw new Error("Please choose a kind.");
+  if (kindRaw === "CUSTOM" && !title) throw new Error("Please name this first.");
+  const occurredAt = dateStr ? new Date(dateStr) : new Date();
+  if (Number.isNaN(occurredAt.getTime())) throw new Error("That date isn't valid.");
+
+  const childId = await resolveChildId(journeyId, String(formData.get("childId") ?? ""));
+  const newPhoto = await uploadMilestonePhoto(formData.get("photo"));
+  const removePhoto = String(formData.get("removePhoto") ?? "") === "on";
+
+  await prisma.milestone.updateMany({
+    where: { id, journeyId },
+    data: {
+      kind: kindRaw as MilestoneKind,
+      title,
+      note,
+      occurredAt,
+      childId,
+      ...(newPhoto ? { photoUrl: newPhoto } : removePhoto ? { photoUrl: null } : {}),
+    },
+  });
+  revalidatePath("/care");
+  revalidatePath("/journey");
+}
+
+export async function deleteMilestone(formData: FormData) {
+  const { journeyId } = await requireMother();
+  const id = String(formData.get("id") ?? "");
+  await prisma.milestone.deleteMany({ where: { id, journeyId } });
   revalidatePath("/care");
   revalidatePath("/journey");
 }

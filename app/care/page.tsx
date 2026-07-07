@@ -10,23 +10,13 @@ import { Eyebrow } from "@/components/ui/Eyebrow";
 import { CheckInForm } from "@/components/care/CheckInForm";
 import { LetterForm } from "@/components/care/LetterForm";
 import { MilestoneForm } from "@/components/care/MilestoneForm";
+import { MilestoneItem } from "@/components/care/MilestoneItem";
 import { MoodChart, type MoodPoint } from "@/components/care/MoodChart";
 
 export const metadata: Metadata = {
   title: "Care",
   description: "Your heart, your letters, your firsts.",
   robots: { index: false },
-};
-
-const KIND_LABEL: Record<string, string> = {
-  FIRST_KICK: "First kick",
-  ULTRASOUND: "Ultrasound",
-  HEARTBEAT: "Heartbeat",
-  BIRTH: "Birth",
-  FIRST_SMILE: "First smile",
-  FIRST_WORD: "First word",
-  FIRST_STEPS: "First steps",
-  CUSTOM: "A first",
 };
 
 export default async function CarePage() {
@@ -54,7 +44,7 @@ export default async function CarePage() {
       where: { journeyId },
       orderBy: { occurredAt: "desc" },
       take: 20,
-      include: { child: { select: { name: true } } },
+      include: { child: { select: { id: true, name: true } } },
     }),
     prisma.child.findMany({
       where: { journeyId },
@@ -137,38 +127,20 @@ export default async function CarePage() {
               ) : (
                 <ol className="relative space-y-4 border-l border-border pl-5">
                   {milestones.map((m) => (
-                    <li key={m.id} className="relative">
-                      <span className="absolute -left-[1.4rem] top-1.5 h-2 w-2 rounded-full bg-accent ring-4 ring-bg" />
-                      <p className="font-mono text-sm text-ink">
-                        {KIND_LABEL[m.kind] ?? "A first"}
-                        {m.child && (
-                          <span className="ml-2 rounded-full bg-accent/15 px-2 py-0.5 font-mono text-[0.6rem] text-accent">
-                            {m.child.name}
-                          </span>
-                        )}
-                      </p>
-                      {m.note && (
-                        <p className="mt-0.5 font-mono text-xs leading-relaxed text-muted">
-                          {m.note}
-                        </p>
-                      )}
-                      <p className="mt-0.5 font-mono text-[0.68rem] uppercase tracking-widest text-muted">
-                        {m.occurredAt.toLocaleDateString(undefined, {
-                          month: "short",
-                          day: "numeric",
-                          year: "numeric",
-                        })}
-                      </p>
-                      {m.photoUrl && (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={m.photoUrl}
-                          alt={`${KIND_LABEL[m.kind] ?? "A first"} — photo`}
-                          className="mt-2 max-h-48 w-auto rounded-lg border border-border object-cover"
-                          loading="lazy"
-                        />
-                      )}
-                    </li>
+                    <MilestoneItem
+                      key={m.id}
+                      children={children}
+                      m={{
+                        id: m.id,
+                        kind: m.kind,
+                        title: m.title,
+                        note: m.note,
+                        occurredAt: m.occurredAt.toISOString(),
+                        photoUrl: m.photoUrl,
+                        childId: m.child?.id ?? null,
+                        childName: m.child?.name ?? null,
+                      }}
+                    />
                   ))}
                 </ol>
               )}

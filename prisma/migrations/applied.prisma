@@ -287,6 +287,7 @@ model Milestone {
   childId    String?
   child      Child?        @relation(fields: [childId], references: [id], onDelete: SetNull)
   kind       MilestoneKind
+  title      String? // custom label, especially when kind is CUSTOM
   note       String?
   occurredAt DateTime
   photoUrl   String?
