@@ -15,7 +15,11 @@ const KINDS: { value: string; label: string }[] = [
   { value: "CUSTOM", label: "Something else" },
 ];
 
-export function MilestoneForm() {
+export function MilestoneForm({
+  children = [],
+}: {
+  children?: { id: string; name: string }[];
+}) {
   const formRef = useRef<HTMLFormElement>(null);
   return (
     <form
@@ -50,6 +54,23 @@ export function MilestoneForm() {
           />
         </label>
       </div>
+      {children.length > 0 && (
+        <label className="block">
+          <span className="eyebrow mb-1.5 block text-muted">Which child?</span>
+          <select
+            name="childId"
+            defaultValue=""
+            className="w-full rounded-lg border border-border bg-bg px-3 py-2.5 font-mono text-sm text-ink focus:border-accent focus:outline-none"
+          >
+            <option value="">The whole family</option>
+            {children.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
       <input
         type="text"
         name="note"

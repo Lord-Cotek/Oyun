@@ -51,9 +51,19 @@ export async function addMilestone(formData: FormData) {
   if (Number.isNaN(occurredAt.getTime())) throw new Error("That date isn't valid.");
 
   const photoUrl = await uploadMilestonePhoto(formData.get("photo"));
+  const childIdRaw = String(formData.get("childId") ?? "").trim();
+  // Only attach a child that belongs to this journey.
+  let childId: string | null = null;
+  if (childIdRaw) {
+    const child = await prisma.child.findFirst({
+      where: { id: childIdRaw, journeyId },
+      select: { id: true },
+    });
+    childId = child?.id ?? null;
+  }
 
   await prisma.milestone.create({
-    data: { journeyId, kind: kindRaw as MilestoneKind, note, occurredAt, photoUrl },
+    data: { journeyId, kind: kindRaw as MilestoneKind, note, occurredAt, photoUrl, childId },
   });
   revalidatePath("/care");
   revalidatePath("/journey");

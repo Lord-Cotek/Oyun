@@ -15,6 +15,7 @@ export async function createJourney(formData: FormData) {
   const dateStr = String(formData.get("dueDate") ?? "").trim();
   const babyName = String(formData.get("babyName") ?? "").trim() || null;
   const name = String(formData.get("name") ?? "").trim();
+  const babyCount = Math.min(4, Math.max(1, parseInt(String(formData.get("babyCount") ?? "1"), 10) || 1));
 
   if (!dateStr) throw new Error("A due date (or birth date) is required.");
   const dueDate = new Date(dateStr);
@@ -38,6 +39,7 @@ export async function createJourney(formData: FormData) {
       ownerId: session.user.id,
       dueDate,
       babyName,
+      babyCount,
       memberships: {
         create: { userId: session.user.id, role: Role.MOTHER },
       },

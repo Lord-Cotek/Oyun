@@ -8,8 +8,9 @@ const ALLOWED = ["image/jpeg", "image/png", "image/webp", "image/heic", "image/h
  * Returns null when there's no file, no configured token, or the file is
  * unsupported / too large — the milestone is still saved without a photo.
  */
-export async function uploadMilestonePhoto(
+export async function uploadImage(
   file: FormDataEntryValue | null,
+  folder: string,
 ): Promise<string | null> {
   if (!file || typeof file === "string") return null;
   const f = file as File;
@@ -21,10 +22,16 @@ export async function uploadMilestonePhoto(
   }
 
   const ext = f.name.includes(".") ? f.name.slice(f.name.lastIndexOf(".")) : "";
-  const blob = await put(`milestones/${crypto.randomUUID()}${ext}`, f, {
+  const blob = await put(`${folder}/${crypto.randomUUID()}${ext}`, f, {
     access: "public",
     addRandomSuffix: false,
     contentType: f.type || undefined,
   });
   return blob.url;
+}
+
+export function uploadMilestonePhoto(
+  file: FormDataEntryValue | null,
+): Promise<string | null> {
+  return uploadImage(file, "milestones");
 }

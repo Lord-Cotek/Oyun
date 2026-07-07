@@ -88,9 +88,24 @@ CREATE TABLE "Journey" (
     "ownerId" TEXT NOT NULL,
     "dueDate" TIMESTAMP(3) NOT NULL,
     "babyName" TEXT,
+    "babyCount" INTEGER NOT NULL DEFAULT 1,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Journey_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Child" (
+    "id" TEXT NOT NULL,
+    "journeyId" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "birthDate" TIMESTAMP(3),
+    "sex" TEXT,
+    "photoUrl" TEXT,
+    "note" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "Child_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -145,6 +160,7 @@ CREATE TABLE "Letter" (
 CREATE TABLE "Milestone" (
     "id" TEXT NOT NULL,
     "journeyId" TEXT NOT NULL,
+    "childId" TEXT,
     "kind" "MilestoneKind" NOT NULL,
     "note" TEXT,
     "occurredAt" TIMESTAMP(3) NOT NULL,
@@ -217,6 +233,9 @@ CREATE UNIQUE INDEX "PasswordResetToken_token_key" ON "PasswordResetToken"("toke
 CREATE INDEX "PasswordResetToken_email_idx" ON "PasswordResetToken"("email");
 
 -- CreateIndex
+CREATE INDEX "Child_journeyId_idx" ON "Child"("journeyId");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Membership_journeyId_userId_key" ON "Membership"("journeyId", "userId");
 
 -- CreateIndex
@@ -259,6 +278,9 @@ ALTER TABLE "Session" ADD CONSTRAINT "Session_userId_fkey" FOREIGN KEY ("userId"
 ALTER TABLE "Journey" ADD CONSTRAINT "Journey_ownerId_fkey" FOREIGN KEY ("ownerId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "Child" ADD CONSTRAINT "Child_journeyId_fkey" FOREIGN KEY ("journeyId") REFERENCES "Journey"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "Membership" ADD CONSTRAINT "Membership_journeyId_fkey" FOREIGN KEY ("journeyId") REFERENCES "Journey"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -281,6 +303,9 @@ ALTER TABLE "Letter" ADD CONSTRAINT "Letter_authorId_fkey" FOREIGN KEY ("authorI
 
 -- AddForeignKey
 ALTER TABLE "Milestone" ADD CONSTRAINT "Milestone_journeyId_fkey" FOREIGN KEY ("journeyId") REFERENCES "Journey"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Milestone" ADD CONSTRAINT "Milestone_childId_fkey" FOREIGN KEY ("childId") REFERENCES "Child"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Nudge" ADD CONSTRAINT "Nudge_journeyId_fkey" FOREIGN KEY ("journeyId") REFERENCES "Journey"("id") ON DELETE CASCADE ON UPDATE CASCADE;

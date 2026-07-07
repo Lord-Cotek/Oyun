@@ -25,6 +25,7 @@ import { NudgeList } from "@/components/journey/NudgeList";
 import { EncouragementBox } from "@/components/journey/EncouragementBox";
 import { Encouragements } from "@/components/journey/Encouragements";
 import { DailyVerse } from "@/components/journey/DailyVerse";
+import { FamilyWorship } from "@/components/journey/FamilyWorship";
 
 // Static so Tailwind can extract these classes.
 const MOOD_TONE_TEXT: Record<string, string> = {
@@ -88,7 +89,13 @@ export default async function JourneyPage() {
               label={position.born ? "Since birth" : "Days to go"}
               value={position.born ? "—" : position.daysToGo}
               deltaTone="accent"
-              hint={position.born ? "welcome, little one" : "until the due date"}
+              hint={
+                position.born
+                  ? journey.babyCount > 1
+                    ? "welcome, little ones"
+                    : "welcome, little one"
+                  : "until the due date"
+              }
             />
             <StatCard
               label="Firsts logged"
@@ -151,11 +158,32 @@ export default async function JourneyPage() {
                   Open Care
                 </Button>
               </Card>
+              {(position.born || journey.babyCount > 1) && (
+                <Card className="border-accent2/30 bg-accent2/[0.05]">
+                  <Eyebrow className="mb-3">The nursery</Eyebrow>
+                  <p className="mb-4 font-mono text-xs leading-relaxed text-muted">
+                    {position.born
+                      ? journey.babyCount > 1
+                        ? "Your little ones have arrived. Give each a profile — name, birthday, a photo."
+                        : "Keep your little one's profile — name, birthday, a photo, and every first."
+                      : "Expecting more than one? Set up a profile for each when they arrive."}
+                  </p>
+                  <Button href="/child" variant="ghost" className="w-full">
+                    Open the nursery
+                  </Button>
+                </Card>
+              )}
               <Card>
                 <InvitePanel hasSupporter={supporterCount > 0} />
               </Card>
             </div>
           </div>
+
+          {position.born && (
+            <div className="mt-4">
+              <FamilyWorship />
+            </div>
+          )}
         </main>
       </>
     );
@@ -275,6 +303,12 @@ export default async function JourneyPage() {
             </Card>
           </div>
         </div>
+
+        {position.born && (
+          <div className="mt-4">
+            <FamilyWorship />
+          </div>
+        )}
       </main>
     </>
   );

@@ -39,7 +39,7 @@ export default async function CarePage() {
 
   const journeyId = active.journey.id;
 
-  const [checkIns, letters, milestones] = await Promise.all([
+  const [checkIns, letters, milestones, children] = await Promise.all([
     prisma.checkIn.findMany({
       where: { journeyId },
       orderBy: { createdAt: "asc" },
@@ -54,6 +54,12 @@ export default async function CarePage() {
       where: { journeyId },
       orderBy: { occurredAt: "desc" },
       take: 20,
+      include: { child: { select: { name: true } } },
+    }),
+    prisma.child.findMany({
+      where: { journeyId },
+      orderBy: { createdAt: "asc" },
+      select: { id: true, name: true },
     }),
   ]);
 
@@ -122,7 +128,7 @@ export default async function CarePage() {
           {/* Milestones */}
           <Card>
             <Eyebrow className="mb-4">The firsts</Eyebrow>
-            <MilestoneForm />
+            <MilestoneForm children={children} />
             <div className="mt-6 border-t border-border pt-5">
               {milestones.length === 0 ? (
                 <p className="font-mono text-xs text-muted">
@@ -135,6 +141,11 @@ export default async function CarePage() {
                       <span className="absolute -left-[1.4rem] top-1.5 h-2 w-2 rounded-full bg-accent ring-4 ring-bg" />
                       <p className="font-mono text-sm text-ink">
                         {KIND_LABEL[m.kind] ?? "A first"}
+                        {m.child && (
+                          <span className="ml-2 rounded-full bg-accent/15 px-2 py-0.5 font-mono text-[0.6rem] text-accent">
+                            {m.child.name}
+                          </span>
+                        )}
                       </p>
                       {m.note && (
                         <p className="mt-0.5 font-mono text-xs leading-relaxed text-muted">

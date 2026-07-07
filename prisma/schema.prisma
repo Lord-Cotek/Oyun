@@ -126,6 +126,7 @@ model Journey {
   owner     User     @relation("JourneyOwner", fields: [ownerId], references: [id], onDelete: Cascade)
   dueDate   DateTime
   babyName  String?
+  babyCount Int      @default(1)
   createdAt DateTime @default(now())
 
   memberships    Membership[]
@@ -136,6 +137,23 @@ model Journey {
   nudges         Nudge[]
   encouragements Encouragement[]
   supportDays    SupportDay[]
+  children       Child[]
+}
+
+/// A child profile (0-2 years). One per baby — supports twins and multiples.
+model Child {
+  id         String      @id @default(cuid())
+  journeyId  String
+  journey    Journey     @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  name       String
+  birthDate  DateTime?
+  sex        String? // "boy" | "girl" | null
+  photoUrl   String?
+  note       String?
+  createdAt  DateTime    @default(now())
+  milestones Milestone[]
+
+  @@index([journeyId])
 }
 
 /// Links a User to a Journey with a role.
@@ -198,6 +216,8 @@ model Milestone {
   id         String        @id @default(cuid())
   journeyId  String
   journey    Journey       @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  childId    String?
+  child      Child?        @relation(fields: [childId], references: [id], onDelete: SetNull)
   kind       MilestoneKind
   note       String?
   occurredAt DateTime

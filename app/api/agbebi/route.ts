@@ -51,6 +51,7 @@ export async function POST(req: Request) {
         role: active.role,
         stage: position.stage,
         babyName: active.journey.babyName,
+        babyCount: active.journey.babyCount,
       });
     }
   }

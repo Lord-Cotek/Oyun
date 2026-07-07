@@ -160,10 +160,25 @@ export default async function Onboarding({
                 type="date"
                 required
               />
+              <label className="block">
+                <span className="eyebrow mb-2 block text-muted">
+                  How many babies?
+                </span>
+                <select
+                  name="babyCount"
+                  defaultValue="1"
+                  className="w-full rounded-lg border border-border bg-bg px-4 py-3 font-mono text-sm text-ink focus:border-accent focus:outline-none"
+                >
+                  <option value="1">One</option>
+                  <option value="2">Twins</option>
+                  <option value="3">Triplets</option>
+                  <option value="4">More than three</option>
+                </select>
+              </label>
               <Field
                 label="Baby's name (optional)"
                 name="babyName"
-                placeholder="If you've chosen one"
+                placeholder="If you've chosen one — or add each after birth"
               />
 
               <label className="flex items-start gap-2 pt-1">

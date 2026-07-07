@@ -60,7 +60,14 @@ export interface AgbebiContext {
   role?: Role | null;
   stage?: Stage | null;
   babyName?: string | null;
+  babyCount?: number | null;
 }
+
+const MULTIPLES: Record<number, string> = {
+  2: "twins",
+  3: "triplets",
+  4: "multiples",
+};
 
 /** Append live context (week, role, name) so replies are grounded. */
 export function buildAgbebiSystem(ctx: AgbebiContext): string {
@@ -83,6 +90,12 @@ export function buildAgbebiSystem(ctx: AgbebiContext): string {
     );
     lines.push(`  This stage's scripture: "${ctx.stage.verse.text}" — ${ctx.stage.verse.ref}.`);
     lines.push(`  This stage's prayer point: ${ctx.stage.prayerPoint}`);
+  }
+
+  if (ctx.babyCount && ctx.babyCount > 1) {
+    lines.push(
+      `- She is expecting ${MULTIPLES[ctx.babyCount] ?? "multiple babies"} — speak of the babies in the plural, and be mindful the season may carry extra weight and joy.`,
+    );
   }
 
   if (ctx.babyName?.trim()) {
