@@ -179,11 +179,9 @@ export default async function JourneyPage() {
             </div>
           </div>
 
-          {position.born && (
-            <div className="mt-4">
-              <FamilyWorship />
-            </div>
-          )}
+          <div className="mt-4">
+            <FamilyWorship />
+          </div>
         </main>
       </>
     );
@@ -304,11 +302,9 @@ export default async function JourneyPage() {
           </div>
         </div>
 
-        {position.born && (
-          <div className="mt-4">
-            <FamilyWorship />
-          </div>
-        )}
+        <div className="mt-4">
+          <FamilyWorship />
+        </div>
       </main>
     </>
   );
