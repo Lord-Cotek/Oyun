@@ -60,7 +60,7 @@ export default async function ChildPage() {
         </div>
 
         <div className="mt-10 grid gap-4 lg:grid-cols-[1fr_1fr]">
-          <div className="space-y-4">
+          <div className="min-w-0 space-y-4">
             {children.length === 0 ? (
               <Card className="p-8">
                 <p className="font-mono text-sm leading-relaxed text-muted">
@@ -87,7 +87,7 @@ export default async function ChildPage() {
             )}
           </div>
 
-          <Card className="h-fit p-8">
+          <Card className="h-fit min-w-0 p-8">
             <Eyebrow className="mb-4">Add a child</Eyebrow>
             <ChildForm />
           </Card>

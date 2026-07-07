@@ -57,7 +57,7 @@ export default async function CirclePage() {
         </div>
 
         <div className="mt-10 grid gap-4 lg:grid-cols-[1.3fr_1fr]">
-          <div className="space-y-4">
+          <div className="min-w-0 space-y-4">
             <Card>
               <Eyebrow className="mb-4">Walking with you</Eyebrow>
               <ul className="space-y-3">
@@ -121,7 +121,7 @@ export default async function CirclePage() {
             )}
           </div>
 
-          <Card>
+          <Card className="min-w-0">
             <InvitePanel hasSupporter={supporters.length > 0} />
           </Card>
         </div>

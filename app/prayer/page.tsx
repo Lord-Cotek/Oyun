@@ -57,7 +57,7 @@ export default async function PrayerPage() {
         </div>
 
         <div className="mt-10 grid gap-4 lg:grid-cols-[1.3fr_1fr]">
-          <div className="space-y-4">
+          <div className="min-w-0 space-y-4">
             {open.length === 0 ? (
               <Card className="p-8">
                 <p className="font-mono text-sm leading-relaxed text-muted">
@@ -81,7 +81,7 @@ export default async function PrayerPage() {
             )}
           </div>
 
-          <Card className="h-fit p-8">
+          <Card className="h-fit min-w-0 p-8">
             <Eyebrow className="mb-4">Ask for prayer</Eyebrow>
             <PrayerForm />
           </Card>
