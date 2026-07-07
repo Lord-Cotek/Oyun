@@ -180,7 +180,7 @@ export default async function JourneyPage() {
           </div>
 
           <div className="mt-4">
-            <FamilyWorship />
+            <FamilyWorship showCatechism={position.born} />
           </div>
         </main>
       </>
@@ -303,7 +303,7 @@ export default async function JourneyPage() {
         </div>
 
         <div className="mt-4">
-          <FamilyWorship />
+          <FamilyWorship showCatechism={position.born} />
         </div>
       </main>
     </>
