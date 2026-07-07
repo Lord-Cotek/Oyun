@@ -7,9 +7,15 @@ export function PwaRegister() {
   useEffect(() => {
     if (!("serviceWorker" in navigator)) return;
     const onLoad = () => {
-      navigator.serviceWorker.register("/sw.js").catch(() => {
-        /* registration is best-effort */
-      });
+      navigator.serviceWorker
+        .register("/sw.js")
+        .then((reg) => {
+          // Check for an updated worker (e.g. the cache-safety fix) on each load.
+          reg.update().catch(() => {});
+        })
+        .catch(() => {
+          /* registration is best-effort */
+        });
     };
     if (document.readyState === "complete") onLoad();
     else window.addEventListener("load", onLoad);

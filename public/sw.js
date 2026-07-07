@@ -1,6 +1,10 @@
-// Oyun service worker — minimal, network-first with an offline cache fallback.
-// Its presence (with a fetch handler) is what makes Oyun installable as a PWA.
-const CACHE = "oyun-v1";
+// Oyun service worker.
+//
+// IMPORTANT: never cache HTML documents or navigations — those pages are
+// per-user and per-session. Caching them would let one signed-in account see
+// another account's rendered pages. We only cache static, fingerprinted assets
+// (which are identical for every user), and always let pages hit the network.
+const CACHE = "oyun-v2";
 
 self.addEventListener("install", () => {
   self.skipWaiting();
@@ -10,6 +14,7 @@ self.addEventListener("activate", (event) => {
   event.waitUntil(
     (async () => {
       const keys = await caches.keys();
+      // Drop every old cache — including v1, which wrongly stored authed pages.
       await Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)));
       await self.clients.claim();
     })(),
@@ -52,17 +57,29 @@ self.addEventListener("notificationclick", (event) => {
   );
 });
 
+// ── Fetch: static assets only ──────────────────────────────────────────────
+const STATIC_RE = /\.(?:png|svg|ico|jpg|jpeg|webp|gif|woff2?|ttf|css|js|json)$/i;
+
 self.addEventListener("fetch", (event) => {
   const req = event.request;
   if (req.method !== "GET") return;
 
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
-  // Never cache auth or the streaming assistant.
+
+  // Never intercept navigations, HTML, or API calls — always fresh from network.
+  const accept = req.headers.get("accept") || "";
+  if (req.mode === "navigate" || accept.includes("text/html")) return;
   if (url.pathname.startsWith("/api/")) return;
+
+  // Only cache static, fingerprinted assets that are identical for every user.
+  const isStatic = url.pathname.startsWith("/_next/static/") || STATIC_RE.test(url.pathname);
+  if (!isStatic) return;
 
   event.respondWith(
     (async () => {
+      const cached = await caches.match(req);
+      if (cached) return cached;
       try {
         const res = await fetch(req);
         if (res && res.status === 200 && res.type === "basic") {
@@ -71,9 +88,7 @@ self.addEventListener("fetch", (event) => {
         }
         return res;
       } catch {
-        const cached = await caches.match(req);
-        if (cached) return cached;
-        throw new Error("offline and uncached");
+        return caches.match(req).then((c) => c || Response.error());
       }
     })(),
   );
