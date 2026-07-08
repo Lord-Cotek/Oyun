@@ -17,17 +17,32 @@ const PILLARS = [
   {
     eyebrow: "Every stage",
     title: "Conception to two years",
-    body: "Forty weeks of pregnancy and the child's first twenty-four months — each stage paired with what's unfolding, a scripture, a short reflection, and one concrete thing to do.",
-  },
-  {
-    eyebrow: "The signature",
-    title: "An accountability layer",
-    body: "The mother is not the only user. A husband or accountability partner gets their own view — how to support and pray for her, right where she is this week.",
+    body: "Forty weeks of pregnancy and the child's first twenty-four months — each stage paired with what's unfolding, a scripture, a short reflection, and one thing to do. Plus a fresh verse each day.",
   },
   {
     eyebrow: "Guided by Agbebi",
     title: "A companion, not a doctor",
-    body: "Agbebi — Yoruba for midwife, the one who receives the child — offers Scripture, prayer, and gentle support. Never medical advice; always pointing back to God's Word.",
+    body: "Agbebi — Yoruba for midwife, the one who receives the child — offers Scripture, prayer, and gentle, Reformed encouragement. Never medical advice; always pointing back to God's Word.",
+  },
+  {
+    eyebrow: "The signature",
+    title: "A circle of support",
+    body: "You are not the only user. Invite your husband and accountability partners — each gets their own view of how to pray for you, encourage you, and carry you, right where you are this week.",
+  },
+  {
+    eyebrow: "Named intercession",
+    title: "Prayer, together",
+    body: "A shared prayer wall for your circle. Name a real need — a scan, a fear, a decision — and watch, together, for how God answers it.",
+  },
+  {
+    eyebrow: "An altar at home",
+    title: "Family worship & catechism",
+    body: "A daily household rhythm: read a Scripture, sit with a short reflection, pray, sing a hymn — and, once your little one arrives, a children's catechism question. Build the habit from the start.",
+  },
+  {
+    eyebrow: "Kept & remembered",
+    title: "Care and keepsakes",
+    body: "Chart how your heart is over time, write letters to your baby, and keep a timeline of firsts with photos — with a profile for each child, twins and all.",
   },
 ];
 
@@ -78,17 +93,25 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Pillars */}
-      <section className="grid gap-5 border-t border-border py-20 md:grid-cols-3">
-        {PILLARS.map((p) => (
-          <Card key={p.title} className="animate-fade-up">
-            <Eyebrow className="mb-4">{p.eyebrow}</Eyebrow>
-            <h2 className="font-serif text-2xl leading-snug text-ink">{p.title}</h2>
-            <p className="mt-3 font-mono text-xs leading-relaxed text-muted">
-              {p.body}
-            </p>
-          </Card>
-        ))}
+      {/* What's inside */}
+      <section className="border-t border-border py-20">
+        <div className="mb-10 max-w-prose">
+          <Eyebrow className="mb-4">Inside Oyun</Eyebrow>
+          <h2 className="font-serif text-3xl leading-snug text-ink">
+            A little, faithfully — at the right time.
+          </h2>
+        </div>
+        <div className="grid gap-5 md:grid-cols-3">
+          {PILLARS.map((p) => (
+            <Card key={p.title} className="animate-fade-up">
+              <Eyebrow className="mb-4">{p.eyebrow}</Eyebrow>
+              <h3 className="font-serif text-2xl leading-snug text-ink">{p.title}</h3>
+              <p className="mt-3 font-mono text-xs leading-relaxed text-muted">
+                {p.body}
+              </p>
+            </Card>
+          ))}
+        </div>
       </section>
 
       {/* Stewardship voice */}
@@ -115,6 +138,12 @@ export default function Landing() {
               For everything medical, Oyun sends you to your doctor or midwife —
               plainly and every time. Its work is the other thing: to keep
               Scripture, prayer, and the people who love you close.
+            </p>
+            <p>
+              And if the road should turn to loss, Oyun does not vanish or pretend.
+              It becomes a place of lament and remembrance — Scripture for grief, a
+              way to remember your child by name, and your circle drawn near. No one
+              should walk that alone.
             </p>
           </div>
         </div>

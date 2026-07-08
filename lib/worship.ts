@@ -212,6 +212,78 @@ export const LITURGIES: Liturgy[] = [
     pray: "Holy Father, make us holy as you are holy. Let our children see in us a faith that is real.",
     talk: "What is one area where God is calling you to holiness — that your children are quietly watching?",
   },
+  {
+    read: { text: "Unless the LORD builds the house, those who build it labor in vain.", ref: "Psalm 127:1" },
+    reflection: "We can plan, discipline, and pray with all our strength, yet no parent has ever laid a single living stone in a child's heart. God builds, or nothing is built. This verse does not shame our diligence; it dethrones our self-reliance, so we labor as those who trust the Master Builder rather than our own hands.",
+    pray: "Sovereign LORD, build this household by your grace, for apart from you we labor in vain.",
+    talk: "Where are we quietly trusting our parenting methods instead of the God who alone builds a family?",
+  },
+  {
+    read: { text: "I am the vine; you are the branches. Whoever abides in me and I in him, he it is that bears much fruit, for apart from me you can do nothing.", ref: "John 15:5" },
+    reflection: "Christ does not call us to bear fruit for him but to bear fruit from him. A branch does not strain to produce; it abides, and life flows. The fruit we long to see in our children is his to give through our union with him, not a harvest we manufacture by effort severed from Christ.",
+    pray: "Lord Jesus, keep us abiding in you, for apart from you we can do nothing.",
+    talk: "What in our family life are we attempting apart from Christ, as though the vine could be skipped?",
+  },
+  {
+    read: { text: "so shall my word be that goes out from my mouth; it shall not return to me empty, but it shall accomplish that which I purpose, and shall succeed in the thing for which I sent it.", ref: "Isaiah 55:11" },
+    reflection: "God ties his promise to his word, not to our eloquence or our results. When we read Scripture in this home, we are not casting seed into the wind but scattering the very speech of God, which never fails his purpose. That frees us to be faithful with the word and to leave the outcome, and its timing, to him.",
+    pray: "Father, let your word do its own sure work in us, in your time and for your purposes.",
+    talk: "Do we treat family reading of Scripture as a duty to survive or as the living word of God at work?",
+  },
+  {
+    read: { text: "Let the word of Christ dwell in you richly, teaching and admonishing one another in all wisdom, singing psalms and hymns and spiritual songs, with thankfulness in your hearts to God.", ref: "Colossians 3:16" },
+    reflection: "The aim is not a well-managed household but Christ's word dwelling richly among us, spilling over into teaching, correction, and song. Notice the traffic runs among us all, parents and children alike sitting under the same word. We are not curators of our children's souls but fellow hearers, needing the same grace we speak.",
+    pray: "Christ, let your word dwell richly in us and overflow in wisdom and thankful song.",
+    talk: "Does the word of Christ actually dwell in our home, or merely visit at scheduled times?",
+  },
+  {
+    read: { text: "For the grace of God has appeared, bringing salvation for all people, training us to renounce ungodliness and worldly passions, and to live self-controlled, upright, and godly lives in the present age.", ref: "Titus 2:11-12" },
+    reflection: "Grace is not merely the pardon at the beginning; grace itself is the teacher that trains us to say no. We cannot discipline godliness into a child, and we cannot manufacture it in ourselves; the appearing of Christ does the training. So we point our children less to rules to keep and more to the grace that has appeared in him.",
+    pray: "Gracious God, let the grace that has appeared in Christ train our whole household in godliness.",
+    talk: "Are we trying to train godliness by pressure, or leading our children to the grace that actually teaches?",
+  },
+  {
+    read: { text: "Come, O children, listen to me; I will teach you the fear of the LORD.", ref: "Psalm 34:11" },
+    reflection: "We can teach many things, manners, skills, achievement, but only one lesson is the beginning of wisdom, and it is the fear of the LORD. Note that the psalmist does not teach children to fear him; he turns their gaze past himself to God. Our highest calling as parents is not to be revered but to make our children unafraid of everything except the loss of God.",
+    pray: "LORD, teach us and our children to fear you above all, that we might truly be wise.",
+    talk: "What do our children sense we fear most, and is it the LORD?",
+  },
+  {
+    read: { text: "But seek first the kingdom of God and his righteousness, and all these things will be added to you.", ref: "Matthew 6:33" },
+    reflection: "A family can make a hundred good things the first thing, even a child's flourishing, and so quietly unseat the kingdom. Christ does not forbid our concerns; he orders them, promising that what we need is added when he is sought first. The great danger of parenting is not neglect but misplaced worship, tending the gift as though it were the King.",
+    pray: "Father, keep your kingdom first in our hearts, that lesser loves stay in their place.",
+    talk: "If someone watched our week, what would they name as the thing we truly seek first?",
+  },
+  {
+    read: { text: "for while bodily training is of some value, godliness is of value in every way, as it holds promise for the present life and also for the life to come.", ref: "1 Timothy 4:8" },
+    reflection: "We pour ourselves into schedules, teams, and skills, all of some value, yet all bounded by this life. Godliness alone carries a promise that outlasts the grave. This is not a call to neglect the body or the mind, but a plea to weigh our investments honestly, lest we train our children for everything but eternity.",
+    pray: "Lord, let us train our children first for godliness, which holds promise for this life and the next.",
+    talk: "Where does our family's calendar and effort say bodily training matters more than godliness?",
+  },
+  {
+    read: { text: "He has told you, O man, what is good; and what does the LORD require of you but to do justice, and to love kindness, and to walk humbly with your God?", ref: "Micah 6:8" },
+    reflection: "God has already told us what is good; the parenting question is not chiefly what technique works but what he requires. Justice and kindness are visible, but the root is walking humbly with God, the quiet posture that keeps a home from self-righteousness. Children learn humility not from lectures but from watching parents who walk lowly before the Lord.",
+    pray: "LORD, teach us to do justice, love kindness, and walk humbly with you before our children.",
+    talk: "Which is hardest in our home right now: doing justice, loving kindness, or walking humbly, and why?",
+  },
+  {
+    read: { text: "His divine power has granted to us all things that pertain to life and godliness, through the knowledge of him who called us to his own glory and excellence.", ref: "2 Peter 1:3" },
+    reflection: "We often parent as though we lack the resources for the task, straining to supply what only God can give. Yet his divine power has already granted everything needed for life and godliness, and it comes through knowing him. The remedy for our insufficiency is not a better method but a deeper knowledge of the Christ who called us.",
+    pray: "Father, we lack nothing for godliness in Christ; deepen our knowledge of him who called us.",
+    talk: "When we feel inadequate as parents, do we reach for new strategies or for the knowledge of Christ?",
+  },
+  {
+    read: { text: "I appeal to you therefore, brothers, by the mercies of God, to present your bodies as a living sacrifice, holy and acceptable to God, which is your spiritual worship. Do not be conformed to this world, but be transformed by the renewal of your mind.", ref: "Romans 12:1-2" },
+    reflection: "Worship in this home begins with mercies received, not sacrifices offered; the surrender flows from what God has already done in Christ. We cannot renew our own minds, nor our children's, by willpower against the pull of the world. Transformation is God's inward work, so we offer ourselves and ask him to change us from the inside, parents first.",
+    pray: "By your mercies, God, receive us as living sacrifices and transform our minds after Christ.",
+    talk: "Where is our family being quietly conformed to the world rather than transformed by God?",
+  },
+  {
+    read: { text: "Only take care, and keep your soul diligently, lest you forget the things that your eyes have seen. Make them known to your children and your children's children.", ref: "Deuteronomy 4:9" },
+    reflection: "The command to teach the children begins with a warning to guard our own souls, for we cannot pass on what we have let slip from our hearts. God works across generations, but the thread runs through parents who keep remembering what he has done. What we intend to hand down, we must first refuse to forget.",
+    pray: "LORD, guard our souls from forgetting your works, that we may make them known to our children.",
+    talk: "What has God done in our lives that we are in danger of forgetting before we pass it on?",
+  },
 ];
 
 export interface Hymn {
