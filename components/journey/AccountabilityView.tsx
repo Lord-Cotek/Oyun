@@ -3,6 +3,8 @@ import {
   getOpenNudges,
   getSupportSummary,
 } from "@/lib/data";
+import { getReactionsFor } from "@/lib/reactions";
+import { Reactions } from "@/components/Reactions";
 import { dailyAccountabilityPractice } from "@/lib/accountability";
 import { type Stage } from "@/lib/journey";
 import { MOOD_META } from "@/lib/moods";
@@ -50,6 +52,9 @@ export async function AccountabilityView({
     getSupportSummary(journeyId, userId),
   ]);
   const mood = latest ? MOOD_META[latest.mood] : null;
+  const latestReactions = latest
+    ? (await getReactionsFor("CHECKIN", [latest.id], userId))[latest.id]
+    : null;
   const practice = dailyAccountabilityPractice();
 
   return (
@@ -120,6 +125,18 @@ export async function AccountabilityView({
                 <p className="mt-2 font-mono text-xs leading-relaxed text-muted">
                   {latest?.note?.trim() ? `"${latest.note}"` : mood.blurb}
                 </p>
+                {latest && latestReactions && (
+                  <div className="mt-4 border-t border-border pt-4">
+                    <p className="mb-2 font-mono text-[0.68rem] uppercase tracking-widest text-muted">
+                      Let them know you saw
+                    </p>
+                    <Reactions
+                      targetType="CHECKIN"
+                      targetId={latest.id}
+                      initial={latestReactions}
+                    />
+                  </div>
+                )}
               </>
             ) : (
               <p className="font-mono text-xs leading-relaxed text-muted">

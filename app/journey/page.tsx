@@ -12,6 +12,7 @@ import {
   getWorshipStreak,
 } from "@/lib/data";
 import { computePosition } from "@/lib/stage";
+import { getReactionsFor } from "@/lib/reactions";
 import { MOOD_META } from "@/lib/moods";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Card } from "@/components/ui/Card";
@@ -25,6 +26,7 @@ import { SupportActions } from "@/components/journey/SupportActions";
 import { NudgeList } from "@/components/journey/NudgeList";
 import { EncouragementBox } from "@/components/journey/EncouragementBox";
 import { Encouragements } from "@/components/journey/Encouragements";
+import { Reactions } from "@/components/Reactions";
 import { DailyVerse } from "@/components/journey/DailyVerse";
 import { FamilyWorship } from "@/components/journey/FamilyWorship";
 import { BirthMoment } from "@/components/journey/BirthMoment";
@@ -102,6 +104,13 @@ export default async function JourneyPage() {
           where: { journeyId: journey.id, kind: "BIRTH" },
         }),
       ]);
+
+    // Reactions the mother (or others) have left on the words sent to her.
+    const encReactions = await getReactionsFor(
+      "ENCOURAGEMENT",
+      encouragements.map((e) => e.id),
+      session.user.id,
+    );
 
     // Offer the birth moment once she's near/past due and hasn't recorded the
     // birth yet — recording it corrects the timeline and starts the nursery.
@@ -190,6 +199,7 @@ export default async function JourneyPage() {
                       verseRef: e.verseRef,
                       createdAt: e.createdAt,
                       authorName: e.author.name,
+                      reactions: encReactions[e.id] ?? { counts: {}, mine: [] },
                     }))}
                     emptyHint="When your partner sends you a word of encouragement, it will appear here."
                   />
@@ -260,6 +270,9 @@ export default async function JourneyPage() {
   ]);
   const motherName = journey.owner.name ?? "her";
   const mood = latest ? MOOD_META[latest.mood] : null;
+  const latestReactions = latest
+    ? (await getReactionsFor("CHECKIN", [latest.id], session.user.id))[latest.id]
+    : null;
 
   return (
     <>
@@ -328,6 +341,18 @@ export default async function JourneyPage() {
                   <p className="mt-2 font-mono text-xs leading-relaxed text-muted">
                     {latest?.note?.trim() ? `"${latest.note}"` : mood.blurb}
                   </p>
+                  {latest && latestReactions && (
+                    <div className="mt-4 border-t border-border pt-4">
+                      <p className="mb-2 font-mono text-[0.68rem] uppercase tracking-widest text-muted">
+                        Let her know you saw
+                      </p>
+                      <Reactions
+                        targetType="CHECKIN"
+                        targetId={latest.id}
+                        initial={latestReactions}
+                      />
+                    </div>
+                  )}
                 </>
               ) : (
                 <p className="font-mono text-xs leading-relaxed text-muted">

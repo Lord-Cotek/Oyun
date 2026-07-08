@@ -32,8 +32,23 @@ model User {
   prayerPrays    PrayerPray[]
   pushSubscriptions PushSubscription[]
   remembrances   Remembrance[]
+  reactions      Reaction[]
 
   createdAt DateTime @default(now())
+}
+
+/// A small emoji reaction on an encouragement or a check-in.
+model Reaction {
+  id         String   @id @default(cuid())
+  targetType String // "ENCOURAGEMENT" | "CHECKIN"
+  targetId   String
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  emoji      String
+  createdAt  DateTime @default(now())
+
+  @@unique([targetType, targetId, userId, emoji])
+  @@index([targetType, targetId])
 }
 
 /// A word written in memory of a child who was lost — from the mother or,

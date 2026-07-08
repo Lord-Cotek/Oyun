@@ -3,7 +3,9 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getActiveMembership } from "@/lib/data";
+import { getReactionsFor } from "@/lib/reactions";
 import { MOOD_META } from "@/lib/moods";
+import { Reactions } from "@/components/Reactions";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Card } from "@/components/ui/Card";
 import { Eyebrow } from "@/components/ui/Eyebrow";
@@ -59,6 +61,17 @@ export default async function CarePage() {
     label: MOOD_META[c.mood].label,
   }));
 
+  // Her most recent check-in and how her circle has responded to it.
+  const latestCheckIn = checkIns.length ? checkIns[checkIns.length - 1] : null;
+  const latestReactions = latestCheckIn
+    ? (await getReactionsFor("CHECKIN", [latestCheckIn.id], session.user.id))[
+        latestCheckIn.id
+      ]
+    : null;
+  const reactionTotal = latestReactions
+    ? Object.values(latestReactions.counts).reduce((a, b) => a + b, 0)
+    : 0;
+
   return (
     <>
       <SiteHeader active="care" />
@@ -84,6 +97,23 @@ export default async function CarePage() {
               <p className="eyebrow mb-4 text-muted">Over time</p>
               <MoodChart data={points} />
             </div>
+            {latestCheckIn && latestReactions && (
+              <div className="mt-8 border-t border-border pt-6">
+                <p className="eyebrow mb-2 text-muted">
+                  How your circle responded
+                </p>
+                <p className="mb-4 font-mono text-xs leading-relaxed text-muted">
+                  {reactionTotal > 0
+                    ? "They saw how you're feeling and left you these — you're not carrying it alone."
+                    : "When someone who's walking with you sees your latest check-in, their response will show here."}
+                </p>
+                <Reactions
+                  targetType="CHECKIN"
+                  targetId={latestCheckIn.id}
+                  initial={latestReactions}
+                />
+              </div>
+            )}
           </Card>
 
           {/* Letters */}

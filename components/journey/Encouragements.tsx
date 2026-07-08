@@ -1,4 +1,6 @@
 import { Eyebrow } from "@/components/ui/Eyebrow";
+import { Reactions } from "@/components/Reactions";
+import { type ReactionData } from "@/lib/reaction-emojis";
 
 type Item = {
   id: string;
@@ -6,6 +8,7 @@ type Item = {
   verseRef: string | null;
   createdAt: Date;
   authorName: string | null;
+  reactions: ReactionData;
 };
 
 /** Displays words of encouragement received from the other member(s). */
@@ -36,6 +39,13 @@ export function Encouragements({
                   day: "numeric",
                 })}
               </p>
+              <div className="mt-3">
+                <Reactions
+                  targetType="ENCOURAGEMENT"
+                  targetId={e.id}
+                  initial={e.reactions}
+                />
+              </div>
             </li>
           ))}
         </ul>

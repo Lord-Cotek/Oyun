@@ -26,6 +26,18 @@ CREATE TABLE "User" (
 );
 
 -- CreateTable
+CREATE TABLE "Reaction" (
+    "id" TEXT NOT NULL,
+    "targetType" TEXT NOT NULL,
+    "targetId" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "emoji" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "Reaction_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "Remembrance" (
     "id" TEXT NOT NULL,
     "journeyId" TEXT NOT NULL,
@@ -274,6 +286,12 @@ CREATE TABLE "SupportDay" (
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
+CREATE INDEX "Reaction_targetType_targetId_idx" ON "Reaction"("targetType", "targetId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Reaction_targetType_targetId_userId_emoji_key" ON "Reaction"("targetType", "targetId", "userId", "emoji");
+
+-- CreateIndex
 CREATE INDEX "Remembrance_journeyId_createdAt_idx" ON "Remembrance"("journeyId", "createdAt");
 
 -- CreateIndex
@@ -347,6 +365,9 @@ CREATE INDEX "SupportDay_journeyId_userId_idx" ON "SupportDay"("journeyId", "use
 
 -- CreateIndex
 CREATE UNIQUE INDEX "SupportDay_journeyId_userId_day_key" ON "SupportDay"("journeyId", "userId", "day");
+
+-- AddForeignKey
+ALTER TABLE "Reaction" ADD CONSTRAINT "Reaction_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Remembrance" ADD CONSTRAINT "Remembrance_journeyId_fkey" FOREIGN KEY ("journeyId") REFERENCES "Journey"("id") ON DELETE CASCADE ON UPDATE CASCADE;
