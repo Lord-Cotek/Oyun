@@ -11,7 +11,7 @@ export type MilestoneData = {
   title: string | null;
   note: string | null;
   occurredAt: string; // ISO
-  photoUrl: string | null;
+  photoUrls: string[];
   childId: string | null;
   childName: string | null;
 };
@@ -41,7 +41,7 @@ export function MilestoneItem({
           <input type="hidden" name="id" value={m.id} />
           <MilestoneFields
             children={children}
-            existingPhotoUrl={m.photoUrl}
+            existingPhotoUrls={m.photoUrls}
             defaults={{
               kind: m.kind,
               title: m.title,
@@ -88,14 +88,19 @@ export function MilestoneItem({
               year: "numeric",
             })}
           </p>
-          {m.photoUrl && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={m.photoUrl}
-              alt={`${milestoneTitle(m.kind, m.title)} — photo`}
-              className="mt-2 max-h-48 w-auto rounded-lg border border-border object-cover"
-              loading="lazy"
-            />
+          {m.photoUrls.length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-2">
+              {m.photoUrls.map((url) => (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  key={url}
+                  src={url}
+                  alt={`${milestoneTitle(m.kind, m.title)} — photo`}
+                  className="h-28 w-28 rounded-lg border border-border object-cover sm:h-32 sm:w-32"
+                  loading="lazy"
+                />
+              ))}
+            </div>
           )}
         </div>
         <div className="flex shrink-0 items-center gap-2">

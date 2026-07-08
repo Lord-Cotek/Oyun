@@ -29,7 +29,7 @@ const inputClass =
 export function MilestoneFields({
   children = [],
   defaults,
-  existingPhotoUrl,
+  existingPhotoUrls = [],
 }: {
   children?: { id: string; name: string }[];
   defaults?: {
@@ -39,7 +39,7 @@ export function MilestoneFields({
     occurredAt?: string;
     childId?: string | null;
   };
-  existingPhotoUrl?: string | null;
+  existingPhotoUrls?: string[];
 }) {
   const [kind, setKind] = useState(defaults?.kind ?? "FIRST_KICK");
 
@@ -107,27 +107,43 @@ export function MilestoneFields({
         className={inputClass}
       />
 
-      {existingPhotoUrl && (
-        <div className="flex items-center gap-3 rounded-lg border border-border bg-bg p-2.5">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={existingPhotoUrl} alt="Current photo" className="h-12 w-12 rounded object-cover" />
-          <label className="flex items-center gap-2">
-            <input type="checkbox" name="removePhoto" className="h-4 w-4 accent-[color:var(--accent)]" />
-            <span className="font-mono text-xs text-muted">Remove this photo</span>
-          </label>
+      {existingPhotoUrls.length > 0 && (
+        <div>
+          <span className="eyebrow mb-1.5 block text-muted">Photos</span>
+          <div className="flex flex-wrap gap-3">
+            {existingPhotoUrls.map((url) => (
+              <label key={url} className="flex cursor-pointer flex-col items-center gap-1">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={url} alt="Photo" className="h-16 w-16 rounded-lg border border-border object-cover" />
+                <span className="flex items-center gap-1 font-mono text-[0.62rem] text-muted">
+                  <input
+                    type="checkbox"
+                    name="removePhoto"
+                    value={url}
+                    className="h-3.5 w-3.5 accent-[color:var(--negative)]"
+                  />
+                  remove
+                </span>
+              </label>
+            ))}
+          </div>
         </div>
       )}
 
       <label className="block">
         <span className="eyebrow mb-1.5 block text-muted">
-          {existingPhotoUrl ? "Replace photo (optional)" : "Photo (optional)"}
+          {existingPhotoUrls.length > 0 ? "Add more photos" : "Photos (optional)"}
         </span>
         <input
           type="file"
           name="photo"
+          multiple
           accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
           className="w-full font-mono text-xs text-muted file:mr-3 file:rounded-md file:border file:border-border file:bg-bg file:px-3 file:py-1.5 file:font-mono file:text-xs file:text-ink hover:file:border-accent hover:file:text-accent"
         />
+        <span className="mt-1 block font-mono text-[0.68rem] text-muted">
+          You can select several at once (up to 8).
+        </span>
       </label>
     </div>
   );

@@ -136,7 +136,7 @@ export default async function CarePage() {
                         title: m.title,
                         note: m.note,
                         occurredAt: m.occurredAt.toISOString(),
-                        photoUrl: m.photoUrl,
+                        photoUrls: m.photoUrls,
                         childId: m.child?.id ?? null,
                         childName: m.child?.name ?? null,
                       }}

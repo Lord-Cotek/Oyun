@@ -303,7 +303,7 @@ model Milestone {
   title      String? // custom label, especially when kind is CUSTOM
   note       String?
   occurredAt DateTime
-  photoUrl   String?
+  photoUrls  String[]      @default([])
   createdAt  DateTime      @default(now())
 
   @@index([journeyId, occurredAt])

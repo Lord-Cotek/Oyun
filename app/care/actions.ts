@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { getActiveMembership } from "@/lib/data";
-import { uploadMilestonePhoto } from "@/lib/blob";
+import { uploadImages } from "@/lib/blob";
 import { Mood, MilestoneKind } from "@prisma/client";
 
 async function requireMother() {
@@ -64,11 +64,11 @@ export async function addMilestone(formData: FormData) {
   const occurredAt = dateStr ? new Date(dateStr) : new Date();
   if (Number.isNaN(occurredAt.getTime())) throw new Error("That date isn't valid.");
 
-  const photoUrl = await uploadMilestonePhoto(formData.get("photo"));
+  const photoUrls = await uploadImages(formData.getAll("photo"), "milestones");
   const childId = await resolveChildId(journeyId, String(formData.get("childId") ?? ""));
 
   await prisma.milestone.create({
-    data: { journeyId, kind: kindRaw as MilestoneKind, title, note, occurredAt, photoUrl, childId },
+    data: { journeyId, kind: kindRaw as MilestoneKind, title, note, occurredAt, photoUrls, childId },
   });
   revalidatePath("/care");
   revalidatePath("/journey");
@@ -87,8 +87,18 @@ export async function updateMilestone(formData: FormData) {
   if (Number.isNaN(occurredAt.getTime())) throw new Error("That date isn't valid.");
 
   const childId = await resolveChildId(journeyId, String(formData.get("childId") ?? ""));
-  const newPhoto = await uploadMilestonePhoto(formData.get("photo"));
-  const removePhoto = String(formData.get("removePhoto") ?? "") === "on";
+
+  // Compute the new photo set: keep existing minus any removed, then append new uploads.
+  const existing = await prisma.milestone.findFirst({
+    where: { id, journeyId },
+    select: { photoUrls: true },
+  });
+  const removeUrls = new Set(
+    formData.getAll("removePhoto").map((v) => String(v)),
+  );
+  const kept = (existing?.photoUrls ?? []).filter((u) => !removeUrls.has(u));
+  const added = await uploadImages(formData.getAll("photo"), "milestones");
+  const photoUrls = [...kept, ...added].slice(0, 8);
 
   await prisma.milestone.updateMany({
     where: { id, journeyId },
@@ -98,7 +108,7 @@ export async function updateMilestone(formData: FormData) {
       note,
       occurredAt,
       childId,
-      ...(newPhoto ? { photoUrl: newPhoto } : removePhoto ? { photoUrl: null } : {}),
+      photoUrls,
     },
   });
   revalidatePath("/care");

@@ -226,7 +226,7 @@ CREATE TABLE "Milestone" (
     "title" TEXT,
     "note" TEXT,
     "occurredAt" TIMESTAMP(3) NOT NULL,
-    "photoUrl" TEXT,
+    "photoUrls" TEXT[] DEFAULT ARRAY[]::TEXT[],
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Milestone_pkey" PRIMARY KEY ("id")
