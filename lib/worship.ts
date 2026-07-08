@@ -1,7 +1,11 @@
 /**
  * A daily household rhythm for family worship: a verse to read, a short
- * theological reflection, a prayer over the child, a question to talk through,
- * a hymn to sing, and — once the child has arrived — a catechism question.
+ * theological reflection, a prayer, a question to talk through, a hymn to sing,
+ * and — once the child has arrived — a catechism question.
+ *
+ * The passages deliberately center on the truth of God's Word and the
+ * supremacy of Christ — not merely on children — so that parents' first love
+ * stays fixed on the Lord and the gift of parenting is never made an idol.
  * Everything rotates by the calendar day.
  */
 export interface Liturgy {
@@ -13,11 +17,25 @@ export interface Liturgy {
 
 export const LITURGIES: Liturgy[] = [
   {
+    read: { text: "Indeed, I count everything as loss because of the surpassing worth of knowing Christ Jesus my Lord.", ref: "Philippians 3:8" },
+    reflection:
+      "Paul counts everything — even his best gifts — as loss next to knowing Christ. This is the great guard against making an idol of your child or your parenting: they are precious gifts, but they are not your treasure. Christ is. When He is supreme, you are freed to love your child rightly — as a gift, and never a god.",
+    pray: "Lord Jesus, be our supreme treasure. Let us love our children well because we love you first and most.",
+    talk: "Be honest: has any hope for your child quietly taken the place that belongs to Christ alone?",
+  },
+  {
     read: { text: "These words that I command you today shall be on your heart. You shall teach them diligently to your children.", ref: "Deuteronomy 6:6-7" },
     reflection:
-      "Before a parent can teach the Word, it must first be on their own heart. God does not ask us to hand down a faith we do not hold. Family worship begins not with technique but with parents who themselves love and treasure God's Word — and then, unhurried, let it overflow to the little ones in the ordinary moments of the day.",
+      "Before a parent can teach the Word, it must first be on their own heart. God does not ask us to hand down a faith we do not hold. Family worship begins not with technique but with parents who themselves love and treasure God's Word — and then let it overflow to the little ones.",
     pray: "Father, make our home a place where your Word is spoken and loved. Write it first on our hearts, and then on our children's.",
     talk: "What is one truth about God you most want your child to know deep in their bones?",
+  },
+  {
+    read: { text: "You shall love the Lord your God with all your heart and with all your soul and with all your mind. This is the great and first commandment.", ref: "Matthew 22:37-38" },
+    reflection:
+      "The first commandment is to love God — not our children. This is not cold; it is the only order that keeps love from becoming idolatry. A child loved more than God is a child crushed under a weight they were never meant to bear. Love God first, and your children are freed to be loved as children, not as gods.",
+    pray: "Father, capture our hearts' first love. From loving you supremely, teach us to love our children truly.",
+    talk: "What would change this week if loving God first genuinely came before every hope you have for your child?",
   },
   {
     read: { text: "Train up a child in the way he should go; even when he is old he will not depart from it.", ref: "Proverbs 22:6" },
@@ -27,11 +45,25 @@ export const LITURGIES: Liturgy[] = [
     talk: "Where are you tempted to either coast on grace or grasp for control in parenting? What would trusting God look like instead?",
   },
   {
+    read: { text: "For by grace you have been saved through faith. And this is not your own doing; it is the gift of God, not a result of works, so that no one may boast.", ref: "Ephesians 2:8-9" },
+    reflection:
+      "Salvation is grace from first to last — not earned by our performance, and not by our parenting. This frees us: we are not saved by raising perfect children, nor are our children saved by our efforts. We labor in faith and rest in grace, boasting not in ourselves but in God.",
+    pray: "God of grace, save us and our children by your mercy, not our merit. Keep us from boasting in anything but you.",
+    talk: "Where are you tempted to treat parenting as something that earns God's favor — for you or your child?",
+  },
+  {
     read: { text: "Let the little children come to me, and do not hinder them, for to such belongs the kingdom of God.", ref: "Mark 10:14" },
     reflection:
       "Jesus was indignant when children were kept from Him. He does not merely tolerate the young — He welcomes them and holds them up as a picture of the kingdom. Our job is never to be a barrier between our children and Christ, but a door: pointing, inviting, making the way to Him plain and warm.",
     pray: "Jesus, draw our child to yourself early. Let us never hinder them, but always point the way to your open arms.",
     talk: "In what small way can you make Jesus feel welcoming and near to your child this week?",
+  },
+  {
+    read: { text: "Christ died for our sins in accordance with the Scriptures, that he was buried, that he was raised on the third day in accordance with the Scriptures.", ref: "1 Corinthians 15:3-4" },
+    reflection:
+      "Here is the gospel of first importance — not advice for better families, but the death and resurrection of Christ for sinners. Everything in a Christian home stands on this. Before we are parents, we are sinners saved by a crucified and risen Savior. Keep this at the center, and parenting finds its right place.",
+    pray: "Thank you, Lord, for Christ crucified and risen for us. Let the gospel be the ground our home is built on.",
+    talk: "How can the gospel — Christ's death and resurrection — stay central in your home, not just good behavior?",
   },
   {
     read: { text: "The steadfast love of the LORD is from everlasting to everlasting on those who fear him, and his righteousness to children's children.", ref: "Psalm 103:17" },
@@ -41,11 +73,25 @@ export const LITURGIES: Liturgy[] = [
     talk: "Whose faith was passed down to you? Give thanks for them by name.",
   },
   {
+    read: { text: "And he is the head of the body, the church. He is the beginning, the firstborn from the dead, that in everything he might be preeminent.", ref: "Colossians 1:18" },
+    reflection:
+      "In everything — including your family — Christ is meant to be preeminent: first, supreme. Not your child, not your dreams for them, not the family itself. When Christ holds first place, the home is well-ordered; when anything else does, it becomes an idol that cannot bear the weight.",
+    pray: "Lord Jesus, be preeminent in our home — first in our affections, our decisions, our hopes.",
+    talk: "What currently competes with Christ for first place in your family's life?",
+  },
+  {
     read: { text: "From childhood you have been acquainted with the sacred writings, which are able to make you wise for salvation through faith in Christ Jesus.", ref: "2 Timothy 3:15" },
     reflection:
       "Timothy knew Scripture from infancy — long before he could reason about it — through the everyday faithfulness of his mother and grandmother. Scripture does its saving work not by our cleverness but by the Spirit through the Word. So we read it to children who do not yet understand, trusting God to make it wise unto salvation in His time.",
     pray: "Make the Scriptures familiar and dear to our child, Lord, and by them make them wise unto salvation in Christ.",
     talk: "How can Scripture become a familiar, everyday sound in your home — not just a Sunday event?",
+  },
+  {
+    read: { text: "Little children, keep yourselves from idols.", ref: "1 John 5:21" },
+    reflection:
+      "John's last words to a beloved church: keep from idols. An idol is any good thing turned into an ultimate thing. A child is one of the easiest and most respectable idols to make. Guard your heart — love your child dearly, but worship God alone.",
+    pray: "Father, guard our hearts from idols. Let no gift, however precious, take the place that is yours alone.",
+    talk: "What good gift are you most prone to turn into an ultimate thing?",
   },
   {
     read: { text: "Behold, children are a heritage from the LORD, the fruit of the womb a reward.", ref: "Psalm 127:3" },
@@ -55,11 +101,25 @@ export const LITURGIES: Liturgy[] = [
     talk: "What does it look like, practically, to parent as a steward rather than an owner?",
   },
   {
+    read: { text: "But God shows his love for us in that while we were still sinners, Christ died for us.", ref: "Romans 5:8" },
+    reflection:
+      "God's love is proven not by our worthiness but by Christ dying for the unworthy. This is the love we rest in, and the love we model — loving our children not because they earn it, but freely, as we have been loved. The cross, not our children's behavior, is the measure of grace.",
+    pray: "Thank you for loving us while we were still sinners. Teach us to love our children with that same free grace.",
+    talk: "How does being loved by God 'while still a sinner' shape how you will love your child on their hardest days?",
+  },
+  {
     read: { text: "As for me and my house, we will serve the LORD.", ref: "Joshua 24:15" },
     reflection:
       "Joshua's declaration is a settled decision made before the pressures come. A home is not neutral ground; it is always serving something. To say 'we will serve the LORD' is to choose, on ordinary days, a hundred small allegiances that add up to a household pointed toward God.",
     pray: "Lord, make this the settled confession of our home — that we, and our house, will serve you together.",
     talk: "What is one 'small allegiance' — a rhythm or habit — that would point your home more toward God?",
+  },
+  {
+    read: { text: "All Scripture is breathed out by God and profitable for teaching, for reproof, for correction, and for training in righteousness.", ref: "2 Timothy 3:16" },
+    reflection:
+      "Scripture is God's own breath — sufficient to make us complete and equipped. We do not need the latest parenting theory as our foundation; we need the Word. Let the whole counsel of God, not merely a few sentimental verses, shape your home.",
+    pray: "Lord, make your Word our foundation. Feed us on the whole of Scripture, and equip us by it.",
+    talk: "Is your family fed on the whole of Scripture, or only the comfortable parts? Where could you go deeper?",
   },
   {
     read: { text: "One generation shall commend your works to another, and shall declare your mighty acts.", ref: "Psalm 145:4" },
@@ -69,18 +129,39 @@ export const LITURGIES: Liturgy[] = [
     talk: "Tell one story of God's faithfulness in your life that you want your child to grow up hearing.",
   },
   {
+    read: { text: "So, whether you eat or drink, or whatever you do, do all to the glory of God.", ref: "1 Corinthians 10:31" },
+    reflection:
+      "The chief end of parenting — of everything — is the glory of God. Not the success of our children, not our reputation as parents, but God's glory. This lifts the ordinary (feeding, cleaning, teaching) into worship, and keeps the goal from shrinking to something smaller than God.",
+    pray: "Father, let everything in our home — even the smallest task — be done for your glory.",
+    talk: "How would naming God's glory as the goal reshape an ordinary day of parenting?",
+  },
+  {
     read: { text: "I have no greater joy than to hear that my children are walking in the truth.", ref: "3 John 1:4" },
     reflection:
-      "John names the deepest joy of a spiritual parent: not achievement, comfort, or success, but children walking in the truth. It reorders our hopes. Above health, wealth, or accomplishment, we long most for our children to know and follow Christ — and we let that longing shape how we pray and parent.",
+      "John names the deepest joy of a spiritual parent: not achievement, comfort, or success, but children walking in the truth. It reorders our hopes. Above health, wealth, or accomplishment, we long most for our children to know and follow Christ.",
     pray: "Above every other hope for our child, Lord, let them walk in the truth all their days.",
-    talk: "If you're honest, what do you most want for your child? How does 3 John reorder it?",
+    talk: "If you are honest, what do you most want for your child? How does 3 John reorder it?",
+  },
+  {
+    read: { text: "Whom have I in heaven but you? And there is nothing on earth that I desire besides you... God is the strength of my heart and my portion forever.", ref: "Psalm 73:25-26" },
+    reflection:
+      "The psalmist's satisfaction is in God alone — not in family, not in earthly gifts. This is the settled heart that can hold children with open hands: God is my portion, so I am not undone if earthly things fail. Desire God above all, and every other love finds its place.",
+    pray: "God, be our portion and the strength of our hearts. Let us desire you above every earthly gift.",
+    talk: "Can you say with the psalmist that God alone is enough — even apart from your hopes for your child?",
   },
   {
     read: { text: "The LORD your God is in your midst, a mighty one who will save; he will rejoice over you with gladness; he will quiet you by his love; he will exult over you with loud singing.", ref: "Zephaniah 3:17" },
     reflection:
-      "God sings over His people. The same delight a parent feels over a sleeping child, God feels — infinitely more — over you. As you learn to sing over your little one, you are living out a small picture of how God rejoices over you. Let that steady you: you are loved by a God who is glad.",
+      "God sings over His people. The same delight a parent feels over a sleeping child, God feels — infinitely more — over you. As you learn to sing over your little one, you live out a small picture of how God rejoices over you. Let that steady you: you are loved by a God who is glad.",
     pray: "Sing over our child, Lord, as you sing over us. Let them grow up sure that they are loved and delighted in.",
     talk: "How does knowing God 'rejoices over you with singing' change how you see yourself as a parent today?",
+  },
+  {
+    read: { text: "The steadfast love of the LORD never ceases; his mercies never come to an end; they are new every morning; great is your faithfulness.", ref: "Lamentations 3:22-23" },
+    reflection:
+      "Written amid ruin, this is confidence not in circumstances but in the character of God. His mercies are new every morning — including the mornings after we fail as parents. We do not rest in our own consistency, but in His faithfulness.",
+    pray: "Great is your faithfulness, Lord. Meet us with new mercy each morning, for we need it daily.",
+    talk: "Where do you need to trade confidence in your own consistency for confidence in God's faithfulness?",
   },
   {
     read: { text: "He established a testimony in Jacob and appointed a law... that the next generation might know them, the children yet unborn.", ref: "Psalm 78:5-6" },
@@ -90,11 +171,46 @@ export const LITURGIES: Liturgy[] = [
     talk: "What do you hope your family's faith looks like two generations from now? Pray toward it.",
   },
   {
+    read: { text: "If then you have been raised with Christ, seek the things that are above, where Christ is. Set your minds on things that are above, not on things that are on earth.", ref: "Colossians 3:1-2" },
+    reflection:
+      "The Christian's gaze is meant to be upward — on Christ, not merely on the pressing concerns of earthly life, even good ones like our children. An upward-set mind does not neglect the home; it parents from a heart anchored above, unshaken by what shakes on earth.",
+    pray: "Lord, lift our eyes. Set our minds on Christ above, and let us parent from that steadiness.",
+    talk: "What earthly worry about your child most needs to be met with a mind 'set on things above'?",
+  },
+  {
     read: { text: "Whoever receives one such child in my name receives me.", ref: "Matthew 18:5" },
     reflection:
       "Christ so identifies with children that to welcome one in His name is to welcome Him. The unseen, repetitive, humble work of caring for a little one — the feeding, the soothing, the night-waking — is not beneath the kingdom. Done in Jesus' name, it is service rendered to Christ Himself.",
     pray: "Help us receive and serve our child as unto you, Jesus, in the small and unseen things.",
     talk: "Which unseen, ordinary task of care could you offer to Jesus today as worship?",
+  },
+  {
+    read: { text: "But far be it from me to boast except in the cross of our Lord Jesus Christ, by which the world has been crucified to me, and I to the world.", ref: "Galatians 6:14" },
+    reflection:
+      "Paul boasts in one thing only: the cross. Not his ministry, not his family, not his record. For parents this is freedom — our worth and our children's worth is not our achievement but Christ crucified. Boast in the cross, and you will parent from security, not to earn it.",
+    pray: "Let us boast in nothing, Lord, but the cross of Christ. Be our only glory.",
+    talk: "What are you quietly tempted to boast in as a parent? How does the cross reorder it?",
+  },
+  {
+    read: { text: "The fear of the LORD is the beginning of wisdom, and the knowledge of the Holy One is insight.", ref: "Proverbs 9:10" },
+    reflection:
+      "All true wisdom — including wisdom for parenting — begins with the fear of the Lord, not with expertise. Before technique, before strategy, there is reverence for God. Raise children in the fear of the Lord by first walking in it yourselves.",
+    pray: "Teach us the fear of the LORD, that we and our children might be truly wise.",
+    talk: "What does 'the fear of the Lord' look like in the everyday atmosphere of your home?",
+  },
+  {
+    read: { text: "Let us run with endurance the race that is set before us, looking to Jesus, the founder and perfecter of our faith.", ref: "Hebrews 12:1-2" },
+    reflection:
+      "The Christian life — and Christian parenting — is a race run by looking to Jesus, not to ourselves or our children. He is the founder and perfecter; the outcome rests with Him. Fix your eyes on Christ, and you will endure the long, ordinary marathon of raising a family.",
+    pray: "Jesus, founder and perfecter of our faith, fix our eyes on you as we run this long race.",
+    talk: "When parenting feels like a long, tiring race, what does 'looking to Jesus' practically mean for you?",
+  },
+  {
+    read: { text: "As he who called you is holy, you also be holy in all your conduct, since it is written, 'You shall be holy, for I am holy.'", ref: "1 Peter 1:15-16" },
+    reflection:
+      "God's call is not first to raise good children but to be holy as He is holy. Our children's clearest sermon is the holiness — or the hypocrisy — they see in us. Pursue God's holiness for its own sake, out of reverence for Him, and your children will see a faith worth having.",
+    pray: "Holy Father, make us holy as you are holy. Let our children see in us a faith that is real.",
+    talk: "What is one area where God is calling you to holiness — that your children are quietly watching?",
   },
 ];
 
@@ -116,6 +232,10 @@ export const HYMNS: Hymn[] = [
   { title: "Abide with Me", line: "Help of the helpless, O abide with me." },
   { title: "My Hope Is Built on Nothing Less", line: "On Christ the solid rock I stand; all other ground is sinking sand." },
   { title: "Guide Me, O Thou Great Jehovah", line: "Bread of heaven, feed me till I want no more." },
+  { title: "Before the Throne of God Above", line: "Because the sinless Savior died, my sinful soul is counted free." },
+  { title: "Crown Him with Many Crowns", line: "Crown Him the Lord of life, who triumphed o'er the grave." },
+  { title: "And Can It Be", line: "Amazing love! how can it be that thou, my God, shouldst die for me?" },
+  { title: "How Great Thou Art", line: "Then sings my soul, my Savior God, to thee: how great thou art!" },
 ];
 
 export interface CatechismQ {
