@@ -117,6 +117,15 @@ export default async function JourneyPage() {
     const showBirth =
       birthRecorded === 0 && (position.born || position.daysToGo <= 21);
 
+    // Once the little one has arrived, offer to continue in Ìdílé — the sibling
+    // app for family discipleship. Loose link only (no shared data); pre-fills
+    // the child's name + birthday. Shown only when NEXT_PUBLIC_IDILE_URL is set.
+    const idileUrl = process.env.NEXT_PUBLIC_IDILE_URL;
+    const idileHandoff =
+      idileUrl && position.born
+        ? `${idileUrl}/welcome?name=${encodeURIComponent(journey.babyName ?? "")}&born=${encodeURIComponent(journey.dueDate.toISOString().slice(0, 10))}`
+        : null;
+
     return (
       <>
         <SiteHeader active="journey" />
@@ -230,6 +239,26 @@ export default async function JourneyPage() {
                   Open the nursery
                 </Button>
               </Card>
+              {idileHandoff && (
+                <Card className="border-accent/30 bg-accent/[0.06]">
+                  <Eyebrow className="mb-3">As they grow</Eyebrow>
+                  <p className="mb-4 font-mono text-xs leading-relaxed text-muted">
+                    Ìdílé — Oyun&rsquo;s sibling — carries the family on through
+                    childhood: family worship, catechism, Scripture memory, and
+                    shepherding the heart. Bring{" "}
+                    {journey.babyName ?? "your little one"} home to start.
+                  </p>
+                  <Button
+                    href={idileHandoff}
+                    variant="ghost"
+                    className="w-full"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Continue in Ìdílé
+                  </Button>
+                </Card>
+              )}
               <Card>
                 <InvitePanel hasSupporter={supporterCount > 0} />
               </Card>
