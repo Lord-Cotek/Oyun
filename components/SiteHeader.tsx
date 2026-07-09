@@ -5,9 +5,10 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { InstallButton } from "@/components/InstallButton";
 import { NotificationBell } from "@/components/NotificationBell";
 import { MobileMenu } from "@/components/MobileMenu";
+import { JourneySwitcher } from "@/components/JourneySwitcher";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { getActiveMembership } from "@/lib/data";
+import { getActiveMembership, getMyJourneys } from "@/lib/data";
 
 type ActiveKey =
   | "journey"
@@ -30,16 +31,22 @@ export async function SiteHeader({
   let isMother = false;
   let isHousehold = false;
   let inLoss = false;
+  let journeys: Awaited<ReturnType<typeof getMyJourneys>> = [];
+  let activeJourneyId: string | null = null;
   if (session?.user?.id) {
-    const [count, membership] = await Promise.all([
+    const [count, membership, myJourneys] = await Promise.all([
       prisma.notification.count({ where: { userId: session.user.id, readAt: null } }),
       getActiveMembership(session.user.id),
+      getMyJourneys(session.user.id),
     ]);
     unread = count;
     isMother = membership?.role === "MOTHER";
     isHousehold = membership?.role === "MOTHER" || membership?.role === "PARTNER";
     inLoss = membership?.journey.status === "LOSS";
+    journeys = myJourneys;
+    activeJourneyId = membership?.journey.id ?? null;
   }
+  const ownsJourney = journeys.some((j) => j.isOwner);
 
   // The full nav, used inline on desktop and inside the mobile menu.
   const links: { href: string; label: string; current: boolean }[] = [
@@ -63,10 +70,17 @@ export async function SiteHeader({
   return (
     <header className="safe-top border-b border-border">
       <div className="mx-auto flex h-16 max-w-shell items-center justify-between gap-2 px-4 sm:px-6">
-        <Link href="/journey" className="flex shrink-0 items-center gap-2.5">
-          <OyunMark size={28} className="text-ink" />
-          <span className="font-serif text-lg text-ink">Oyun</span>
-        </Link>
+        <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+          <Link href="/journey" className="flex shrink-0 items-center gap-2.5">
+            <OyunMark size={28} className="text-ink" />
+            <span className="hidden font-serif text-lg text-ink sm:inline">Oyun</span>
+          </Link>
+          <JourneySwitcher
+            journeys={journeys}
+            activeId={activeJourneyId}
+            canStartOwn={!ownsJourney && journeys.length > 0}
+          />
+        </div>
 
         <div className="flex items-center gap-1">
           {/* Inline nav — larger screens only */}

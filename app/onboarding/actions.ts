@@ -2,10 +2,22 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { notify } from "@/lib/notify";
+import { ACTIVE_JOURNEY_COOKIE } from "@/lib/data";
 import { Role } from "@prisma/client";
+
+/** Remember which journey to show after creating/joining one. */
+function setActiveJourney(journeyId: string) {
+  cookies().set(ACTIVE_JOURNEY_COOKIE, journeyId, {
+    httpOnly: true,
+    sameSite: "lax",
+    path: "/",
+    maxAge: 60 * 60 * 24 * 365,
+  });
+}
 
 /** Mother creates her journey. `dueDate` is the due date, or the birth date if already born. */
 export async function createJourney(formData: FormData) {
@@ -21,11 +33,16 @@ export async function createJourney(formData: FormData) {
   const dueDate = new Date(dateStr);
   if (Number.isNaN(dueDate.getTime())) throw new Error("That date isn't valid.");
 
-  // Idempotent-ish: if the user already owns a journey, don't duplicate.
-  const existing = await prisma.membership.findFirst({
-    where: { userId: session.user.id },
+  // A mother owns only one journey at a time — but a supporter in someone's
+  // circle may still start her own. Only bounce those who already own one.
+  const owned = await prisma.journey.findFirst({
+    where: { ownerId: session.user.id },
+    select: { id: true },
   });
-  if (existing) redirect("/journey");
+  if (owned) {
+    setActiveJourney(owned.id);
+    redirect("/journey");
+  }
 
   if (name) {
     await prisma.user.update({
@@ -46,6 +63,7 @@ export async function createJourney(formData: FormData) {
     },
   });
 
+  setActiveJourney(journey.id);
   revalidatePath("/journey");
   redirect(`/journey?welcome=1&j=${journey.id.slice(0, 6)}`);
 }
@@ -91,6 +109,7 @@ export async function acceptInvite(formData: FormData) {
   if (existingMembership) {
     // Already a member — just mark the invite used, don't change their role.
     await prisma.invite.update({ where: { token }, data: { acceptedAt: new Date() } });
+    setActiveJourney(invite.journeyId);
     redirect("/journey");
   }
 
@@ -153,6 +172,7 @@ export async function acceptInvite(formData: FormData) {
     email: true,
   });
 
+  setActiveJourney(invite.journeyId);
   revalidatePath("/journey");
   revalidatePath("/circle");
   redirect("/journey?welcome=1");

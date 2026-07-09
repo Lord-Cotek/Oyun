@@ -1,13 +1,18 @@
+import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { type Role } from "@prisma/client";
 
+/** Remembers which journey a supporter is currently viewing. */
+export const ACTIVE_JOURNEY_COOKIE = "oyun_journey";
+
 /**
- * The current user's active journey and their role in it.
- * A user may own a journey (MOTHER) or belong to one via membership
- * (PARTNER / ACCOUNTABILITY). We return the first membership found.
+ * The current user's active journey and their role in it. A user may own a
+ * journey (MOTHER) or accompany several others (PARTNER / ACCOUNTABILITY). We
+ * honour the selected-journey cookie when it points at one they belong to;
+ * otherwise we prefer the journey they own, then the oldest membership.
  */
 export async function getActiveMembership(userId: string) {
-  const membership = await prisma.membership.findFirst({
+  const memberships = await prisma.membership.findMany({
     where: { userId },
     orderBy: { createdAt: "asc" },
     include: {
@@ -19,12 +24,55 @@ export async function getActiveMembership(userId: string) {
     },
   });
 
-  if (!membership) return null;
+  if (memberships.length === 0) return null;
+
+  const selectedId = cookies().get(ACTIVE_JOURNEY_COOKIE)?.value;
+  const chosen =
+    (selectedId && memberships.find((m) => m.journeyId === selectedId)) ||
+    memberships.find((m) => m.journey.ownerId === userId) ||
+    memberships[0];
+
   return {
-    role: membership.role as Role,
-    journey: membership.journey,
-    membership,
+    role: chosen.role as Role,
+    journey: chosen.journey,
+    membership: chosen,
+    membershipCount: memberships.length,
   };
+}
+
+/** Every journey a user belongs to — for the switcher. Owned journey first. */
+export async function getMyJourneys(userId: string) {
+  const memberships = await prisma.membership.findMany({
+    where: { userId },
+    orderBy: { createdAt: "asc" },
+    include: {
+      journey: {
+        select: { id: true, ownerId: true, babyName: true, owner: { select: { name: true } } },
+      },
+    },
+  });
+  return memberships
+    .map((m) => {
+      const isOwner = m.journey.ownerId === userId;
+      return {
+        id: m.journey.id,
+        label: isOwner
+          ? "Your journey"
+          : `${m.journey.owner.name ?? "Her"}${m.journey.babyName ? ` · ${m.journey.babyName}` : ""}`,
+        role: m.role as Role,
+        isOwner,
+      };
+    })
+    .sort((a, b) => Number(b.isOwner) - Number(a.isOwner));
+}
+
+/** Whether the user already owns a journey (a mother owns only one at a time). */
+export async function ownsJourney(userId: string): Promise<boolean> {
+  const owned = await prisma.journey.findFirst({
+    where: { ownerId: userId },
+    select: { id: true },
+  });
+  return !!owned;
 }
 
 export async function getJourneyMembers(journeyId: string) {

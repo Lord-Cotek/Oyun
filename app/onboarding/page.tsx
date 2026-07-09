@@ -3,7 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { getActiveMembership } from "@/lib/data";
+import { getActiveMembership, ownsJourney } from "@/lib/data";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { OyunMark } from "@/components/ui/OyunMark";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -78,7 +78,10 @@ export default async function Onboarding({
     !!invite &&
     me?.email?.toLowerCase() !== invite.email.toLowerCase();
 
-  if (!hasPendingInvite && active) redirect("/journey");
+  // A supporter (in a circle but owning no journey) may still reach this page to
+  // begin her own journey. Only bounce those who already own one.
+  const owns = active ? await ownsJourney(session.user.id) : false;
+  if (!hasPendingInvite && owns) redirect("/journey");
 
   // A token was supplied but doesn't match any invite.
   const inviteNotFound = !!inviteToken && !invite;
