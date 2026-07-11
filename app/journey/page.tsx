@@ -12,6 +12,7 @@ import {
   getWorshipStreak,
 } from "@/lib/data";
 import { computePosition } from "@/lib/stage";
+import { partnerDailyCare, dayKey } from "@/lib/partner-care";
 import { getReactionsFor } from "@/lib/reactions";
 import { MOOD_META } from "@/lib/moods";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -327,6 +328,26 @@ export default async function JourneyPage() {
               <p className="font-serif text-xl leading-snug text-ink">
                 {stage.partnerFocus}
               </p>
+              {(() => {
+                const care = partnerDailyCare(
+                  position.born ? "infancy" : "pregnancy",
+                  dayKey(),
+                  stage.index,
+                );
+                return (
+                  <div className="mt-6 border-t border-accent/20 pt-5">
+                    <p className="eyebrow mb-2 text-accent">Today — one small thing</p>
+                    <p className="font-serif text-lg leading-snug text-ink">
+                      {care.act}
+                    </p>
+                    {care.ref && (
+                      <p className="mt-2 font-mono text-[0.68rem] uppercase tracking-widest text-muted">
+                        {care.ref}
+                      </p>
+                    )}
+                  </div>
+                );
+              })()}
             </Card>
 
             <Card className="p-8">
