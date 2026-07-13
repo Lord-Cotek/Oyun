@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { type ReactionData } from "@/lib/reaction-emojis";
 
-export type ReactionTarget = "ENCOURAGEMENT" | "CHECKIN";
+export type ReactionTarget = "ENCOURAGEMENT" | "CHECKIN" | "LETTER";
 
 /** Aggregated reactions for a set of targets, plus which ones the viewer made. */
 export async function getReactionsFor(

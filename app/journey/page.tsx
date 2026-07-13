@@ -10,6 +10,7 @@ import {
   getEncouragementsForViewer,
   getSupportSummary,
   getWorshipStreak,
+  getCoupleLetters,
 } from "@/lib/data";
 import { computePosition } from "@/lib/stage";
 import { partnerDailyCare, dayKey } from "@/lib/partner-care";
@@ -26,6 +27,7 @@ import { InvitePanel } from "@/components/InvitePanel";
 import { SupportActions } from "@/components/journey/SupportActions";
 import { NudgeList } from "@/components/journey/NudgeList";
 import { EncouragementBox } from "@/components/journey/EncouragementBox";
+import { CoupleLetters } from "@/components/care/CoupleLetters";
 import { Encouragements } from "@/components/journey/Encouragements";
 import { Reactions } from "@/components/Reactions";
 import { DailyVerse } from "@/components/journey/DailyVerse";
@@ -293,10 +295,11 @@ export default async function JourneyPage() {
   }
 
   // ── Husband / Partner view ─────────────────────────────────────────────
-  const [latest, nudges, support] = await Promise.all([
+  const [latest, nudges, support, coupleLetters] = await Promise.all([
     getLatestMotherCheckIn(journey.id),
     getOpenNudges(journey.id, session.user.id),
     getSupportSummary(journey.id, session.user.id),
+    getCoupleLetters(journey.id, session.user.id),
   ]);
   const motherName = journey.owner.name ?? "her";
   const mood = latest ? MOOD_META[latest.mood] : null;
@@ -367,6 +370,20 @@ export default async function JourneyPage() {
                 her. She&rsquo;ll see it on her journey.
               </p>
               <EncouragementBox toName={motherName} verseRef={stage.verse.ref} />
+            </Card>
+
+            <Card className="p-8">
+              <Eyebrow className="mb-2">Between the two of you</Eyebrow>
+              <p className="mb-5 font-mono text-xs leading-relaxed text-muted">
+                Letters just between you and {motherName} — hers to you, and
+                yours to her. Private to the two of you.
+              </p>
+              <CoupleLetters
+                letters={coupleLetters}
+                viewerId={session.user.id}
+                spouseFallback={motherName}
+                placeholder={`Write to ${motherName}…`}
+              />
             </Card>
 
             <Card className="p-8">

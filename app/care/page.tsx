@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { getActiveMembership } from "@/lib/data";
+import { getActiveMembership, getCoupleLetters } from "@/lib/data";
 import { getReactionsFor } from "@/lib/reactions";
 import { MOOD_META } from "@/lib/moods";
 import { Reactions } from "@/components/Reactions";
@@ -14,6 +14,7 @@ import { LetterForm } from "@/components/care/LetterForm";
 import { MilestoneForm } from "@/components/care/MilestoneForm";
 import { MilestoneItem } from "@/components/care/MilestoneItem";
 import { MoodChart, type MoodPoint } from "@/components/care/MoodChart";
+import { CoupleLetters } from "@/components/care/CoupleLetters";
 
 export const metadata: Metadata = {
   title: "Care",
@@ -31,14 +32,14 @@ export default async function CarePage() {
 
   const journeyId = active.journey.id;
 
-  const [checkIns, letters, milestones, children] = await Promise.all([
+  const [checkIns, letters, milestones, children, coupleLetters] = await Promise.all([
     prisma.checkIn.findMany({
       where: { journeyId },
       orderBy: { createdAt: "asc" },
       take: 60,
     }),
     prisma.letter.findMany({
-      where: { journeyId },
+      where: { journeyId, toBaby: true },
       orderBy: { createdAt: "desc" },
       take: 20,
     }),
@@ -53,6 +54,7 @@ export default async function CarePage() {
       orderBy: { createdAt: "asc" },
       select: { id: true, name: true },
     }),
+    getCoupleLetters(journeyId, session.user.id),
   ]);
 
   const points: MoodPoint[] = checkIns.map((c) => ({
@@ -116,9 +118,9 @@ export default async function CarePage() {
             )}
           </Card>
 
-          {/* Letters */}
+          {/* Letters to the baby — her keepsakes */}
           <Card>
-            <Eyebrow className="mb-4">Letters</Eyebrow>
+            <Eyebrow className="mb-4">Letters to your baby</Eyebrow>
             <LetterForm />
             <div className="mt-6 space-y-3 border-t border-border pt-5">
               {letters.length === 0 ? (
@@ -132,7 +134,7 @@ export default async function CarePage() {
                       {l.body}
                     </p>
                     <p className="mt-3 font-mono text-[0.68rem] uppercase tracking-widest text-muted">
-                      {l.toBaby ? "To the baby" : "To each other"} ·{" "}
+                      To the baby ·{" "}
                       {l.createdAt.toLocaleDateString(undefined, {
                         month: "short",
                         day: "numeric",
@@ -143,6 +145,22 @@ export default async function CarePage() {
                 ))
               )}
             </div>
+          </Card>
+
+          {/* Letters to each other — the shared thread with her husband */}
+          <Card>
+            <Eyebrow className="mb-2">Between the two of you</Eyebrow>
+            <p className="mb-5 font-mono text-xs leading-relaxed text-muted">
+              A shared place for you and your husband to write to each other —
+              he sees these on his journey, and can write back. Anyone else in
+              your circle can&rsquo;t.
+            </p>
+            <CoupleLetters
+              letters={coupleLetters}
+              viewerId={session.user.id}
+              spouseFallback="Your husband"
+              placeholder="Words to keep between the two of you…"
+            />
           </Card>
 
           {/* Milestones */}

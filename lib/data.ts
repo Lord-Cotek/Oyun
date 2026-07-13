@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { type Role } from "@prisma/client";
+import { getReactionsFor } from "@/lib/reactions";
 
 /** Remembers which journey a supporter is currently viewing. */
 export const ACTIVE_JOURNEY_COOKIE = "oyun_journey";
@@ -84,6 +85,36 @@ export async function getJourneyMembers(journeyId: string) {
 }
 
 /** The mother's most recent check-in — shown to partners only if shared. */
+/**
+ * The shared "to each other" letter thread between the mother and her husband,
+ * oldest first, each with its emoji reactions for the viewer.
+ */
+export async function getCoupleLetters(journeyId: string, viewerId: string) {
+  const letters = await prisma.letter.findMany({
+    where: { journeyId, toBaby: false },
+    orderBy: { createdAt: "asc" },
+    take: 200,
+    include: { author: { select: { id: true, name: true } } },
+  });
+  const reactions = await getReactionsFor(
+    "LETTER",
+    letters.map((l) => l.id),
+    viewerId,
+  );
+  return letters.map((l) => ({
+    id: l.id,
+    body: l.body,
+    createdAt: l.createdAt.toISOString(),
+    authorId: l.authorId,
+    authorName: l.author.name ?? null,
+    reactions: reactions[l.id] ?? { counts: {}, mine: [] },
+  }));
+}
+
+export type CoupleLetter = Awaited<
+  ReturnType<typeof getCoupleLetters>
+>[number];
+
 export async function getLatestMotherCheckIn(journeyId: string) {
   const journey = await prisma.journey.findUnique({
     where: { id: journeyId },

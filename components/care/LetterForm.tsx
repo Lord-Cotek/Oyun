@@ -1,11 +1,10 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { useFormStatus } from "react-dom";
 import { addLetter } from "@/app/care/actions";
 
 export function LetterForm() {
-  const [toBaby, setToBaby] = useState(true);
   const formRef = useRef<HTMLFormElement>(null);
 
   return (
@@ -17,49 +16,16 @@ export function LetterForm() {
       }}
       className="space-y-3"
     >
-      <input type="hidden" name="toBaby" value={String(toBaby)} />
-      <div className="flex gap-2">
-        <Toggle active={toBaby} onClick={() => setToBaby(true)} label="To the baby" />
-        <Toggle active={!toBaby} onClick={() => setToBaby(false)} label="To each other" />
-      </div>
+      <input type="hidden" name="toBaby" value="true" />
       <textarea
         name="body"
         rows={4}
         required
-        placeholder={
-          toBaby
-            ? "Dear little one…"
-            : "Words to keep for the two of you…"
-        }
+        placeholder="Dear little one…"
         className="w-full resize-none rounded-lg border border-border bg-bg px-3.5 py-2.5 font-mono text-sm leading-relaxed text-ink placeholder:text-muted focus:border-accent focus:outline-none"
       />
       <Submit />
     </form>
-  );
-}
-
-function Toggle({
-  active,
-  onClick,
-  label,
-}: {
-  active: boolean;
-  onClick: () => void;
-  label: string;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-pressed={active}
-      className={`rounded-full border px-3.5 py-1.5 font-mono text-xs transition-colors ${
-        active
-          ? "border-accent bg-accent/15 text-accent"
-          : "border-border text-muted hover:text-ink"
-      }`}
-    >
-      {label}
-    </button>
   );
 }
 

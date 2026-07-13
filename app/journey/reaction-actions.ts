@@ -36,6 +36,15 @@ export async function toggleReaction(
     if (!e) return;
     journeyId = e.journeyId;
     authorId = e.authorId;
+  } else if (targetType === "LETTER") {
+    const l = await prisma.letter.findUnique({
+      where: { id: targetId },
+      select: { journeyId: true, authorId: true, toBaby: true },
+    });
+    // Only the shared "to each other" letters carry reactions.
+    if (!l || l.toBaby) return;
+    journeyId = l.journeyId;
+    authorId = l.authorId;
   } else {
     const c = await prisma.checkIn.findUnique({
       where: { id: targetId },
@@ -48,9 +57,13 @@ export async function toggleReaction(
   // The reactor must belong to this journey.
   const member = await prisma.membership.findFirst({
     where: { journeyId, userId },
-    select: { id: true },
+    select: { role: true },
   });
   if (!member) return;
+  // Letters between the couple are theirs alone — never an accountability partner.
+  if (targetType === "LETTER" && member.role !== "MOTHER" && member.role !== "PARTNER") {
+    return;
+  }
 
   const where = {
     targetType_targetId_userId_emoji: { targetType, targetId, userId, emoji },
@@ -68,7 +81,19 @@ export async function toggleReaction(
     const me = await prisma.user.findUnique({ where: { id: userId }, select: { name: true } });
     const who = me?.name?.trim() || "Someone in your circle";
     const word = EMOJI_WORD[emoji] ?? "a reaction";
-    if (targetType === "ENCOURAGEMENT" && authorId && authorId !== userId) {
+    if (targetType === "LETTER" && authorId && authorId !== userId) {
+      // Notify the letter's author, wherever they read (mother → care).
+      const authorMember = await prisma.membership.findFirst({
+        where: { journeyId, userId: authorId },
+        select: { role: true },
+      });
+      await notify({
+        userId: authorId,
+        type: "encouragement",
+        title: `${who} responded with ${word} ${emoji} to your letter.`,
+        href: authorMember?.role === "MOTHER" ? "/care" : "/journey",
+      });
+    } else if (targetType === "ENCOURAGEMENT" && authorId && authorId !== userId) {
       await notify({
         userId: authorId,
         type: "encouragement",
