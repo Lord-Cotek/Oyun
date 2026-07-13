@@ -379,7 +379,8 @@ export default async function JourneyPage() {
                 yours to her. Private to the two of you.
               </p>
               <CoupleLetters
-                letters={coupleLetters}
+                letters={coupleLetters.items}
+                hasMore={coupleLetters.hasMore}
                 viewerId={session.user.id}
                 spouseFallback={motherName}
                 placeholder={`Write to ${motherName}…`}

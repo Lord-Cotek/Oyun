@@ -156,7 +156,8 @@ export default async function CarePage() {
               your circle can&rsquo;t.
             </p>
             <CoupleLetters
-              letters={coupleLetters}
+              letters={coupleLetters.items}
+              hasMore={coupleLetters.hasMore}
               viewerId={session.user.id}
               spouseFallback="Your husband"
               placeholder="Words to keep between the two of you…"

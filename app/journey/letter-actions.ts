@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
-import { getActiveMembership } from "@/lib/data";
+import { getActiveMembership, getCoupleLetters, type CoupleLettersPage } from "@/lib/data";
 import { notify } from "@/lib/notify";
 
 /**
@@ -54,4 +54,24 @@ export async function addCoupleLetter(formData: FormData) {
 
   revalidatePath("/care");
   revalidatePath("/journey");
+}
+
+/**
+ * Load an older page of the couple's thread (letters before `beforeISO`), for
+ * the "Show earlier letters" control. Scoped to the viewer's own journey and
+ * to the couple.
+ */
+export async function loadEarlierCoupleLetters(
+  beforeISO: string,
+): Promise<CoupleLettersPage> {
+  const session = await auth();
+  if (!session?.user?.id) return { items: [], hasMore: false };
+  const active = await getActiveMembership(session.user.id);
+  if (!active || (active.role !== "MOTHER" && active.role !== "PARTNER")) {
+    return { items: [], hasMore: false };
+  }
+  return getCoupleLetters(active.journey.id, session.user.id, {
+    before: beforeISO,
+    limit: 10,
+  });
 }

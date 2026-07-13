@@ -1,29 +1,63 @@
 "use client";
 
-import { useRef } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useFormStatus } from "react-dom";
-import { addCoupleLetter } from "@/app/journey/letter-actions";
+import {
+  addCoupleLetter,
+  loadEarlierCoupleLetters,
+} from "@/app/journey/letter-actions";
 import { Reactions } from "@/components/Reactions";
 import { type CoupleLetter } from "@/lib/data";
 
 /**
  * The shared "to each other" letters between the mother and her husband — a
- * two-way thread. Each of them can write, read, and react. The letters appear
- * on both her Care page and his journey; an accountability partner never sees
- * them.
+ * two-way thread, newest first. Each of them can write, read, and react. The
+ * most recent letters show first; older ones load a page at a time, so a couple
+ * writing every day never faces an endless wall of text. An accountability
+ * partner never sees this.
  */
 export function CoupleLetters({
   letters,
+  hasMore,
   viewerId,
   spouseFallback,
   placeholder,
 }: {
   letters: CoupleLetter[];
+  hasMore: boolean;
   viewerId: string;
   spouseFallback: string;
   placeholder: string;
 }) {
   const formRef = useRef<HTMLFormElement>(null);
+  const [older, setOlder] = useState<CoupleLetter[]>([]);
+  const [more, setMore] = useState(hasMore);
+  const [loading, setLoading] = useState(false);
+
+  // The recent page (`letters`) refreshes when a new letter is written; the
+  // older pages accumulate in state. Merge, de-dupe by id, newest first.
+  const combined = useMemo(() => {
+    const byId = new Map<string, CoupleLetter>();
+    for (const l of [...letters, ...older]) byId.set(l.id, l);
+    return [...byId.values()].sort((a, b) =>
+      a.createdAt < b.createdAt ? 1 : a.createdAt > b.createdAt ? -1 : 0,
+    );
+  }, [letters, older]);
+
+  async function loadEarlier() {
+    if (loading) return;
+    setLoading(true);
+    try {
+      const cursor = combined[combined.length - 1]?.createdAt;
+      if (cursor) {
+        const res = await loadEarlierCoupleLetters(cursor);
+        setOlder((o) => [...o, ...res.items]);
+        setMore(res.hasMore);
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
     <div>
@@ -46,45 +80,57 @@ export function CoupleLetters({
       </form>
 
       <div className="mt-6 space-y-3 border-t border-border pt-5">
-        {letters.length === 0 ? (
+        {combined.length === 0 ? (
           <p className="font-mono text-xs text-muted">
             No letters between you yet. A first one can be a single line — a
             thanks, a hope, a Scripture.
           </p>
         ) : (
-          letters.map((l) => {
-            const mine = l.authorId === viewerId;
-            return (
-              <div
-                key={l.id}
-                className={`rounded-lg border p-4 ${
-                  mine
-                    ? "border-accent/30 bg-accent/[0.05]"
-                    : "border-border bg-bg"
-                }`}
-              >
-                <p className="whitespace-pre-wrap font-serif text-base leading-relaxed text-ink">
-                  {l.body}
-                </p>
-                <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
-                  <p className="font-mono text-[0.68rem] uppercase tracking-widest text-muted">
-                    {mine ? "You" : l.authorName?.trim() || spouseFallback} ·{" "}
-                    {new Date(l.createdAt).toLocaleDateString(undefined, {
-                      month: "short",
-                      day: "numeric",
-                      year: "numeric",
-                    })}
+          <>
+            {combined.map((l) => {
+              const mine = l.authorId === viewerId;
+              return (
+                <div
+                  key={l.id}
+                  className={`rounded-lg border p-4 ${
+                    mine
+                      ? "border-accent/30 bg-accent/[0.05]"
+                      : "border-border bg-bg"
+                  }`}
+                >
+                  <p className="whitespace-pre-wrap font-serif text-base leading-relaxed text-ink">
+                    {l.body}
                   </p>
-                  <Reactions
-                    targetType="LETTER"
-                    targetId={l.id}
-                    initial={l.reactions}
-                    align="end"
-                  />
+                  <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+                    <p className="font-mono text-[0.68rem] uppercase tracking-widest text-muted">
+                      {mine ? "You" : l.authorName?.trim() || spouseFallback} ·{" "}
+                      {new Date(l.createdAt).toLocaleDateString(undefined, {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
+                    </p>
+                    <Reactions
+                      targetType="LETTER"
+                      targetId={l.id}
+                      initial={l.reactions}
+                      align="end"
+                    />
+                  </div>
                 </div>
-              </div>
-            );
-          })
+              );
+            })}
+            {more && (
+              <button
+                type="button"
+                onClick={loadEarlier}
+                disabled={loading}
+                className="w-full rounded-lg border border-border py-2.5 font-mono text-xs text-muted transition-colors hover:border-accent hover:text-accent disabled:opacity-50"
+              >
+                {loading ? "Loading…" : "Show earlier letters"}
+              </button>
+            )}
+          </>
         )}
       </div>
     </div>

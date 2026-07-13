@@ -86,34 +86,49 @@ export async function getJourneyMembers(journeyId: string) {
 
 /** The mother's most recent check-in — shown to partners only if shared. */
 /**
- * The shared "to each other" letter thread between the mother and her husband,
- * oldest first, each with its emoji reactions for the viewer.
+ * A page of the shared "to each other" thread between the mother and her
+ * husband — newest first, each with its emoji reactions for the viewer. Pass
+ * `before` (an ISO timestamp) to fetch the letters older than that, so the
+ * thread loads a page at a time instead of rendering years of letters at once.
  */
-export async function getCoupleLetters(journeyId: string, viewerId: string) {
+export async function getCoupleLetters(
+  journeyId: string,
+  viewerId: string,
+  opts: { before?: string; limit?: number } = {},
+) {
+  const limit = opts.limit ?? 10;
   const letters = await prisma.letter.findMany({
-    where: { journeyId, toBaby: false },
-    orderBy: { createdAt: "asc" },
-    take: 200,
+    where: {
+      journeyId,
+      toBaby: false,
+      ...(opts.before ? { createdAt: { lt: new Date(opts.before) } } : {}),
+    },
+    orderBy: { createdAt: "desc" },
+    take: limit + 1,
     include: { author: { select: { id: true, name: true } } },
   });
+  const hasMore = letters.length > limit;
+  const page = hasMore ? letters.slice(0, limit) : letters;
   const reactions = await getReactionsFor(
     "LETTER",
-    letters.map((l) => l.id),
+    page.map((l) => l.id),
     viewerId,
   );
-  return letters.map((l) => ({
-    id: l.id,
-    body: l.body,
-    createdAt: l.createdAt.toISOString(),
-    authorId: l.authorId,
-    authorName: l.author.name ?? null,
-    reactions: reactions[l.id] ?? { counts: {}, mine: [] },
-  }));
+  return {
+    items: page.map((l) => ({
+      id: l.id,
+      body: l.body,
+      createdAt: l.createdAt.toISOString(),
+      authorId: l.authorId,
+      authorName: l.author.name ?? null,
+      reactions: reactions[l.id] ?? { counts: {}, mine: [] },
+    })),
+    hasMore,
+  };
 }
 
-export type CoupleLetter = Awaited<
-  ReturnType<typeof getCoupleLetters>
->[number];
+export type CoupleLettersPage = Awaited<ReturnType<typeof getCoupleLetters>>;
+export type CoupleLetter = CoupleLettersPage["items"][number];
 
 export async function getLatestMotherCheckIn(journeyId: string) {
   const journey = await prisma.journey.findUnique({
