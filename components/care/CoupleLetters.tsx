@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useFormStatus } from "react-dom";
 import {
   addCoupleLetter,
@@ -59,6 +59,22 @@ export function CoupleLetters({
     }
   }
 
+  // If a notification deep-links to a letter that's older than the first page,
+  // keep loading earlier pages until it appears, then scroll to it — once.
+  const resolvedHash = useRef<string | null>(null);
+  useEffect(() => {
+    const hash = decodeURIComponent(window.location.hash.slice(1));
+    if (!hash.startsWith("letter-") || resolvedHash.current === hash) return;
+    const el = document.getElementById(hash);
+    if (el) {
+      resolvedHash.current = hash;
+      el.scrollIntoView({ block: "center", behavior: "smooth" });
+    } else if (more && !loading) {
+      void loadEarlier();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [combined, more, loading]);
+
   return (
     <div>
       <form
@@ -92,7 +108,8 @@ export function CoupleLetters({
               return (
                 <div
                   key={l.id}
-                  className={`rounded-lg border p-4 ${
+                  id={`letter-${l.id}`}
+                  className={`notif-target rounded-lg border p-4 ${
                     mine
                       ? "border-accent/30 bg-accent/[0.05]"
                       : "border-border bg-bg"

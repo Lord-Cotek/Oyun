@@ -27,7 +27,11 @@ export function Encouragements({
       ) : (
         <ul className="space-y-3">
           {items.map((e) => (
-            <li key={e.id} className="rounded-lg border border-border bg-bg p-4">
+            <li
+              key={e.id}
+              id={`enc-${e.id}`}
+              className="notif-target rounded-lg border border-border bg-bg p-4"
+            >
               <p className="font-serif text-base leading-relaxed text-ink">
                 &ldquo;{e.body}&rdquo;
               </p>

@@ -82,7 +82,7 @@ export async function sendEncouragement(formData: FormData) {
   if (!body) throw new Error("Write a few words first.");
   if (body.length > 1000) throw new Error("That's a little long — keep it short and warm.");
 
-  await prisma.encouragement.create({
+  const encouragement = await prisma.encouragement.create({
     data: { journeyId, authorId: userId, body, verseRef },
   });
 
@@ -100,7 +100,7 @@ export async function sendEncouragement(formData: FormData) {
       type: "encouragement",
       title: `${who} sent you a word of encouragement.`,
       body: preview,
-      href: "/journey",
+      href: `/journey#enc-${encouragement.id}`,
       email: true,
     });
   }

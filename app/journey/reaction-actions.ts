@@ -87,18 +87,19 @@ export async function toggleReaction(
         where: { journeyId, userId: authorId },
         select: { role: true },
       });
+      const base = authorMember?.role === "MOTHER" ? "/care" : "/journey";
       await notify({
         userId: authorId,
         type: "encouragement",
         title: `${who} responded with ${word} ${emoji} to your letter.`,
-        href: authorMember?.role === "MOTHER" ? "/care" : "/journey",
+        href: `${base}#letter-${targetId}`,
       });
     } else if (targetType === "ENCOURAGEMENT" && authorId && authorId !== userId) {
       await notify({
         userId: authorId,
         type: "encouragement",
         title: `${who} responded with ${word} ${emoji} to your encouragement.`,
-        href: "/journey",
+        href: `/journey#enc-${targetId}`,
       });
     } else if (targetType === "CHECKIN" && journeyId) {
       const journey = await prisma.journey.findUnique({
@@ -110,7 +111,7 @@ export async function toggleReaction(
           userId: journey.ownerId,
           type: "checkin",
           title: `${who} responded with ${word} ${emoji} to how you're feeling.`,
-          href: "/care",
+          href: `/care#checkin-${targetId}`,
         });
       }
     }

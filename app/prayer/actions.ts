@@ -40,7 +40,7 @@ export async function addPrayerRequest(formData: FormData) {
         userId: m.userId,
         type: "encouragement",
         title: `${who} asked for prayer: ${title}`,
-        href: "/prayer",
+        href: `/prayer#prayer-${request.id}`,
       }),
     ),
   );
@@ -96,7 +96,7 @@ export async function markAnswered(formData: FormData) {
         type: "encouragement",
         title: `Answered prayer: ${req.title}`,
         body: "Give thanks — God has heard.",
-        href: "/prayer",
+        href: `/prayer#prayer-${req.id}`,
       }),
     ),
   );

@@ -24,7 +24,7 @@ export async function addCoupleLetter(formData: FormData) {
   if (!body) throw new Error("A letter needs a few words.");
 
   const journeyId = active.journey.id;
-  await prisma.letter.create({
+  const letter = await prisma.letter.create({
     data: { journeyId, authorId: session.user.id, body, toBaby: false },
   });
 
@@ -47,7 +47,7 @@ export async function addCoupleLetter(formData: FormData) {
       userId: o.userId,
       type: "encouragement",
       title: `${who} wrote you a letter.`,
-      href: o.role === "MOTHER" ? "/care" : "/journey",
+      href: `${o.role === "MOTHER" ? "/care" : "/journey"}#letter-${letter.id}`,
       email: true,
     });
   }

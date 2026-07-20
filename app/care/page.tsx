@@ -100,7 +100,10 @@ export default async function CarePage() {
               <MoodChart data={points} />
             </div>
             {latestCheckIn && latestReactions && (
-              <div className="mt-8 border-t border-border pt-6">
+              <div
+                id={`checkin-${latestCheckIn.id}`}
+                className="notif-target mt-8 border-t border-border pt-6"
+              >
                 <p className="eyebrow mb-2 text-muted">
                   How your circle responded
                 </p>

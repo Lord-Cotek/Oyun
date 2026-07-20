@@ -130,7 +130,22 @@ function Row({ item, onNavigate }: { item: Item; onNavigate: () => void }) {
     </div>
   );
   return item.href ? (
-    <Link href={item.href} onClick={onNavigate} className="block hover:bg-bg">
+    <Link
+      href={item.href}
+      onClick={() => {
+        onNavigate();
+        // Reliably land on the exact item even when only the hash changes.
+        const hash = item.href?.includes("#") ? item.href.split("#")[1] : null;
+        if (hash) {
+          setTimeout(() => {
+            document
+              .getElementById(hash)
+              ?.scrollIntoView({ block: "center", behavior: "smooth" });
+          }, 120);
+        }
+      }}
+      className="block hover:bg-bg"
+    >
       {inner}
     </Link>
   ) : (

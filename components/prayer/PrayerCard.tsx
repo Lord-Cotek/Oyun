@@ -21,7 +21,10 @@ export function PrayerCard({ item }: { item: PrayerItem }) {
   const [pending, start] = useTransition();
 
   return (
-    <Card className={item.answered ? "border-positive/30 bg-positive/[0.05]" : ""}>
+    <Card
+      id={`prayer-${item.id}`}
+      className={`notif-target ${item.answered ? "border-positive/30 bg-positive/[0.05]" : ""}`}
+    >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           {item.answered && (

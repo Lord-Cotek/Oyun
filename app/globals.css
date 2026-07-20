@@ -156,3 +156,22 @@
     transition-duration: 0.001ms !important;
   }
 }
+
+/* Deep-linked items opened from a notification: offset the sticky header so
+   the item is not hidden, and pulse a brief ring so the eye lands on the exact
+   letter, reaction, request, or word. */
+:target {
+  scroll-margin-top: 96px;
+}
+.notif-target:target {
+  animation: notif-pulse 2.6s ease-out 1;
+  border-radius: 12px;
+}
+@keyframes notif-pulse {
+  0% { box-shadow: 0 0 0 2px var(--accent); }
+  70% { box-shadow: 0 0 0 2px var(--accent); }
+  100% { box-shadow: 0 0 0 2px rgba(0, 0, 0, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .notif-target:target { animation: none; box-shadow: 0 0 0 2px var(--accent); }
+}
