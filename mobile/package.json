@@ -1,0 +1,27 @@
+{
+  "name": "oyun-mobile",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Oyun native shell (iOS + Android) via Capacitor. Wraps oyun.cotek.app.",
+  "scripts": {
+    "assets": "capacitor-assets generate",
+    "assets:ios": "capacitor-assets generate --ios",
+    "assets:android": "capacitor-assets generate --android",
+    "sync": "cap sync",
+    "add:ios": "cap add ios",
+    "add:android": "cap add android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.2.0",
+    "@capacitor/app": "^6.0.2",
+    "@capacitor/core": "^6.2.0",
+    "@capacitor/ios": "^6.2.0",
+    "@capacitor/splash-screen": "^6.0.3",
+    "@capacitor/status-bar": "^6.0.2"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^6.2.0",
+    "typescript": "^5.6.3"
+  }
+}

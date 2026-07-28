@@ -1,0 +1,18 @@
+# JS deps
+node_modules/
+
+# iOS native project — generated fresh on CI (needs macOS/Xcode/CocoaPods).
+# Run `npx cap add ios` on a Mac to work on it locally.
+ios/
+
+# Signing secrets — never commit these.
+keystore.properties
+android/keystore.properties
+*.jks
+*.keystore
+*.p12
+*.mobileprovision
+GoogleService-Info.plist
+google-services.json
+
+.DS_Store

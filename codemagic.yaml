@@ -1,0 +1,112 @@
+workflows:
+  # ─────────────────────────────────────────────────────────────────────────
+  # Android — builds a signed .aab (Play Store) and .apk. Runs on Linux.
+  # ─────────────────────────────────────────────────────────────────────────
+  android:
+    name: Oyun · Android
+    instance_type: linux_x2
+    max_build_duration: 60
+    environment:
+      android_signing:
+        # Create this signing identity in Codemagic:
+        # Teams → your team → Code signing identities → Android keystores.
+        # Name it exactly "oyun_upload_keystore".
+        - oyun_upload_keystore
+      vars:
+        PACKAGE_NAME: "app.cotek.oyun"
+      node: 20
+    scripts:
+      - name: Install JS dependencies
+        script: cd mobile && npm ci
+      - name: Sync web assets and native plugins
+        script: cd mobile && npx cap sync android
+      - name: Wire icons and splash (no placeholders)
+        script: cd mobile && npx capacitor-assets generate --android
+      - name: Write release signing config
+        script: |
+          # Codemagic exposes the keystore referenced above via these vars.
+          cat > "$CM_BUILD_DIR/mobile/android/keystore.properties" <<EOF
+          storeFile=$CM_KEYSTORE_PATH
+          storePassword=$CM_KEYSTORE_PASSWORD
+          keyAlias=$CM_KEY_ALIAS
+          keyPassword=$CM_KEY_PASSWORD
+          EOF
+      - name: Build signed release bundle
+        script: |
+          cd mobile/android
+          ./gradlew bundleRelease
+    artifacts:
+      - mobile/android/app/build/outputs/bundle/release/*.aab
+      - mobile/android/app/build/outputs/**/*.apk
+    publishing:
+      email:
+        recipients:
+          - tcotek@amrome.com
+        notify:
+          success: true
+          failure: true
+      # Uncomment once you've connected a Google Play service account in Codemagic:
+      # google_play:
+      #   credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
+      #   track: internal
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # iOS — builds a signed .ipa for TestFlight / App Store. Runs on macOS.
+  # The iOS native project is generated fresh each build (it isn't committed).
+  # ─────────────────────────────────────────────────────────────────────────
+  ios:
+    name: Oyun · iOS
+    instance_type: mac_mini_m2
+    max_build_duration: 90
+    integrations:
+      # Connect your App Store Connect API key in Codemagic and name it
+      # "oyun_asc" (Teams → Integrations → Developer Portal / App Store Connect).
+      app_store_connect: oyun_asc
+    environment:
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: app.cotek.oyun
+      vars:
+        BUNDLE_ID: "app.cotek.oyun"
+        XCODE_SCHEME: "App"
+      node: 20
+      xcode: latest
+      cocoapods: default
+    scripts:
+      - name: Install JS dependencies
+        script: cd mobile && npm ci
+      - name: Add and sync iOS platform
+        script: |
+          cd mobile
+          npx cap add ios 2>/dev/null || true
+          npx cap sync ios
+      - name: Wire icons and splash (no placeholders)
+        script: cd mobile && npx capacitor-assets generate --ios
+      - name: Install CocoaPods
+        script: cd mobile/ios/App && pod install
+      - name: Set build number
+        script: |
+          cd mobile/ios/App
+          agvtool new-version -all "$BUILD_NUMBER" || true
+      - name: Fetch signing profiles
+        script: xcode-project use-profiles
+      - name: Build signed IPA
+        script: |
+          cd mobile/ios/App
+          xcode-project build-ipa \
+            --workspace "App.xcworkspace" \
+            --scheme "$XCODE_SCHEME"
+    artifacts:
+      - mobile/ios/App/build/ios/ipa/*.ipa
+      - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.app
+      - /tmp/xcodebuild_logs/*.log
+    publishing:
+      email:
+        recipients:
+          - tcotek@amrome.com
+        notify:
+          success: true
+          failure: true
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true

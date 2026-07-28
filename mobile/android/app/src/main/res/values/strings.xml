@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Oyun</string>
+    <string name="title_activity_main">Oyun</string>
+    <string name="package_name">app.cotek.oyun</string>
+    <string name="custom_url_scheme">app.cotek.oyun</string>
+</resources>
