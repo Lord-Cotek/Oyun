@@ -18,21 +18,22 @@ model User {
   notifyByEmail Boolean   @default(true)
   weeklyDigest  Boolean   @default(true)
 
-  accounts    Account[]
-  sessions    Session[]
-  memberships Membership[]
-  ownedJourneys Journey[]  @relation("JourneyOwner")
-  checkIns    CheckIn[]
-  letters     Letter[]
-  nudges      Nudge[]
-  encouragements Encouragement[]
-  supportDays SupportDay[]
-  notifications Notification[]
-  prayerRequests PrayerRequest[]
-  prayerPrays    PrayerPray[]
+  accounts          Account[]
+  sessions          Session[]
+  memberships       Membership[]
+  ownedJourneys     Journey[]          @relation("JourneyOwner")
+  checkIns          CheckIn[]
+  letters           Letter[]
+  nudges            Nudge[]
+  encouragements    Encouragement[]
+  supportDays       SupportDay[]
+  notifications     Notification[]
+  prayerRequests    PrayerRequest[]
+  prayerPrays       PrayerPray[]
   pushSubscriptions PushSubscription[]
-  remembrances   Remembrance[]
-  reactions      Reaction[]
+  nativePushTokens  NativePushToken[]
+  remembrances      Remembrance[]
+  reactions         Reaction[]
 
   createdAt DateTime @default(now())
 }
@@ -102,6 +103,20 @@ model PushSubscription {
   p256dh    String
   auth      String
   createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+// A device token for native push (FCM on Android; APNs-via-Firebase on iOS),
+// used by the installed Capacitor apps. Web push uses PushSubscription instead.
+model NativePushToken {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  platform  String   @default("unknown") // "android" | "ios"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userId])
 }
@@ -200,15 +215,15 @@ enum MilestoneKind {
 
 /// The mother owns one active Journey.
 model Journey {
-  id        String   @id @default(cuid())
+  id        String        @id @default(cuid())
   ownerId   String
-  owner     User     @relation("JourneyOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  owner     User          @relation("JourneyOwner", fields: [ownerId], references: [id], onDelete: Cascade)
   dueDate   DateTime
   babyName  String?
-  babyCount Int      @default(1)
+  babyCount Int           @default(1)
   status    JourneyStatus @default(ACTIVE)
   lossAt    DateTime?
-  createdAt DateTime @default(now())
+  createdAt DateTime      @default(now())
 
   memberships    Membership[]
   invites        Invite[]

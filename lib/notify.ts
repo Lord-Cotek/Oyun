@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { sendNotificationEmail } from "@/lib/email";
 import { sendPushToUser } from "@/lib/push";
+import { sendNativeToUser } from "@/lib/fcm";
 
 export type NotificationType =
   | "prayer"
@@ -35,12 +36,18 @@ export async function notify(input: NotifyInput): Promise<void> {
       },
     });
 
-    // Push to the user's devices (best-effort; no-op without VAPID keys).
-    await sendPushToUser(input.userId, {
+    // Push to the user's devices (best-effort). Web push (VAPID, in the
+    // browser/PWA) and native push (FCM/APNs, in the installed apps) each
+    // no-op until their keys are set.
+    const pushPayload = {
       title: input.title,
       body: input.body,
       href: input.href,
-    }).catch(() => {});
+    };
+    await Promise.all([
+      sendPushToUser(input.userId, pushPayload).catch(() => {}),
+      sendNativeToUser(input.userId, pushPayload).catch(() => {}),
+    ]);
 
     if (input.email) {
       const user = await prisma.user.findUnique({

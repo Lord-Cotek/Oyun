@@ -4,6 +4,7 @@ import "./globals.css";
 import { AssistantChat } from "@/components/AssistantChat";
 import { Disclaimer } from "@/components/Disclaimer";
 import { PwaRegister } from "@/components/PwaRegister";
+import { NativePush } from "@/components/NativePush";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -84,6 +85,7 @@ export default function RootLayout({
         </div>
         <AssistantChat />
         <PwaRegister />
+        <NativePush />
       </body>
     </html>
   );

@@ -12,6 +12,11 @@ workflows:
         # Teams → your team → Code signing identities → Android keystores.
         # Name it exactly "oyun_upload_keystore".
         - oyun_upload_keystore
+      groups:
+        # Optional — only needed for native push. Add a variable group
+        # "oyun_firebase" with GOOGLE_SERVICES_JSON = base64 of your
+        # google-services.json. Safe to leave unset; the app still builds.
+        - oyun_firebase
       vars:
         PACKAGE_NAME: "app.cotek.oyun"
       node: 20
@@ -20,6 +25,15 @@ workflows:
         script: cd mobile && npm ci
       - name: Sync web assets and native plugins
         script: cd mobile && npx cap sync android
+      - name: Write Firebase config (native push, optional)
+        script: |
+          if [ -n "$GOOGLE_SERVICES_JSON" ]; then
+            echo "$GOOGLE_SERVICES_JSON" | base64 --decode \
+              > "$CM_BUILD_DIR/mobile/android/app/google-services.json"
+            echo "Wrote google-services.json"
+          else
+            echo "GOOGLE_SERVICES_JSON not set — building without native push."
+          fi
       - name: Wire icons and splash (no placeholders)
         script: cd mobile && npx capacitor-assets generate --android
       - name: Write release signing config
@@ -66,6 +80,10 @@ workflows:
       ios_signing:
         distribution_type: app_store
         bundle_identifier: app.cotek.oyun
+      groups:
+        # Optional — only needed for native push. Add GOOGLE_SERVICE_INFO_PLIST
+        # (base64 of GoogleService-Info.plist) to the "oyun_firebase" group.
+        - oyun_firebase
       vars:
         BUNDLE_ID: "app.cotek.oyun"
         XCODE_SCHEME: "App"
@@ -80,6 +98,15 @@ workflows:
           cd mobile
           npx cap add ios 2>/dev/null || true
           npx cap sync ios
+      - name: Write Firebase config (native push, optional)
+        script: |
+          if [ -n "$GOOGLE_SERVICE_INFO_PLIST" ]; then
+            echo "$GOOGLE_SERVICE_INFO_PLIST" | base64 --decode \
+              > "$CM_BUILD_DIR/mobile/ios/App/App/GoogleService-Info.plist"
+            echo "Wrote GoogleService-Info.plist"
+          else
+            echo "GOOGLE_SERVICE_INFO_PLIST not set — building without native push."
+          fi
       - name: Wire icons and splash (no placeholders)
         script: cd mobile && npx capacitor-assets generate --ios
       - name: Install CocoaPods
