@@ -53,6 +53,10 @@ export async function POST(req: Request) {
         babyName: active.journey.babyName,
         babyCount: active.journey.babyCount,
         grieving: active.journey.status === "LOSS",
+        // The mother is the journey owner. Only a real, set name is passed; if
+        // it's null, Agbebi is told never to guess it.
+        motherName:
+          active.role === "MOTHER" ? null : active.journey.owner.name,
       });
     }
   }

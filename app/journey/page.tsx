@@ -12,7 +12,7 @@ import {
   getWorshipStreak,
   getCoupleLetters,
 } from "@/lib/data";
-import { computePosition } from "@/lib/stage";
+import { computePosition, gestationLabel } from "@/lib/stage";
 import { partnerDailyCare, dayKey } from "@/lib/partner-care";
 import { getReactionsFor } from "@/lib/reactions";
 import { MOOD_META } from "@/lib/moods";
@@ -140,7 +140,9 @@ export default async function JourneyPage() {
           )}
           <div className="animate-fade-up">
             <Eyebrow className="mb-3">
-              {position.born ? "Infancy" : "Pregnancy"} · {stageLabel}
+              {position.born
+                ? `Infancy · ${stageLabel}`
+                : `Pregnancy · ${gestationLabel(position.week ?? 0, position.dayInWeek ?? 0)}`}
             </Eyebrow>
             <h1 className="max-w-3xl font-serif text-4xl leading-tight text-ink md:text-5xl">
               {stage.title}
@@ -149,9 +151,15 @@ export default async function JourneyPage() {
 
           <div className="mt-8 grid gap-4 sm:grid-cols-3">
             <StatCard
-              label={position.born ? "Age" : "Week"}
+              label={position.born ? "Age" : "Along"}
               value={position.born ? position.month : position.week}
-              hint={position.born ? "months old" : "of 40 weeks"}
+              delta={
+                position.born || !position.dayInWeek
+                  ? undefined
+                  : `and ${position.dayInWeek} day${position.dayInWeek === 1 ? "" : "s"}`
+              }
+              deltaTone="accent2"
+              hint={position.born ? "months old" : "weeks · of 40"}
             />
             <StatCard
               label={position.born ? "Since birth" : "Days to go"}

@@ -11,6 +11,8 @@ export interface JourneyPosition {
   born: boolean;
   /** completed weeks of pregnancy, 1..40 (undefined after birth) */
   week?: number;
+  /** days into the current gestational week, 0..6 (undefined after birth) */
+  dayInWeek?: number;
   /** whole days remaining until the due date (0 if past) */
   daysToGo: number;
   /** completed months since birth, 0..24 (undefined during pregnancy) */
@@ -31,16 +33,21 @@ export function computePosition(dueDate: Date, now: Date = new Date()): JourneyP
   const diffDays = (dueDate.getTime() - now.getTime()) / MS_PER_DAY;
 
   if (diffDays > 0) {
-    // Still expecting.
-    const weeksRemaining = diffDays / DAYS_PER_WEEK;
-    const week = clamp(Math.round(TERM_WEEKS - weeksRemaining), 1, TERM_WEEKS);
+    // Still expecting. Gestational age in days (40 weeks = 280 days to the due
+    // date), split into completed weeks + days for an accurate "X weeks and Y
+    // days" reading.
+    const termDays = TERM_WEEKS * DAYS_PER_WEEK;
+    const gaDays = clamp(Math.round(termDays - diffDays), 0, termDays);
+    const week = clamp(Math.floor(gaDays / DAYS_PER_WEEK), 1, TERM_WEEKS);
+    const dayInWeek = gaDays % DAYS_PER_WEEK;
     const stage = stageBySlug(`week-${week}`) ?? STAGES[0];
     return {
       stage,
       born: false,
       week,
+      dayInWeek,
       daysToGo: Math.max(0, Math.ceil(diffDays)),
-      progress: clamp(week / (TERM_WEEKS + 24 * (DAYS_PER_MONTH / DAYS_PER_WEEK)), 0, 1),
+      progress: clamp(gaDays / (termDays + 24 * DAYS_PER_MONTH), 0, 1),
     };
   }
 
@@ -61,4 +68,11 @@ export function computePosition(dueDate: Date, now: Date = new Date()): JourneyP
 
 function clamp(n: number, lo: number, hi: number): number {
   return Math.min(hi, Math.max(lo, n));
+}
+
+/** "24 weeks and 3 days" — the natural pregnancy reading. */
+export function gestationLabel(week: number, dayInWeek: number): string {
+  const w = `${week} week${week === 1 ? "" : "s"}`;
+  if (!dayInWeek) return w;
+  return `${w} and ${dayInWeek} day${dayInWeek === 1 ? "" : "s"}`;
 }

@@ -62,6 +62,8 @@ export interface AgbebiContext {
   babyName?: string | null;
   babyCount?: number | null;
   grieving?: boolean | null;
+  /** The expectant mother's name — only known when the journey owner set it. */
+  motherName?: string | null;
 }
 
 const MULTIPLES: Record<number, string> = {
@@ -82,6 +84,16 @@ export function buildAgbebiSystem(ctx: AgbebiContext): string {
       lines.push(
         "  Orient your counsel toward how they can support, pray for, and love the mother well — not toward her private notes.",
       );
+      // Give the real name when we have it; otherwise forbid guessing it.
+      if (ctx.motherName?.trim()) {
+        const rel = ctx.role === "PARTNER" ? "his wife, the expectant mother," : "the expectant mother";
+        lines.push(`- ${rel} is named ${ctx.motherName.trim()}.`);
+      } else {
+        const rel = ctx.role === "PARTNER" ? "\"your wife\"" : "\"the mother\"";
+        lines.push(
+          `- You have NOT been told the mother's name. Refer to her as ${rel} — do not guess or invent a name for her.`,
+        );
+      }
     }
   }
 
@@ -110,7 +122,13 @@ export function buildAgbebiSystem(ctx: AgbebiContext): string {
   }
 
   lines.push("");
-  lines.push("Speak to them by name, gently, right where they are.");
+  lines.push(
+    "NAMES — this matters deeply: only ever use a name that is written explicitly above. Never invent, guess, assume, or infer anyone's name — not the mother's, the baby's, the partner's, or any family member's. If a name has not been given to you, refer to the person by relationship instead — \"your wife\", \"the mother\", \"the baby\", \"your child\". It is always better to say \"your wife\" than to guess a name. Guessing a name is a serious error that breaks trust.",
+  );
+  lines.push("");
+  lines.push(
+    "Speak gently, right where they are — by name only where a name is given above.",
+  );
 
   return lines.join("\n");
 }
