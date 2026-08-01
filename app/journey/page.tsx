@@ -93,7 +93,7 @@ export default async function JourneyPage() {
 
   const stageLabel = position.born
     ? `Month ${position.month}`
-    : `Week ${position.week} of 40`;
+    : gestationLabel(position.week ?? 0, position.dayInWeek ?? 0);
 
   if (role === "MOTHER") {
     const [milestoneCount, supporterCount, encouragements, birthRecorded] =
@@ -140,9 +140,7 @@ export default async function JourneyPage() {
           )}
           <div className="animate-fade-up">
             <Eyebrow className="mb-3">
-              {position.born
-                ? `Infancy · ${stageLabel}`
-                : `Pregnancy · ${gestationLabel(position.week ?? 0, position.dayInWeek ?? 0)}`}
+              {position.born ? "Infancy" : "Pregnancy"} · {stageLabel}
             </Eyebrow>
             <h1 className="max-w-3xl font-serif text-4xl leading-tight text-ink md:text-5xl">
               {stage.title}
