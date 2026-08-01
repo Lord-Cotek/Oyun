@@ -152,9 +152,9 @@ export default async function JourneyPage() {
               label={position.born ? "Age" : "Along"}
               value={position.born ? position.month : position.week}
               delta={
-                position.born || !position.dayInWeek
+                position.born
                   ? undefined
-                  : `and ${position.dayInWeek} day${position.dayInWeek === 1 ? "" : "s"}`
+                  : `and ${position.dayInWeek ?? 0} day${(position.dayInWeek ?? 0) === 1 ? "" : "s"}`
               }
               deltaTone="accent2"
               hint={position.born ? "months old" : "weeks · of 40"}

@@ -70,9 +70,12 @@ function clamp(n: number, lo: number, hi: number): number {
   return Math.min(hi, Math.max(lo, n));
 }
 
-/** "24 weeks and 3 days" — the natural pregnancy reading. */
+/**
+ * "24 weeks and 3 days" — the natural pregnancy reading. Always shows the days
+ * (including "and 0 days"), matching how midwives count (e.g. 24+0, 24+3), so
+ * the day count is never silently hidden on a week boundary.
+ */
 export function gestationLabel(week: number, dayInWeek: number): string {
   const w = `${week} week${week === 1 ? "" : "s"}`;
-  if (!dayInWeek) return w;
   return `${w} and ${dayInWeek} day${dayInWeek === 1 ? "" : "s"}`;
 }
