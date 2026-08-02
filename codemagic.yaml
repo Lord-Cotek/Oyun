@@ -119,14 +119,19 @@ workflows:
           agvtool new-version -all "$BUILD_NUMBER" || true
       - name: Set up code signing (creates the App Store profile if missing)
         script: |
+          set -e
           keychain initialize
           app-store-connect fetch-signing-files "$BUNDLE_ID" \
             --type IOS_APP_STORE \
-            --create
+            --create \
+            --verbose
           keychain add-certificates
-          # Run from the Xcode project dir so use-profiles patches App.xcodeproj.
-          cd "$CM_BUILD_DIR/mobile/ios/App"
-          xcode-project use-profiles
+          echo "── Installed provisioning profiles ──"
+          ls -la "$HOME/Library/MobileDevice/Provisioning Profiles" || true
+          echo "── Applying profiles to the Xcode project ──"
+          xcode-project use-profiles \
+            --project "$CM_BUILD_DIR/mobile/ios/App/App.xcodeproj" \
+            --verbose
       - name: Build signed IPA
         script: |
           cd mobile/ios/App
