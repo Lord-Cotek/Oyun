@@ -72,10 +72,11 @@ workflows:
       # (Settings → Integrations → Developer Portal). Key name: "codemagic".
       app_store_connect: codemagic
     environment:
-      groups:
-        # Add a variable group "ios_signing" (in the app's settings) containing
-        # CERTIFICATE_PRIVATE_KEY (a secure PEM private key). Required for iOS.
-        - ios_signing
+      ios_signing:
+        # Codemagic fetches your stored distribution certificate ("extrap") and
+        # the App Store provisioning profile you create for this bundle id.
+        distribution_type: app_store
+        bundle_identifier: app.cotek.oyun
       vars:
         BUNDLE_ID: "app.cotek.oyun"
         XCODE_SCHEME: "App"
@@ -112,21 +113,13 @@ workflows:
         script: |
           cd mobile/ios/App
           agvtool new-version -all "$BUILD_NUMBER" || true
-      - name: Set up code signing (creates the App Store profile if missing)
+      - name: Set up code signing
         script: |
-          set -e
-          keychain initialize
-          app-store-connect fetch-signing-files "$BUNDLE_ID" \
-            --type IOS_APP_STORE \
-            --certificate-key=@env:CERTIFICATE_PRIVATE_KEY \
-            --create
-          keychain add-certificates
-          echo "── Installed provisioning profiles ──"
-          ls -la "$HOME/Library/MobileDevice/Provisioning Profiles" || true
-          echo "── Applying profiles to the Xcode project ──"
+          # The ios_signing block above already fetched your stored distribution
+          # certificate ("extrap") and the App Store provisioning profile you
+          # created in Apple for this bundle id. Just apply it to the project.
           xcode-project use-profiles \
-            --project "$CM_BUILD_DIR/mobile/ios/App/App.xcodeproj" \
-            --verbose
+            --project "$CM_BUILD_DIR/mobile/ios/App/App.xcodeproj"
       - name: Build signed IPA
         script: |
           cd mobile/ios/App
