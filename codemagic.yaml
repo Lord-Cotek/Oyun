@@ -77,9 +77,6 @@ workflows:
       # (Settings → Integrations → Developer Portal). Key name: "codemagic".
       app_store_connect: codemagic
     environment:
-      ios_signing:
-        distribution_type: app_store
-        bundle_identifier: app.cotek.oyun
       groups:
         # Optional — only needed for native push. Add GOOGLE_SERVICE_INFO_PLIST
         # (base64 of GoogleService-Info.plist) to the "oyun_firebase" group.
@@ -120,8 +117,14 @@ workflows:
         script: |
           cd mobile/ios/App
           agvtool new-version -all "$BUILD_NUMBER" || true
-      - name: Fetch signing profiles
-        script: xcode-project use-profiles
+      - name: Set up code signing (creates the App Store profile if missing)
+        script: |
+          keychain initialize
+          app-store-connect fetch-signing-files "$BUNDLE_ID" \
+            --type IOS_APP_STORE \
+            --create
+          keychain add-certificates
+          xcode-project use-profiles
       - name: Build signed IPA
         script: |
           cd mobile/ios/App
