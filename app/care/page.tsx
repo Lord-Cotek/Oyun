@@ -10,7 +10,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { Card } from "@/components/ui/Card";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { CheckInForm } from "@/components/care/CheckInForm";
-import { LetterForm } from "@/components/care/LetterForm";
+import { BabyLetters } from "@/components/care/BabyLetters";
 import { MilestoneForm } from "@/components/care/MilestoneForm";
 import { MilestoneItem } from "@/components/care/MilestoneItem";
 import { MoodChart, type MoodPoint } from "@/components/care/MoodChart";
@@ -42,6 +42,7 @@ export default async function CarePage() {
       where: { journeyId, toBaby: true },
       orderBy: { createdAt: "desc" },
       take: 20,
+      include: { author: { select: { id: true, name: true } } },
     }),
     prisma.milestone.findMany({
       where: { journeyId },
@@ -121,33 +122,23 @@ export default async function CarePage() {
             )}
           </Card>
 
-          {/* Letters to the baby — her keepsakes */}
+          {/* Letters to the baby — a keepsake both parents can write */}
           <Card>
-            <Eyebrow className="mb-4">Letters to your baby</Eyebrow>
-            <LetterForm />
-            <div className="mt-6 space-y-3 border-t border-border pt-5">
-              {letters.length === 0 ? (
-                <p className="font-mono text-xs text-muted">
-                  No letters yet. The first can be one line.
-                </p>
-              ) : (
-                letters.map((l) => (
-                  <div key={l.id} className="rounded-lg border border-border bg-bg p-4">
-                    <p className="whitespace-pre-wrap font-serif text-base leading-relaxed text-ink">
-                      {l.body}
-                    </p>
-                    <p className="mt-3 font-mono text-[0.68rem] uppercase tracking-widest text-muted">
-                      To the baby ·{" "}
-                      {l.createdAt.toLocaleDateString(undefined, {
-                        month: "short",
-                        day: "numeric",
-                        year: "numeric",
-                      })}
-                    </p>
-                  </div>
-                ))
-              )}
-            </div>
+            <Eyebrow className="mb-2">Letters to your baby</Eyebrow>
+            <p className="mb-5 font-mono text-xs leading-relaxed text-muted">
+              A keepsake for your little one. Your husband can write here too,
+              from his journey — you&rsquo;ll both see every letter.
+            </p>
+            <BabyLetters
+              letters={letters.map((l) => ({
+                id: l.id,
+                body: l.body,
+                createdAt: l.createdAt.toISOString(),
+                authorName: l.author?.name ?? null,
+                authorId: l.authorId,
+              }))}
+              viewerId={session.user.id}
+            />
           </Card>
 
           {/* Letters to each other — the shared thread with her husband */}

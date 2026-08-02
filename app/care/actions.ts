@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { getActiveMembership } from "@/lib/data";
+import { notify } from "@/lib/notify";
 import { uploadImages } from "@/lib/blob";
 import { Mood, MilestoneKind } from "@prisma/client";
 
@@ -13,6 +14,17 @@ async function requireMother() {
   if (!session?.user?.id) redirect("/sign-in?callbackUrl=/care");
   const active = await getActiveMembership(session.user.id);
   if (!active || active.role !== "MOTHER") redirect("/journey");
+  return { userId: session.user.id, journeyId: active.journey.id };
+}
+
+// Letters to the baby are a shared keepsake: either parent may write them.
+async function requireParent() {
+  const session = await auth();
+  if (!session?.user?.id) redirect("/sign-in?callbackUrl=/care");
+  const active = await getActiveMembership(session.user.id);
+  if (!active || (active.role !== "MOTHER" && active.role !== "PARTNER")) {
+    redirect("/journey");
+  }
   return { userId: session.user.id, journeyId: active.journey.id };
 }
 
@@ -30,7 +42,7 @@ export async function addCheckIn(formData: FormData) {
 }
 
 export async function addLetter(formData: FormData) {
-  const { userId, journeyId } = await requireMother();
+  const { userId, journeyId } = await requireParent();
   const body = String(formData.get("body") ?? "").trim();
   const toBaby = String(formData.get("toBaby") ?? "true") === "true";
   if (!body) throw new Error("A letter needs a few words.");
@@ -38,7 +50,34 @@ export async function addLetter(formData: FormData) {
   await prisma.letter.create({
     data: { journeyId, authorId: userId, body, toBaby },
   });
+
+  // Let the other parent know a new keepsake letter is waiting for them.
+  if (toBaby) {
+    const author = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { name: true },
+    });
+    const who = author?.name?.trim().split(/\s+/)[0] || "Someone";
+    const others = await prisma.membership.findMany({
+      where: {
+        journeyId,
+        role: { in: ["MOTHER", "PARTNER"] },
+        userId: { not: userId },
+      },
+      select: { userId: true, role: true },
+    });
+    for (const o of others) {
+      await notify({
+        userId: o.userId,
+        type: "encouragement",
+        title: `${who} wrote a letter to your baby.`,
+        href: o.role === "MOTHER" ? "/care" : "/journey",
+      });
+    }
+  }
+
   revalidatePath("/care");
+  revalidatePath("/journey");
 }
 
 async function resolveChildId(journeyId: string, raw: string): Promise<string | null> {

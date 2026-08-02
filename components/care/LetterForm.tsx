@@ -4,7 +4,7 @@ import { useRef } from "react";
 import { useFormStatus } from "react-dom";
 import { addLetter } from "@/app/care/actions";
 
-export function LetterForm() {
+export function LetterForm({ placeholder }: { placeholder?: string }) {
   const formRef = useRef<HTMLFormElement>(null);
 
   return (
@@ -21,7 +21,7 @@ export function LetterForm() {
         name="body"
         rows={4}
         required
-        placeholder="Dear little one…"
+        placeholder={placeholder ?? "Dear little one…"}
         className="w-full resize-none rounded-lg border border-border bg-bg px-3.5 py-2.5 font-mono text-sm leading-relaxed text-ink placeholder:text-muted focus:border-accent focus:outline-none"
       />
       <Submit />

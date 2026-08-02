@@ -28,6 +28,7 @@ import { SupportActions } from "@/components/journey/SupportActions";
 import { NudgeList } from "@/components/journey/NudgeList";
 import { EncouragementBox } from "@/components/journey/EncouragementBox";
 import { CoupleLetters } from "@/components/care/CoupleLetters";
+import { BabyLetters } from "@/components/care/BabyLetters";
 import { Encouragements } from "@/components/journey/Encouragements";
 import { Reactions } from "@/components/Reactions";
 import { DailyVerse } from "@/components/journey/DailyVerse";
@@ -301,11 +302,17 @@ export default async function JourneyPage() {
   }
 
   // ── Husband / Partner view ─────────────────────────────────────────────
-  const [latest, nudges, support, coupleLetters] = await Promise.all([
+  const [latest, nudges, support, coupleLetters, babyLetters] = await Promise.all([
     getLatestMotherCheckIn(journey.id),
     getOpenNudges(journey.id, session.user.id),
     getSupportSummary(journey.id, session.user.id),
     getCoupleLetters(journey.id, session.user.id),
+    prisma.letter.findMany({
+      where: { journeyId: journey.id, toBaby: true },
+      orderBy: { createdAt: "desc" },
+      take: 20,
+      include: { author: { select: { id: true, name: true } } },
+    }),
   ]);
   const motherName = journey.owner.name ?? "her";
   const mood = latest ? MOOD_META[latest.mood] : null;
@@ -390,6 +397,25 @@ export default async function JourneyPage() {
                 viewerId={session.user.id}
                 spouseFallback={motherName}
                 placeholder={`Write to ${motherName}…`}
+              />
+            </Card>
+
+            <Card className="p-8">
+              <Eyebrow className="mb-2">Letters to your baby</Eyebrow>
+              <p className="mb-5 font-mono text-xs leading-relaxed text-muted">
+                Write to your little one — a keepsake for the years ahead.
+                {" "}{motherName} sees these too, and can add her own.
+              </p>
+              <BabyLetters
+                letters={babyLetters.map((l) => ({
+                  id: l.id,
+                  body: l.body,
+                  createdAt: l.createdAt.toISOString(),
+                  authorName: l.author?.name ?? null,
+                  authorId: l.authorId,
+                }))}
+                viewerId={session.user.id}
+                placeholder="Dear little one…"
               />
             </Card>
 
