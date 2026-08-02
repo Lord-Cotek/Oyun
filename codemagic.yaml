@@ -78,6 +78,9 @@ workflows:
       app_store_connect: codemagic
     environment:
       groups:
+        # Add a variable group "ios_signing" (in the app's settings) containing
+        # CERTIFICATE_PRIVATE_KEY (a secure PEM private key). Required for iOS.
+        - ios_signing
         # Optional — only needed for native push. Add GOOGLE_SERVICE_INFO_PLIST
         # (base64 of GoogleService-Info.plist) to the "oyun_firebase" group.
         - oyun_firebase
