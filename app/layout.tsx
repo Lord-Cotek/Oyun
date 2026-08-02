@@ -24,13 +24,48 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://oyun.cotek.app";
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Oyun — Walk the whole journey, together",
+    default: "Oyun — Christian Pregnancy App & Devotional for Couples",
     template: "%s · Oyun",
   },
   description:
-    "A Christian companion for the whole journey — conception through a child's first two years — for an expectant mother and her partner. Guided by Agbebi.",
+    "Oyun is a Christian pregnancy app and daily devotional walking you week by week from conception through your child's first two years — Scripture, prayer, and one thing to do — for an expectant mother and her partner together. Guided by Agbebi.",
+  keywords: [
+    "Christian pregnancy app",
+    "Christian pregnancy tracker",
+    "pregnancy devotional",
+    "faith-based pregnancy app",
+    "pregnancy prayer app",
+    "Bible verses for pregnancy",
+    "pregnancy week by week Christian",
+    "Christian pregnancy journal",
+    "pregnancy app for couples",
+    "expecting parents devotional",
+    "Christian baby app",
+    "newborn devotional",
+    "letters to my baby",
+    "prayer for expecting mothers",
+    "Reformed pregnancy app",
+    "family worship",
+    "children's catechism",
+  ],
   applicationName: "Oyun",
+  authors: [{ name: "cotek app FZ-LLC" }],
+  creator: "cotek app FZ-LLC",
+  publisher: "cotek app FZ-LLC",
+  category: "lifestyle",
   manifest: "/manifest.webmanifest",
+  alternates: { canonical: "/" },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
   appleWebApp: {
     capable: true,
     title: "Oyun",
@@ -39,15 +74,17 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     siteName: "Oyun",
-    title: "Oyun — Walk the whole journey, together",
+    locale: "en_US",
+    title: "Oyun — Christian Pregnancy App & Devotional for Couples",
     description:
-      "Scripture at the center, from conception through a child's earliest years. Guided by Agbebi.",
+      "A Christian pregnancy companion — Scripture, prayer, and gentle guidance from conception through your child's earliest years, for a mother and her partner. Guided by Agbebi.",
     url: siteUrl,
   },
   twitter: {
     card: "summary_large_image",
-    title: "Oyun",
-    description: "Walk the whole journey — together — with Scripture at the center.",
+    title: "Oyun — Christian Pregnancy App for Couples",
+    description:
+      "Walk pregnancy through your baby's first years with Scripture, prayer, and a circle who loves you. Guided by Agbebi.",
   },
 };
 

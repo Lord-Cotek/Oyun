@@ -7,7 +7,16 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/journey", "/care", "/api", "/onboarding"],
+      disallow: [
+        "/journey",
+        "/care",
+        "/child",
+        "/together",
+        "/settings",
+        "/onboarding",
+        "/reset-password",
+        "/api",
+      ],
     },
     sitemap: `${siteUrl}/sitemap.xml`,
     host: siteUrl,

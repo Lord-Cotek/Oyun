@@ -8,9 +8,10 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { InstallButton } from "@/components/InstallButton";
 
 export const metadata: Metadata = {
-  title: "Walk the whole journey, together",
+  title: "Christian Pregnancy App & Devotional for Couples",
   description:
-    "Oyun pairs each stage — conception through a child's first two years — with Scripture, a reflection, and one thing to do. With an accountability layer for the mother and her partner. Guided by Agbebi.",
+    "Oyun is a Christian pregnancy app that pairs each week — conception through your child's first two years — with Scripture, a reflection, and one thing to do, plus a circle of support for the mother and her partner. Guided by Agbebi.",
+  alternates: { canonical: "/" },
 };
 
 const PILLARS = [
@@ -46,9 +47,47 @@ const PILLARS = [
   },
 ];
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://oyun.cotek.app";
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": `${siteUrl}/#org`,
+      name: "cotek app FZ-LLC",
+      url: siteUrl,
+      email: "support@cotek.live",
+    },
+    {
+      "@type": "WebSite",
+      "@id": `${siteUrl}/#website`,
+      url: siteUrl,
+      name: "Oyun",
+      inLanguage: "en",
+      publisher: { "@id": `${siteUrl}/#org` },
+    },
+    {
+      "@type": "SoftwareApplication",
+      name: "Oyun",
+      applicationCategory: "LifestyleApplication",
+      operatingSystem: "iOS, Android, Web",
+      url: siteUrl,
+      description:
+        "A Christian pregnancy app and daily devotional — Scripture, prayer, and gentle guidance from conception through a child's first two years, for a mother and her partner. Guided by Agbebi.",
+      publisher: { "@id": `${siteUrl}/#org` },
+      offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+    },
+  ],
+};
+
 export default function Landing() {
   return (
     <main className="mx-auto max-w-shell px-6">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <ThemeToggle className="fixed right-5 top-5 z-30" />
       {/* Hero */}
       <section className="flex min-h-[88dvh] flex-col justify-center py-20">
