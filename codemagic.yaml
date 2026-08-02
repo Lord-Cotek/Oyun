@@ -124,6 +124,8 @@ workflows:
             --type IOS_APP_STORE \
             --create
           keychain add-certificates
+          # Run from the Xcode project dir so use-profiles patches App.xcodeproj.
+          cd "$CM_BUILD_DIR/mobile/ios/App"
           xcode-project use-profiles
       - name: Build signed IPA
         script: |
