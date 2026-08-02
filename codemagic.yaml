@@ -12,11 +12,6 @@ workflows:
         # Teams → your team → Code signing identities → Android keystores.
         # Name it exactly "oyun_upload_keystore".
         - oyun_upload_keystore
-      groups:
-        # Optional — only needed for native push. Add a variable group
-        # "oyun_firebase" with GOOGLE_SERVICES_JSON = base64 of your
-        # google-services.json. Safe to leave unset; the app still builds.
-        - oyun_firebase
       vars:
         PACKAGE_NAME: "app.cotek.oyun"
       node: 20
@@ -81,9 +76,6 @@ workflows:
         # Add a variable group "ios_signing" (in the app's settings) containing
         # CERTIFICATE_PRIVATE_KEY (a secure PEM private key). Required for iOS.
         - ios_signing
-        # Optional — only needed for native push. Add GOOGLE_SERVICE_INFO_PLIST
-        # (base64 of GoogleService-Info.plist) to the "oyun_firebase" group.
-        - oyun_firebase
       vars:
         BUNDLE_ID: "app.cotek.oyun"
         XCODE_SCHEME: "App"
