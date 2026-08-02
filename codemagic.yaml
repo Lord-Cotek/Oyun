@@ -73,10 +73,13 @@ workflows:
       app_store_connect: codemagic
     environment:
       ios_signing:
-        # Codemagic fetches your stored distribution certificate ("extrap") and
-        # the App Store provisioning profile you create for this bundle id.
-        distribution_type: app_store
-        bundle_identifier: app.cotek.oyun
+        # Manual signing: pair the uploaded certificate (.p12 WITH its private
+        # key) to the uploaded provisioning profile — both from Codemagic →
+        # Settings → Code signing identities. Reference names must match exactly.
+        certificates:
+          - certificate: Oyun
+        provisioning_profiles:
+          - profile: oyun_app_store
       vars:
         BUNDLE_ID: "app.cotek.oyun"
         XCODE_SCHEME: "App"
