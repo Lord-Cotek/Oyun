@@ -123,8 +123,8 @@ workflows:
           keychain initialize
           app-store-connect fetch-signing-files "$BUNDLE_ID" \
             --type IOS_APP_STORE \
-            --create \
-            --verbose
+            --certificate-key=@env:CERTIFICATE_PRIVATE_KEY \
+            --create
           keychain add-certificates
           echo "── Installed provisioning profiles ──"
           ls -la "$HOME/Library/MobileDevice/Provisioning Profiles" || true
