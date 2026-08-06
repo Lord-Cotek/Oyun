@@ -19,6 +19,18 @@ export function InstallButton({ className = "" }: { className?: string }) {
   const [showIOS, setShowIOS] = useState(false);
 
   useEffect(() => {
+    // Inside the native app (App Store / Play install) there's nothing to
+    // install — the button is redundant, so hide it entirely.
+    const cap = (window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } })
+      .Capacitor;
+    const inNativeShell =
+      cap?.isNativePlatform?.() === true ||
+      window.navigator.userAgent.includes("OyunNative");
+    if (inNativeShell) {
+      setInstalled(true);
+      return;
+    }
+
     const standalone =
       window.matchMedia("(display-mode: standalone)").matches ||
       // iOS Safari
