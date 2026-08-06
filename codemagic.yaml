@@ -94,6 +94,19 @@ workflows:
           cd mobile
           npx cap add ios 2>/dev/null || true
           npx cap sync ios
+      - name: Raise iOS deployment target to 15.0 (silences warning 90068)
+        script: |
+          cd mobile/ios/App
+          # App target — bump every build configuration.
+          sed -i '' -E 's/IPHONEOS_DEPLOYMENT_TARGET = [0-9.]+;/IPHONEOS_DEPLOYMENT_TARGET = 15.0;/g' \
+            App.xcodeproj/project.pbxproj
+          # CocoaPods base platform (Capacitor pins :ios in the Podfile).
+          if [ -f Podfile ]; then
+            sed -i '' -E "s/platform :ios, '[0-9.]+'/platform :ios, '15.0'/" Podfile
+          fi
+          echo "── Deployment target now ──"
+          grep -m1 IPHONEOS_DEPLOYMENT_TARGET App.xcodeproj/project.pbxproj || true
+          grep -m1 "platform :ios" Podfile || true
       - name: Write Firebase config (native push, optional)
         script: |
           if [ -n "$GOOGLE_SERVICE_INFO_PLIST" ]; then
