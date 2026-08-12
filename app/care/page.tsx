@@ -15,6 +15,7 @@ import { CheckInForm } from "@/components/care/CheckInForm";
 import { BabyLetters } from "@/components/care/BabyLetters";
 import { MoodChart, type MoodPoint } from "@/components/care/MoodChart";
 import { CoupleLetters } from "@/components/care/CoupleLetters";
+import { LettersPanel } from "@/components/care/LettersPanel";
 
 export const metadata: Metadata = {
   title: "Care",
@@ -135,39 +136,45 @@ export default async function CarePage() {
             )}
           </Card>
 
-          {/* Letters to the baby — a keepsake both parents can write */}
-          <Card className="border-accent2/30 bg-accent2/[0.05]">
-            <Eyebrow className="mb-2">Letters to your baby</Eyebrow>
-            <p className="mb-5 font-mono text-xs leading-relaxed text-muted">
-              A keepsake for your little one. Your husband can write here too,
-              from his journey — you&rsquo;ll both see every letter.
-            </p>
-            <BabyLetters
-              letters={letters.map((l) => ({
-                id: l.id,
-                body: l.body,
-                createdAt: l.createdAt.toISOString(),
-                authorName: l.author?.name ?? null,
-                authorId: l.authorId,
-              }))}
-              viewerId={session.user.id}
-            />
-          </Card>
-
-          {/* Letters to each other — the shared thread with her husband */}
-          <Card className="border-accent2/30 bg-accent2/[0.05]">
-            <Eyebrow className="mb-2">Between the two of you</Eyebrow>
-            <p className="mb-5 font-mono text-xs leading-relaxed text-muted">
-              A shared place for you and your husband to write to each other —
-              he sees these on his journey, and can write back. Anyone else in
-              your circle can&rsquo;t.
-            </p>
-            <CoupleLetters
-              letters={coupleLetters.items}
-              hasMore={coupleLetters.hasMore}
-              viewerId={session.user.id}
-              spouseFallback="Your husband"
-              placeholder="Words to keep between the two of you…"
+          {/* Letters — one card, two threads behind a switcher so neither
+              buries the other on a phone. */}
+          <Card className="border-accent2/30 bg-accent2/[0.05] lg:col-span-2">
+            <LettersPanel
+              babyCount={letters.length}
+              babyIntro={
+                <>
+                  A keepsake for your little one. Your husband can write here
+                  too, from his journey — you&rsquo;ll both see every letter.
+                </>
+              }
+              coupleIntro={
+                <>
+                  A shared place for you and your husband to write to each other
+                  — he sees these on his journey, and can write back. Anyone
+                  else in your circle can&rsquo;t.
+                </>
+              }
+              baby={
+                <BabyLetters
+                  letters={letters.map((l) => ({
+                    id: l.id,
+                    body: l.body,
+                    createdAt: l.createdAt.toISOString(),
+                    authorName: l.author?.name ?? null,
+                    authorId: l.authorId,
+                  }))}
+                  viewerId={session.user.id}
+                />
+              }
+              couple={
+                <CoupleLetters
+                  letters={coupleLetters.items}
+                  hasMore={coupleLetters.hasMore}
+                  viewerId={session.user.id}
+                  spouseFallback="Your husband"
+                  placeholder="Words to keep between the two of you…"
+                />
+              }
             />
           </Card>
         </div>

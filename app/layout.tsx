@@ -116,8 +116,8 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: themeInit }} />
       </head>
       <body className="grain">
-        <div className="relative z-10 flex min-h-dvh flex-col">
-          <div className="tabbar-pad flex-1">{children}</div>
+        <div className="tabbar-pad relative z-10 flex min-h-dvh flex-col">
+          <div className="flex-1">{children}</div>
           <Disclaimer />
         </div>
         <AssistantChat />
