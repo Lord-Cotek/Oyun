@@ -13,13 +13,14 @@ import {
   getCoupleLetters,
 } from "@/lib/data";
 import { computePosition, gestationLabel } from "@/lib/stage";
+import { babySizeFor } from "@/lib/babySize";
 import { partnerDailyCare, dayKey } from "@/lib/partner-care";
 import { getReactionsFor } from "@/lib/reactions";
 import { MOOD_META } from "@/lib/moods";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Card } from "@/components/ui/Card";
 import { Eyebrow } from "@/components/ui/Eyebrow";
-import { StatCard } from "@/components/ui/StatCard";
+import { ProgressRing } from "@/components/ui/ProgressRing";
 import { Verse } from "@/components/ui/Verse";
 import { Button } from "@/components/ui/Button";
 import { JourneyProgress } from "@/components/JourneyProgress";
@@ -129,6 +130,29 @@ export default async function JourneyPage() {
         ? `${idileUrl}/welcome?name=${encodeURIComponent(journey.babyName ?? "")}&born=${encodeURIComponent(journey.dueDate.toISOString().slice(0, 10))}`
         : null;
 
+    // Warm hero details.
+    const motherName = journey.owner.name?.trim().split(/\s+/)[0] ?? null;
+    const babyLabel = journey.babyName?.trim() || null;
+    const sizePhrase = position.born ? null : babySizeFor(position.week ?? 0);
+    const ringProgress = position.born
+      ? (position.month ?? 0) / 24
+      : ((position.week ?? 0) + (position.dayInWeek ?? 0) / 7) / 40;
+    const months = position.month ?? 0;
+    const heroSubtitle: React.ReactNode = position.born ? (
+      `${babyLabel ?? (journey.babyCount > 1 ? "Your little ones" : "Your little one")} — ${months} month${months === 1 ? "" : "s"} into the world. Welcome.`
+    ) : sizePhrase ? (
+      <>
+        {babyLabel ? `${babyLabel} is` : "Your little one is"} about the size of{" "}
+        {sizePhrase} this week —{" "}
+        <span className="text-ink">fearfully and wonderfully made.</span>
+      </>
+    ) : (
+      <>
+        {babyLabel ? `${babyLabel} — ` : ""}a hidden, holy beginning, fearfully
+        and wonderfully made.
+      </>
+    );
+
     return (
       <>
         <SiteHeader active="journey" />
@@ -138,47 +162,43 @@ export default async function JourneyPage() {
               <BirthMoment babyCount={journey.babyCount} overdue={position.born} />
             </div>
           )}
-          <div className="animate-fade-up">
-            <Eyebrow className="mb-3">
-              {position.born ? "Infancy" : "Pregnancy"} · {stageLabel}
-            </Eyebrow>
-            <h1 className="max-w-3xl font-serif text-4xl leading-tight text-ink md:text-5xl">
-              {stage.title}
-            </h1>
-          </div>
+          <section className="animate-fade-up overflow-hidden rounded-2xl border border-accent/25 bg-gradient-to-br from-accent/[0.10] via-surface to-accent2/[0.09] p-8 md:p-10">
+            <div className="flex flex-col-reverse items-start gap-8 md:flex-row md:items-center md:justify-between">
+              <div className="min-w-0">
+                {motherName && (
+                  <p className="mb-3 font-serif text-lg italic text-muted">
+                    Hello, {motherName}.
+                  </p>
+                )}
+                <Eyebrow className="mb-3">
+                  {position.born ? "Infancy" : "Pregnancy"} · {stageLabel}
+                </Eyebrow>
+                <h1 className="max-w-2xl font-serif text-4xl leading-tight text-ink md:text-5xl">
+                  {stage.title}
+                </h1>
+                <p className="mt-4 max-w-prose font-mono text-sm leading-relaxed text-muted">
+                  {heroSubtitle}
+                </p>
+              </div>
 
-          <div className="mt-8 grid gap-4 sm:grid-cols-3">
-            <StatCard
-              label={position.born ? "Age" : "Along"}
-              value={position.born ? position.month : position.week}
-              delta={
-                position.born
-                  ? undefined
-                  : `and ${position.dayInWeek ?? 0} day${(position.dayInWeek ?? 0) === 1 ? "" : "s"}`
-              }
-              deltaTone="accent2"
-              hint={position.born ? "months old" : "weeks · of 40"}
-            />
-            <StatCard
-              label={position.born ? "Since birth" : "Days to go"}
-              value={position.born ? "—" : position.daysToGo}
-              deltaTone="accent"
-              hint={
-                position.born
-                  ? journey.babyCount > 1
-                    ? "welcome, little ones"
-                    : "welcome, little one"
-                  : "until the due date"
-              }
-            />
-            <StatCard
-              label="Firsts logged"
-              value={milestoneCount}
-              hint="milestones remembered"
-            />
-          </div>
+              <div className="flex flex-col items-center gap-2.5 md:pl-6">
+                <ProgressRing
+                  progress={ringProgress}
+                  value={position.born ? months : position.week ?? 0}
+                  unit={position.born ? "months old" : "of 40 weeks"}
+                />
+                <p className="font-mono text-xs text-muted">
+                  {position.born
+                    ? journey.babyCount > 1
+                      ? "welcome, little ones"
+                      : "welcome, little one"
+                    : `${position.daysToGo} day${position.daysToGo === 1 ? "" : "s"} to go`}
+                </p>
+              </div>
+            </div>
+          </section>
 
-          <div className="mt-8">
+          <div className="mt-6">
             <JourneyProgress progress={position.progress} label={stageLabel} />
           </div>
 
@@ -186,28 +206,28 @@ export default async function JourneyPage() {
             <DailyVerse />
           </div>
 
-          <div className="mt-10 grid gap-4 lg:grid-cols-[1.4fr_1fr]">
+          <div className="mt-6 grid gap-4 lg:grid-cols-[1.5fr_1fr]">
             <Card className="p-8">
               <Verse text={stage.verse.text} reference={stage.verse.ref} size="lg" />
               <div className="mt-8 space-y-6 border-t border-border pt-6">
                 <Block eyebrow="This stage">{stage.body}</Block>
                 <Block eyebrow="A reflection">{stage.reflection}</Block>
               </div>
-            </Card>
-
-            <div className="space-y-4">
-              <Card className="border-accent/30 bg-accent/[0.06]">
-                <Eyebrow className="mb-3">One thing to do</Eyebrow>
+              <div className="mt-7 rounded-xl border border-accent/30 bg-accent/[0.07] p-5">
+                <Eyebrow className="mb-2">One thing to do</Eyebrow>
                 <p className="font-serif text-xl leading-snug text-ink">
                   {stage.action}
                 </p>
-              </Card>
-              <Card>
-                <Eyebrow className="mb-3">Pray</Eyebrow>
+              </div>
+              <div className="mt-5 border-t border-border pt-5">
+                <Eyebrow className="mb-2">Pray</Eyebrow>
                 <p className="font-mono text-sm leading-relaxed text-muted">
                   {stage.prayerPoint}
                 </p>
-              </Card>
+              </div>
+            </Card>
+
+            <div className="space-y-4">
               {(encouragements.length > 0 || supporterCount > 0) && (
                 <Card className="border-accent2/30 bg-accent2/[0.05]">
                   <Encouragements
@@ -223,31 +243,17 @@ export default async function JourneyPage() {
                   />
                 </Card>
               )}
-              <Card>
-                <Eyebrow className="mb-3">Care</Eyebrow>
-                <p className="mb-4 font-mono text-xs leading-relaxed text-muted">
-                  Log how your heart is today, or write a letter to your baby and
-                  to your husband.
-                </p>
-                <Button href="/care" variant="ghost" className="w-full">
-                  Open Care
-                </Button>
-              </Card>
-              <Card className="border-accent2/30 bg-accent2/[0.05]">
-                <Eyebrow className="mb-3">The nursery</Eyebrow>
-                <p className="mb-4 font-mono text-xs leading-relaxed text-muted">
-                  {position.born
-                    ? journey.babyCount > 1
-                      ? "Your little ones have arrived. Give each a profile — name, birthday, a photo."
-                      : "Keep your little one's profile — name, birthday, a photo, and every first."
-                    : journey.babyCount > 1
-                      ? `You're expecting ${journey.babyCount}. Add a profile for each — now or when they arrive.`
-                      : "A place for your baby's profile — name, birthday, a photo, and every first. Set it up whenever you like."}
-                </p>
-                <Button href="/child" variant="ghost" className="w-full">
-                  Open the nursery
-                </Button>
-              </Card>
+
+              <div className="grid grid-cols-3 gap-3">
+                <QuickTile href="/care" label="Care" hint="Your heart" />
+                <QuickTile
+                  href="/child"
+                  label="Nursery"
+                  hint={journey.babyCount > 1 ? `${journey.babyCount} profiles` : "Profile"}
+                />
+                <QuickTile href="/firsts" label="Firsts" hint={`${milestoneCount} kept`} />
+              </div>
+
               {idileHandoff && (
                 <Card className="border-accent/30 bg-accent/[0.06]">
                   <Eyebrow className="mb-3">As they grow</Eyebrow>
@@ -315,61 +321,85 @@ export default async function JourneyPage() {
   const latestReactions = latest
     ? (await getReactionsFor("CHECKIN", [latest.id], session.user.id))[latest.id]
     : null;
+  const care = partnerDailyCare(
+    position.born ? "infancy" : "pregnancy",
+    dayKey(),
+    stage.index,
+  );
+  const partnerFirst = session.user.name?.trim().split(/\s+/)[0] ?? null;
 
   return (
     <>
       <SiteHeader active="journey" showCare={false} />
       <main className="mx-auto max-w-shell px-6 py-10">
-        <div className="animate-fade-up">
+        <section className="animate-fade-up overflow-hidden rounded-2xl border border-accent/25 bg-gradient-to-br from-accent/[0.10] via-surface to-accent2/[0.09] p-8 md:p-10">
+          {partnerFirst && (
+            <p className="mb-3 font-serif text-lg italic text-muted">
+              Hello, {partnerFirst}.
+            </p>
+          )}
           <Eyebrow className="mb-3">
             Supporting {motherName} · {stageLabel}
           </Eyebrow>
           <h1 className="max-w-3xl font-serif text-4xl leading-tight text-ink md:text-5xl">
             {stage.title}
           </h1>
-        </div>
 
-        <div className="mt-8">
+          <div className="mt-8 grid gap-4 md:grid-cols-2">
+            <div className="rounded-xl border border-border bg-bg/50 p-6">
+              <Eyebrow className="mb-3">How she is</Eyebrow>
+              {mood ? (
+                <>
+                  <p className={`font-serif text-2xl ${MOOD_TONE_TEXT[mood.tone]}`}>
+                    {mood.label}
+                  </p>
+                  <p className="mt-2 font-mono text-xs leading-relaxed text-muted">
+                    {latest?.note?.trim() ? `"${latest.note}"` : mood.blurb}
+                  </p>
+                  {latest && latestReactions && (
+                    <div className="mt-4 border-t border-border pt-4">
+                      <p className="mb-2 font-mono text-[0.68rem] uppercase tracking-widest text-muted">
+                        Let her know you saw
+                      </p>
+                      <Reactions
+                        targetType="CHECKIN"
+                        targetId={latest.id}
+                        initial={latestReactions}
+                      />
+                    </div>
+                  )}
+                </>
+              ) : (
+                <p className="font-mono text-xs leading-relaxed text-muted">
+                  {motherName} hasn&rsquo;t shared a check-in yet. When she does,
+                  you&rsquo;ll see how she&rsquo;s doing here — a cue to reach out.
+                </p>
+              )}
+            </div>
+
+            <div className="rounded-xl border border-accent/30 bg-accent/[0.08] p-6">
+              <p className="eyebrow mb-2 text-accent">Today — one small thing</p>
+              <p className="font-serif text-xl leading-snug text-ink">{care.act}</p>
+              {care.ref && (
+                <p className="mt-3 font-mono text-[0.68rem] uppercase tracking-widest text-muted">
+                  {care.ref}
+                </p>
+              )}
+            </div>
+          </div>
+        </section>
+
+        <div className="mt-6">
           <JourneyProgress progress={position.progress} label={stageLabel} />
         </div>
 
-        <div className="mt-10 grid gap-4 lg:grid-cols-[1.4fr_1fr]">
+        <div className="mt-6 grid gap-4 lg:grid-cols-[1.4fr_1fr]">
           <div className="space-y-4">
             <Card className="border-accent/30 bg-accent/[0.06] p-8">
               <Eyebrow className="mb-3">How to carry her this stage</Eyebrow>
               <p className="font-serif text-xl leading-snug text-ink">
                 {stage.partnerFocus}
               </p>
-              {(() => {
-                const care = partnerDailyCare(
-                  position.born ? "infancy" : "pregnancy",
-                  dayKey(),
-                  stage.index,
-                );
-                return (
-                  <div className="mt-6 border-t border-accent/20 pt-5">
-                    <p className="eyebrow mb-2 text-accent">Today — one small thing</p>
-                    <p className="font-serif text-lg leading-snug text-ink">
-                      {care.act}
-                    </p>
-                    {care.ref && (
-                      <p className="mt-2 font-mono text-[0.68rem] uppercase tracking-widest text-muted">
-                        {care.ref}
-                      </p>
-                    )}
-                  </div>
-                );
-              })()}
-            </Card>
-
-            <Card className="p-8">
-              <SupportActions
-                prayedToday={support.prayedToday}
-                reachedOutToday={support.reachedOutToday}
-                streak={support.streak}
-                prayedLast7={support.prayedLast7}
-                motherName={motherName}
-              />
             </Card>
 
             <Card className="p-8">
@@ -384,8 +414,8 @@ export default async function JourneyPage() {
             <Card className="p-8">
               <Eyebrow className="mb-2">Between the two of you</Eyebrow>
               <p className="mb-5 font-mono text-xs leading-relaxed text-muted">
-                Letters just between you and {motherName} — hers to you, and
-                yours to her. Private to the two of you.
+                Letters just between you and {motherName} — hers to you, and yours
+                to her. Private to the two of you.
               </p>
               <CoupleLetters
                 letters={coupleLetters.items}
@@ -399,8 +429,8 @@ export default async function JourneyPage() {
             <Card className="p-8">
               <Eyebrow className="mb-2">Letters to your baby</Eyebrow>
               <p className="mb-5 font-mono text-xs leading-relaxed text-muted">
-                Write to your little one — a keepsake for the years ahead.
-                {" "}{motherName} sees these too, and can add her own.
+                Write to your little one — a keepsake for the years ahead.{" "}
+                {motherName} sees these too, and can add her own.
               </p>
               <BabyLetters
                 letters={babyLetters.map((l) => ({
@@ -427,36 +457,14 @@ export default async function JourneyPage() {
           </div>
 
           <div className="space-y-4">
-            <Card>
-              <Eyebrow className="mb-3">Her heart, lately</Eyebrow>
-              {mood ? (
-                <>
-                  <p className={`font-serif text-2xl ${MOOD_TONE_TEXT[mood.tone]}`}>
-                    {mood.label}
-                  </p>
-                  <p className="mt-2 font-mono text-xs leading-relaxed text-muted">
-                    {latest?.note?.trim() ? `"${latest.note}"` : mood.blurb}
-                  </p>
-                  {latest && latestReactions && (
-                    <div className="mt-4 border-t border-border pt-4">
-                      <p className="mb-2 font-mono text-[0.68rem] uppercase tracking-widest text-muted">
-                        Let her know you saw
-                      </p>
-                      <Reactions
-                        targetType="CHECKIN"
-                        targetId={latest.id}
-                        initial={latestReactions}
-                      />
-                    </div>
-                  )}
-                </>
-              ) : (
-                <p className="font-mono text-xs leading-relaxed text-muted">
-                  {motherName} hasn&rsquo;t shared a check-in yet. When she does,
-                  you&rsquo;ll see how she&rsquo;s doing here — a cue to reach
-                  out.
-                </p>
-              )}
+            <Card className="p-8">
+              <SupportActions
+                prayedToday={support.prayedToday}
+                reachedOutToday={support.reachedOutToday}
+                streak={support.streak}
+                prayedLast7={support.prayedLast7}
+                motherName={motherName}
+              />
             </Card>
 
             <Card>
@@ -493,6 +501,32 @@ function Block({
       <Eyebrow className="mb-2">{eyebrow}</Eyebrow>
       <p className="font-mono text-sm leading-relaxed text-ink/90">{children}</p>
     </div>
+  );
+}
+
+/** A compact, tappable shortcut tile for the journey rail. */
+function QuickTile({
+  href,
+  label,
+  hint,
+}: {
+  href: string;
+  label: string;
+  hint: string;
+}) {
+  return (
+    <Link
+      href={href}
+      className="group flex flex-col rounded-xl border border-border bg-surface p-4 transition-colors hover:border-accent/50"
+    >
+      <span className="font-serif text-lg leading-none text-ink">{label}</span>
+      <span className="mt-1.5 font-mono text-[0.64rem] leading-tight text-muted">
+        {hint}
+      </span>
+      <span className="mt-3 font-mono text-[0.64rem] text-accent opacity-0 transition-opacity group-hover:opacity-100">
+        Open &rarr;
+      </span>
+    </Link>
   );
 }
 
