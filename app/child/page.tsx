@@ -6,7 +6,8 @@ import { getActiveMembership } from "@/lib/data";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Card } from "@/components/ui/Card";
 import { Eyebrow } from "@/components/ui/Eyebrow";
-import { StatCard } from "@/components/ui/StatCard";
+import { StatPill } from "@/components/ui/StatPill";
+import { Reveal } from "@/components/ui/Reveal";
 import { PageHero } from "@/components/ui/PageHero";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ChildForm } from "@/components/child/ChildForm";
@@ -62,10 +63,16 @@ export default async function ChildPage() {
         />
 
         {children.length > 0 && (
-          <div className="mt-6 grid gap-4 sm:grid-cols-3">
-            <StatCard label="Little ones" value={children.length} hint="in the nursery" />
-            <StatCard label="Firsts kept" value={firstsKept} hint="across them all" />
-            <StatCard label="Expecting" value={expecting} hint="on your journey" />
+          <div className="mt-6 grid grid-cols-3 gap-3">
+            <Reveal>
+              <StatPill label="Little ones" value={children.length} hint="in the nursery" tone="amber" />
+            </Reveal>
+            <Reveal delay={70}>
+              <StatPill label="Firsts kept" value={firstsKept} hint="across them all" tone="gold" />
+            </Reveal>
+            <Reveal delay={140}>
+              <StatPill label="Expecting" value={expecting} hint="on your journey" tone="rose" />
+            </Reveal>
           </div>
         )}
 
