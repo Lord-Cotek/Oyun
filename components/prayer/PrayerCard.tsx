@@ -1,8 +1,8 @@
 "use client";
 
-import { useTransition } from "react";
 import { prayForRequest, markAnswered, deletePrayerRequest } from "@/app/prayer/actions";
 import { Card } from "@/components/ui/Card";
+import { HoldToPray } from "@/components/ui/HoldToPray";
 
 export type PrayerItem = {
   id: string;
@@ -18,8 +18,6 @@ export type PrayerItem = {
 };
 
 export function PrayerCard({ item }: { item: PrayerItem }) {
-  const [pending, start] = useTransition();
-
   return (
     <Card
       id={`prayer-${item.id}`}
@@ -49,18 +47,11 @@ export function PrayerCard({ item }: { item: PrayerItem }) {
 
       <div className="mt-4 flex flex-wrap items-center gap-3 border-t border-border pt-3">
         {!item.answered && (
-          <button
-            type="button"
-            disabled={pending || item.didIPray}
-            onClick={() => start(() => prayForRequest(item.id))}
-            className={`rounded-lg border px-3.5 py-1.5 font-mono text-xs transition-colors ${
-              item.didIPray
-                ? "border-accent/50 bg-accent/10 text-accent"
-                : "border-border text-ink hover:border-accent hover:text-accent disabled:opacity-50"
-            }`}
-          >
-            {item.didIPray ? "You're praying 🙏" : "I'm praying"}
-          </button>
+          <HoldToPray
+            prayed={item.didIPray}
+            count={item.prayerCount}
+            action={() => prayForRequest(item.id)}
+          />
         )}
         {item.canManage && !item.answered && (
           <form action={markAnswered}>

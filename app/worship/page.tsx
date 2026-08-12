@@ -4,13 +4,14 @@ import { auth } from "@/lib/auth";
 import { getActiveMembership, getWorshipStreak } from "@/lib/data";
 import { computePosition } from "@/lib/stage";
 import { familyWorship } from "@/lib/worship";
+import { markWorship } from "@/app/worship/actions";
 import { SiteHeader } from "@/components/SiteHeader";
-import { Card } from "@/components/ui/Card";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Verse } from "@/components/ui/Verse";
 import { PageHero } from "@/components/ui/PageHero";
-import { Icon, type IconName } from "@/components/ui/Icon";
-import { WorshipTracker } from "@/components/journey/WorshipTracker";
+import { ProgressRing } from "@/components/ui/ProgressRing";
+import { AnimatedNumber } from "@/components/ui/AnimatedNumber";
+import { LiturgyRail, type Station } from "@/components/worship/LiturgyRail";
 
 export const metadata: Metadata = {
   title: "Family worship",
@@ -31,6 +32,54 @@ export default async function WorshipPage() {
   const { liturgy, hymn, catechism, catechismNumber } = familyWorship();
   const streak = await getWorshipStreak(active.journey.id);
 
+  const stations: Station[] = [
+    {
+      id: "read",
+      icon: "book",
+      eyebrow: "Read together",
+      verse: { text: liturgy.read.text, ref: liturgy.read.ref },
+    },
+    {
+      id: "reflect",
+      icon: "sparkles",
+      eyebrow: "Reflect",
+      body: liturgy.reflection,
+    },
+    ...(born
+      ? [
+          {
+            id: "catechism",
+            icon: "question" as const,
+            eyebrow: `Catechism · Question ${catechismNumber}`,
+            title: catechism.q,
+            answer: catechism.a,
+            note: "Learned by repetition, long before it’s fully understood. Say it together; one question a day is plenty.",
+          },
+        ]
+      : []),
+    {
+      id: "talk",
+      icon: "message",
+      eyebrow: "Talk together",
+      title: liturgy.talk,
+      note: "For the two of you now; for the whole table in years to come.",
+    },
+    {
+      id: "pray",
+      icon: "flame",
+      eyebrow: "Pray together",
+      body: liturgy.pray,
+    },
+    {
+      id: "sing",
+      icon: "music",
+      eyebrow: "Sing together",
+      title: hymn.title,
+      body: `“${hymn.line}”`,
+      tone: "accent2",
+    },
+  ];
+
   return (
     <>
       <SiteHeader active="worship" />
@@ -38,101 +87,41 @@ export default async function WorshipPage() {
         <PageHero
           eyebrow="Family worship"
           title="A daily altar in your home."
-          lede="A few unhurried minutes: read a little, understand a little, pray a little, sing a little. Consistency matters more than length — a short rhythm kept faithfully will shape a household over years."
+          lede="A few unhurried minutes, walked together — read a little, understand a little, pray a little, sing a little. Consistency matters more than length."
           aside={
-            <WorshipTracker
-              doneToday={streak.doneToday}
-              streak={streak.streak}
-              last7={streak.last7}
-              showRing
-            />
+            <div className="flex flex-col items-center gap-2">
+              <ProgressRing
+                progress={Math.min(1, streak.last7 / 7)}
+                value={<AnimatedNumber value={streak.streak} />}
+                unit="day streak"
+                size={150}
+                stroke={11}
+              />
+              <p className="font-mono text-[0.68rem] uppercase tracking-widest text-muted">
+                {streak.last7} of 7 days this week
+              </p>
+            </div>
           }
         />
 
-        <div className="mt-6 grid gap-4 lg:grid-cols-[1.4fr_1fr]">
-          <div className="min-w-0 space-y-4">
-            <Card className="p-8">
-              <LiturgyHead icon="book">Read together</LiturgyHead>
-              <Verse text={liturgy.read.text} reference={liturgy.read.ref} size="lg" />
-              <div className="mt-6 border-t border-border pt-6">
-                <Eyebrow className="mb-2 text-muted">Reflect</Eyebrow>
-                <p className="font-mono text-sm leading-relaxed text-ink/90">
-                  {liturgy.reflection}
-                </p>
-              </div>
-            </Card>
-
-            <Card className="p-8">
-              <LiturgyHead icon="message">Talk together</LiturgyHead>
-              <p className="font-serif text-xl leading-snug text-ink">{liturgy.talk}</p>
-              <p className="mt-3 font-mono text-[0.7rem] leading-relaxed text-muted">
-                For the two of you now; for the whole table in years to come.
-              </p>
-            </Card>
-
-            {born && (
-              <Card className="p-8">
-                <LiturgyHead icon="question">
-                  Catechism · Question {catechismNumber}
-                </LiturgyHead>
-                <p className="font-serif text-xl leading-snug text-ink">{catechism.q}</p>
-                <p className="mt-2 font-mono text-sm leading-relaxed text-ink/90">
-                  <span className="text-accent">A.</span> {catechism.a}
-                </p>
-                <p className="mt-4 font-mono text-[0.7rem] leading-relaxed text-muted">
-                  Learned by repetition, long before it&rsquo;s fully understood.
-                  Say it together; one question a day is plenty.
-                </p>
-              </Card>
-            )}
+        <section className="mt-8">
+          <div className="mb-5 flex items-center justify-between">
+            <Eyebrow>Today’s liturgy</Eyebrow>
+            <span className="font-mono text-[0.68rem] uppercase tracking-widest text-muted">
+              {stations.length} stations · Amen
+            </span>
           </div>
 
-          <div className="space-y-4">
-            <Card className="p-8">
-              <LiturgyHead icon="flame">Pray together</LiturgyHead>
-              <p className="font-mono text-sm leading-relaxed text-muted">{liturgy.pray}</p>
-            </Card>
-            <Card className="border-accent2/30 bg-accent2/[0.05] p-8">
-              <LiturgyHead icon="music" tone="accent2">
-                Sing together
-              </LiturgyHead>
-              <p className="font-serif text-xl leading-snug text-ink">{hymn.title}</p>
-              <p className="mt-2 font-mono text-sm leading-relaxed text-muted">
-                &ldquo;{hymn.line}&rdquo;
-              </p>
-            </Card>
-            <Card className="p-8">
-              <LiturgyHead icon="leaf">A word on keeping it</LiturgyHead>
-              <p className="font-mono text-xs leading-relaxed text-muted">
-                Don&rsquo;t aim for perfect; aim for daily. If you miss a day, simply
-                begin again the next. The goal is not a performance but a home
-                where God is a familiar, welcome presence.
-              </p>
-            </Card>
-          </div>
+          <LiturgyRail stations={stations} doneToday={streak.doneToday} onSeal={markWorship} />
+        </section>
+
+        <div className="mt-10 border-t border-border pt-8">
+          <Verse
+            text="But as for me and my house, we will serve the LORD."
+            reference="Joshua 24:15"
+          />
         </div>
       </main>
     </>
-  );
-}
-
-/** A liturgy card header — a small line-icon beside the eyebrow. */
-function LiturgyHead({
-  icon,
-  tone = "accent",
-  children,
-}: {
-  icon: IconName;
-  tone?: "accent" | "accent2";
-  children: React.ReactNode;
-}) {
-  const color = tone === "accent2" ? "text-accent2" : "text-accent";
-  return (
-    <div className={`mb-3 flex items-center gap-2 ${color}`}>
-      <Icon name={icon} size={16} />
-      <Eyebrow as="span" className={color}>
-        {children}
-      </Eyebrow>
-    </div>
   );
 }
