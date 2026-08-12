@@ -4,6 +4,7 @@ import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Card } from "@/components/ui/Card";
 import { OyunMark } from "@/components/ui/OyunMark";
 import { Verse } from "@/components/ui/Verse";
+import { Icon, type IconName } from "@/components/ui/Icon";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { InstallButton } from "@/components/InstallButton";
 
@@ -14,35 +15,48 @@ export const metadata: Metadata = {
   alternates: { canonical: "/" },
 };
 
-const PILLARS = [
+const PILLARS: {
+  eyebrow: string;
+  title: string;
+  body: string;
+  icon: IconName;
+  signature?: boolean;
+}[] = [
   {
     eyebrow: "Every stage",
     title: "Conception to two years",
+    icon: "ring",
     body: "Forty weeks of pregnancy and the child's first twenty-four months — each stage paired with what's unfolding, a scripture, a short reflection, and one thing to do. Plus a fresh verse each day.",
   },
   {
     eyebrow: "Guided by Agbebi",
     title: "A companion, not a doctor",
+    icon: "heart",
     body: "Agbebi — Yoruba for midwife, the one who receives the child — offers Scripture, prayer, and gentle, Reformed encouragement. Never medical advice; always pointing back to God's Word.",
   },
   {
     eyebrow: "The signature",
     title: "A circle of support",
+    icon: "users",
+    signature: true,
     body: "You are not the only user. Invite your husband and accountability partners — each gets their own view of how to pray for you, encourage you, and carry you, right where you are this week.",
   },
   {
     eyebrow: "Named intercession",
     title: "Prayer, together",
+    icon: "flame",
     body: "A shared prayer wall for your circle. Name a real need — a scan, a fear, a decision — and watch, together, for how God answers it.",
   },
   {
     eyebrow: "An altar at home",
     title: "Family worship & catechism",
+    icon: "book",
     body: "A daily household rhythm: read a Scripture, sit with a short reflection, pray, sing a hymn — and, once your little one arrives, a children's catechism question. Build the habit from the start.",
   },
   {
     eyebrow: "Kept & remembered",
     title: "Care and keepsakes",
+    icon: "star",
     body: "Chart how your heart is over time, write letters to your baby, and keep a timeline of firsts with photos — with a profile for each child, twins and all.",
   },
 ];
@@ -142,8 +156,18 @@ export default function Landing() {
         </div>
         <div className="grid gap-5 md:grid-cols-3">
           {PILLARS.map((p) => (
-            <Card key={p.title} className="animate-fade-up">
-              <Eyebrow className="mb-4">{p.eyebrow}</Eyebrow>
+            <Card
+              key={p.title}
+              className={`animate-fade-up transition-colors hover:border-accent/40 ${
+                p.signature ? "border-accent2/30 bg-accent2/[0.05]" : ""
+              }`}
+            >
+              <div className={`mb-4 ${p.signature ? "text-accent2" : "text-accent"}`}>
+                <Icon name={p.icon} size={22} />
+              </div>
+              <Eyebrow className={`mb-2 ${p.signature ? "text-accent2" : ""}`}>
+                {p.eyebrow}
+              </Eyebrow>
               <h3 className="font-serif text-2xl leading-snug text-ink">{p.title}</h3>
               <p className="mt-3 font-mono text-xs leading-relaxed text-muted">
                 {p.body}

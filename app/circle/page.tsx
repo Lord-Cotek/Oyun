@@ -6,6 +6,10 @@ import { getActiveMembership, getJourneyMembers } from "@/lib/data";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Card } from "@/components/ui/Card";
 import { Eyebrow } from "@/components/ui/Eyebrow";
+import { StatCard } from "@/components/ui/StatCard";
+import { PageHero } from "@/components/ui/PageHero";
+import { Avatar } from "@/components/ui/Avatar";
+import { Icon } from "@/components/ui/Icon";
 import { InvitePanel } from "@/components/InvitePanel";
 import { revokeInvite, removeMember } from "./actions";
 
@@ -44,19 +48,20 @@ export default async function CirclePage() {
     <>
       <SiteHeader active="circle" />
       <main className="mx-auto max-w-shell px-6 py-10">
-        <div className="animate-fade-up">
-          <Eyebrow className="mb-3">Your circle</Eyebrow>
-          <h1 className="font-serif text-4xl leading-tight text-ink md:text-5xl">
-            The people walking with you.
-          </h1>
-          <p className="mt-4 max-w-prose font-mono text-sm leading-relaxed text-muted">
-            You were never meant to carry this alone. Invite a husband or an
-            accountability partner, and they&rsquo;ll see how to support and pray
-            for you each week.
-          </p>
-        </div>
+        <PageHero
+          eyebrow="Your circle"
+          title="The people walking with you."
+          lede="You were never meant to carry this alone. Invite a husband or an accountability partner, and they'll see how to support and pray for you each week."
+          aside={
+            <StatCard
+              label="Walking with you"
+              value={supporters.length + 1}
+              hint={supporters.length === 0 ? "just you, for now" : "including you"}
+            />
+          }
+        />
 
-        <div className="mt-10 grid gap-4 lg:grid-cols-[1.3fr_1fr]">
+        <div className="mt-6 grid gap-4 lg:grid-cols-[1.3fr_1fr]">
           <div className="min-w-0 space-y-4">
             <Card>
               <Eyebrow className="mb-4">Walking with you</Eyebrow>
@@ -76,9 +81,12 @@ export default async function CirclePage() {
                   />
                 ))}
                 {supporters.length === 0 && (
-                  <li className="font-mono text-xs leading-relaxed text-muted">
-                    No supporters yet. Invite someone below — a spouse, a friend
-                    from church, someone who will pray.
+                  <li className="flex flex-col items-center gap-3 rounded-lg border border-dashed border-border px-4 py-8 text-center">
+                    <Icon name="users" size={28} className="text-accent2" />
+                    <p className="max-w-xs font-mono text-xs leading-relaxed text-muted">
+                      No one else yet. Invite a spouse, or a friend from church who
+                      will pray — you were never meant to carry this alone.
+                    </p>
                   </li>
                 )}
               </ul>
@@ -91,19 +99,22 @@ export default async function CirclePage() {
                   {pending.map((inv) => (
                     <li
                       key={inv.id}
-                      className="flex items-center justify-between gap-3 rounded-lg border border-border bg-bg p-3"
+                      className="flex items-center justify-between gap-3 rounded-lg border border-border border-l-2 border-l-accent2/50 bg-bg p-3"
                     >
-                      <div className="min-w-0">
-                        <p className="truncate font-mono text-sm text-ink">
-                          {inv.email}
-                        </p>
-                        <p className="font-mono text-[0.68rem] text-muted">
-                          {ROLE_LABEL[inv.role]} · sent{" "}
-                          {inv.createdAt.toLocaleDateString(undefined, {
-                            month: "short",
-                            day: "numeric",
-                          })}
-                        </p>
+                      <div className="flex min-w-0 items-center gap-3">
+                        <Icon name="clock" size={18} className="shrink-0 text-accent2" />
+                        <div className="min-w-0">
+                          <p className="truncate font-mono text-sm text-ink">
+                            {inv.email}
+                          </p>
+                          <p className="font-mono text-[0.68rem] text-muted">
+                            {ROLE_LABEL[inv.role]} · awaiting · sent{" "}
+                            {inv.createdAt.toLocaleDateString(undefined, {
+                              month: "short",
+                              day: "numeric",
+                            })}
+                          </p>
+                        </div>
                       </div>
                       <form action={revokeInvite}>
                         <input type="hidden" name="inviteId" value={inv.id} />
@@ -144,9 +155,11 @@ function MemberRow({
   return (
     <li className="flex items-center justify-between gap-3 rounded-lg border border-border bg-bg p-3">
       <div className="flex min-w-0 items-center gap-3">
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent/15 font-serif text-sm text-accent">
-          {name.charAt(0).toUpperCase()}
-        </span>
+        <Avatar
+          name={name}
+          tone={role === "ACCOUNTABILITY" ? "accent2" : "accent"}
+          size={36}
+        />
         <div className="min-w-0">
           <p className="truncate font-mono text-sm text-ink">{name}</p>
           <p className="truncate font-mono text-[0.68rem] text-muted">
