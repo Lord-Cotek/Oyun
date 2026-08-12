@@ -27,16 +27,26 @@ export type Station = {
 
 export function LiturgyRail({
   stations,
-  doneToday,
+  doneToday = false,
   onSeal,
   canSeal = true,
   sealPrompt = "Pray it home. When your worship is done, seal the day.",
+  finalEyebrow = "Amen",
+  finalIcon = "flame",
+  blessingTitle = "Amen.",
+  blessingBody,
 }: {
   stations: Station[];
-  doneToday: boolean;
-  onSeal: () => Promise<void>;
+  doneToday?: boolean;
+  /** When given, the last bead seals the day (worship). Omit for a devotion
+   *  that simply closes with a blessing (e.g. the marriage word). */
+  onSeal?: () => Promise<void>;
   canSeal?: boolean;
   sealPrompt?: string;
+  finalEyebrow?: string;
+  finalIcon?: IconName;
+  blessingTitle?: string;
+  blessingBody?: string;
 }) {
   const AMEN = stations.length; // the final bead index
   // If the day is already kept, show the whole walk as complete; otherwise open
@@ -58,7 +68,7 @@ export function LiturgyRail({
   }
 
   function seal() {
-    if (!canSeal) return;
+    if (!canSeal || !onSeal) return;
     start(async () => {
       await onSeal();
       setSealed((s) => !s);
@@ -190,12 +200,16 @@ export function LiturgyRail({
           <Bead
             reached={open >= AMEN}
             active={open === AMEN}
-            done={sealed}
+            done={onSeal ? sealed : false}
             tone="accent"
             onClick={() => go(AMEN)}
-            glow={sealed}
+            glow={onSeal ? sealed : open >= AMEN}
           >
-            {sealed ? <Check /> : <Icon name="flame" size={15} />}
+            {onSeal ? (
+              sealed ? <Check /> : <Icon name="flame" size={15} />
+            ) : (
+              <Icon name={finalIcon} size={15} />
+            )}
           </Bead>
         </Cord>
 
@@ -205,8 +219,8 @@ export function LiturgyRail({
             onClick={() => go(AMEN)}
             className="flex w-full items-center gap-2 py-1 text-left"
           >
-            <span className={`eyebrow ${sealed ? "text-accent" : "text-muted"}`}>
-              Amen
+            <span className={`eyebrow ${open >= AMEN ? "text-accent" : "text-muted"}`}>
+              {finalEyebrow}
             </span>
           </button>
 
@@ -216,52 +230,65 @@ export function LiturgyRail({
             }`}
           >
             <div className="overflow-hidden">
-              <div
-                className={`relative overflow-hidden rounded-2xl border p-6 text-center transition-colors ${
-                  sealed
-                    ? "border-accent/40 bg-accent/[0.08]"
-                    : "border-border bg-surface"
-                }`}
-              >
-                {/* the bloom of light when the day is sealed */}
-                {bloom && (
-                  <span
-                    aria-hidden
-                    className="pointer-events-none absolute left-1/2 top-1/2 h-8 w-8 -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/40"
-                    style={{ animation: "seal-bloom 1.5s ease-out forwards" }}
-                  />
-                )}
-                <p className="relative font-serif text-2xl leading-snug text-ink">
-                  {sealed ? "Worship kept today." : "The altar is ready."}
-                </p>
-                <p className="relative mx-auto mt-2 max-w-sm font-mono text-xs leading-relaxed text-muted">
-                  {sealed
-                    ? "The household walked this together. Grace upon grace — come again tomorrow."
-                    : sealPrompt}
-                </p>
-
-                {canSeal ? (
-                  <button
-                    type="button"
-                    onClick={seal}
-                    disabled={pending}
-                    className={`relative mt-5 inline-flex items-center gap-2 rounded-full px-6 py-3 font-mono text-sm font-medium transition-all disabled:opacity-50 ${
-                      sealed
-                        ? "border border-accent/50 bg-transparent text-accent hover:bg-accent/10"
-                        : "bg-accent text-on-accent hover:bg-accent-deep hover:shadow-lg hover:shadow-accent/20"
-                    }`}
-                  >
-                    {sealed ? "Kept — undo" : "Seal today’s worship"}
-                    {!sealed && <Arrow />}
-                  </button>
-                ) : (
-                  <p className="relative mt-4 font-mono text-xs text-muted">
-                    {sealed
-                      ? "The household kept worship today."
-                      : "A parent or guardian seals the household’s worship."}
+              {onSeal ? (
+                <div
+                  className={`relative overflow-hidden rounded-2xl border p-6 text-center transition-colors ${
+                    sealed
+                      ? "border-accent/40 bg-accent/[0.08]"
+                      : "border-border bg-surface"
+                  }`}
+                >
+                  {/* the bloom of light when the day is sealed */}
+                  {bloom && (
+                    <span
+                      aria-hidden
+                      className="pointer-events-none absolute left-1/2 top-1/2 h-8 w-8 -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/40"
+                      style={{ animation: "seal-bloom 1.5s ease-out forwards" }}
+                    />
+                  )}
+                  <p className="relative font-serif text-2xl leading-snug text-ink">
+                    {sealed ? "Worship kept today." : "The altar is ready."}
                   </p>
-                )}
-              </div>
+                  <p className="relative mx-auto mt-2 max-w-sm font-mono text-xs leading-relaxed text-muted">
+                    {sealed
+                      ? "The household walked this together. Grace upon grace — come again tomorrow."
+                      : sealPrompt}
+                  </p>
+
+                  {canSeal ? (
+                    <button
+                      type="button"
+                      onClick={seal}
+                      disabled={pending}
+                      className={`relative mt-5 inline-flex items-center gap-2 rounded-full px-6 py-3 font-mono text-sm font-medium transition-all disabled:opacity-50 ${
+                        sealed
+                          ? "border border-accent/50 bg-transparent text-accent hover:bg-accent/10"
+                          : "bg-accent text-on-accent hover:bg-accent-deep hover:shadow-lg hover:shadow-accent/20"
+                      }`}
+                    >
+                      {sealed ? "Kept — undo" : "Seal today’s worship"}
+                      {!sealed && <Arrow />}
+                    </button>
+                  ) : (
+                    <p className="relative mt-4 font-mono text-xs text-muted">
+                      {sealed
+                        ? "The household kept worship today."
+                        : "A parent or guardian seals the household’s worship."}
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <div className="rounded-2xl border border-accent/40 bg-accent/[0.08] p-6 text-center">
+                  <p className="font-serif text-2xl leading-snug text-ink">
+                    {blessingTitle}
+                  </p>
+                  {blessingBody && (
+                    <p className="mx-auto mt-2 max-w-sm font-mono text-xs leading-relaxed text-muted">
+                      {blessingBody}
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>

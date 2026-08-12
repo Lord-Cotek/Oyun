@@ -17,8 +17,8 @@ export function Avatar({
   const initial = (name?.trim()?.charAt(0) ?? "•").toUpperCase();
   const toneClass =
     tone === "accent2"
-      ? "bg-accent2/15 text-accent2 ring-accent2/25"
-      : "bg-accent/15 text-accent ring-accent/25";
+      ? "bg-accent2/15 text-accent2 ring-[color-mix(in_srgb,var(--accent2)_30%,transparent)]"
+      : "bg-accent/15 text-accent ring-[color-mix(in_srgb,var(--accent)_30%,transparent)]";
 
   if (photoUrl) {
     return (

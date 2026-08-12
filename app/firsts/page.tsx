@@ -6,7 +6,9 @@ import { getActiveMembership } from "@/lib/data";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Card } from "@/components/ui/Card";
 import { Eyebrow } from "@/components/ui/Eyebrow";
-import { StatCard } from "@/components/ui/StatCard";
+import { PageHero } from "@/components/ui/PageHero";
+import { StatPill } from "@/components/ui/StatPill";
+import { Reveal } from "@/components/ui/Reveal";
 import { MilestoneForm } from "@/components/care/MilestoneForm";
 import { FirstsTimeline } from "@/components/firsts/FirstsTimeline";
 
@@ -57,22 +59,22 @@ export default async function FirstsPage() {
     <>
       <SiteHeader active="firsts" />
       <main className="mx-auto max-w-shell px-6 py-10">
-        <div className="animate-fade-up">
-          <Eyebrow className="mb-3">The firsts</Eyebrow>
-          <h1 className="font-serif text-4xl leading-tight text-ink md:text-5xl">
-            Every first, remembered.
-          </h1>
-          <p className="mt-4 max-w-prose font-mono text-sm leading-relaxed text-muted">
-            The little moments go by quickly — the first kick, the first cry, the
-            first smile. Keep them here with a date, a note, and a photo you can
-            open and hold onto.
-          </p>
-        </div>
+        <PageHero
+          eyebrow="The firsts"
+          title="Every first, remembered."
+          lede="The little moments go by quickly — the first kick, the first cry, the first smile. Keep them here with a date, a note, and a photo you can open and hold onto."
+        />
 
-        <div className="mt-8 grid gap-4 sm:grid-cols-3">
-          <StatCard label="Firsts logged" value={milestones.length} hint="moments kept" />
-          <StatCard label="With photos" value={withPhotos} hint="have a picture" />
-          <StatCard label="Photos saved" value={photoCount} hint="tap any to view" />
+        <div className="mt-6 grid grid-cols-3 gap-3">
+          <Reveal>
+            <StatPill label="Firsts" value={milestones.length} hint="moments kept" tone="gold" />
+          </Reveal>
+          <Reveal delay={70}>
+            <StatPill label="With photos" value={withPhotos} hint="have a picture" tone="rose" />
+          </Reveal>
+          <Reveal delay={140}>
+            <StatPill label="Photos" value={photoCount} hint="tap to view" tone="plum" />
+          </Reveal>
         </div>
 
         <div className="mt-10 grid gap-4 lg:grid-cols-[1.5fr_1fr]">
