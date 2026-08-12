@@ -4,7 +4,8 @@ import { SignOutButton } from "@/components/SignOutButton";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { InstallButton } from "@/components/InstallButton";
 import { NotificationBell } from "@/components/NotificationBell";
-import { MobileMenu } from "@/components/MobileMenu";
+import { TabBar, type Tab } from "@/components/TabBar";
+import { type IconName } from "@/components/ui/Icon";
 import { JourneySwitcher } from "@/components/JourneySwitcher";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -71,7 +72,37 @@ export async function SiteHeader({
     { href: "/settings", label: "Settings", current: active === "settings" },
   ];
 
+  // Bottom tab bar (phones/tablets): the same role-filtered nav, with the four
+  // most-used sections as thumb-reachable primaries and the rest in a More
+  // sheet. "Journey" becomes "Home".
+  const ICON_BY_HREF: Record<string, IconName> = {
+    "/journey": "home",
+    "/prayer": "hands",
+    "/worship": "flame",
+    "/care": "heart",
+    "/child": "star",
+    "/firsts": "sparkles",
+    "/circle": "users",
+    "/settings": "settings",
+  };
+  const navTabs: Tab[] = links.map((l) => ({
+    href: l.href,
+    label: l.href === "/journey" ? "Home" : l.label,
+    icon: ICON_BY_HREF[l.href] ?? "star",
+  }));
+  // Keep Settings in the More sheet (never a primary tab) so the sheet — and
+  // its Install / Sign out controls — is always reachable, even for roles with
+  // only a few sections.
+  const settingsTab = navTabs.find((t) => t.href === "/settings");
+  const primaryPool = navTabs.filter((t) => t.href !== "/settings");
+  const tabs = primaryPool.slice(0, 4);
+  const moreItems = [
+    ...primaryPool.slice(4),
+    ...(settingsTab ? [settingsTab] : []),
+  ];
+
   return (
+    <>
     <header className="safe-top border-b border-border">
       <div className="mx-auto flex h-16 max-w-shell items-center justify-between gap-2 px-4 sm:px-6">
         <div className="flex min-w-0 items-center gap-2 sm:gap-3">
@@ -100,12 +131,13 @@ export async function SiteHeader({
           {/* Always-visible controls */}
           <NotificationBell initialUnread={unread} />
           <ThemeToggle />
-
-          {/* Mobile menu — phones only */}
-          <MobileMenu items={links} />
         </div>
       </div>
     </header>
+
+    {/* Primary nav on phones & tablets — hidden on lg (top nav takes over) */}
+    <TabBar tabs={tabs} more={moreItems} />
+    </>
   );
 }
 

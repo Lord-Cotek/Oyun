@@ -15,14 +15,24 @@
   --ink: #ece8de;
   --muted: #8a9099;
 
-  --accent: #e6a94e; /* amber, primary — tuned warmer/maternal for Oyun */
-  --accent-deep: #f0bd6e; /* lighter on hover so it stays legible on dark */
+  --accent: #efb35c; /* amber, primary — tuned warmer/maternal, brightened */
+  --accent-deep: #f6c479; /* lighter on hover so it stays legible on dark */
   --on-accent: #0b0e14; /* text placed on an accent fill (amber is light here) */
 
   /* Semantic — status only, never decoration (PExP lineage) */
-  --positive: #6fae7e;
-  --negative: #d9736b;
-  --accent2: #d98c86; /* soft rose — maternal / care states */
+  --positive: #74c088;
+  --negative: #e07d74;
+  --accent2: #e79b95; /* soft rose — maternal / care states (brightened) */
+
+  /* Category tones — a warm, maternal launcher palette. Used by ActionTile /
+     StatPill; each tile sets --tone to one of these and the wash + border are
+     mixed from it, so the whole colorful system re-themes from here. */
+  --tone-amber: #edb45e;
+  --tone-rose: #e89a94;
+  --tone-gold: #e6c15a;
+  --tone-plum: #b79ae6;
+  --tone-sky: #6fb8d6;
+  --tone-green: #7fc490;
 
   --grain-blend: overlay;
   --grain-opacity: 0.035;
@@ -46,6 +56,15 @@
   --positive: #3f7d51;
   --negative: #b23b32;
   --accent2: #b25a54; /* deeper rose so it reads on ivory */
+
+  /* Category tones — deepened for legibility as icon/text on the ivory washes
+     (all clear AA as small text on their own tint). */
+  --tone-amber: #8f5410;
+  --tone-rose: #b25a54;
+  --tone-gold: #806113;
+  --tone-plum: #6b52a8;
+  --tone-sky: #2f6f8a;
+  --tone-green: #3f7d51;
 
   --grain-blend: multiply;
   --grain-opacity: 0.03;
@@ -119,6 +138,28 @@
   }
   .fab-panel-bottom {
     bottom: calc(6.25rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* Fixed bottom tab bar (app shell). On phones/tablets the content wrapper
+     reserves its height so nothing hides behind it; on lg the top nav takes
+     over and the bar is gone. */
+  .tabbar-pad {
+    padding-bottom: calc(4.25rem + env(safe-area-inset-bottom, 0px));
+  }
+  @media (min-width: 1024px) {
+    .tabbar-pad {
+      padding-bottom: 0;
+    }
+  }
+  /* Below lg the tab bar occupies the bottom edge — lift the floating Agbebi
+     trigger and its panel clear of it. */
+  @media (max-width: 1023.98px) {
+    .fab-bottom {
+      bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px));
+    }
+    .fab-panel-bottom {
+      bottom: calc(10.5rem + env(safe-area-inset-bottom, 0px));
+    }
   }
 
   /* The signature COTEK section marker */

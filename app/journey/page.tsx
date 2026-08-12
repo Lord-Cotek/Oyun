@@ -23,6 +23,8 @@ import { Eyebrow } from "@/components/ui/Eyebrow";
 import { ProgressRing } from "@/components/ui/ProgressRing";
 import { Verse } from "@/components/ui/Verse";
 import { Button } from "@/components/ui/Button";
+import { ActionTile } from "@/components/ui/ActionTile";
+import { Reveal } from "@/components/ui/Reveal";
 import { JourneyProgress } from "@/components/JourneyProgress";
 import { SupportActions } from "@/components/journey/SupportActions";
 import { NudgeList } from "@/components/journey/NudgeList";
@@ -202,6 +204,34 @@ export default async function JourneyPage() {
             <JourneyProgress progress={position.progress} label={stageLabel} />
           </div>
 
+          {/* Colorful launcher — the journey's app grid */}
+          <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+            <Reveal>
+              <ActionTile href="/worship" label="Worship" hint="Daily altar" icon="flame" tone="amber" />
+            </Reveal>
+            <Reveal delay={60}>
+              <ActionTile href="/prayer" label="Prayer" hint="Requests" icon="hands" tone="sky" />
+            </Reveal>
+            <Reveal delay={120}>
+              <ActionTile href="/care" label="Care" hint="Your heart" icon="heart" tone="rose" />
+            </Reveal>
+            <Reveal delay={180}>
+              <ActionTile
+                href="/child"
+                label="Nursery"
+                hint={journey.babyCount > 1 ? `${journey.babyCount} profiles` : "Profile"}
+                icon="star"
+                tone="gold"
+              />
+            </Reveal>
+            <Reveal delay={240}>
+              <ActionTile href="/firsts" label="Firsts" hint={`${milestoneCount} kept`} icon="sparkles" tone="green" />
+            </Reveal>
+            <Reveal delay={300}>
+              <ActionTile href="/circle" label="Circle" hint="Who’s praying" icon="users" tone="plum" />
+            </Reveal>
+          </div>
+
           <div className="mt-4">
             <DailyVerse />
           </div>
@@ -243,16 +273,6 @@ export default async function JourneyPage() {
                   />
                 </Card>
               )}
-
-              <div className="grid grid-cols-3 gap-3">
-                <QuickTile href="/care" label="Care" hint="Your heart" />
-                <QuickTile
-                  href="/child"
-                  label="Nursery"
-                  hint={journey.babyCount > 1 ? `${journey.babyCount} profiles` : "Profile"}
-                />
-                <QuickTile href="/firsts" label="Firsts" hint={`${milestoneCount} kept`} />
-              </div>
 
               {idileHandoff && (
                 <Card className="border-accent/30 bg-accent/[0.06]">
@@ -501,32 +521,6 @@ function Block({
       <Eyebrow className="mb-2">{eyebrow}</Eyebrow>
       <p className="font-mono text-sm leading-relaxed text-ink/90">{children}</p>
     </div>
-  );
-}
-
-/** A compact, tappable shortcut tile for the journey rail. */
-function QuickTile({
-  href,
-  label,
-  hint,
-}: {
-  href: string;
-  label: string;
-  hint: string;
-}) {
-  return (
-    <Link
-      href={href}
-      className="group flex flex-col rounded-xl border border-border bg-surface p-4 transition-colors hover:border-accent/50"
-    >
-      <span className="font-serif text-lg leading-none text-ink">{label}</span>
-      <span className="mt-1.5 font-mono text-[0.64rem] leading-tight text-muted">
-        {hint}
-      </span>
-      <span className="mt-3 font-mono text-[0.64rem] text-accent opacity-0 transition-opacity group-hover:opacity-100">
-        Open &rarr;
-      </span>
-    </Link>
   );
 }
 

@@ -19,6 +19,9 @@ export type IconName =
   | "heart"
   | "ring"
   | "pulse"
+  | "home"
+  | "hands"
+  | "settings"
   | "leaf";
 
 const PATHS: Record<IconName, string> = {
@@ -40,6 +43,11 @@ const PATHS: Record<IconName, string> = {
     "M12 20s-7-4.3-9.2-8.4C1.3 8.6 3.2 5 6.6 5c2 0 3.3 1.3 5.4 3 2.1-1.7 3.4-3 5.4-3 3.4 0 5.3 3.6 3.8 6.6C19 15.7 12 20 12 20z",
   ring: "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z",
   pulse: "M3 12h4l2-6 4 12 2-6h6",
+  home: "M4 11l8-6 8 6 M6 10v10h12V10 M10 20v-6h4v6",
+  hands:
+    "M6 12l3-3 3 3 3-3 3 3 M4 12v4a4 4 0 0 0 4 4h8a4 4 0 0 0 4-4v-4",
+  settings:
+    "M20 7h-8 M8 7H4 M16 4a3 3 0 1 0 0 6 3 3 0 0 0 0-6z M20 17h-4 M12 17H4 M8 14a3 3 0 1 0 0 6 3 3 0 0 0 0-6z",
   leaf: "M4 20c0-9 6-15 16-15 0 10-6 15-16 15z M9 15c2-3 5-5 8-6",
 };
 
