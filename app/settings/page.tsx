@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -7,6 +8,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { Card } from "@/components/ui/Card";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { SignOutButton } from "@/components/SignOutButton";
+import { InvitePanel } from "@/components/InvitePanel";
 import {
   ProfileForm,
   PasswordForm,
@@ -37,6 +39,15 @@ export default async function SettingsPage() {
   if (!user) redirect("/sign-in");
 
   const isMother = active?.role === "MOTHER";
+  const supporterCount =
+    isMother && active
+      ? await prisma.membership.count({
+          where: {
+            journeyId: active.journey.id,
+            role: { in: ["PARTNER", "ACCOUNTABILITY"] },
+          },
+        })
+      : 0;
 
   return (
     <>
@@ -79,6 +90,20 @@ export default async function SettingsPage() {
                 babyName={active.journey.babyName ?? ""}
                 babyCount={active.journey.babyCount}
               />
+            </Card>
+          )}
+
+          {isMother && active && active.journey.status === "ACTIVE" && (
+            <Card className="p-8">
+              <InvitePanel hasSupporter={supporterCount > 0} />
+              <div className="mt-5 border-t border-border pt-4">
+                <Link
+                  href="/circle"
+                  className="font-mono text-xs text-accent underline underline-offset-4"
+                >
+                  Manage your circle &rarr;
+                </Link>
+              </div>
             </Card>
           )}
 

@@ -13,6 +13,7 @@ import { getActiveMembership, getMyJourneys } from "@/lib/data";
 type ActiveKey =
   | "journey"
   | "care"
+  | "firsts"
   | "circle"
   | "settings"
   | "prayer"
@@ -60,6 +61,9 @@ export async function SiteHeader({
       : []),
     ...(isMother && !inLoss
       ? [{ href: "/child", label: "Nursery", current: active === "nursery" }]
+      : []),
+    ...(isMother && !inLoss
+      ? [{ href: "/firsts", label: "Firsts", current: active === "firsts" }]
       : []),
     ...(isMother
       ? [{ href: "/circle", label: "Circle", current: active === "circle" }]

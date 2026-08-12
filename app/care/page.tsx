@@ -11,14 +11,12 @@ import { Card } from "@/components/ui/Card";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { CheckInForm } from "@/components/care/CheckInForm";
 import { BabyLetters } from "@/components/care/BabyLetters";
-import { MilestoneForm } from "@/components/care/MilestoneForm";
-import { MilestoneItem } from "@/components/care/MilestoneItem";
 import { MoodChart, type MoodPoint } from "@/components/care/MoodChart";
 import { CoupleLetters } from "@/components/care/CoupleLetters";
 
 export const metadata: Metadata = {
   title: "Care",
-  description: "Your heart, your letters, your firsts.",
+  description: "Your heart, your letters.",
   robots: { index: false },
 };
 
@@ -32,7 +30,7 @@ export default async function CarePage() {
 
   const journeyId = active.journey.id;
 
-  const [checkIns, letters, milestones, children, coupleLetters] = await Promise.all([
+  const [checkIns, letters, coupleLetters] = await Promise.all([
     prisma.checkIn.findMany({
       where: { journeyId },
       orderBy: { createdAt: "asc" },
@@ -43,17 +41,6 @@ export default async function CarePage() {
       orderBy: { createdAt: "desc" },
       take: 20,
       include: { author: { select: { id: true, name: true } } },
-    }),
-    prisma.milestone.findMany({
-      where: { journeyId },
-      orderBy: { occurredAt: "desc" },
-      take: 20,
-      include: { child: { select: { id: true, name: true } } },
-    }),
-    prisma.child.findMany({
-      where: { journeyId },
-      orderBy: { createdAt: "asc" },
-      select: { id: true, name: true },
     }),
     getCoupleLetters(journeyId, session.user.id),
   ]);
@@ -82,7 +69,7 @@ export default async function CarePage() {
         <div className="animate-fade-up">
           <Eyebrow className="mb-3">Care</Eyebrow>
           <h1 className="font-serif text-4xl leading-tight text-ink md:text-5xl">
-            Your heart, your letters, your firsts.
+            Your heart, your letters.
           </h1>
           <p className="mt-4 max-w-prose font-mono text-sm leading-relaxed text-muted">
             A quiet, private place. What you write here stays yours — your check-in
@@ -156,38 +143,6 @@ export default async function CarePage() {
               spouseFallback="Your husband"
               placeholder="Words to keep between the two of you…"
             />
-          </Card>
-
-          {/* Milestones */}
-          <Card>
-            <Eyebrow className="mb-4">The firsts</Eyebrow>
-            <MilestoneForm children={children} />
-            <div className="mt-6 border-t border-border pt-5">
-              {milestones.length === 0 ? (
-                <p className="font-mono text-xs text-muted">
-                  Nothing logged yet. The firsts go by quickly — catch them here.
-                </p>
-              ) : (
-                <ol className="relative space-y-4 border-l border-border pl-5">
-                  {milestones.map((m) => (
-                    <MilestoneItem
-                      key={m.id}
-                      children={children}
-                      m={{
-                        id: m.id,
-                        kind: m.kind,
-                        title: m.title,
-                        note: m.note,
-                        occurredAt: m.occurredAt.toISOString(),
-                        photoUrls: m.photoUrls,
-                        childId: m.child?.id ?? null,
-                        childName: m.child?.name ?? null,
-                      }}
-                    />
-                  ))}
-                </ol>
-              )}
-            </div>
           </Card>
         </div>
       </main>

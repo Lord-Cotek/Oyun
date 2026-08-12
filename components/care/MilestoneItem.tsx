@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useFormStatus } from "react-dom";
 import { updateMilestone, deleteMilestone } from "@/app/care/actions";
 import { MilestoneFields, milestoneTitle } from "@/components/care/MilestoneFields";
+import { PhotoGallery } from "@/components/ui/PhotoGallery";
 
 export type MilestoneData = {
   id: string;
@@ -88,20 +89,10 @@ export function MilestoneItem({
               year: "numeric",
             })}
           </p>
-          {m.photoUrls.length > 0 && (
-            <div className="mt-2 flex flex-wrap gap-2">
-              {m.photoUrls.map((url) => (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  key={url}
-                  src={url}
-                  alt={`${milestoneTitle(m.kind, m.title)} — photo`}
-                  className="h-28 w-28 rounded-lg border border-border object-cover sm:h-32 sm:w-32"
-                  loading="lazy"
-                />
-              ))}
-            </div>
-          )}
+          <PhotoGallery
+            urls={m.photoUrls}
+            alt={`${milestoneTitle(m.kind, m.title)} — photo`}
+          />
         </div>
         <div className="flex shrink-0 items-center gap-2">
           <button

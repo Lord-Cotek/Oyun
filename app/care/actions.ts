@@ -109,7 +109,7 @@ export async function addMilestone(formData: FormData) {
   await prisma.milestone.create({
     data: { journeyId, kind: kindRaw as MilestoneKind, title, note, occurredAt, photoUrls, childId },
   });
-  revalidatePath("/care");
+  revalidatePath("/firsts");
   revalidatePath("/journey");
 }
 
@@ -150,7 +150,7 @@ export async function updateMilestone(formData: FormData) {
       photoUrls,
     },
   });
-  revalidatePath("/care");
+  revalidatePath("/firsts");
   revalidatePath("/journey");
 }
 
@@ -158,6 +158,6 @@ export async function deleteMilestone(formData: FormData) {
   const { journeyId } = await requireMother();
   const id = String(formData.get("id") ?? "");
   await prisma.milestone.deleteMany({ where: { id, journeyId } });
-  revalidatePath("/care");
+  revalidatePath("/firsts");
   revalidatePath("/journey");
 }

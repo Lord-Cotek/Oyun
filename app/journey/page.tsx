@@ -23,7 +23,6 @@ import { StatCard } from "@/components/ui/StatCard";
 import { Verse } from "@/components/ui/Verse";
 import { Button } from "@/components/ui/Button";
 import { JourneyProgress } from "@/components/JourneyProgress";
-import { InvitePanel } from "@/components/InvitePanel";
 import { SupportActions } from "@/components/journey/SupportActions";
 import { NudgeList } from "@/components/journey/NudgeList";
 import { EncouragementBox } from "@/components/journey/EncouragementBox";
@@ -227,8 +226,8 @@ export default async function JourneyPage() {
               <Card>
                 <Eyebrow className="mb-3">Care</Eyebrow>
                 <p className="mb-4 font-mono text-xs leading-relaxed text-muted">
-                  Log how your heart is today, write a letter, or remember a
-                  first.
+                  Log how your heart is today, or write a letter to your baby and
+                  to your husband.
                 </p>
                 <Button href="/care" variant="ghost" className="w-full">
                   Open Care
@@ -269,9 +268,6 @@ export default async function JourneyPage() {
                   </Button>
                 </Card>
               )}
-              <Card>
-                <InvitePanel hasSupporter={supporterCount > 0} />
-              </Card>
             </div>
           </div>
 
