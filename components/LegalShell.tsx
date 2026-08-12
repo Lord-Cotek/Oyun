@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { type ReactNode } from "react";
+import { OyunMark } from "@/components/ui/OyunMark";
 
 /** A quiet, readable shell for the public legal pages. */
 export function LegalShell({
@@ -15,11 +16,12 @@ export function LegalShell({
     <main className="mx-auto max-w-3xl px-6 py-12">
       <Link
         href="/"
-        className="inline-flex items-center gap-2 font-mono text-xs text-muted transition-colors hover:text-accent"
+        className="group inline-flex items-center gap-2.5 text-muted transition-colors hover:text-accent"
       >
-        <span aria-hidden>←</span> Oyun
+        <OyunMark size={26} className="text-ink transition-transform group-hover:-translate-x-0.5" />
+        <span className="font-serif text-lg text-ink">Oyun</span>
       </Link>
-      <h1 className="mt-6 font-serif text-4xl leading-tight text-ink">{title}</h1>
+      <h1 className="mt-8 font-serif text-4xl leading-tight text-ink">{title}</h1>
       <p className="mt-2 font-mono text-xs uppercase tracking-widest text-muted">
         Last updated {updated}
       </p>

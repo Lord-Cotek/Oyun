@@ -7,8 +7,16 @@ import { getActiveMembership } from "@/lib/data";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Card } from "@/components/ui/Card";
 import { Eyebrow } from "@/components/ui/Eyebrow";
+import { PageHero } from "@/components/ui/PageHero";
+import { Avatar } from "@/components/ui/Avatar";
 import { SignOutButton } from "@/components/SignOutButton";
 import { InvitePanel } from "@/components/InvitePanel";
+
+const ROLE_LABEL: Record<string, string> = {
+  MOTHER: "Mother",
+  PARTNER: "Husband / Partner",
+  ACCOUNTABILITY: "Accountability partner",
+};
 import {
   ProfileForm,
   PasswordForm,
@@ -53,14 +61,30 @@ export default async function SettingsPage() {
     <>
       <SiteHeader active="settings" />
       <main className="mx-auto max-w-3xl px-6 py-10">
-        <div className="animate-fade-up">
-          <Eyebrow className="mb-3">Settings</Eyebrow>
-          <h1 className="font-serif text-4xl leading-tight text-ink md:text-5xl">
-            Your account.
-          </h1>
-        </div>
+        <PageHero
+          eyebrow="Settings"
+          title="Your account."
+          lede={
+            <span className="flex flex-wrap items-center gap-2">
+              Signed in as {user.email}
+              {active && (
+                <span className="rounded-full border border-accent/30 bg-accent/10 px-2 py-0.5 font-mono text-[0.6rem] uppercase tracking-widest text-accent">
+                  {ROLE_LABEL[active.role]}
+                </span>
+              )}
+            </span>
+          }
+          aside={
+            <Avatar
+              name={user.name}
+              photoUrl={user.image}
+              tone={isMother ? "accent2" : "accent"}
+              size={76}
+            />
+          }
+        />
 
-        <div className="mt-10 space-y-4">
+        <div className="mt-6 space-y-4">
           <Card className="p-8">
             <Eyebrow className="mb-4">Profile</Eyebrow>
             <ProfileForm name={user.name ?? ""} email={user.email ?? ""} />

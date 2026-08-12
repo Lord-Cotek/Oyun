@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { getActiveMembership, ownsJourney } from "@/lib/data";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { OyunMark } from "@/components/ui/OyunMark";
+import { Verse } from "@/components/ui/Verse";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { createJourney, acceptInvite } from "./actions";
 
@@ -91,7 +92,7 @@ export default async function Onboarding({
       <ThemeToggle className="fixed right-5 top-5 z-30" />
       <div className="w-full max-w-lg animate-fade-up">
         <div className="mb-8 flex items-center gap-3">
-          <OyunMark size={40} className="text-ink" />
+          <OyunMark size={44} className="animate-breathe text-ink" />
           <span className="font-serif text-xl text-ink">Oyun</span>
         </div>
 
@@ -114,7 +115,7 @@ export default async function Onboarding({
             </Link>
           </div>
         ) : hasPendingInvite && invite ? (
-          <div className="rounded-2xl border border-border bg-surface p-8">
+          <div className="rounded-2xl border border-accent/25 bg-gradient-to-br from-accent/[0.10] via-surface to-accent2/[0.09] p-8">
             <Eyebrow className="mb-4">You&rsquo;ve been invited</Eyebrow>
             <h1 className="font-serif text-3xl leading-snug text-ink">
               Walk with{" "}
@@ -170,7 +171,7 @@ export default async function Onboarding({
             </Link>
           </div>
         ) : (
-          <div className="rounded-2xl border border-border bg-surface p-8">
+          <div className="rounded-2xl border border-accent/25 bg-gradient-to-br from-accent/[0.10] via-surface to-accent2/[0.09] p-8">
             <Eyebrow className="mb-4">Begin your journey</Eyebrow>
             <h1 className="font-serif text-3xl leading-snug text-ink">
               Tell Agbebi where you are.
@@ -179,6 +180,14 @@ export default async function Onboarding({
               Set your due date — or, if your little one has already arrived,
               their birth date. Oyun will meet you at the right stage.
             </p>
+
+            <div className="mt-6 border-y border-border/70 py-5">
+              <Verse
+                size="sm"
+                text="For you formed my inward parts; you knitted me together in my mother's womb."
+                reference="Psalm 139:13"
+              />
+            </div>
 
             <form action={createJourney} className="mt-6 space-y-4">
               <Field
