@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { Card } from "@/components/ui/Card";
+import { Avatar } from "@/components/ui/Avatar";
+import { Icon } from "@/components/ui/Icon";
 import { ChildForm } from "@/components/child/ChildForm";
 import { deleteChild } from "@/app/child/actions";
 
@@ -28,32 +30,31 @@ export function ChildCard({ child }: { child: Child }) {
     );
   }
 
+  const onTheWay = child.ageLabel === "on the way";
+  const sexLabel = child.sex === "boy" ? "Boy" : child.sex === "girl" ? "Girl" : null;
+
   return (
-    <Card className="p-6">
+    <Card className="p-6 transition-colors hover:border-accent2/50">
       <div className="flex items-start gap-4">
-        {child.photoUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={child.photoUrl}
-            alt={child.name}
-            className="h-16 w-16 shrink-0 rounded-full border border-border object-cover"
-          />
-        ) : (
-          <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-accent/15 font-serif text-2xl text-accent">
-            {child.name.charAt(0).toUpperCase()}
-          </span>
-        )}
+        <Avatar name={child.name} photoUrl={child.photoUrl} tone="accent2" size={64} />
         <div className="min-w-0 flex-1">
-          <p className="font-serif text-2xl leading-tight text-ink">{child.name}</p>
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="font-serif text-2xl leading-tight text-ink">{child.name}</p>
+            {onTheWay && (
+              <span className="rounded-full border border-accent/40 bg-accent/10 px-2 py-0.5 font-mono text-[0.6rem] uppercase tracking-widest text-accent">
+                On the way
+              </span>
+            )}
+          </div>
           <p className="mt-1 font-mono text-[0.68rem] uppercase tracking-widest text-muted">
-            {[child.sex === "boy" ? "Boy" : child.sex === "girl" ? "Girl" : null, child.ageLabel]
-              .filter(Boolean)
-              .join(" · ") || "Little one"}
+            {[sexLabel, onTheWay ? null : child.ageLabel].filter(Boolean).join(" · ") ||
+              "Little one"}
           </p>
           {child.note && (
             <p className="mt-2 font-mono text-xs leading-relaxed text-muted">{child.note}</p>
           )}
-          <p className="mt-2 font-mono text-[0.68rem] text-muted">
+          <p className="mt-2.5 flex items-center gap-1.5 font-mono text-[0.68rem] text-muted">
+            <Icon name="star" size={13} className="text-accent" />
             {child.firsts} first{child.firsts === 1 ? "" : "s"} remembered
           </p>
         </div>

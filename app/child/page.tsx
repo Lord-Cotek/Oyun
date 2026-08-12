@@ -6,6 +6,9 @@ import { getActiveMembership } from "@/lib/data";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Card } from "@/components/ui/Card";
 import { Eyebrow } from "@/components/ui/Eyebrow";
+import { StatCard } from "@/components/ui/StatCard";
+import { PageHero } from "@/components/ui/PageHero";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { ChildForm } from "@/components/child/ChildForm";
 import { ChildCard } from "@/components/child/ChildCard";
 
@@ -42,32 +45,49 @@ export default async function ChildPage() {
   });
 
   const expecting = active.journey.babyCount;
+  const firstsKept = children.reduce((n, c) => n + c._count.milestones, 0);
 
   return (
     <>
       <SiteHeader active="nursery" />
       <main className="mx-auto max-w-shell px-6 py-10">
-        <div className="animate-fade-up">
-          <Eyebrow className="mb-3">The nursery</Eyebrow>
-          <h1 className="font-serif text-4xl leading-tight text-ink md:text-5xl">
-            {children.length > 0 ? "Your little ones." : "Meet your little one."}
-          </h1>
-          <p className="mt-4 max-w-prose font-mono text-sm leading-relaxed text-muted">
-            {expecting > 1
+        <PageHero
+          eyebrow="The nursery"
+          title={children.length > 0 ? "Your little ones." : "Meet your little one."}
+          lede={
+            expecting > 1
               ? `You told us you're expecting ${expecting}. Add a profile for each — their name, their firsts, a photo to hold onto.`
-              : "Once your baby arrives, keep their profile here — name, birth day, a photo, and the firsts you don't want to forget."}
-          </p>
-        </div>
+              : "Keep their profile here — name, birth day, a photo, and the firsts you don't want to forget."
+          }
+        />
 
-        <div className="mt-10 grid gap-4 lg:grid-cols-[1fr_1fr]">
+        {children.length > 0 && (
+          <div className="mt-6 grid gap-4 sm:grid-cols-3">
+            <StatCard label="Little ones" value={children.length} hint="in the nursery" />
+            <StatCard label="Firsts kept" value={firstsKept} hint="across them all" />
+            <StatCard label="Expecting" value={expecting} hint="on your journey" />
+          </div>
+        )}
+
+        <div className="mt-6 grid gap-4 lg:grid-cols-[1fr_1fr]">
           <div className="min-w-0 space-y-4">
             {children.length === 0 ? (
-              <Card className="p-8">
-                <p className="font-mono text-sm leading-relaxed text-muted">
-                  No profiles yet. Add your first below — you can always come back
-                  and add another (twins and multiples welcome).
-                </p>
-              </Card>
+              <EmptyState
+                title="A place is ready for them."
+                verse={{
+                  text: "Behold, children are a heritage from the Lord, the fruit of the womb a reward.",
+                  reference: "Psalm 127:3",
+                }}
+                action={
+                  <p className="font-mono text-[0.68rem] uppercase tracking-widest text-accent">
+                    Add their profile &rarr;
+                  </p>
+                }
+              >
+                Add your first little one alongside — name, a photo, their firsts.
+                You can always come back and add another (twins and multiples
+                welcome).
+              </EmptyState>
             ) : (
               children.map((c) => (
                 <ChildCard

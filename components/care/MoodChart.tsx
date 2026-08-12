@@ -15,9 +15,24 @@ export type MoodPoint = { date: string; value: number; label: string };
 export function MoodChart({ data }: { data: MoodPoint[] }) {
   if (data.length === 0) {
     return (
-      <div className="flex h-56 items-center justify-center rounded-lg border border-dashed border-border">
-        <p className="font-mono text-xs text-muted">
-          Your heart, charted over time — once you&rsquo;ve checked in.
+      <div className="flex h-56 flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-border text-center">
+        <svg
+          width="30"
+          height="30"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="text-accent2"
+          aria-hidden="true"
+        >
+          <path d="M3 12h4l2-6 4 12 2-6h6" />
+        </svg>
+        <p className="max-w-[16rem] font-mono text-xs leading-relaxed text-muted">
+          Your heart, charted gently over time — the line begins with your first
+          check-in.
         </p>
       </div>
     );

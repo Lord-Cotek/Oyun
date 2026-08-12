@@ -9,6 +9,8 @@ import { Reactions } from "@/components/Reactions";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Card } from "@/components/ui/Card";
 import { Eyebrow } from "@/components/ui/Eyebrow";
+import { StatCard } from "@/components/ui/StatCard";
+import { PageHero } from "@/components/ui/PageHero";
 import { CheckInForm } from "@/components/care/CheckInForm";
 import { BabyLetters } from "@/components/care/BabyLetters";
 import { MoodChart, type MoodPoint } from "@/components/care/MoodChart";
@@ -62,23 +64,47 @@ export default async function CarePage() {
     ? Object.values(latestReactions.counts).reduce((a, b) => a + b, 0)
     : 0;
 
+  const latestMood = latestCheckIn ? MOOD_META[latestCheckIn.mood] : null;
+  const moodToneClass: Record<string, string> = {
+    negative: "text-negative",
+    accent2: "text-accent2",
+    muted: "text-ink",
+    accent: "text-accent",
+    positive: "text-positive",
+  };
+  const daysTracked = new Set(
+    checkIns.map((c) => c.createdAt.toDateString()),
+  ).size;
+
   return (
     <>
       <SiteHeader active="care" />
       <main className="mx-auto max-w-shell px-6 py-10">
-        <div className="animate-fade-up">
-          <Eyebrow className="mb-3">Care</Eyebrow>
-          <h1 className="font-serif text-4xl leading-tight text-ink md:text-5xl">
-            Your heart, your letters.
-          </h1>
-          <p className="mt-4 max-w-prose font-mono text-sm leading-relaxed text-muted">
-            A quiet, private place. What you write here stays yours — your check-in
-            mood can be shared with the one supporting you; your notes and letters
-            are kept for you.
-          </p>
+        <PageHero
+          eyebrow="Care"
+          title="Your heart, your letters."
+          lede="A quiet, private place. What you write here stays yours — your check-in mood can be shared with the one supporting you; your notes and letters are kept for you."
+        />
+
+        <div className="mt-6 grid gap-4 sm:grid-cols-3">
+          <StatCard
+            label="Latest"
+            value={
+              latestMood ? (
+                <span className={moodToneClass[latestMood.tone]}>
+                  {latestMood.label}
+                </span>
+              ) : (
+                "—"
+              )
+            }
+            hint={latestMood ? "your last check-in" : "no check-in yet"}
+          />
+          <StatCard label="Check-ins" value={checkIns.length} hint="moments noted" />
+          <StatCard label="Days tracked" value={daysTracked} hint="across your journey" />
         </div>
 
-        <div className="mt-10 grid gap-4 lg:grid-cols-2">
+        <div className="mt-6 grid gap-4 lg:grid-cols-2">
           {/* Check-ins + chart */}
           <Card className="lg:col-span-2">
             <Eyebrow className="mb-4">How is your heart today?</Eyebrow>
@@ -110,7 +136,7 @@ export default async function CarePage() {
           </Card>
 
           {/* Letters to the baby — a keepsake both parents can write */}
-          <Card>
+          <Card className="border-accent2/30 bg-accent2/[0.05]">
             <Eyebrow className="mb-2">Letters to your baby</Eyebrow>
             <p className="mb-5 font-mono text-xs leading-relaxed text-muted">
               A keepsake for your little one. Your husband can write here too,
@@ -129,7 +155,7 @@ export default async function CarePage() {
           </Card>
 
           {/* Letters to each other — the shared thread with her husband */}
-          <Card>
+          <Card className="border-accent2/30 bg-accent2/[0.05]">
             <Eyebrow className="mb-2">Between the two of you</Eyebrow>
             <p className="mb-5 font-mono text-xs leading-relaxed text-muted">
               A shared place for you and your husband to write to each other —

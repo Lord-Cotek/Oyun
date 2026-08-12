@@ -8,6 +8,8 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { Card } from "@/components/ui/Card";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Verse } from "@/components/ui/Verse";
+import { PageHero } from "@/components/ui/PageHero";
+import { Icon, type IconName } from "@/components/ui/Icon";
 import { WorshipTracker } from "@/components/journey/WorshipTracker";
 
 export const metadata: Metadata = {
@@ -33,33 +35,24 @@ export default async function WorshipPage() {
     <>
       <SiteHeader active="worship" />
       <main className="mx-auto max-w-shell px-6 py-10">
-        <div className="animate-fade-up">
-          <Eyebrow className="mb-3">Family worship</Eyebrow>
-          <h1 className="font-serif text-4xl leading-tight text-ink md:text-5xl">
-            A daily altar in your home.
-          </h1>
-          <p className="mt-4 max-w-prose font-mono text-sm leading-relaxed text-muted">
-            A few unhurried minutes: read a little, understand a little, pray a
-            little, sing a little. Consistency matters more than length — a short
-            rhythm kept faithfully will shape a household over years.
-          </p>
-        </div>
-
-        <div className="mt-8">
-          <Card className="border-accent/30 bg-accent/[0.06] p-6">
-            <Eyebrow className="mb-4">Keep the rhythm</Eyebrow>
+        <PageHero
+          eyebrow="Family worship"
+          title="A daily altar in your home."
+          lede="A few unhurried minutes: read a little, understand a little, pray a little, sing a little. Consistency matters more than length — a short rhythm kept faithfully will shape a household over years."
+          aside={
             <WorshipTracker
               doneToday={streak.doneToday}
               streak={streak.streak}
               last7={streak.last7}
+              showRing
             />
-          </Card>
-        </div>
+          }
+        />
 
-        <div className="mt-4 grid gap-4 lg:grid-cols-[1.4fr_1fr]">
+        <div className="mt-6 grid gap-4 lg:grid-cols-[1.4fr_1fr]">
           <div className="min-w-0 space-y-4">
             <Card className="p-8">
-              <Eyebrow className="mb-4">Read together</Eyebrow>
+              <LiturgyHead icon="book">Read together</LiturgyHead>
               <Verse text={liturgy.read.text} reference={liturgy.read.ref} size="lg" />
               <div className="mt-6 border-t border-border pt-6">
                 <Eyebrow className="mb-2 text-muted">Reflect</Eyebrow>
@@ -70,7 +63,7 @@ export default async function WorshipPage() {
             </Card>
 
             <Card className="p-8">
-              <Eyebrow className="mb-3">Talk together</Eyebrow>
+              <LiturgyHead icon="message">Talk together</LiturgyHead>
               <p className="font-serif text-xl leading-snug text-ink">{liturgy.talk}</p>
               <p className="mt-3 font-mono text-[0.7rem] leading-relaxed text-muted">
                 For the two of you now; for the whole table in years to come.
@@ -79,7 +72,9 @@ export default async function WorshipPage() {
 
             {born && (
               <Card className="p-8">
-                <Eyebrow className="mb-3">Catechism · Question {catechismNumber}</Eyebrow>
+                <LiturgyHead icon="question">
+                  Catechism · Question {catechismNumber}
+                </LiturgyHead>
                 <p className="font-serif text-xl leading-snug text-ink">{catechism.q}</p>
                 <p className="mt-2 font-mono text-sm leading-relaxed text-ink/90">
                   <span className="text-accent">A.</span> {catechism.a}
@@ -94,18 +89,20 @@ export default async function WorshipPage() {
 
           <div className="space-y-4">
             <Card className="p-8">
-              <Eyebrow className="mb-3">Pray together</Eyebrow>
+              <LiturgyHead icon="flame">Pray together</LiturgyHead>
               <p className="font-mono text-sm leading-relaxed text-muted">{liturgy.pray}</p>
             </Card>
             <Card className="border-accent2/30 bg-accent2/[0.05] p-8">
-              <Eyebrow className="mb-3 text-accent2">Sing together</Eyebrow>
+              <LiturgyHead icon="music" tone="accent2">
+                Sing together
+              </LiturgyHead>
               <p className="font-serif text-xl leading-snug text-ink">{hymn.title}</p>
               <p className="mt-2 font-mono text-sm leading-relaxed text-muted">
                 &ldquo;{hymn.line}&rdquo;
               </p>
             </Card>
             <Card className="p-8">
-              <Eyebrow className="mb-3">A word on keeping it</Eyebrow>
+              <LiturgyHead icon="leaf">A word on keeping it</LiturgyHead>
               <p className="font-mono text-xs leading-relaxed text-muted">
                 Don&rsquo;t aim for perfect; aim for daily. If you miss a day, simply
                 begin again the next. The goal is not a performance but a home
@@ -116,5 +113,26 @@ export default async function WorshipPage() {
         </div>
       </main>
     </>
+  );
+}
+
+/** A liturgy card header — a small line-icon beside the eyebrow. */
+function LiturgyHead({
+  icon,
+  tone = "accent",
+  children,
+}: {
+  icon: IconName;
+  tone?: "accent" | "accent2";
+  children: React.ReactNode;
+}) {
+  const color = tone === "accent2" ? "text-accent2" : "text-accent";
+  return (
+    <div className={`mb-3 flex items-center gap-2 ${color}`}>
+      <Icon name={icon} size={16} />
+      <Eyebrow as="span" className={color}>
+        {children}
+      </Eyebrow>
+    </div>
   );
 }
