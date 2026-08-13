@@ -88,14 +88,42 @@ export default async function Onboarding({
   const inviteNotFound = !!inviteToken && !invite;
 
   return (
-    <main className="mx-auto flex min-h-[86dvh] max-w-shell items-center justify-center px-6 py-16">
+    <main className="relative min-h-[86dvh] overflow-hidden">
       <ThemeToggle className="fixed right-5 top-5 z-30" />
-      <div className="w-full max-w-lg animate-fade-up">
-        <div className="mb-8 flex items-center gap-3">
-          <OyunMark size={44} className="animate-breathe text-ink" />
-          <span className="font-serif text-xl text-ink">Oyun</span>
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -left-24 top-10 h-72 w-72 rounded-full bg-accent/15 blur-3xl animate-float-slow"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute right-0 top-1/3 h-80 w-80 rounded-full bg-accent2/15 blur-3xl animate-float"
+      />
+      <div className="relative z-10 mx-auto grid max-w-shell items-center gap-10 px-6 py-16 lg:grid-cols-[1fr_1.05fr]">
+        {/* Welcome — the warm first impression */}
+        <div className="animate-fade-up">
+          <div className="mb-8 flex items-center gap-3">
+            <OyunMark size={48} className="animate-breathe text-ink" />
+            <span className="font-serif text-2xl text-ink">Oyun</span>
+          </div>
+          <Eyebrow className="mb-4">A COTEK companion</Eyebrow>
+          <h1 className="max-w-md font-serif text-4xl leading-[1.1] text-ink md:text-5xl">
+            Walk the whole journey — together.
+          </h1>
+          <p className="mt-5 max-w-sm font-mono text-sm leading-relaxed text-muted">
+            From conception through your little one’s first two years — Scripture,
+            prayer, and one thing to do each week, for a mother and the one
+            walking beside her. Guided by Agbebi.
+          </p>
+          <div className="mt-8 max-w-sm border-t border-border pt-6">
+            <Verse
+              text="Behold, children are a heritage from the LORD, the fruit of the womb a reward."
+              reference="Psalm 127:3"
+            />
+          </div>
         </div>
 
+        {/* The step itself */}
+        <div className="w-full animate-fade-up">
         {wrongAccount && invite ? (
           <div className="rounded-2xl border border-border bg-surface p-8">
             <Eyebrow className="mb-4 text-accent2">Wrong account</Eyebrow>
@@ -245,6 +273,7 @@ export default async function Onboarding({
             </form>
           </div>
         )}
+        </div>
       </div>
     </main>
   );
