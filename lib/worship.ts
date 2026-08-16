@@ -286,29 +286,10 @@ export const LITURGIES: Liturgy[] = [
   },
 ];
 
-export interface Hymn {
-  title: string;
-  line: string;
-}
-
-export const HYMNS: Hymn[] = [
-  { title: "Great Is Thy Faithfulness", line: "Morning by morning new mercies I see." },
-  { title: "Come Thou Fount of Every Blessing", line: "Streams of mercy, never ceasing, call for songs of loudest praise." },
-  { title: "It Is Well with My Soul", line: "Whatever my lot, thou hast taught me to say, it is well with my soul." },
-  { title: "Be Thou My Vision", line: "Thou my best thought, by day or by night." },
-  { title: "How Firm a Foundation", line: "How firm a foundation, ye saints of the Lord, is laid for your faith in His excellent Word." },
-  { title: "The Lord's My Shepherd", line: "He makes me down to lie in pastures green; He leadeth me the quiet waters by." },
-  { title: "O Worship the King", line: "O worship the King, all glorious above, and gratefully sing His wonderful love." },
-  { title: "Jesus Loves Me", line: "Jesus loves me, this I know, for the Bible tells me so." },
-  { title: "Praise to the Lord, the Almighty", line: "Praise to the Lord, the Almighty, the King of creation." },
-  { title: "Abide with Me", line: "Help of the helpless, O abide with me." },
-  { title: "My Hope Is Built on Nothing Less", line: "On Christ the solid rock I stand; all other ground is sinking sand." },
-  { title: "Guide Me, O Thou Great Jehovah", line: "Bread of heaven, feed me till I want no more." },
-  { title: "Before the Throne of God Above", line: "Because the sinless Savior died, my sinful soul is counted free." },
-  { title: "Crown Him with Many Crowns", line: "Crown Him the Lord of life, who triumphed o'er the grave." },
-  { title: "And Can It Be", line: "Amazing love! how can it be that thou, my God, shouldst die for me?" },
-  { title: "How Great Thou Art", line: "Then sings my soul, my Savior God, to thee: how great thou art!" },
-];
+// The hymnal lives in its own module now — a larger, year-round rotation with
+// full public-domain lyrics. Re-exported here so existing imports still resolve.
+import { HYMNS, hymnaryUrl, type Hymn } from "./hymns";
+export { HYMNS, hymnaryUrl, type Hymn };
 
 export interface CatechismQ {
   q: string;

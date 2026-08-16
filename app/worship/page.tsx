@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { getActiveMembership, getWorshipStreak } from "@/lib/data";
 import { computePosition } from "@/lib/stage";
-import { familyWorship } from "@/lib/worship";
+import { familyWorship, hymnaryUrl } from "@/lib/worship";
 import { markWorship } from "@/app/worship/actions";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Eyebrow } from "@/components/ui/Eyebrow";
@@ -76,6 +76,9 @@ export default async function WorshipPage() {
       eyebrow: "Sing together",
       title: hymn.title,
       body: `“${hymn.line}”`,
+      author: hymn.author,
+      lyrics: hymn.lyrics,
+      link: { href: hymnaryUrl(hymn.title), label: "Listen on Hymnary" },
       tone: "accent2",
     },
   ];

@@ -22,6 +22,9 @@ export type Station = {
   answer?: string; // catechism answer
   body?: string; // a mono paragraph (reflection, prayer prompt)
   note?: string; // small muted footnote
+  author?: string; // attribution, e.g. a hymn's author + year
+  lyrics?: string[]; // full verses, revealed behind a "Full lyrics" toggle
+  link?: { href: string; label: string }; // an external "listen / read more" link
   tone?: "accent" | "accent2";
 };
 
@@ -171,6 +174,10 @@ export function LiturgyRail({
                       <p className="mt-3 font-mono text-[0.7rem] leading-relaxed text-muted">
                         {s.note}
                       </p>
+                    )}
+
+                    {(s.lyrics || s.author || s.link) && (
+                      <SongSheet lyrics={s.lyrics} author={s.author} link={s.link} />
                     )}
 
                     <button
@@ -383,6 +390,84 @@ function Bead({
     >
       {done && !active ? <Check /> : children}
     </button>
+  );
+}
+
+/** A hymn's attribution, a "Full lyrics" reveal, and an outbound listen link. */
+function SongSheet({
+  lyrics,
+  author,
+  link,
+}: {
+  lyrics?: string[];
+  author?: string;
+  link?: { href: string; label: string };
+}) {
+  const [open, setOpen] = useState(false);
+  const hasLyrics = !!lyrics && lyrics.length > 0;
+  return (
+    <div className="mt-4 border-t border-border pt-4">
+      {author && (
+        <p className="mb-3 font-serif text-sm italic text-muted">{author}</p>
+      )}
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+        {hasLyrics && (
+          <button
+            type="button"
+            onClick={() => setOpen((o) => !o)}
+            aria-expanded={open}
+            className="inline-flex items-center gap-1.5 font-mono text-xs tracking-wide text-accent"
+          >
+            {open ? "Hide lyrics" : "Full lyrics"}
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className={`transition-transform ${open ? "rotate-180" : ""}`}
+              aria-hidden
+            >
+              <path d="M6 9l6 6 6-6" />
+            </svg>
+          </button>
+        )}
+        {link && (
+          <a
+            href={link.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 font-mono text-xs text-muted underline underline-offset-4 transition-colors hover:text-accent"
+          >
+            {link.label} ↗
+          </a>
+        )}
+      </div>
+
+      {hasLyrics && (
+        <div
+          className={`grid transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+            open ? "mt-4 grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+          }`}
+        >
+          <div className="overflow-hidden">
+            <div className="space-y-4">
+              {lyrics!.map((verse, i) => (
+                <p
+                  key={i}
+                  className="whitespace-pre-line font-serif text-[0.95rem] leading-relaxed text-ink/90"
+                >
+                  {verse}
+                </p>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
 
