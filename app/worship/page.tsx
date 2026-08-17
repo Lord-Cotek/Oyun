@@ -95,13 +95,15 @@ export default async function WorshipPage() {
             <div className="flex flex-col items-center gap-2">
               <ProgressRing
                 progress={Math.min(1, streak.last7 / 7)}
-                value={<AnimatedNumber value={streak.streak} />}
-                unit="day streak"
+                value={<AnimatedNumber value={streak.last7} />}
+                unit="of 7 this week"
                 size={150}
                 stroke={11}
               />
               <p className="font-mono text-[0.68rem] uppercase tracking-widest text-muted">
-                {streak.last7} of 7 days this week
+                {streak.streak > 0
+                  ? `${streak.streak}-day streak`
+                  : "begin again today"}
               </p>
             </div>
           }
