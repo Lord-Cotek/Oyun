@@ -96,7 +96,7 @@ export default async function WorshipPage() {
               <ProgressRing
                 progress={Math.min(1, streak.last7 / 7)}
                 value={<AnimatedNumber value={streak.last7} />}
-                unit="of 7 this week"
+                unit="of the last 7"
                 size={150}
                 stroke={11}
               />

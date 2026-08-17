@@ -45,7 +45,7 @@ export function WorshipTracker({
         <ProgressRing
           progress={Math.min(1, last7 / 7)}
           value={last7}
-          unit="days this week"
+          unit="of the last 7"
           size={152}
           stroke={11}
         />
@@ -64,7 +64,7 @@ export function WorshipTracker({
         <span className="font-serif text-2xl leading-none text-accent">{streak}</span>
         <span className="font-mono text-[0.68rem] uppercase tracking-widest text-muted">
           day{streak === 1 ? "" : "s"} in a row
-          {last7 > 0 ? ` · ${last7}/7 this week` : ""}
+          {last7 > 0 ? ` · ${last7} of the last 7` : ""}
         </span>
       </div>
     </div>
