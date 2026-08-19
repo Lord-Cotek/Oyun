@@ -25,6 +25,7 @@ import {
 } from "@/components/settings/SettingsForms";
 import { PushToggle } from "@/components/PushToggle";
 import { MarkLoss } from "@/components/settings/MarkLoss";
+import { DeleteAccount } from "@/components/settings/DeleteAccount";
 
 export const metadata: Metadata = {
   title: "Settings",
@@ -146,6 +147,10 @@ export default async function SettingsPage() {
               </p>
             </div>
             <SignOutButton />
+          </Card>
+
+          <Card className="border-negative/30 p-8">
+            <DeleteAccount email={user.email ?? ""} />
           </Card>
         </div>
       </main>

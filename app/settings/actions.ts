@@ -94,3 +94,25 @@ export async function updateJourney(_prev: unknown, formData: FormData): Promise
   revalidatePath("/settings");
   return { ok: true, message: "Journey updated." };
 }
+
+/**
+ * Permanently delete the signed-in user's account and ALL of their data.
+ * Cascading deletes remove any owned journey/household (with its check-ins,
+ * letters, milestones, prayers, worship days, children, catechism, keepsakes…)
+ * plus this user's memberships, reactions, notifications, and devices.
+ * Irreversible. Required for App Store Guideline 5.1.1(v).
+ */
+export async function deleteAccount(): Promise<void> {
+  const session = await auth();
+  const userId = session?.user?.id;
+  if (!userId) return;
+
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { email: true },
+  });
+  if (user?.email) {
+    await prisma.passwordResetToken.deleteMany({ where: { email: user.email } });
+  }
+  await prisma.user.delete({ where: { id: userId } });
+}
