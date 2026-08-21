@@ -44,8 +44,13 @@ export function SignUpForm({
       callbackUrl: callbackUrl ?? "/onboarding",
     });
     if (signInRes?.error) {
-      // Account exists; send them to sign in manually.
-      window.location.href = "/sign-in";
+      // Account was created but the auto sign-in didn't take — send them to
+      // sign in manually, keeping their invite context and email prefilled.
+      const params = new URLSearchParams();
+      if (callbackUrl) params.set("callbackUrl", callbackUrl);
+      if (email.trim()) params.set("email", email.trim());
+      const qs = params.toString();
+      window.location.href = qs ? `/sign-in?${qs}` : "/sign-in";
       return;
     }
     window.location.href = signInRes?.url ?? callbackUrl ?? "/onboarding";

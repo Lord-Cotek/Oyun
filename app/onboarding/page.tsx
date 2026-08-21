@@ -8,6 +8,7 @@ import { Eyebrow } from "@/components/ui/Eyebrow";
 import { OyunMark } from "@/components/ui/OyunMark";
 import { Verse } from "@/components/ui/Verse";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { WrongAccountSignOut } from "@/components/onboarding/WrongAccountSignOut";
 import { createJourney, acceptInvite } from "./actions";
 
 export const metadata: Metadata = {
@@ -131,16 +132,11 @@ export default async function Onboarding({
               This invitation was sent to {invite.email}.
             </h1>
             <p className="mt-3 font-mono text-sm leading-relaxed text-muted">
-              You&rsquo;re signed in with a different account. Sign out, then sign in
+              You&rsquo;re signed in with a different account. Sign out and sign in
               (or create an account) using <span className="text-ink">{invite.email}</span>{" "}
               to accept this invitation.
             </p>
-            <Link
-              href="/settings"
-              className="mt-6 inline-block font-mono text-xs text-accent underline underline-offset-4"
-            >
-              Go to settings to sign out
-            </Link>
+            <WrongAccountSignOut returnTo={`/onboarding?invite=${invite.token}`} />
           </div>
         ) : hasPendingInvite && invite ? (
           <div className="rounded-2xl border border-accent/25 bg-gradient-to-br from-accent/[0.10] via-surface to-accent2/[0.09] p-8">
