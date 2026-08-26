@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 import { getActiveMembership, getWorshipStreak } from "@/lib/data";
 import { computePosition } from "@/lib/stage";
 import { familyWorship, hymnaryUrl } from "@/lib/worship";
@@ -16,12 +17,16 @@ import {
   chooseReadingPlan,
   markReadingRead,
   undoReadingRead,
+  addReflection,
+  updateReflection,
+  deleteReflection,
 } from "@/app/worship/actions";
 import {
   ScriptureJourney,
   type JourneyState,
   type ChapterPayload,
 } from "@/components/worship/ScriptureJourney";
+import { Reflections, type NoteView } from "@/components/worship/Reflections";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Verse } from "@/components/ui/Verse";
@@ -43,6 +48,14 @@ function isSameUtcDay(a: Date | null | undefined, b: Date): boolean {
     a.getUTCMonth() === b.getUTCMonth() &&
     a.getUTCDate() === b.getUTCDate()
   );
+}
+
+function formatWhen(d: Date): string {
+  return d.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
 }
 
 export default async function WorshipPage() {
@@ -91,6 +104,31 @@ export default async function WorshipPage() {
     total: p.readings.length,
     pace: planPace(p.readings.length),
   }));
+
+  // Reflections on the current reading — shared with the journey, plus my own
+  // private notes.
+  const noteViews: NoteView[] =
+    st && st.next
+      ? (
+          await prisma.readingNote.findMany({
+            where: {
+              journeyId: active.journey.id,
+              bookSlug: st.next.slug,
+              chapter: st.next.chapter,
+              OR: [{ isPrivate: false }, { authorId: session.user.id }],
+            },
+            include: { author: { select: { id: true, name: true } } },
+            orderBy: { createdAt: "asc" },
+          })
+        ).map((n) => ({
+          id: n.id,
+          authorName: n.author.name ?? "Someone",
+          mine: n.authorId === session.user!.id,
+          isPrivate: n.isPrivate,
+          body: n.body,
+          when: formatWhen(n.createdAt),
+        }))
+      : [];
 
   const stations: Station[] = [
     {
@@ -179,6 +217,20 @@ export default async function WorshipPage() {
             onUndo={undoReadingRead}
           />
         </section>
+
+        {st?.next && st.nextRef && (
+          <section className="mt-4">
+            <Reflections
+              passageRef={st.nextRef}
+              bookSlug={st.next.slug}
+              chapter={st.next.chapter}
+              notes={noteViews}
+              onAdd={addReflection}
+              onUpdate={updateReflection}
+              onDelete={deleteReflection}
+            />
+          </section>
+        )}
 
         <section className="mt-10">
           <div className="mb-5 flex items-center justify-between">

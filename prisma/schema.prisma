@@ -34,6 +34,7 @@ model User {
   nativePushTokens  NativePushToken[]
   remembrances      Remembrance[]
   reactions         Reaction[]
+  readingNotes      ReadingNote[]
 
   createdAt DateTime @default(now())
 }
@@ -242,6 +243,26 @@ model Journey {
   prayerRequests PrayerRequest[]
   remembrances   Remembrance[]
   worshipDays    WorshipDay[]
+  readingNotes   ReadingNote[]
+}
+
+/// A reflection or note on a Scripture reading. Shared with the journey by
+/// default; the author may keep it private (visible only to them).
+model ReadingNote {
+  id        String   @id @default(cuid())
+  journeyId String
+  journey   Journey  @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  bookSlug  String
+  chapter   Int
+  body      String
+  isPrivate Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([journeyId, bookSlug, chapter])
+  @@index([authorId])
 }
 
 /// One row per day the household kept family worship — a shared streak.

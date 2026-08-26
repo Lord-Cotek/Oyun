@@ -73,6 +73,61 @@ export async function markReadingRead() {
   revalidatePath("/journey");
 }
 
+/** Add a reflection on a Scripture reading. Shared by default; may be private. */
+export async function addReflection(input: {
+  bookSlug: string;
+  chapter: number;
+  body: string;
+  isPrivate: boolean;
+}) {
+  const session = await auth();
+  if (!session?.user?.id) redirect("/sign-in?callbackUrl=/worship");
+  const active = await getActiveMembership(session.user.id);
+  if (!active) redirect("/onboarding");
+
+  const body = input.body.trim();
+  if (!body || !input.bookSlug || !input.chapter) return;
+  await prisma.readingNote.create({
+    data: {
+      journeyId: active.journey.id,
+      authorId: session.user.id,
+      bookSlug: input.bookSlug,
+      chapter: input.chapter,
+      body: body.slice(0, 4000),
+      isPrivate: !!input.isPrivate,
+    },
+  });
+  revalidatePath("/worship");
+}
+
+/** Edit one of your own reflections. */
+export async function updateReflection(input: {
+  id: string;
+  body: string;
+  isPrivate: boolean;
+}) {
+  const session = await auth();
+  if (!session?.user?.id) return;
+  const body = input.body.trim();
+  if (!body) return;
+  // Scope the update to the author so no one can edit another's note.
+  await prisma.readingNote.updateMany({
+    where: { id: input.id, authorId: session.user.id },
+    data: { body: body.slice(0, 4000), isPrivate: !!input.isPrivate },
+  });
+  revalidatePath("/worship");
+}
+
+/** Delete one of your own reflections. */
+export async function deleteReflection(id: string) {
+  const session = await auth();
+  if (!session?.user?.id) return;
+  await prisma.readingNote.deleteMany({
+    where: { id, authorId: session.user.id },
+  });
+  revalidatePath("/worship");
+}
+
 /** Undo the most recent reading — a gentle fix for an accidental tap. */
 export async function undoReadingRead() {
   const session = await auth();
