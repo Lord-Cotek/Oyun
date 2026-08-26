@@ -41,7 +41,7 @@ export function TabBar({ tabs, more }: { tabs: Tab[]; more: MoreItem[] }) {
     <>
       <nav
         aria-label="Primary"
-        className="safe-bottom fixed inset-x-0 bottom-0 z-30 border-t border-border bg-bg/95 backdrop-blur lg:hidden"
+        className="safe-bottom fixed inset-x-0 bottom-0 z-30 border-t border-[var(--glass-hairline)] bg-[var(--glass-tint)] shadow-[0_-10px_30px_-14px_rgba(0,0,0,0.55)] backdrop-blur-xl backdrop-saturate-150 lg:hidden"
       >
         <ul className="mx-auto flex max-w-shell items-stretch justify-around px-1">
           {tabs.map((t) => {

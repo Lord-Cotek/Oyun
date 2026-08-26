@@ -15,7 +15,7 @@ export function Card({
   return (
     <Tag
       id={id}
-      className={`relative rounded-xl border border-border bg-surface p-6 ${className}`}
+      className={`surface-premium relative rounded-xl border border-border bg-surface p-6 transition-shadow duration-300 ${className}`}
     >
       {children}
     </Tag>

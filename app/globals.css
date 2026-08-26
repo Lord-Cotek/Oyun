@@ -37,6 +37,21 @@
   --grain-blend: overlay;
   --grain-opacity: 0.035;
 
+  /* Premium elevation & gloss (dark). Layered ambient shadows for depth, a
+     hairline top sheen for the glossy edge, and a faint vertical gradient so
+     surfaces catch light like glass. Re-theme here, never in JS. */
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.35), 0 6px 18px -6px rgba(0, 0, 0, 0.55);
+  --shadow-2: 0 2px 6px rgba(0, 0, 0, 0.4), 0 20px 48px -14px rgba(0, 0, 0, 0.62);
+  --sheen: inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.015);
+  --surface-grad: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--ink) 4%, var(--surface)) 0%,
+    var(--surface) 46%
+  );
+  --glass-tint: color-mix(in srgb, var(--surface) 74%, transparent);
+  --glass-hairline: color-mix(in srgb, var(--ink) 9%, transparent);
+
   color-scheme: dark;
 }
 
@@ -69,6 +84,18 @@
   --grain-blend: multiply;
   --grain-opacity: 0.03;
 
+  /* Premium elevation & gloss (light). Softer, warmer shadows; a bright top
+     sheen so ivory panels read like polished stone. */
+  --shadow-1: 0 1px 2px rgba(72, 60, 38, 0.06),
+    0 8px 22px -8px rgba(72, 60, 38, 0.12);
+  --shadow-2: 0 2px 8px rgba(72, 60, 38, 0.08),
+    0 24px 52px -16px rgba(72, 60, 38, 0.18);
+  --sheen: inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+  --surface-grad: linear-gradient(180deg, #ffffff 0%, var(--surface) 62%);
+  --glass-tint: color-mix(in srgb, var(--surface) 70%, transparent);
+  --glass-hairline: color-mix(in srgb, #ffffff 65%, transparent);
+
   color-scheme: light;
 }
 
@@ -87,6 +114,22 @@
 
   body {
     background-color: var(--bg);
+    /* Two whisper-soft radial pools give the page quiet depth — a premium,
+       lit-from-within ground rather than a flat fill. Fixed so it never
+       scrolls. */
+    background-image:
+      radial-gradient(
+        1100px 620px at 50% -12%,
+        color-mix(in srgb, var(--accent) 7%, transparent),
+        transparent 62%
+      ),
+      radial-gradient(
+        920px 560px at 108% 108%,
+        color-mix(in srgb, var(--accent2) 6%, transparent),
+        transparent 58%
+      );
+    background-attachment: fixed;
+    background-repeat: no-repeat;
     color: var(--ink);
     font-family: var(--font-dm-mono), "DM Mono", ui-monospace, monospace;
     font-feature-settings: "kern";
@@ -160,6 +203,52 @@
     .fab-panel-bottom {
       bottom: calc(10.5rem + env(safe-area-inset-bottom, 0px));
     }
+  }
+
+  /* ── Premium surfaces ────────────────────────────────────────────────
+     Silky, glossy depth applied through shared primitives (Card, panels,
+     shell) so the whole app lifts at once. */
+
+  /* Elevated content surface — soft ambient shadow + glossy top sheen + a
+     faint vertical gradient so it catches light. */
+  .surface-premium {
+    background-image: var(--surface-grad);
+    box-shadow: var(--shadow-1), var(--sheen);
+  }
+  /* A higher float for hero / flagship panels. */
+  .surface-raised {
+    background-image: var(--surface-grad);
+    box-shadow: var(--shadow-2), var(--sheen);
+  }
+  /* Frosted glass — for the app shell (header, tab bar) and floating controls
+     that sit over scrolling content. */
+  .glass {
+    background-color: var(--glass-tint);
+    -webkit-backdrop-filter: blur(18px) saturate(1.35);
+    backdrop-filter: blur(18px) saturate(1.35);
+    box-shadow: var(--shadow-2), var(--sheen);
+    border-color: var(--glass-hairline);
+  }
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    /* No blur support — fall back to a near-opaque surface so text stays legible. */
+    .glass {
+      background-color: color-mix(in srgb, var(--surface) 96%, transparent);
+    }
+  }
+
+  /* Glossy accent button — a soft top highlight and ambient shadow give the
+     primary action a tactile, silky sheen. */
+  .btn-primary {
+    background-color: var(--accent);
+    background-image: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.2),
+      rgba(255, 255, 255, 0) 46%
+    );
+    box-shadow: var(--shadow-1), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  }
+  .btn-primary:hover {
+    background-color: var(--accent-deep);
   }
 
   /* The signature COTEK section marker */

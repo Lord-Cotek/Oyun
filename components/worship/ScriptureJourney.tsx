@@ -59,7 +59,7 @@ export function ScriptureJourney({
   // mentor) sees the journey and reads, but can't choose or advance it.
   if (!canManage && !state) {
     return (
-      <div className="rounded-2xl border border-border bg-surface p-6 md:p-8">
+      <div className="rounded-2xl shadow-[var(--shadow-2)] border border-border bg-surface p-6 md:p-8">
         <Eyebrow className="mb-2">Scripture Journey</Eyebrow>
         <p className="font-mono text-sm leading-relaxed text-muted">
           A parent or guardian hasn&rsquo;t chosen a reading plan yet. Once they
@@ -79,7 +79,7 @@ export function ScriptureJourney({
   // ── Plan picker ────────────────────────────────────────────────────────
   if (picking || !state) {
     return (
-      <div className="rounded-2xl border border-accent/25 bg-gradient-to-br from-accent/[0.08] via-surface to-accent2/[0.07] p-6 md:p-8">
+      <div className="rounded-2xl shadow-[var(--shadow-2)] border border-accent/25 bg-gradient-to-br from-accent/[0.08] via-surface to-accent2/[0.07] p-6 md:p-8">
         <Eyebrow className="mb-3">Scripture Journey</Eyebrow>
         <h3 className="font-serif text-2xl leading-snug text-ink">
           {state ? "Choose a new journey." : "Read through the Scriptures, together."}
@@ -147,7 +147,7 @@ export function ScriptureJourney({
   // ── Finished ───────────────────────────────────────────────────────────
   if (state.finished) {
     return (
-      <div className="rounded-2xl border border-accent/30 bg-gradient-to-br from-accent/[0.12] via-surface to-accent2/[0.10] p-6 text-center md:p-10">
+      <div className="rounded-2xl shadow-[var(--shadow-2)] border border-accent/30 bg-gradient-to-br from-accent/[0.12] via-surface to-accent2/[0.10] p-6 text-center md:p-10">
         <Eyebrow className="mb-3">Scripture Journey · Complete</Eyebrow>
         <h3 className="font-serif text-3xl leading-snug text-ink">
           You finished {state.title}.
@@ -172,7 +172,7 @@ export function ScriptureJourney({
 
   // ── Active reading ─────────────────────────────────────────────────────
   return (
-    <div className="rounded-2xl border border-accent/25 bg-gradient-to-br from-accent/[0.07] via-surface to-accent2/[0.06] p-6 md:p-8">
+    <div className="rounded-2xl shadow-[var(--shadow-2)] border border-accent/25 bg-gradient-to-br from-accent/[0.07] via-surface to-accent2/[0.06] p-6 md:p-8">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <Eyebrow className="mb-2">Scripture Journey</Eyebrow>

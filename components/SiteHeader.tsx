@@ -103,7 +103,7 @@ export async function SiteHeader({
 
   return (
     <>
-    <header className="safe-top border-b border-border">
+    <header className="sticky top-0 z-30 safe-top border-b border-[var(--glass-hairline)] bg-[var(--glass-tint)] shadow-[var(--shadow-1)] backdrop-blur-xl backdrop-saturate-150">
       <div className="mx-auto flex h-16 max-w-shell items-center justify-between gap-2 px-4 sm:px-6">
         <div className="flex min-w-0 items-center gap-2 sm:gap-3">
           <Link href="/journey" className="flex shrink-0 items-center gap-2.5">
