@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 
 export interface NoteView {
@@ -60,11 +61,19 @@ export function Reflections({
 
   return (
     <div className="surface-premium rounded-2xl border border-border p-6 md:p-8">
-      <div className="flex items-baseline justify-between">
+      <div className="flex items-baseline justify-between gap-3">
         <Eyebrow>Reflections</Eyebrow>
-        <span className="font-mono text-[0.6rem] uppercase tracking-widest text-muted">
-          {passageRef}
-        </span>
+        <div className="flex items-center gap-3">
+          <span className="font-mono text-[0.6rem] uppercase tracking-widest text-muted">
+            {passageRef}
+          </span>
+          <Link
+            href="/journal"
+            className="font-mono text-[0.6rem] uppercase tracking-widest text-accent underline underline-offset-4 hover:text-accent-deep"
+          >
+            Journal →
+          </Link>
+        </div>
       </div>
       <p className="mt-2 font-mono text-xs leading-relaxed text-muted">
         What is God showing your family here? Notes are shared with your circle

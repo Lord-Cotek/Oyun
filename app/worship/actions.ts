@@ -6,6 +6,8 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { getActiveMembership } from "@/lib/data";
 import { planById } from "@/lib/reading-plans";
+import { chapterRef } from "@/lib/bible";
+import { Role } from "@prisma/client";
 
 function utcToday(): Date {
   const now = new Date();
@@ -97,6 +99,42 @@ export async function addReflection(input: {
       isPrivate: !!input.isPrivate,
     },
   });
+
+  // Gentle in-app notice to the rest of the pair when a reflection is shared
+  // (never for private notes, never a push — just the bell). Best-effort.
+  if (!input.isPrivate) {
+    try {
+      const [author, others] = await Promise.all([
+        prisma.user.findUnique({
+          where: { id: session.user.id },
+          select: { name: true },
+        }),
+        prisma.membership.findMany({
+          where: {
+            journeyId: active.journey.id,
+            userId: { not: session.user.id },
+            role: { in: [Role.MOTHER, Role.PARTNER] },
+          },
+          select: { userId: true },
+        }),
+      ]);
+      if (others.length) {
+        const ref = chapterRef(input.bookSlug, input.chapter);
+        const snip = body.length > 90 ? `${body.slice(0, 90)}…` : body;
+        await prisma.notification.createMany({
+          data: others.map((o) => ({
+            userId: o.userId,
+            type: "reflection",
+            title: `${author?.name ?? "Someone"} shared a reflection`,
+            body: `${ref} — “${snip}”`,
+            href: "/journal",
+          })),
+        });
+      }
+    } catch {
+      // A missed notice must never fail the reflection.
+    }
+  }
   revalidatePath("/worship");
 }
 
