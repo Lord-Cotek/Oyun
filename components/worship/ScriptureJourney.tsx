@@ -222,33 +222,29 @@ export function ScriptureJourney({
       <div className="mt-5 flex flex-wrap items-center gap-3">
         {!canManage ? (
           <span className="font-mono text-xs text-muted">
-            {state.readToday
-              ? `Read today — next up ${state.nextRef}.`
-              : "Read along; a parent or guardian marks it complete."}
+            Read along; a parent or guardian keeps the plan moving.
           </span>
-        ) : state.readToday ? (
+        ) : (
           <>
-            <span className="inline-flex items-center gap-2 rounded-lg border border-accent/40 bg-accent/10 px-4 py-2.5 font-mono text-sm text-accent">
-              <Check /> Read — next up {state.nextRef}
-            </span>
             <button
               type="button"
               disabled={pending}
-              onClick={() => start(() => onUndo())}
-              className="font-mono text-xs text-muted underline underline-offset-4 hover:text-ink disabled:opacity-50"
+              onClick={() => start(() => onRead())}
+              className="btn-primary inline-flex items-center gap-2 rounded-lg px-5 py-3 font-mono text-sm font-medium text-on-accent transition-transform active:scale-[0.98] disabled:opacity-60"
             >
-              Undo
+              {pending ? "Saving…" : "We read this — next"}
             </button>
+            {state.done > 0 && (
+              <button
+                type="button"
+                disabled={pending}
+                onClick={() => start(() => onUndo())}
+                className="font-mono text-xs text-muted underline underline-offset-4 hover:text-ink disabled:opacity-50"
+              >
+                Undo last
+              </button>
+            )}
           </>
-        ) : (
-          <button
-            type="button"
-            disabled={pending}
-            onClick={() => start(() => onRead())}
-            className="inline-flex items-center gap-2 rounded-lg bg-accent px-5 py-3 font-mono text-sm font-medium text-on-accent transition-colors hover:bg-accent-deep disabled:opacity-60"
-          >
-            {pending ? "Marking…" : "We read this together"}
-          </button>
         )}
       </div>
     </div>
@@ -281,19 +277,5 @@ function ChapterText({ verses }: { verses: string[] }) {
         </button>
       )}
     </div>
-  );
-}
-
-function Check() {
-  return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path
-        d="M20 6L9 17l-5-5"
-        stroke="currentColor"
-        strokeWidth="2.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
   );
 }
