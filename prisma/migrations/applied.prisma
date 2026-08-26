@@ -225,6 +225,11 @@ model Journey {
   lossAt    DateTime?
   createdAt DateTime      @default(now())
 
+  // Scripture Journey — a chosen reading plan that advances by completion.
+  readingPlanId    String?
+  readingProgress  Int       @default(0)
+  readingUpdatedAt DateTime?
+
   memberships    Membership[]
   invites        Invite[]
   checkIns       CheckIn[]

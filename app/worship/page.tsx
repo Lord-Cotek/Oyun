@@ -4,7 +4,24 @@ import { auth } from "@/lib/auth";
 import { getActiveMembership, getWorshipStreak } from "@/lib/data";
 import { computePosition } from "@/lib/stage";
 import { familyWorship, hymnaryUrl } from "@/lib/worship";
-import { markWorship } from "@/app/worship/actions";
+import {
+  READING_PLANS,
+  planById,
+  planState,
+  planPace,
+} from "@/lib/reading-plans";
+import { getChapter } from "@/lib/bible";
+import {
+  markWorship,
+  chooseReadingPlan,
+  markReadingRead,
+  undoReadingRead,
+} from "@/app/worship/actions";
+import {
+  ScriptureJourney,
+  type JourneyState,
+  type ChapterPayload,
+} from "@/components/worship/ScriptureJourney";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Verse } from "@/components/ui/Verse";
@@ -19,6 +36,15 @@ export const metadata: Metadata = {
   robots: { index: false },
 };
 
+function isSameUtcDay(a: Date | null | undefined, b: Date): boolean {
+  if (!a) return false;
+  return (
+    a.getUTCFullYear() === b.getUTCFullYear() &&
+    a.getUTCMonth() === b.getUTCMonth() &&
+    a.getUTCDate() === b.getUTCDate()
+  );
+}
+
 export default async function WorshipPage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/sign-in?callbackUrl=/worship");
@@ -31,6 +57,40 @@ export default async function WorshipPage() {
   const born = computePosition(active.journey.dueDate).born;
   const { liturgy, hymn, catechism, catechismNumber } = familyWorship();
   const streak = await getWorshipStreak(active.journey.id);
+
+  // Scripture Journey — the chosen reading plan and today's passage.
+  const plan = planById(active.journey.readingPlanId);
+  const st = plan ? planState(plan, active.journey.readingProgress) : null;
+  const chapterText =
+    st && st.next ? await getChapter(st.next.slug, st.next.chapter) : null;
+  const readToday = isSameUtcDay(active.journey.readingUpdatedAt, new Date());
+
+  const journeyState: JourneyState | null =
+    plan && st
+      ? {
+          planId: plan.id,
+          title: plan.title,
+          scope: plan.scope,
+          done: st.done,
+          total: st.total,
+          pct: st.pct,
+          finished: st.finished,
+          nextRef: st.nextRef,
+          readToday,
+        }
+      : null;
+  const chapterPayload: ChapterPayload | null =
+    chapterText && st?.nextRef
+      ? { ref: st.nextRef, verses: chapterText.verses }
+      : null;
+  const planOptions = READING_PLANS.map((p) => ({
+    id: p.id,
+    title: p.title,
+    blurb: p.blurb,
+    scope: p.scope,
+    total: p.readings.length,
+    pace: planPace(p.readings.length),
+  }));
 
   const stations: Station[] = [
     {
@@ -110,6 +170,17 @@ export default async function WorshipPage() {
         />
 
         <section className="mt-8">
+          <ScriptureJourney
+            state={journeyState}
+            chapter={chapterPayload}
+            plans={planOptions}
+            onChoose={chooseReadingPlan}
+            onRead={markReadingRead}
+            onUndo={undoReadingRead}
+          />
+        </section>
+
+        <section className="mt-10">
           <div className="mb-5 flex items-center justify-between">
             <Eyebrow>Today’s liturgy</Eyebrow>
             <span className="font-mono text-[0.68rem] uppercase tracking-widest text-muted">
