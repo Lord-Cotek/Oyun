@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Eyebrow } from "@/components/ui/Eyebrow";
+import { ShareButton } from "@/components/ShareButton";
 
 export interface PlanOption {
   id: string;
@@ -43,6 +44,7 @@ export function ScriptureJourney({
   onRead,
   onUndo,
   canManage = true,
+  sharePath,
 }: {
   state: JourneyState | null;
   chapter: ChapterPayload | null;
@@ -51,6 +53,7 @@ export function ScriptureJourney({
   onRead: () => Promise<void>;
   onUndo: () => Promise<void>;
   canManage?: boolean;
+  sharePath?: string;
 }) {
   const [picking, setPicking] = useState(canManage && !state);
   const [pending, start] = useTransition();
@@ -208,11 +211,19 @@ export function ScriptureJourney({
       {/* today's reading */}
       {chapter && (
         <div className="mt-6 rounded-xl border border-border bg-bg/70 p-5">
-          <div className="mb-3 flex items-baseline justify-between">
+          <div className="mb-3 flex items-baseline justify-between gap-3">
             <span className="font-serif text-lg text-ink">{chapter.ref}</span>
-            <span className="font-mono text-[0.6rem] uppercase tracking-widest text-muted">
-              Today&rsquo;s reading
-            </span>
+            {sharePath ? (
+              <ShareButton
+                path={sharePath}
+                title={chapter.ref}
+                text={`${chapter.ref} — today's family reading.`}
+              />
+            ) : (
+              <span className="font-mono text-[0.6rem] uppercase tracking-widest text-muted">
+                Today&rsquo;s reading
+              </span>
+            )}
           </div>
           <ChapterText verses={chapter.verses} />
         </div>

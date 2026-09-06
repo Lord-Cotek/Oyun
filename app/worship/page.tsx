@@ -12,6 +12,7 @@ import {
   planPace,
 } from "@/lib/reading-plans";
 import { getChapter } from "@/lib/bible";
+import { shareSlug } from "@/lib/share";
 import {
   markWorship,
   chooseReadingPlan,
@@ -130,12 +131,22 @@ export default async function WorshipPage() {
         }))
       : [];
 
+  const readSlug = shareSlug(liturgy.read.ref);
+  const readShare = readSlug
+    ? {
+        path: `/v/${readSlug}`,
+        title: liturgy.read.ref,
+        text: `“${liturgy.read.text}” — ${liturgy.read.ref}`,
+      }
+    : undefined;
+
   const stations: Station[] = [
     {
       id: "read",
       icon: "book",
       eyebrow: "Read together",
       verse: { text: liturgy.read.text, ref: liturgy.read.ref },
+      share: readShare,
     },
     {
       id: "reflect",
@@ -177,6 +188,11 @@ export default async function WorshipPage() {
       author: hymn.author,
       lyrics: hymn.lyrics,
       link: { href: hymnaryUrl(hymn.title), label: "Listen on Hymnary" },
+      share: {
+        path: "/",
+        title: hymn.title,
+        text: `Singing “${hymn.title}” — ${hymn.line} (${hymn.author}). Sing along in family worship with Oyun.`,
+      },
       tone: "accent2",
     },
   ];
@@ -215,6 +231,9 @@ export default async function WorshipPage() {
             onChoose={chooseReadingPlan}
             onRead={markReadingRead}
             onUndo={undoReadingRead}
+            sharePath={
+              st?.next ? `/v/${st.next.slug}-${st.next.chapter}` : undefined
+            }
           />
         </section>
 

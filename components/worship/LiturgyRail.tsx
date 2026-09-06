@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useTransition } from "react";
 import { Icon, type IconName } from "@/components/ui/Icon";
 import { Verse } from "@/components/ui/Verse";
+import { ShareButton } from "@/components/ShareButton";
 
 /**
  * The Liturgy Rail — family worship as a guided procession, not a wall of
@@ -25,6 +26,7 @@ export type Station = {
   author?: string; // attribution, e.g. a hymn's author + year
   lyrics?: string[]; // full verses, revealed behind a "Full lyrics" toggle
   link?: { href: string; label: string }; // an external "listen / read more" link
+  share?: { path: string; title: string; text: string }; // shareable to WhatsApp etc.
   tone?: "accent" | "accent2";
 };
 
@@ -178,6 +180,16 @@ export function LiturgyRail({
 
                     {(s.lyrics || s.author || s.link) && (
                       <SongSheet lyrics={s.lyrics} author={s.author} link={s.link} />
+                    )}
+
+                    {s.share && (
+                      <div className="mt-4 border-t border-border pt-4">
+                        <ShareButton
+                          path={s.share.path}
+                          title={s.share.title}
+                          text={s.share.text}
+                        />
+                      </div>
                     )}
 
                     <button

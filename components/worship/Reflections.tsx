@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { Eyebrow } from "@/components/ui/Eyebrow";
+import { ShareButton } from "@/components/ShareButton";
 
 export interface NoteView {
   id: string;
@@ -116,25 +117,33 @@ export function Reflections({
                 <p className="whitespace-pre-line font-mono text-sm leading-relaxed text-ink/90">
                   {n.body}
                 </p>
-                {n.mine && (
-                  <div className="mt-2 flex gap-3">
-                    <button
-                      type="button"
-                      onClick={() => setEditingId(n.id)}
-                      className="font-mono text-[0.68rem] text-muted underline underline-offset-4 hover:text-accent"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      type="button"
-                      disabled={pending}
-                      onClick={() => start(() => onDelete(n.id))}
-                      className="font-mono text-[0.68rem] text-muted underline underline-offset-4 hover:text-negative disabled:opacity-50"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                )}
+                <div className="mt-2 flex items-center gap-3">
+                  {n.mine && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => setEditingId(n.id)}
+                        className="font-mono text-[0.68rem] text-muted underline underline-offset-4 hover:text-accent"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        type="button"
+                        disabled={pending}
+                        onClick={() => start(() => onDelete(n.id))}
+                        className="font-mono text-[0.68rem] text-muted underline underline-offset-4 hover:text-negative disabled:opacity-50"
+                      >
+                        Delete
+                      </button>
+                    </>
+                  )}
+                  <ShareButton
+                    path={`/v/${bookSlug}-${chapter}`}
+                    title={passageRef}
+                    text={`“${n.body}” — ${passageRef}`}
+                    className="ml-auto"
+                  />
+                </div>
               </li>
             ),
           )}
