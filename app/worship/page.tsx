@@ -13,6 +13,7 @@ import {
 } from "@/lib/reading-plans";
 import { getChapter } from "@/lib/bible";
 import { shareSlug } from "@/lib/share";
+import { hymnSlug } from "@/lib/hymns";
 import {
   markWorship,
   chooseReadingPlan,
@@ -189,7 +190,7 @@ export default async function WorshipPage() {
       lyrics: hymn.lyrics,
       link: { href: hymnaryUrl(hymn.title), label: "Listen on Hymnary" },
       share: {
-        path: "/",
+        path: `/h/${hymnSlug(hymn.title)}`,
         title: hymn.title,
         text: `Singing “${hymn.title}” — ${hymn.line} (${hymn.author}). Sing along in family worship with Oyun.`,
       },

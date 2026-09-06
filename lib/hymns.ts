@@ -598,3 +598,16 @@ export const HYMNS: Hymn[] = [
     ],
   },
 ];
+
+/** A stable URL slug for a hymn, from its title (titles are unique). */
+export function hymnSlug(title: string): string {
+  return title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+/** Look up a hymn by its slug. */
+export function hymnBySlug(slug: string): Hymn | undefined {
+  return HYMNS.find((h) => hymnSlug(h.title) === slug);
+}
