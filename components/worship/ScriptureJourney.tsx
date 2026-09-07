@@ -1,8 +1,11 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { ShareButton } from "@/components/ShareButton";
+
+export type Track = "shared" | "me";
 
 export interface PlanOption {
   id: string;
@@ -30,11 +33,16 @@ export interface JourneyState {
   readToday: boolean;
 }
 
+export interface ScopeLabel {
+  label: string;
+  blurb: string;
+}
+
 /**
  * The Scripture Journey — a chosen reading plan that moves forward through the
- * Bible and finishes. Sits above the daily liturgy: the liturgy meditates on a
- * verse; this walks the family through the whole Book, one reading at a time,
- * advancing only when they actually read.
+ * Bible and finishes. A journey can be walked TOGETHER (the shared plan) or on
+ * your OWN (a personal plan) — the reader chooses when they begin. Sits above
+ * the daily liturgy; advances only when the passage is actually read.
  */
 export function ScriptureJourney({
   state,
@@ -43,38 +51,39 @@ export function ScriptureJourney({
   onChoose,
   onRead,
   onUndo,
-  canManage = true,
+  track,
+  canChooseShared = true,
+  scopeLabels,
+  switchTo,
   sharePath,
 }: {
   state: JourneyState | null;
   chapter: ChapterPayload | null;
   plans: PlanOption[];
-  onChoose: (planId: string) => Promise<void>;
-  onRead: () => Promise<void>;
-  onUndo: () => Promise<void>;
-  canManage?: boolean;
+  onChoose: (planId: string, scope: Track) => Promise<void>;
+  onRead: (track: Track) => Promise<void>;
+  onUndo: (track: Track) => Promise<void>;
+  track: Track;
+  canChooseShared?: boolean;
+  scopeLabels: { shared: ScopeLabel; me: ScopeLabel };
+  switchTo?: { label: string; href: string };
   sharePath?: string;
 }) {
-  const [picking, setPicking] = useState(canManage && !state);
+  const [picking, setPicking] = useState(!state);
+  const [scope, setScope] = useState<Track>(
+    canChooseShared ? track : "me",
+  );
   const [pending, start] = useTransition();
 
-  // A member who follows along but doesn't keep the home's rhythm (e.g. a
-  // mentor) sees the journey and reads, but can't choose or advance it.
-  if (!canManage && !state) {
-    return (
-      <div className="rounded-2xl shadow-[var(--shadow-2)] border border-border bg-surface p-6 md:p-8">
-        <Eyebrow className="mb-2">Scripture Journey</Eyebrow>
-        <p className="font-mono text-sm leading-relaxed text-muted">
-          A parent or guardian hasn&rsquo;t chosen a reading plan yet. Once they
-          do, the passage will appear here to read along.
-        </p>
-      </div>
-    );
-  }
+  // A personal journey is always the reader's to advance; the shared one only
+  // if they keep it (a parent/guardian, or the couple in Oyun).
+  const canAdvance = track === "me" || canChooseShared;
+  const trackName = track === "me" ? scopeLabels.me.label : scopeLabels.shared.label;
 
   function choose(id: string) {
+    const chosen: Track = canChooseShared ? scope : "me";
     start(async () => {
-      await onChoose(id);
+      await onChoose(id, chosen);
       setPicking(false);
     });
   }
@@ -85,7 +94,7 @@ export function ScriptureJourney({
       <div className="rounded-2xl shadow-[var(--shadow-2)] border border-accent/25 bg-gradient-to-br from-accent/[0.08] via-surface to-accent2/[0.07] p-6 md:p-8">
         <Eyebrow className="mb-3">Scripture Journey</Eyebrow>
         <h3 className="font-serif text-2xl leading-snug text-ink">
-          {state ? "Choose a new journey." : "Read through the Scriptures, together."}
+          {state ? "Choose a new journey." : "Read through the Scriptures."}
         </h3>
         <p className="mt-2 max-w-xl font-mono text-sm leading-relaxed text-muted">
           Pick a path through God&rsquo;s Word. It moves forward only when you
@@ -93,7 +102,37 @@ export function ScriptureJourney({
           finish the whole thing.
         </p>
 
-        <div className="mt-6 grid gap-3">
+        {/* Who is this journey for? */}
+        {canChooseShared ? (
+          <div className="mt-5">
+            <div className="inline-flex rounded-xl border border-border bg-bg/60 p-1">
+              {(["shared", "me"] as const).map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => setScope(s)}
+                  className={`rounded-lg px-4 py-2 font-mono text-xs transition-colors ${
+                    scope === s
+                      ? "bg-accent text-on-accent"
+                      : "text-muted hover:text-ink"
+                  }`}
+                >
+                  {scopeLabels[s].label}
+                </button>
+              ))}
+            </div>
+            <p className="mt-2 font-mono text-[0.7rem] leading-relaxed text-muted">
+              {scopeLabels[scope].blurb}
+            </p>
+          </div>
+        ) : (
+          <p className="mt-4 rounded-lg border border-border bg-bg/60 px-4 py-3 font-mono text-[0.72rem] leading-relaxed text-muted">
+            The shared journey is set by a parent or guardian — this begins{" "}
+            <span className="text-ink">your own</span>.
+          </p>
+        )}
+
+        <div className="mt-5 grid gap-3">
           {plans.map((p) => {
             const current = state?.planId === p.id;
             return (
@@ -156,19 +195,16 @@ export function ScriptureJourney({
           You finished {state.title}.
         </h3>
         <p className="mx-auto mt-3 max-w-md font-mono text-sm leading-relaxed text-muted">
-          All {state.total} readings, {state.scope} — read together, all the way
-          through. &ldquo;Your word is a lamp to my feet and a light to my
-          path.&rdquo;
+          All {state.total} readings, {state.scope} — every chapter, to the end.
+          &ldquo;Your word is a lamp to my feet and a light to my path.&rdquo;
         </p>
-        {canManage && (
-          <button
-            type="button"
-            onClick={() => setPicking(true)}
-            className="mt-6 rounded-lg bg-accent px-5 py-3 font-mono text-sm font-medium text-on-accent transition-colors hover:bg-accent-deep"
-          >
-            Begin another journey
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={() => setPicking(true)}
+          className="mt-6 rounded-lg bg-accent px-5 py-3 font-mono text-sm font-medium text-on-accent transition-colors hover:bg-accent-deep"
+        >
+          Begin another journey
+        </button>
       </div>
     );
   }
@@ -178,19 +214,26 @@ export function ScriptureJourney({
     <div className="rounded-2xl shadow-[var(--shadow-2)] border border-accent/25 bg-gradient-to-br from-accent/[0.07] via-surface to-accent2/[0.06] p-6 md:p-8">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <Eyebrow className="mb-2">Scripture Journey</Eyebrow>
+          <Eyebrow className="mb-2">Scripture Journey · {trackName}</Eyebrow>
           <h3 className="font-serif text-xl leading-snug text-ink">{state.title}</h3>
         </div>
-        {canManage && (
-          <button
-            type="button"
-            onClick={() => setPicking(true)}
-            className="font-mono text-[0.68rem] uppercase tracking-widest text-muted underline underline-offset-4 hover:text-accent"
-          >
-            Change
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={() => setPicking(true)}
+          className="font-mono text-[0.68rem] uppercase tracking-widest text-muted underline underline-offset-4 hover:text-accent"
+        >
+          Change
+        </button>
       </div>
+
+      {switchTo && (
+        <Link
+          href={switchTo.href}
+          className="mt-3 inline-block font-mono text-[0.7rem] text-accent underline underline-offset-4 hover:text-accent-deep"
+        >
+          {switchTo.label} →
+        </Link>
+      )}
 
       {/* progress */}
       <div className="mt-4">
@@ -217,7 +260,7 @@ export function ScriptureJourney({
               <ShareButton
                 path={sharePath}
                 title={chapter.ref}
-                text={`${chapter.ref} — today's family reading.`}
+                text={`${chapter.ref} — today's reading.`}
               />
             ) : (
               <span className="font-mono text-[0.6rem] uppercase tracking-widest text-muted">
@@ -231,16 +274,17 @@ export function ScriptureJourney({
 
       {/* action */}
       <div className="mt-5 flex flex-wrap items-center gap-3">
-        {!canManage ? (
+        {!canAdvance ? (
           <span className="font-mono text-xs text-muted">
-            Read along; a parent or guardian keeps the plan moving.
+            Read along; a parent or guardian keeps this journey moving — or start
+            your own above.
           </span>
         ) : (
           <>
             <button
               type="button"
               disabled={pending}
-              onClick={() => start(() => onRead())}
+              onClick={() => start(() => onRead(track))}
               className="btn-primary inline-flex items-center gap-2 rounded-lg px-5 py-3 font-mono text-sm font-medium text-on-accent transition-transform active:scale-[0.98] disabled:opacity-60"
             >
               {pending ? "Saving…" : "We read this — next"}
@@ -249,7 +293,7 @@ export function ScriptureJourney({
               <button
                 type="button"
                 disabled={pending}
-                onClick={() => start(() => onUndo())}
+                onClick={() => start(() => onUndo(track))}
                 className="font-mono text-xs text-muted underline underline-offset-4 hover:text-ink disabled:opacity-50"
               >
                 Undo last

@@ -60,7 +60,11 @@ function formatWhen(d: Date): string {
   });
 }
 
-export default async function WorshipPage() {
+export default async function WorshipPage({
+  searchParams,
+}: {
+  searchParams: { track?: string };
+}) {
   const session = await auth();
   if (!session?.user?.id) redirect("/sign-in?callbackUrl=/worship");
 
@@ -73,12 +77,38 @@ export default async function WorshipPage() {
   const { liturgy, hymn, catechism, catechismNumber } = familyWorship();
   const streak = await getWorshipStreak(active.journey.id);
 
-  // Scripture Journey — the chosen reading plan and today's passage.
-  const plan = planById(active.journey.readingPlanId);
-  const st = plan ? planState(plan, active.journey.readingProgress) : null;
+  // Scripture Journey — the shared plan (together), or this member's own.
+  const { journey, membership } = active;
+  const sharedPlan = planById(journey.readingPlanId);
+  const myPlan = planById(membership.readingPlanId);
+  const requested = searchParams.track;
+  const track: "shared" | "me" =
+    requested === "me" && myPlan
+      ? "me"
+      : requested === "shared" && sharedPlan
+        ? "shared"
+        : myPlan
+          ? "me"
+          : "shared";
+  const plan = track === "me" ? myPlan : sharedPlan;
+  const activeProgress =
+    track === "me" ? membership.readingProgress : journey.readingProgress;
+  const activeUpdatedAt =
+    track === "me" ? membership.readingUpdatedAt : journey.readingUpdatedAt;
+
+  const st = plan ? planState(plan, activeProgress) : null;
   const chapterText =
     st && st.next ? await getChapter(st.next.slug, st.next.chapter) : null;
-  const readToday = isSameUtcDay(active.journey.readingUpdatedAt, new Date());
+  const readToday = isSameUtcDay(activeUpdatedAt, new Date());
+
+  const otherExists = track === "me" ? !!sharedPlan : !!myPlan;
+  const switchTo = otherExists
+    ? {
+        label:
+          track === "me" ? "Follow the shared journey" : "Go to my own journey",
+        href: track === "me" ? "/worship?track=shared" : "/worship?track=me",
+      }
+    : undefined;
 
   const journeyState: JourneyState | null =
     plan && st
@@ -232,6 +262,19 @@ export default async function WorshipPage() {
             onChoose={chooseReadingPlan}
             onRead={markReadingRead}
             onUndo={undoReadingRead}
+            track={track}
+            canChooseShared
+            scopeLabels={{
+              shared: {
+                label: "Together",
+                blurb: "You and the one beside you, on the same plan.",
+              },
+              me: {
+                label: "Just me",
+                blurb: "Your own journey, at your own pace.",
+              },
+            }}
+            switchTo={switchTo}
             sharePath={
               st?.next ? `/v/${st.next.slug}-${st.next.chapter}` : undefined
             }

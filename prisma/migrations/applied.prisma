@@ -303,6 +303,12 @@ model Membership {
   role      Role
   createdAt DateTime @default(now())
 
+  // A personal Scripture Journey — reading on your own, alongside (or instead
+  // of) the shared journey plan.
+  readingPlanId    String?
+  readingProgress  Int       @default(0)
+  readingUpdatedAt DateTime?
+
   @@unique([journeyId, userId])
 }
 

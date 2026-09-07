@@ -38,7 +38,18 @@ export async function markWorship() {
 }
 
 /** Choose (or switch to) a Scripture reading plan. Switching starts it fresh. */
-export async function chooseReadingPlan(planId: string) {
+/** A reading track: the journey's shared plan (mother & the one beside her),
+ * or a member's own personal plan. */
+export type ReadingTrack = "shared" | "me";
+
+/**
+ * Choose (or switch to) a Scripture reading plan — together, or just yourself.
+ * Switching starts it fresh.
+ */
+export async function chooseReadingPlan(
+  planId: string,
+  scope: ReadingTrack = "shared",
+) {
   const session = await auth();
   if (!session?.user?.id) redirect("/sign-in?callbackUrl=/worship");
   const active = await getActiveMembership(session.user.id);
@@ -46,31 +57,48 @@ export async function chooseReadingPlan(planId: string) {
   const plan = planById(planId);
   if (!plan) return;
 
-  if (active.journey.readingPlanId !== planId) {
+  if (scope === "me") {
+    if (active.membership.readingPlanId !== planId) {
+      await prisma.membership.update({
+        where: { id: active.membership.id },
+        data: { readingPlanId: planId, readingProgress: 0, readingUpdatedAt: null },
+      });
+    }
+  } else if (active.journey.readingPlanId !== planId) {
     await prisma.journey.update({
       where: { id: active.journey.id },
       data: { readingPlanId: planId, readingProgress: 0, readingUpdatedAt: null },
     });
   }
   revalidatePath("/worship");
+  revalidatePath("/journey");
 }
 
-/** Mark today's reading complete — advances the plan by one (by completion). */
-export async function markReadingRead() {
+/** Mark today's reading complete on the given track — advances by one. */
+export async function markReadingRead(track: ReadingTrack = "shared") {
   const session = await auth();
   if (!session?.user?.id) redirect("/sign-in?callbackUrl=/worship");
   const active = await getActiveMembership(session.user.id);
   if (!active) redirect("/onboarding");
 
-  const j = active.journey;
-  const plan = planById(j.readingPlanId);
-  if (!plan) return;
-  if (j.readingProgress >= plan.readings.length) return; // already finished
-
-  await prisma.journey.update({
-    where: { id: j.id },
-    data: { readingProgress: { increment: 1 }, readingUpdatedAt: new Date() },
-  });
+  if (track === "me") {
+    const plan = planById(active.membership.readingPlanId);
+    if (!plan) return;
+    if (active.membership.readingProgress >= plan.readings.length) return;
+    await prisma.membership.update({
+      where: { id: active.membership.id },
+      data: { readingProgress: { increment: 1 }, readingUpdatedAt: new Date() },
+    });
+  } else {
+    const j = active.journey;
+    const plan = planById(j.readingPlanId);
+    if (!plan) return;
+    if (j.readingProgress >= plan.readings.length) return;
+    await prisma.journey.update({
+      where: { id: j.id },
+      data: { readingProgress: { increment: 1 }, readingUpdatedAt: new Date() },
+    });
+  }
   revalidatePath("/worship");
   revalidatePath("/journey");
 }
@@ -166,19 +194,27 @@ export async function deleteReflection(id: string) {
   revalidatePath("/worship");
 }
 
-/** Undo the most recent reading — a gentle fix for an accidental tap. */
-export async function undoReadingRead() {
+/** Undo the most recent reading on the given track — a fix for a mistap. */
+export async function undoReadingRead(track: ReadingTrack = "shared") {
   const session = await auth();
   if (!session?.user?.id) redirect("/sign-in?callbackUrl=/worship");
   const active = await getActiveMembership(session.user.id);
   if (!active) redirect("/onboarding");
 
-  const j = active.journey;
-  if (j.readingProgress <= 0) return;
-  await prisma.journey.update({
-    where: { id: j.id },
-    data: { readingProgress: { decrement: 1 } },
-  });
+  if (track === "me") {
+    if (active.membership.readingProgress <= 0) return;
+    await prisma.membership.update({
+      where: { id: active.membership.id },
+      data: { readingProgress: { decrement: 1 } },
+    });
+  } else {
+    const j = active.journey;
+    if (j.readingProgress <= 0) return;
+    await prisma.journey.update({
+      where: { id: j.id },
+      data: { readingProgress: { decrement: 1 } },
+    });
+  }
   revalidatePath("/worship");
   revalidatePath("/journey");
 }
