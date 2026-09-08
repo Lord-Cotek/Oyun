@@ -31,8 +31,7 @@ import { JourneyProgress } from "@/components/JourneyProgress";
 import { SupportActions } from "@/components/journey/SupportActions";
 import { NudgeList } from "@/components/journey/NudgeList";
 import { EncouragementBox } from "@/components/journey/EncouragementBox";
-import { CoupleLetters } from "@/components/care/CoupleLetters";
-import { BabyLetters } from "@/components/care/BabyLetters";
+import { LettersSummary } from "@/components/care/LettersSummary";
 import { Encouragements } from "@/components/journey/Encouragements";
 import { Reactions } from "@/components/Reactions";
 import { DailyVerse } from "@/components/journey/DailyVerse";
@@ -449,39 +448,29 @@ export default async function JourneyPage() {
               <EncouragementBox toName={motherName} verseRef={stage.verse.ref} />
             </Card>
 
-            <Card className="p-8">
-              <Eyebrow className="mb-2">Between the two of you</Eyebrow>
-              <p className="mb-5 font-mono text-xs leading-relaxed text-muted">
-                Letters just between you and {motherName} — hers to you, and yours
-                to her. Private to the two of you.
-              </p>
-              <CoupleLetters
-                letters={coupleLetters.items}
-                hasMore={coupleLetters.hasMore}
-                viewerId={session.user.id}
-                spouseFallback={motherName}
-                placeholder={`Write to ${motherName}…`}
-              />
-            </Card>
-
-            <Card className="p-8">
-              <Eyebrow className="mb-2">Letters to your baby</Eyebrow>
-              <p className="mb-5 font-mono text-xs leading-relaxed text-muted">
-                Write to your little one — a keepsake for the years ahead.{" "}
-                {motherName} sees these too, and can add her own.
-              </p>
-              <BabyLetters
-                letters={babyLetters.map((l) => ({
-                  id: l.id,
-                  body: l.body,
-                  createdAt: l.createdAt.toISOString(),
-                  authorName: l.author?.name ?? null,
-                  authorId: l.authorId,
-                }))}
-                viewerId={session.user.id}
-                placeholder="Dear little one…"
-              />
-            </Card>
+            <LettersSummary
+              viewerId={session.user.id}
+              couple={
+                coupleLetters.items[0]
+                  ? {
+                      authorId: coupleLetters.items[0].authorId,
+                      authorName: coupleLetters.items[0].authorName,
+                      body: coupleLetters.items[0].body,
+                      createdAtISO: coupleLetters.items[0].createdAt,
+                    }
+                  : null
+              }
+              baby={
+                babyLetters[0]
+                  ? {
+                      authorId: babyLetters[0].authorId,
+                      authorName: babyLetters[0].author?.name ?? null,
+                      body: babyLetters[0].body,
+                      createdAtISO: babyLetters[0].createdAt.toISOString(),
+                    }
+                  : null
+              }
+            />
 
             <Card className="p-8">
               <Eyebrow className="mb-3">Pray for her</Eyebrow>

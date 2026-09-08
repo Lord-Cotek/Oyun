@@ -1,17 +1,14 @@
 import { LetterForm } from "@/components/care/LetterForm";
+import { Reactions } from "@/components/Reactions";
+import { type BabyLetter } from "@/lib/data";
 
-export type BabyLetterView = {
-  id: string;
-  body: string;
-  createdAt: string; // ISO
-  authorName: string | null;
-  authorId: string;
-};
+export type BabyLetterView = BabyLetter;
 
 /**
  * The keepsake letters written to the baby. Both the mother and her husband
  * can write here, and both see every letter — so each entry is stamped with
  * who wrote it ("You" for the viewer, otherwise the author's first name).
+ * Either parent can react to a letter.
  */
 export function BabyLetters({
   letters,
@@ -49,6 +46,13 @@ export function BabyLetters({
                     year: "numeric",
                   })}
                 </p>
+                <div className="mt-3">
+                  <Reactions
+                    targetType="LETTER"
+                    targetId={l.id}
+                    initial={l.reactions}
+                  />
+                </div>
               </div>
             );
           })

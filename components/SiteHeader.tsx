@@ -14,6 +14,7 @@ import { getActiveMembership, getMyJourneys } from "@/lib/data";
 type ActiveKey =
   | "journey"
   | "family"
+  | "letters"
   | "care"
   | "firsts"
   | "circle"
@@ -55,6 +56,9 @@ export async function SiteHeader({
   const links: { href: string; label: string; current: boolean }[] = [
     { href: "/journey", label: "Journey", current: active === "journey" },
     { href: "/family", label: "Family", current: active === "family" },
+    ...(isHousehold
+      ? [{ href: "/letters", label: "Letters", current: active === "letters" }]
+      : []),
     { href: "/prayer", label: "Prayer", current: active === "prayer" },
     ...(!inLoss && isHousehold
       ? [{ href: "/worship", label: "Worship", current: active === "worship" }]
@@ -80,6 +84,7 @@ export async function SiteHeader({
   const ICON_BY_HREF: Record<string, IconName> = {
     "/journey": "home",
     "/family": "leaf",
+    "/letters": "message",
     "/prayer": "hands",
     "/worship": "flame",
     "/care": "heart",

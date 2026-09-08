@@ -12,10 +12,8 @@ import { Eyebrow } from "@/components/ui/Eyebrow";
 import { StatCard } from "@/components/ui/StatCard";
 import { PageHero } from "@/components/ui/PageHero";
 import { CheckInForm } from "@/components/care/CheckInForm";
-import { BabyLetters } from "@/components/care/BabyLetters";
 import { MoodChart, type MoodPoint } from "@/components/care/MoodChart";
-import { CoupleLetters } from "@/components/care/CoupleLetters";
-import { LettersPanel } from "@/components/care/LettersPanel";
+import { LettersSummary } from "@/components/care/LettersSummary";
 
 export const metadata: Metadata = {
   title: "Care",
@@ -136,47 +134,33 @@ export default async function CarePage() {
             )}
           </Card>
 
-          {/* Letters — one card, two threads behind a switcher so neither
-              buries the other on a phone. */}
-          <Card className="border-accent2/30 bg-accent2/[0.05] lg:col-span-2">
-            <LettersPanel
-              babyCount={letters.length}
-              babyIntro={
-                <>
-                  A keepsake for your little one. Your husband can write here
-                  too, from his journey — you&rsquo;ll both see every letter.
-                </>
-              }
-              coupleIntro={
-                <>
-                  A shared place for you and your husband to write to each other
-                  — he sees these on his journey, and can write back. Anyone
-                  else in your circle can&rsquo;t.
-                </>
+          {/* Letters live on their own page now — a quiet summary here links
+              across, so Care stays about her heart. */}
+          <div className="lg:col-span-2">
+            <LettersSummary
+              viewerId={session.user.id}
+              couple={
+                coupleLetters.items[0]
+                  ? {
+                      authorId: coupleLetters.items[0].authorId,
+                      authorName: coupleLetters.items[0].authorName,
+                      body: coupleLetters.items[0].body,
+                      createdAtISO: coupleLetters.items[0].createdAt,
+                    }
+                  : null
               }
               baby={
-                <BabyLetters
-                  letters={letters.map((l) => ({
-                    id: l.id,
-                    body: l.body,
-                    createdAt: l.createdAt.toISOString(),
-                    authorName: l.author?.name ?? null,
-                    authorId: l.authorId,
-                  }))}
-                  viewerId={session.user.id}
-                />
-              }
-              couple={
-                <CoupleLetters
-                  letters={coupleLetters.items}
-                  hasMore={coupleLetters.hasMore}
-                  viewerId={session.user.id}
-                  spouseFallback="Your husband"
-                  placeholder="Words to keep between the two of you…"
-                />
+                letters[0]
+                  ? {
+                      authorId: letters[0].authorId,
+                      authorName: letters[0].author?.name ?? null,
+                      body: letters[0].body,
+                      createdAtISO: letters[0].createdAt.toISOString(),
+                    }
+                  : null
               }
             />
-          </Card>
+          </div>
         </div>
       </main>
     </>

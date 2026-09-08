@@ -130,6 +130,36 @@ export async function getCoupleLetters(
 export type CoupleLettersPage = Awaited<ReturnType<typeof getCoupleLetters>>;
 export type CoupleLetter = CoupleLettersPage["items"][number];
 
+/** Keepsake letters written to the baby, newest first, with reactions. */
+export async function getBabyLetters(
+  journeyId: string,
+  viewerId: string,
+  opts: { limit?: number } = {},
+) {
+  const limit = opts.limit ?? 30;
+  const letters = await prisma.letter.findMany({
+    where: { journeyId, toBaby: true },
+    orderBy: { createdAt: "desc" },
+    take: limit,
+    include: { author: { select: { id: true, name: true } } },
+  });
+  const reactions = await getReactionsFor(
+    "LETTER",
+    letters.map((l) => l.id),
+    viewerId,
+  );
+  return letters.map((l) => ({
+    id: l.id,
+    body: l.body,
+    createdAt: l.createdAt.toISOString(),
+    authorId: l.authorId,
+    authorName: l.author.name ?? null,
+    reactions: reactions[l.id] ?? { counts: {}, mine: [] },
+  }));
+}
+
+export type BabyLetter = Awaited<ReturnType<typeof getBabyLetters>>[number];
+
 export async function getLatestMotherCheckIn(journeyId: string) {
   const journey = await prisma.journey.findUnique({
     where: { id: journeyId },
