@@ -59,10 +59,12 @@ export async function SiteHeader({
     ...(isHousehold
       ? [{ href: "/letters", label: "Letters", current: active === "letters" }]
       : []),
-    { href: "/prayer", label: "Prayer", current: active === "prayer" },
+    // Worship comes before Prayer so it sits in the thumb-reachable bottom tabs
+    // — worship is the daily rhythm, always one tap away.
     ...(!inLoss && isHousehold
       ? [{ href: "/worship", label: "Worship", current: active === "worship" }]
       : []),
+    { href: "/prayer", label: "Prayer", current: active === "prayer" },
     ...(showCare && isMother && !inLoss
       ? [{ href: "/care", label: "Care", current: active === "care" }]
       : []),
