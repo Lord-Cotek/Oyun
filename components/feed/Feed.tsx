@@ -89,7 +89,12 @@ function Composer({
   const [picked, setPicked] = useState<Picked[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
-  const fileRef = useRef<HTMLInputElement>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  // Two inputs so we can offer an explicit chooser (like a native app): the
+  // camera input carries `capture`, the library input does not — otherwise a
+  // lone input on Android jumps straight to one app (e.g. Google Photos).
+  const cameraRef = useRef<HTMLInputElement>(null);
+  const libraryRef = useRef<HTMLInputElement>(null);
   const [pending, start] = useTransition();
 
   const busy = pending || uploading;
@@ -122,7 +127,22 @@ function Composer({
       });
     }
     setPicked((p) => [...p, ...next]);
-    if (fileRef.current) fileRef.current.value = "";
+    resetInputs();
+  }
+
+  function resetInputs() {
+    if (cameraRef.current) cameraRef.current.value = "";
+    if (libraryRef.current) libraryRef.current.value = "";
+  }
+
+  function openCamera() {
+    setMenuOpen(false);
+    cameraRef.current?.click();
+  }
+
+  function openLibrary() {
+    setMenuOpen(false);
+    libraryRef.current?.click();
   }
 
   function removeOne(id: string) {
@@ -136,7 +156,7 @@ function Composer({
   function clearAll() {
     picked.forEach((p) => URL.revokeObjectURL(p.preview));
     setPicked([]);
-    if (fileRef.current) fileRef.current.value = "";
+    resetInputs();
   }
 
   async function submit() {
@@ -241,27 +261,82 @@ function Composer({
         <p className="mt-2 font-mono text-[0.68rem] text-negative">{error}</p>
       )}
 
+      {/* Library / files — no `capture`, so this opens the photo library or
+          files picker (and the full sheet on iOS). */}
       <input
-        ref={fileRef}
+        ref={libraryRef}
         type="file"
         accept={ACCEPT}
         multiple
         className="hidden"
         onChange={(e) => addFiles(e.target.files)}
       />
+      {/* Camera — `capture` opens the camera to take a photo or video. */}
+      <input
+        ref={cameraRef}
+        type="file"
+        accept={ACCEPT}
+        capture="environment"
+        className="hidden"
+        onChange={(e) => addFiles(e.target.files)}
+      />
 
       <div className="mt-3 flex items-center justify-between gap-3">
-        <button
-          type="button"
-          disabled={busy || picked.length >= MAX_FILES}
-          onClick={() => fileRef.current?.click()}
-          className="inline-flex items-center gap-1.5 font-mono text-[0.68rem] text-muted transition-colors hover:text-accent disabled:opacity-40"
-        >
-          <span aria-hidden className="text-sm leading-none">
-            📷
-          </span>
-          {picked.length > 0 ? "Add more" : "Add photos or a video"}
-        </button>
+        <div className="relative">
+          <button
+            type="button"
+            disabled={busy || picked.length >= MAX_FILES}
+            onClick={() => setMenuOpen((o) => !o)}
+            aria-haspopup="menu"
+            aria-expanded={menuOpen}
+            className="inline-flex items-center gap-1.5 font-mono text-[0.68rem] text-muted transition-colors hover:text-accent disabled:opacity-40"
+          >
+            <span aria-hidden className="text-sm leading-none">
+              📷
+            </span>
+            {picked.length > 0 ? "Add more" : "Add photos or a video"}
+          </button>
+
+          {menuOpen && (
+            <>
+              {/* tap-away backdrop */}
+              <button
+                type="button"
+                aria-hidden
+                tabIndex={-1}
+                onClick={() => setMenuOpen(false)}
+                className="fixed inset-0 z-40 cursor-default"
+              />
+              <div
+                role="menu"
+                className="surface-raised absolute bottom-full left-0 z-50 mb-2 w-56 overflow-hidden rounded-xl border border-border p-1"
+              >
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={openCamera}
+                  className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left font-mono text-xs text-ink transition-colors hover:bg-accent/10"
+                >
+                  <span aria-hidden className="text-base leading-none">
+                    📸
+                  </span>
+                  Take a photo or video
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={openLibrary}
+                  className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left font-mono text-xs text-ink transition-colors hover:bg-accent/10"
+                >
+                  <span aria-hidden className="text-base leading-none">
+                    🖼️
+                  </span>
+                  Choose from library or files
+                </button>
+              </div>
+            </>
+          )}
+        </div>
         <button
           type="button"
           disabled={!canSend}
