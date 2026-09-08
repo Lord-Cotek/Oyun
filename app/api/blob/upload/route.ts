@@ -4,17 +4,9 @@ import { auth } from "@/lib/auth";
 
 export const runtime = "nodejs";
 
-const ALLOWED_CONTENT_TYPES = [
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-  "image/heic",
-  "image/heif",
-  "image/gif",
-  "video/mp4",
-  "video/quicktime",
-  "video/webm",
-];
+// Wildcards so any photo or video the phone offers is accepted (matches the
+// broad picker); Vercel Blob supports "image/*" / "video/*" patterns here.
+const ALLOWED_CONTENT_TYPES = ["image/*", "video/*"];
 
 const MAX_BYTES = 200 * 1024 * 1024; // 200 MB — room for a short video
 

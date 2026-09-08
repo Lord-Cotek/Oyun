@@ -62,8 +62,10 @@ export function Feed({
   );
 }
 
-const ACCEPT =
-  "image/jpeg,image/png,image/webp,image/heic,image/heif,image/gif,video/mp4,video/quicktime,video/webm";
+// Broad wildcards (not a long specific-type list) so Android shows the full
+// Camera / Photos / Files chooser instead of routing straight to one app; iOS
+// shows the same picker. Actual types are still validated on upload.
+const ACCEPT = "image/*,video/*";
 const MAX_FILES = 10;
 const MAX_IMAGE_BYTES = 25 * 1024 * 1024; // 25 MB
 const MAX_VIDEO_BYTES = 200 * 1024 * 1024; // 200 MB
