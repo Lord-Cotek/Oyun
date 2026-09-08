@@ -62,10 +62,13 @@ export function Feed({
   );
 }
 
-// Broad wildcards (not a long specific-type list) so Android shows the full
-// Camera / Photos / Files chooser instead of routing straight to one app; iOS
-// shows the same picker. Actual types are still validated on upload.
-const ACCEPT = "image/*,video/*";
+// Photos and videos use SEPARATE inputs with narrow accept lists — the pattern
+// that makes Android show its Camera / Files chooser. A combined "image/*"
+// (or image+video) input makes Android skip the chooser and open the gallery
+// directly, which is exactly the bug this avoids. No `capture` attribute, so
+// the chooser (not a forced camera) appears; the camera is one option in it.
+const PHOTO_ACCEPT = "image/jpeg,image/png,image/webp,image/gif,image/heic,image/heif";
+const VIDEO_ACCEPT = "video/mp4,video/quicktime,video/webm,video/x-m4v,video/3gpp,video/*";
 const MAX_FILES = 10;
 const MAX_IMAGE_BYTES = 25 * 1024 * 1024; // 25 MB
 const MAX_VIDEO_BYTES = 200 * 1024 * 1024; // 200 MB
@@ -89,12 +92,10 @@ function Composer({
   const [picked, setPicked] = useState<Picked[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
-  // Two inputs so we can offer an explicit chooser (like a native app): the
-  // camera input carries `capture`, the library input does not — otherwise a
-  // lone input on Android jumps straight to one app (e.g. Google Photos).
-  const cameraRef = useRef<HTMLInputElement>(null);
-  const libraryRef = useRef<HTMLInputElement>(null);
+  // Separate inputs for photos and video — a narrow, image-only accept is what
+  // makes Android offer the Camera / Files chooser instead of the gallery.
+  const photoRef = useRef<HTMLInputElement>(null);
+  const videoRef = useRef<HTMLInputElement>(null);
   const [pending, start] = useTransition();
 
   const busy = pending || uploading;
@@ -131,18 +132,8 @@ function Composer({
   }
 
   function resetInputs() {
-    if (cameraRef.current) cameraRef.current.value = "";
-    if (libraryRef.current) libraryRef.current.value = "";
-  }
-
-  function openCamera() {
-    setMenuOpen(false);
-    cameraRef.current?.click();
-  }
-
-  function openLibrary() {
-    setMenuOpen(false);
-    libraryRef.current?.click();
+    if (photoRef.current) photoRef.current.value = "";
+    if (videoRef.current) videoRef.current.value = "";
   }
 
   function removeOne(id: string) {
@@ -261,81 +252,50 @@ function Composer({
         <p className="mt-2 font-mono text-[0.68rem] text-negative">{error}</p>
       )}
 
-      {/* Library / files — no `capture`, so this opens the photo library or
-          files picker (and the full sheet on iOS). */}
+      {/* Photos — a narrow, image-only accept so Android offers the
+          Camera / Files chooser rather than opening the gallery directly. */}
       <input
-        ref={libraryRef}
+        ref={photoRef}
         type="file"
-        accept={ACCEPT}
+        accept={PHOTO_ACCEPT}
         multiple
         className="hidden"
         onChange={(e) => addFiles(e.target.files)}
       />
-      {/* Camera — `capture` opens the camera to take a photo or video. */}
+      {/* Video — its own input, kept separate from photos. */}
       <input
-        ref={cameraRef}
+        ref={videoRef}
         type="file"
-        accept={ACCEPT}
-        capture="environment"
+        accept={VIDEO_ACCEPT}
+        multiple
         className="hidden"
         onChange={(e) => addFiles(e.target.files)}
       />
 
-      <div className="mt-3 flex items-center justify-between gap-3">
-        <div className="relative">
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-4">
           <button
             type="button"
             disabled={busy || picked.length >= MAX_FILES}
-            onClick={() => setMenuOpen((o) => !o)}
-            aria-haspopup="menu"
-            aria-expanded={menuOpen}
+            onClick={() => photoRef.current?.click()}
             className="inline-flex items-center gap-1.5 font-mono text-[0.68rem] text-muted transition-colors hover:text-accent disabled:opacity-40"
           >
             <span aria-hidden className="text-sm leading-none">
               📷
             </span>
-            {picked.length > 0 ? "Add more" : "Add photos or a video"}
+            Photos
           </button>
-
-          {menuOpen && (
-            <>
-              {/* tap-away backdrop */}
-              <button
-                type="button"
-                aria-hidden
-                tabIndex={-1}
-                onClick={() => setMenuOpen(false)}
-                className="fixed inset-0 z-40 cursor-default"
-              />
-              <div
-                role="menu"
-                className="surface-raised absolute bottom-full left-0 z-50 mb-2 w-56 overflow-hidden rounded-xl border border-border p-1"
-              >
-                <button
-                  type="button"
-                  role="menuitem"
-                  onClick={openCamera}
-                  className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left font-mono text-xs text-ink transition-colors hover:bg-accent/10"
-                >
-                  <span aria-hidden className="text-base leading-none">
-                    📸
-                  </span>
-                  Take a photo or video
-                </button>
-                <button
-                  type="button"
-                  role="menuitem"
-                  onClick={openLibrary}
-                  className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left font-mono text-xs text-ink transition-colors hover:bg-accent/10"
-                >
-                  <span aria-hidden className="text-base leading-none">
-                    🖼️
-                  </span>
-                  Choose from library or files
-                </button>
-              </div>
-            </>
-          )}
+          <button
+            type="button"
+            disabled={busy || picked.length >= MAX_FILES}
+            onClick={() => videoRef.current?.click()}
+            className="inline-flex items-center gap-1.5 font-mono text-[0.68rem] text-muted transition-colors hover:text-accent disabled:opacity-40"
+          >
+            <span aria-hidden className="text-sm leading-none">
+              🎥
+            </span>
+            Video
+          </button>
         </div>
         <button
           type="button"
