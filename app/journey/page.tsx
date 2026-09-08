@@ -11,6 +11,8 @@ import {
   getSupportSummary,
   getWorshipStreak,
   getCoupleLetters,
+  getOnThisDay,
+  getUpcoming,
 } from "@/lib/data";
 import { computePosition, gestationLabel } from "@/lib/stage";
 import { babySizeFor } from "@/lib/babySize";
@@ -19,6 +21,8 @@ import { getReactionsFor } from "@/lib/reactions";
 import { MOOD_META } from "@/lib/moods";
 import { loadFeed } from "@/lib/feed-query";
 import { LatestFromFamily } from "@/components/feed/LatestFromFamily";
+import { OnThisDay } from "@/components/journey/OnThisDay";
+import { UpcomingStrip } from "@/components/journey/UpcomingStrip";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Card } from "@/components/ui/Card";
 import { Eyebrow } from "@/components/ui/Eyebrow";
@@ -67,6 +71,14 @@ export default async function JourneyPage() {
 
   // The family feed's newest few, surfaced on the home page.
   const familyPosts = await loadFeed(journey.id, session.user.id, 3);
+  // Keepsakes from earlier years falling on today's date (usually empty).
+  const memories = await getOnThisDay(journey.id);
+  // A gentle look-ahead — due date, next month, appointment reminders.
+  const upcoming = await getUpcoming(
+    journey.id,
+    session.user.id,
+    journey.dueDate,
+  );
   const todayLabel = new Date().toLocaleDateString("en-GB", {
     weekday: "long",
     day: "numeric",
@@ -241,9 +253,21 @@ export default async function JourneyPage() {
             </Reveal>
           </div>
 
+          {upcoming.length > 0 && (
+            <div className="mt-6">
+              <UpcomingStrip items={upcoming} />
+            </div>
+          )}
+
           <div className="mt-6">
             <LatestFromFamily posts={familyPosts} greeting={todayLabel} />
           </div>
+
+          {memories.length > 0 && (
+            <div className="mt-6">
+              <OnThisDay items={memories} />
+            </div>
+          )}
 
           <div className="mt-4">
             <DailyVerse />
@@ -426,9 +450,21 @@ export default async function JourneyPage() {
           <JourneyProgress progress={position.progress} label={stageLabel} />
         </div>
 
+        {upcoming.length > 0 && (
+          <div className="mt-6">
+            <UpcomingStrip items={upcoming} />
+          </div>
+        )}
+
         <div className="mt-6">
           <LatestFromFamily posts={familyPosts} greeting={todayLabel} />
         </div>
+
+        {memories.length > 0 && (
+          <div className="mt-6">
+            <OnThisDay items={memories} />
+          </div>
+        )}
 
         <div className="mt-6 grid gap-4 lg:grid-cols-[1.4fr_1fr]">
           <div className="space-y-4">

@@ -56,9 +56,22 @@ export function LatestFromFamily({
                   <span>{p.when}</span>
                   <span className="text-accent">{KIND_LABEL[p.kind] ?? ""}</span>
                 </div>
-                <p className="line-clamp-2 font-mono text-sm leading-relaxed text-ink/90">
-                  {p.body}
-                </p>
+                <div className="flex items-start gap-3">
+                  <p className="line-clamp-2 flex-1 font-mono text-sm leading-relaxed text-ink/90">
+                    {p.body || (p.imageUrl ? "Shared a photo" : "")}
+                  </p>
+                  {p.imageUrl && (
+                    <span className="shrink-0 overflow-hidden rounded-lg border border-border">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={p.imageUrl}
+                        alt=""
+                        loading="lazy"
+                        className="h-14 w-14 object-cover"
+                      />
+                    </span>
+                  )}
+                </div>
               </Link>
             </li>
           ))}

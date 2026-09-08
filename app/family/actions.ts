@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { getActiveMembership } from "@/lib/data";
 import { isPostKind, isReactionKind } from "@/lib/feed";
+import { uploadImage } from "@/lib/blob";
 
 async function member() {
   const session = await auth();
@@ -16,13 +17,22 @@ async function member() {
 }
 
 /** Share something with the circle — an update, praise, prayer, or milestone. */
-export async function createPost(input: { kind: string; body: string }) {
+export async function createPost(formData: FormData) {
   const { userId, journeyId } = await member();
-  const body = input.body.trim();
-  if (!body) return;
-  const kind = isPostKind(input.kind) ? input.kind : "UPDATE";
+  const body = String(formData.get("body") ?? "").trim();
+  const rawKind = String(formData.get("kind") ?? "UPDATE");
+  const imageUrl = await uploadImage(formData.get("image"), "family");
+  // A photo on its own (no words) is a perfectly good moment to share.
+  if (!body && !imageUrl) return;
+  const kind = isPostKind(rawKind) ? rawKind : "UPDATE";
   await prisma.post.create({
-    data: { journeyId, authorId: userId, kind, body: body.slice(0, 4000) },
+    data: {
+      journeyId,
+      authorId: userId,
+      kind,
+      body: body.slice(0, 4000),
+      imageUrl,
+    },
   });
 
   // A gentle in-app notice to the rest of the circle (no push, no email).
@@ -35,7 +45,11 @@ export async function createPost(input: { kind: string; body: string }) {
       }),
     ]);
     if (others.length) {
-      const snip = body.length > 90 ? `${body.slice(0, 90)}…` : body;
+      const snip = body
+        ? body.length > 90
+          ? `${body.slice(0, 90)}…`
+          : body
+        : "Shared a photo";
       await prisma.notification.createMany({
         data: others.map((o) => ({
           userId: o.userId,
@@ -53,15 +67,24 @@ export async function createPost(input: { kind: string; body: string }) {
   revalidatePath("/journey");
 }
 
-export async function editPost(input: { id: string; body: string }) {
+export async function editPost(input: {
+  id: string;
+  body: string;
+  removeImage?: boolean;
+}) {
   const { userId } = await member();
   const body = input.body.trim();
-  if (!body) return;
+  // Keep a photo-only post alive even if its caption is cleared.
   await prisma.post.updateMany({
     where: { id: input.id, authorId: userId },
-    data: { body: body.slice(0, 4000), editedAt: new Date() },
+    data: {
+      body: body.slice(0, 4000),
+      editedAt: new Date(),
+      ...(input.removeImage ? { imageUrl: null } : {}),
+    },
   });
   revalidatePath("/family");
+  revalidatePath("/journey");
 }
 
 export async function deletePost(id: string) {

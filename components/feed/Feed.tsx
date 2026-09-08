@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { Eyebrow } from "@/components/ui/Eyebrow";
+import { useRef, useState, useTransition } from "react";
 import {
   POST_KINDS,
   KIND_LABEL,
@@ -11,8 +10,12 @@ import {
 } from "@/lib/feed";
 import type { FeedPost } from "@/lib/feed-query";
 
-type CreateFn = (input: { kind: string; body: string }) => Promise<void>;
-type EditFn = (input: { id: string; body: string }) => Promise<void>;
+type CreateFn = (formData: FormData) => Promise<void>;
+type EditFn = (input: {
+  id: string;
+  body: string;
+  removeImage?: boolean;
+}) => Promise<void>;
 type CommentFn = (input: { postId: string; body: string }) => Promise<void>;
 type ReactFn = (input: { postId: string; kind: string }) => Promise<void>;
 type IdFn = (id: string) => Promise<void>;
@@ -63,15 +66,48 @@ function Composer({
 }) {
   const [kind, setKind] = useState<PostKind>("UPDATE");
   const [body, setBody] = useState("");
+  const [image, setImage] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
   const [pending, start] = useTransition();
 
+  const canSend = !!body.trim() || !!image;
+
+  function pickImage(file: File | null) {
+    setError(null);
+    if (preview) URL.revokeObjectURL(preview);
+    if (!file) {
+      setImage(null);
+      setPreview(null);
+      return;
+    }
+    if (file.size > 8 * 1024 * 1024) {
+      setError("That photo is larger than 8 MB.");
+      return;
+    }
+    setImage(file);
+    setPreview(URL.createObjectURL(file));
+  }
+
+  function clearImage() {
+    if (preview) URL.revokeObjectURL(preview);
+    setImage(null);
+    setPreview(null);
+    if (fileRef.current) fileRef.current.value = "";
+  }
+
   function submit() {
-    const text = body.trim();
-    if (!text || pending) return;
+    if (!canSend || pending) return;
+    const fd = new FormData();
+    fd.set("kind", kind);
+    fd.set("body", body.trim());
+    if (image) fd.set("image", image);
     start(async () => {
-      await onCreate({ kind, body: text });
+      await onCreate(fd);
       setBody("");
       setKind("UPDATE");
+      clearImage();
     });
   }
 
@@ -100,13 +136,50 @@ function Composer({
         placeholder={placeholder}
         className="w-full resize-y rounded-xl border border-border bg-bg px-4 py-3 font-mono text-sm leading-relaxed text-ink placeholder:text-muted focus:border-accent focus:outline-none"
       />
+
+      {preview && (
+        <div className="relative mt-3 overflow-hidden rounded-xl border border-border">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={preview}
+            alt="Photo to share"
+            className="max-h-72 w-full object-cover"
+          />
+          <button
+            type="button"
+            onClick={clearImage}
+            className="absolute right-2 top-2 rounded-full bg-black/60 px-2.5 py-1 font-mono text-[0.68rem] text-white backdrop-blur hover:bg-black/75"
+          >
+            Remove
+          </button>
+        </div>
+      )}
+      {error && (
+        <p className="mt-2 font-mono text-[0.68rem] text-negative">{error}</p>
+      )}
+
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
+        className="hidden"
+        onChange={(e) => pickImage(e.target.files?.[0] ?? null)}
+      />
+
       <div className="mt-3 flex items-center justify-between gap-3">
-        <span className="font-mono text-[0.68rem] leading-relaxed text-muted">
-          {POST_KINDS.find((k) => k.kind === kind)?.hint}
-        </span>
         <button
           type="button"
-          disabled={pending || !body.trim()}
+          onClick={() => fileRef.current?.click()}
+          className="inline-flex items-center gap-1.5 font-mono text-[0.68rem] text-muted transition-colors hover:text-accent"
+        >
+          <span aria-hidden className="text-sm leading-none">
+            📷
+          </span>
+          {image ? "Change photo" : "Add a photo"}
+        </button>
+        <button
+          type="button"
+          disabled={pending || !canSend}
           onClick={submit}
           className="btn-primary rounded-lg px-5 py-2.5 font-mono text-sm font-medium text-on-accent transition-transform active:scale-[0.98] disabled:opacity-40"
         >
@@ -128,6 +201,7 @@ function PostItem({
   const [pending, start] = useTransition();
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(post.body);
+  const [removeImage, setRemoveImage] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [comment, setComment] = useState("");
   const tone = KIND_TONE[post.kind] ?? "sky";
@@ -159,14 +233,30 @@ function PostItem({
             rows={3}
             className="w-full resize-y rounded-lg border border-border bg-bg px-3 py-2 font-mono text-sm leading-relaxed text-ink focus:border-accent focus:outline-none"
           />
+          {post.imageUrl && (
+            <label className="mt-2 flex items-center gap-2 font-mono text-[0.68rem] text-muted">
+              <input
+                type="checkbox"
+                checked={removeImage}
+                onChange={(e) => setRemoveImage(e.target.checked)}
+                className="accent-[var(--accent)]"
+              />
+              Remove the photo
+            </label>
+          )}
           <div className="mt-2 flex gap-2">
             <button
               type="button"
-              disabled={pending || !draft.trim()}
+              disabled={pending || (!draft.trim() && !post.imageUrl)}
               onClick={() =>
                 start(async () => {
-                  await onEdit({ id: post.id, body: draft.trim() });
+                  await onEdit({
+                    id: post.id,
+                    body: draft.trim(),
+                    removeImage,
+                  });
                   setEditing(false);
+                  setRemoveImage(false);
                 })
               }
               className="btn-primary rounded-lg px-4 py-2 font-mono text-xs font-medium text-on-accent disabled:opacity-40"
@@ -178,6 +268,7 @@ function PostItem({
               onClick={() => {
                 setEditing(false);
                 setDraft(post.body);
+                setRemoveImage(false);
               }}
               className="rounded-lg px-3 py-2 font-mono text-xs text-muted hover:text-ink"
             >
@@ -186,9 +277,24 @@ function PostItem({
           </div>
         </div>
       ) : (
-        <p className="mt-3 whitespace-pre-line font-mono text-sm leading-relaxed text-ink/90">
-          {post.body}
-        </p>
+        <>
+          {post.body && (
+            <p className="mt-3 whitespace-pre-line font-mono text-sm leading-relaxed text-ink/90">
+              {post.body}
+            </p>
+          )}
+          {post.imageUrl && (
+            <div className="mt-3 overflow-hidden rounded-xl border border-border">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={post.imageUrl}
+                alt=""
+                loading="lazy"
+                className="max-h-[32rem] w-full object-cover"
+              />
+            </div>
+          )}
+        </>
       )}
 
       {/* reactions */}

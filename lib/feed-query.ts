@@ -18,6 +18,7 @@ export interface FeedPost {
   id: string;
   kind: string;
   body: string;
+  imageUrl: string | null;
   author: string;
   authorId: string;
   mine: boolean;
@@ -71,6 +72,7 @@ export async function loadFeed(
       id: p.id,
       kind: p.kind,
       body: p.body,
+      imageUrl: p.imageUrl,
       author: p.author.name ?? "Someone",
       authorId: p.authorId,
       mine: p.authorId === viewerId,

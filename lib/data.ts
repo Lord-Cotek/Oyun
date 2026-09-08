@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { type Role } from "@prisma/client";
 import { getReactionsFor } from "@/lib/reactions";
+import { computePosition } from "@/lib/stage";
 
 /** Remembers which journey a supporter is currently viewing. */
 export const ACTIVE_JOURNEY_COOKIE = "oyun_journey";
@@ -159,6 +160,207 @@ export async function getBabyLetters(
 }
 
 export type BabyLetter = Awaited<ReturnType<typeof getBabyLetters>>[number];
+
+export interface MemoryItem {
+  id: string;
+  kind: "milestone" | "letter";
+  label: string;
+  title: string;
+  body: string | null;
+  imageUrl: string | null;
+  yearsAgo: number;
+  dateLabel: string;
+}
+
+const MILESTONE_MEMORY_LABEL: Record<string, string> = {
+  FIRST_KICK: "First kicks",
+  ULTRASOUND: "A scan",
+  HEARTBEAT: "A heartbeat",
+  BIRTH: "The day they arrived",
+  FIRST_SMILE: "A first smile",
+  FIRST_WORD: "A first word",
+  FIRST_STEPS: "First steps",
+  CUSTOM: "A first",
+};
+
+/**
+ * "On this day" — keepsakes from earlier years that fall on today's calendar
+ * date: milestones (firsts) and letters written to the baby. Returns the most
+ * recent few, so the home can quietly resurface a memory. Empty most days.
+ */
+export async function getOnThisDay(
+  journeyId: string,
+  limit = 3,
+): Promise<MemoryItem[]> {
+  const now = new Date();
+  const month = now.getUTCMonth();
+  const date = now.getUTCDate();
+  const thisYear = now.getUTCFullYear();
+  const startOfYear = new Date(Date.UTC(thisYear, 0, 1));
+
+  const [milestones, letters] = await Promise.all([
+    prisma.milestone.findMany({
+      where: { journeyId, occurredAt: { lt: startOfYear } },
+      orderBy: { occurredAt: "desc" },
+      take: 300,
+      include: { child: { select: { name: true } } },
+    }),
+    prisma.letter.findMany({
+      where: { journeyId, toBaby: true, createdAt: { lt: startOfYear } },
+      orderBy: { createdAt: "desc" },
+      take: 300,
+      include: { author: { select: { name: true } } },
+    }),
+  ]);
+
+  const onDay = (d: Date) =>
+    d.getUTCMonth() === month && d.getUTCDate() === date;
+  const fmt = (d: Date) =>
+    d.toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+      timeZone: "UTC",
+    });
+
+  const items: MemoryItem[] = [];
+
+  for (const m of milestones) {
+    if (!onDay(m.occurredAt)) continue;
+    items.push({
+      id: `m-${m.id}`,
+      kind: "milestone",
+      label: MILESTONE_MEMORY_LABEL[m.kind] ?? "A first",
+      title: m.title?.trim() || MILESTONE_MEMORY_LABEL[m.kind] || "A first",
+      body: m.note?.trim() || null,
+      imageUrl: m.photoUrls[0] ?? null,
+      yearsAgo: thisYear - m.occurredAt.getUTCFullYear(),
+      dateLabel: fmt(m.occurredAt),
+    });
+  }
+
+  for (const l of letters) {
+    if (!onDay(l.createdAt)) continue;
+    items.push({
+      id: `l-${l.id}`,
+      kind: "letter",
+      label: "A letter to your little one",
+      title: l.author.name?.trim()
+        ? `${l.author.name.trim().split(/\s+/)[0]} wrote`
+        : "A letter",
+      body: l.body,
+      imageUrl: null,
+      yearsAgo: thisYear - l.createdAt.getUTCFullYear(),
+      dateLabel: fmt(l.createdAt),
+    });
+  }
+
+  return items.sort((a, b) => a.yearsAgo - b.yearsAgo).slice(0, limit);
+}
+
+export interface UpcomingItem {
+  id: string;
+  label: string;
+  detail: string | null;
+  dateLabel: string;
+  daysAway: number;
+  tone: string;
+}
+
+const MS_PER_DAY = 86_400_000;
+const DAYS_PER_MONTH = 30.436875;
+
+function daysBetween(from: Date, to: Date): number {
+  return Math.round((to.getTime() - from.getTime()) / MS_PER_DAY);
+}
+
+function upcomingDateLabel(d: Date): string {
+  return d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
+}
+
+/**
+ * A gentle look-ahead for the home — the next handful of things coming up:
+ * the due date (or the baby's next month milestone once born), and any
+ * appointment reminders this member has set within the next few weeks. Sorted
+ * soonest-first; empty when nothing is on the horizon.
+ */
+export async function getUpcoming(
+  journeyId: string,
+  userId: string,
+  dueDate: Date,
+  windowDays = 45,
+): Promise<UpcomingItem[]> {
+  const now = new Date();
+  const horizon = new Date(now.getTime() + windowDays * MS_PER_DAY);
+  const pos = computePosition(dueDate, now);
+  const items: UpcomingItem[] = [];
+
+  if (!pos.born) {
+    // The due date itself — always worth keeping in view while expecting.
+    items.push({
+      id: "due",
+      label: "Due date",
+      detail:
+        pos.daysToGo > 0
+          ? `${pos.daysToGo} day${pos.daysToGo === 1 ? "" : "s"} to go`
+          : "any day now",
+      dateLabel: upcomingDateLabel(dueDate),
+      daysAway: daysBetween(now, dueDate),
+      tone: "rose",
+    });
+    // The next trimester, if it falls within the window.
+    const term = new Date(dueDate.getTime() - 280 * MS_PER_DAY); // week 0
+    for (const [week, name] of [
+      [13, "Second trimester"],
+      [28, "Third trimester"],
+    ] as const) {
+      const at = new Date(term.getTime() + week * 7 * MS_PER_DAY);
+      if (at > now && at <= horizon) {
+        items.push({
+          id: `tri-${week}`,
+          label: name,
+          detail: `week ${week}`,
+          dateLabel: upcomingDateLabel(at),
+          daysAway: daysBetween(now, at),
+          tone: "plum",
+        });
+      }
+    }
+  } else if (typeof pos.month === "number" && pos.month < 24) {
+    // The baby's next month milestone.
+    const next = pos.month + 1;
+    const at = new Date(dueDate.getTime() + next * DAYS_PER_MONTH * MS_PER_DAY);
+    const birthday =
+      next === 12 ? "First birthday" : next === 24 ? "Second birthday" : null;
+    items.push({
+      id: `age-${next}`,
+      label: birthday ?? `${next} months old`,
+      detail: birthday ? `${next} months` : null,
+      dateLabel: upcomingDateLabel(at),
+      daysAway: daysBetween(now, at),
+      tone: birthday ? "gold" : "green",
+    });
+  }
+
+  // Appointment reminders / nudges this member has set, coming up soon.
+  const nudges = await prisma.nudge.findMany({
+    where: { journeyId, userId, doneAt: null, dueAt: { gte: now, lte: horizon } },
+    orderBy: { dueAt: "asc" },
+    take: 6,
+  });
+  for (const n of nudges) {
+    items.push({
+      id: `nudge-${n.id}`,
+      label: n.text,
+      detail: "reminder",
+      dateLabel: upcomingDateLabel(n.dueAt),
+      daysAway: daysBetween(now, n.dueAt),
+      tone: "sky",
+    });
+  }
+
+  return items.sort((a, b) => a.daysAway - b.daysAway).slice(0, 6);
+}
 
 export async function getLatestMotherCheckIn(journeyId: string) {
   const journey = await prisma.journey.findUnique({
