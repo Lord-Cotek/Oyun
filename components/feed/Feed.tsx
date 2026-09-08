@@ -67,7 +67,7 @@ export function Feed({
 // (or image+video) input makes Android skip the chooser and open the gallery
 // directly, which is exactly the bug this avoids. No `capture` attribute, so
 // the chooser (not a forced camera) appears; the camera is one option in it.
-const PHOTO_ACCEPT = "image/jpeg,image/png,image/webp,image/gif,image/heic,image/heif";
+const PHOTO_ACCEPT = "image/jpeg,image/png,image/webp,image/gif";
 const VIDEO_ACCEPT = "video/mp4,video/quicktime,video/webm,video/x-m4v,video/3gpp,video/*";
 const MAX_FILES = 10;
 const MAX_IMAGE_BYTES = 25 * 1024 * 1024; // 25 MB
@@ -254,12 +254,15 @@ function Composer({
 
       {/* Photos — a narrow, image-only accept so Android offers the
           Camera / Files chooser rather than opening the gallery directly. */}
+      {/* sr-only (not hidden/display:none): the input stays in the layout, so a
+          programmatic click opens Android's Camera / Files chooser instead of a
+          default handler like Google Photos. */}
       <input
         ref={photoRef}
         type="file"
         accept={PHOTO_ACCEPT}
         multiple
-        className="hidden"
+        className="sr-only"
         onChange={(e) => addFiles(e.target.files)}
       />
       {/* Video — its own input, kept separate from photos. */}
@@ -268,7 +271,7 @@ function Composer({
         type="file"
         accept={VIDEO_ACCEPT}
         multiple
-        className="hidden"
+        className="sr-only"
         onChange={(e) => addFiles(e.target.files)}
       />
 
