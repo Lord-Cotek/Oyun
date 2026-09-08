@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { Eyebrow } from "@/components/ui/Eyebrow";
 
 type Key = "baby" | "couple";
 
@@ -25,7 +24,7 @@ export function LettersPanel({
   coupleIntro: ReactNode;
   babyCount?: number;
 }) {
-  const [tab, setTab] = useState<Key>("baby");
+  const [tab, setTab] = useState<Key>("couple");
 
   const TabBtn = ({ id, label }: { id: Key; label: string }) => {
     const active = tab === id;
@@ -50,7 +49,6 @@ export function LettersPanel({
 
   return (
     <div>
-      <Eyebrow className="mb-3">Letters</Eyebrow>
       <div className="mb-4 flex gap-1 rounded-xl border border-border bg-bg/60 p-1">
         <TabBtn id="couple" label="To each other" />
         <TabBtn id="baby" label="To your baby" />

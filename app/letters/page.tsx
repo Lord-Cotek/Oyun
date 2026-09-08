@@ -5,9 +5,9 @@ import { getActiveMembership, getCoupleLetters, getBabyLetters } from "@/lib/dat
 import { SiteHeader } from "@/components/SiteHeader";
 import { PageHero } from "@/components/ui/PageHero";
 import { Card } from "@/components/ui/Card";
-import { Eyebrow } from "@/components/ui/Eyebrow";
 import { CoupleLetters } from "@/components/care/CoupleLetters";
 import { BabyLetters } from "@/components/care/BabyLetters";
+import { LettersPanel } from "@/components/care/LettersPanel";
 
 export const metadata: Metadata = {
   title: "Letters",
@@ -40,32 +40,38 @@ export default async function LettersPage() {
           lede="Letters between the two of you, and letters to your little one for the years ahead — write, read, and react together."
         />
 
-        <div className="mt-8 space-y-4">
+        <div className="mt-8">
           <Card className="p-8">
-            <Eyebrow className="mb-2">Between the two of you</Eyebrow>
-            <p className="mb-5 font-mono text-xs leading-relaxed text-muted">
-              Letters just between you and {motherName} — hers and yours, a
-              two-way thread. Private to the two of you.
-            </p>
-            <CoupleLetters
-              letters={coupleLetters.items}
-              hasMore={coupleLetters.hasMore}
-              viewerId={session.user.id}
-              spouseFallback={motherName}
-              placeholder={`Write to ${motherName}…`}
-            />
-          </Card>
-
-          <Card className="p-8">
-            <Eyebrow className="mb-2">Letters to your baby</Eyebrow>
-            <p className="mb-5 font-mono text-xs leading-relaxed text-muted">
-              Write to your little one — a keepsake for the years ahead. Both of
-              you can write, read, and react.
-            </p>
-            <BabyLetters
-              letters={babyLetters}
-              viewerId={session.user.id}
-              placeholder="Dear little one…"
+            <LettersPanel
+              babyCount={babyLetters.length}
+              coupleIntro={
+                <>
+                  Letters just between you and {motherName} — hers and yours, a
+                  two-way thread. Private to the two of you.
+                </>
+              }
+              babyIntro={
+                <>
+                  Write to your little one — a keepsake for the years ahead.
+                  Both of you can write, read, and react.
+                </>
+              }
+              couple={
+                <CoupleLetters
+                  letters={coupleLetters.items}
+                  hasMore={coupleLetters.hasMore}
+                  viewerId={session.user.id}
+                  spouseFallback={motherName}
+                  placeholder={`Write to ${motherName}…`}
+                />
+              }
+              baby={
+                <BabyLetters
+                  letters={babyLetters}
+                  viewerId={session.user.id}
+                  placeholder="Dear little one…"
+                />
+              }
             />
           </Card>
         </div>
