@@ -8,7 +8,10 @@ export type NotificationType =
   | "reached_out"
   | "encouragement"
   | "invite_accepted"
-  | "checkin";
+  | "checkin"
+  | "post"
+  | "comment"
+  | "reaction";
 
 interface NotifyInput {
   userId: string;

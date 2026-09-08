@@ -5,8 +5,9 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { getActiveMembership } from "@/lib/data";
-import { isPostKind, isReactionKind } from "@/lib/feed";
+import { isPostKind, isReactionKind, reactionGlyph, REACTIONS } from "@/lib/feed";
 import { mediaTypeFromUrl } from "@/lib/feed-query";
+import { notify } from "@/lib/notify";
 
 /** Keep only well-formed Vercel Blob URLs, in order, capped. */
 function cleanMediaUrls(urls: unknown): string[] {
@@ -51,7 +52,7 @@ export async function createPost(input: {
     },
   });
 
-  // A gentle in-app notice to the rest of the circle (no push, no email).
+  // Let the rest of the circle know — in the bell and, where enabled, a push.
   try {
     const [author, others] = await Promise.all([
       prisma.user.findUnique({ where: { id: userId }, select: { name: true } }),
@@ -75,15 +76,17 @@ export async function createPost(input: {
           ? `${body.slice(0, 90)}…`
           : body
         : mediaWord || "Shared a moment";
-      await prisma.notification.createMany({
-        data: others.map((o) => ({
-          userId: o.userId,
-          type: "post",
-          title: `${author?.name ?? "Someone"} shared with the family`,
-          body: snip,
-          href: "/family",
-        })),
-      });
+      await Promise.all(
+        others.map((o) =>
+          notify({
+            userId: o.userId,
+            type: "post",
+            title: `${author?.name ?? "Someone"} shared with the family`,
+            body: snip,
+            href: "/family",
+          }),
+        ),
+      );
     }
   } catch {
     // A missed notice must never fail the post.
@@ -126,12 +129,48 @@ export async function addComment(input: { postId: string; body: string }) {
   // Only comment on a post in your own circle.
   const post = await prisma.post.findFirst({
     where: { id: input.postId, journeyId },
-    select: { id: true },
+    select: { id: true, authorId: true },
   });
   if (!post) return;
   await prisma.postComment.create({
     data: { postId: post.id, authorId: userId, body: body.slice(0, 2000) },
   });
+
+  // Notify the post's author, and anyone else already in the thread.
+  try {
+    const me = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { name: true },
+    });
+    const who = me?.name?.trim() || "Someone";
+    const snip = body.length > 90 ? `${body.slice(0, 90)}…` : body;
+    const priorComments = await prisma.postComment.findMany({
+      where: { postId: post.id },
+      select: { authorId: true },
+    });
+    // Everyone touched by this thread, minus the replier themselves.
+    const recipients = new Set<string>();
+    if (post.authorId !== userId) recipients.add(post.authorId);
+    for (const c of priorComments) {
+      if (c.authorId !== userId) recipients.add(c.authorId);
+    }
+    await Promise.all(
+      [...recipients].map((rid) =>
+        notify({
+          userId: rid,
+          type: "comment",
+          title:
+            rid === post.authorId
+              ? `${who} replied to your post`
+              : `${who} also replied to a post you're on`,
+          body: snip,
+          href: "/family",
+        }),
+      ),
+    );
+  } catch {
+    // A missed notice must never fail the reply.
+  }
   revalidatePath("/family");
 }
 
@@ -147,7 +186,7 @@ export async function toggleReaction(input: { postId: string; kind: string }) {
   if (!isReactionKind(input.kind)) return;
   const post = await prisma.post.findFirst({
     where: { id: input.postId, journeyId },
-    select: { id: true },
+    select: { id: true, authorId: true },
   });
   if (!post) return;
   const existing = await prisma.postReaction.findFirst({
@@ -163,6 +202,26 @@ export async function toggleReaction(input: { postId: string; kind: string }) {
       });
     } catch {
       // A double-tap race hit the unique index — the reaction already exists.
+    }
+    // Let the author know someone responded (only when adding, not removing).
+    if (post.authorId !== userId) {
+      try {
+        const me = await prisma.user.findUnique({
+          where: { id: userId },
+          select: { name: true },
+        });
+        const who = me?.name?.trim() || "Someone";
+        const label =
+          REACTIONS.find((r) => r.kind === input.kind)?.label ?? "reacted";
+        await notify({
+          userId: post.authorId,
+          type: "reaction",
+          title: `${who} reacted ${reactionGlyph(input.kind)} ${label.toLowerCase()} to your post`,
+          href: "/family",
+        });
+      } catch {
+        // A missed notice must never fail the reaction.
+      }
     }
   }
   revalidatePath("/family");
