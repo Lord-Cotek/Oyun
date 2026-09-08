@@ -17,6 +17,8 @@ import { babySizeFor } from "@/lib/babySize";
 import { partnerDailyCare, dayKey } from "@/lib/partner-care";
 import { getReactionsFor } from "@/lib/reactions";
 import { MOOD_META } from "@/lib/moods";
+import { loadFeed } from "@/lib/feed-query";
+import { LatestFromFamily } from "@/components/feed/LatestFromFamily";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Card } from "@/components/ui/Card";
 import { Eyebrow } from "@/components/ui/Eyebrow";
@@ -63,6 +65,14 @@ export default async function JourneyPage() {
   if (!active) return <EmptyState />;
 
   const { role, journey } = active;
+
+  // The family feed's newest few, surfaced on the home page.
+  const familyPosts = await loadFeed(journey.id, session.user.id, 3);
+  const todayLabel = new Date().toLocaleDateString("en-GB", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  });
 
   // When a journey is walking through loss, it becomes a grief companion.
   if (journey.status === "LOSS") {
@@ -230,6 +240,10 @@ export default async function JourneyPage() {
             <Reveal delay={300}>
               <ActionTile href="/circle" label="Circle" hint="Who’s praying" icon="users" tone="plum" />
             </Reveal>
+          </div>
+
+          <div className="mt-6">
+            <LatestFromFamily posts={familyPosts} greeting={todayLabel} />
           </div>
 
           <div className="mt-4">
@@ -411,6 +425,10 @@ export default async function JourneyPage() {
 
         <div className="mt-6">
           <JourneyProgress progress={position.progress} label={stageLabel} />
+        </div>
+
+        <div className="mt-6">
+          <LatestFromFamily posts={familyPosts} greeting={todayLabel} />
         </div>
 
         <div className="mt-6 grid gap-4 lg:grid-cols-[1.4fr_1fr]">

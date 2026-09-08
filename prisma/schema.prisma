@@ -35,6 +35,9 @@ model User {
   remembrances      Remembrance[]
   reactions         Reaction[]
   readingNotes      ReadingNote[]
+  posts             Post[]
+  postComments      PostComment[]
+  postReactions     PostReaction[]
 
   createdAt DateTime @default(now())
 }
@@ -244,6 +247,51 @@ model Journey {
   remembrances   Remembrance[]
   worshipDays    WorshipDay[]
   readingNotes   ReadingNote[]
+  posts          Post[]
+}
+
+/// The family feed — an update, a praise, a prayer, or a milestone that the
+/// circle (mother, partner, and supporters) shares and carries together.
+model Post {
+  id        String         @id @default(cuid())
+  journeyId String
+  journey   Journey        @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User           @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  kind      String         @default("UPDATE") // UPDATE | PRAISE | PRAYER | MILESTONE
+  body      String
+  createdAt DateTime       @default(now())
+  editedAt  DateTime?
+
+  comments  PostComment[]
+  reactions PostReaction[]
+
+  @@index([journeyId, createdAt])
+}
+
+model PostComment {
+  id        String   @id @default(cuid())
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  body      String
+  createdAt DateTime @default(now())
+
+  @@index([postId, createdAt])
+}
+
+model PostReaction {
+  id        String   @id @default(cuid())
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kind      String
+  createdAt DateTime @default(now())
+
+  @@unique([postId, userId, kind])
+  @@index([postId])
 }
 
 /// A reflection or note on a Scripture reading. Shared with the journey by
