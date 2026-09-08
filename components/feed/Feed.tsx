@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, useTransition } from "react";
+import { upload } from "@vercel/blob/client";
 import {
   POST_KINDS,
   KIND_LABEL,
@@ -8,13 +9,17 @@ import {
   REACTIONS,
   type PostKind,
 } from "@/lib/feed";
-import type { FeedPost } from "@/lib/feed-query";
+import type { FeedPost, MediaItem } from "@/lib/feed-query";
 
-type CreateFn = (formData: FormData) => Promise<void>;
+type CreateFn = (input: {
+  kind: string;
+  body: string;
+  mediaUrls?: string[];
+}) => Promise<void>;
 type EditFn = (input: {
   id: string;
   body: string;
-  removeImage?: boolean;
+  removeMedia?: boolean;
 }) => Promise<void>;
 type CommentFn = (input: { postId: string; body: string }) => Promise<void>;
 type ReactFn = (input: { postId: string; kind: string }) => Promise<void>;
@@ -57,6 +62,19 @@ export function Feed({
   );
 }
 
+const ACCEPT =
+  "image/jpeg,image/png,image/webp,image/heic,image/heif,image/gif,video/mp4,video/quicktime,video/webm";
+const MAX_FILES = 10;
+const MAX_IMAGE_BYTES = 25 * 1024 * 1024; // 25 MB
+const MAX_VIDEO_BYTES = 200 * 1024 * 1024; // 200 MB
+
+interface Picked {
+  id: string;
+  file: File;
+  preview: string;
+  isVideo: boolean;
+}
+
 function Composer({
   onCreate,
   placeholder,
@@ -66,48 +84,89 @@ function Composer({
 }) {
   const [kind, setKind] = useState<PostKind>("UPDATE");
   const [body, setBody] = useState("");
-  const [image, setImage] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
+  const [picked, setPicked] = useState<Picked[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const [pending, start] = useTransition();
 
-  const canSend = !!body.trim() || !!image;
+  const busy = pending || uploading;
+  const canSend = (!!body.trim() || picked.length > 0) && !busy;
 
-  function pickImage(file: File | null) {
+  function addFiles(list: FileList | null) {
     setError(null);
-    if (preview) URL.revokeObjectURL(preview);
-    if (!file) {
-      setImage(null);
-      setPreview(null);
-      return;
+    if (!list || list.length === 0) return;
+    const next: Picked[] = [];
+    for (const file of Array.from(list)) {
+      if (picked.length + next.length >= MAX_FILES) {
+        setError(`You can share up to ${MAX_FILES} at once.`);
+        break;
+      }
+      const isVideo = file.type.startsWith("video/");
+      const cap = isVideo ? MAX_VIDEO_BYTES : MAX_IMAGE_BYTES;
+      if (file.size > cap) {
+        setError(
+          isVideo
+            ? "That video is larger than 200 MB."
+            : "That photo is larger than 25 MB.",
+        );
+        continue;
+      }
+      next.push({
+        id: `${file.name}-${file.size}-${crypto.randomUUID()}`,
+        file,
+        preview: URL.createObjectURL(file),
+        isVideo,
+      });
     }
-    if (file.size > 8 * 1024 * 1024) {
-      setError("That photo is larger than 8 MB.");
-      return;
-    }
-    setImage(file);
-    setPreview(URL.createObjectURL(file));
-  }
-
-  function clearImage() {
-    if (preview) URL.revokeObjectURL(preview);
-    setImage(null);
-    setPreview(null);
+    setPicked((p) => [...p, ...next]);
     if (fileRef.current) fileRef.current.value = "";
   }
 
-  function submit() {
-    if (!canSend || pending) return;
-    const fd = new FormData();
-    fd.set("kind", kind);
-    fd.set("body", body.trim());
-    if (image) fd.set("image", image);
+  function removeOne(id: string) {
+    setPicked((p) => {
+      const gone = p.find((x) => x.id === id);
+      if (gone) URL.revokeObjectURL(gone.preview);
+      return p.filter((x) => x.id !== id);
+    });
+  }
+
+  function clearAll() {
+    picked.forEach((p) => URL.revokeObjectURL(p.preview));
+    setPicked([]);
+    if (fileRef.current) fileRef.current.value = "";
+  }
+
+  async function submit() {
+    if (!canSend) return;
+    setError(null);
+    let urls: string[] = [];
+    if (picked.length > 0) {
+      setUploading(true);
+      try {
+        urls = await Promise.all(
+          picked.map(async (p) => {
+            const res = await upload(p.file.name, p.file, {
+              access: "public",
+              handleUploadUrl: "/api/blob/upload",
+              contentType: p.file.type || undefined,
+              multipart: p.file.size > 8 * 1024 * 1024,
+            });
+            return res.url;
+          }),
+        );
+      } catch {
+        setUploading(false);
+        setError("Something went wrong uploading. Please try again.");
+        return;
+      }
+      setUploading(false);
+    }
     start(async () => {
-      await onCreate(fd);
+      await onCreate({ kind, body: body.trim(), mediaUrls: urls });
       setBody("");
       setKind("UPDATE");
-      clearImage();
+      clearAll();
     });
   }
 
@@ -137,21 +196,43 @@ function Composer({
         className="w-full resize-y rounded-xl border border-border bg-bg px-4 py-3 font-mono text-sm leading-relaxed text-ink placeholder:text-muted focus:border-accent focus:outline-none"
       />
 
-      {preview && (
-        <div className="relative mt-3 overflow-hidden rounded-xl border border-border">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={preview}
-            alt="Photo to share"
-            className="max-h-72 w-full object-cover"
-          />
-          <button
-            type="button"
-            onClick={clearImage}
-            className="absolute right-2 top-2 rounded-full bg-black/60 px-2.5 py-1 font-mono text-[0.68rem] text-white backdrop-blur hover:bg-black/75"
-          >
-            Remove
-          </button>
+      {picked.length > 0 && (
+        <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-4">
+          {picked.map((p) => (
+            <div
+              key={p.id}
+              className="relative aspect-square overflow-hidden rounded-lg border border-border"
+            >
+              {p.isVideo ? (
+                <video
+                  src={p.preview}
+                  className="h-full w-full object-cover"
+                  muted
+                  playsInline
+                />
+              ) : (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={p.preview}
+                  alt="To share"
+                  className="h-full w-full object-cover"
+                />
+              )}
+              {p.isVideo && (
+                <span className="pointer-events-none absolute bottom-1 left-1 rounded bg-black/60 px-1.5 py-0.5 font-mono text-[0.55rem] text-white">
+                  ▶ video
+                </span>
+              )}
+              <button
+                type="button"
+                onClick={() => removeOne(p.id)}
+                aria-label="Remove"
+                className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 font-mono text-xs text-white backdrop-blur hover:bg-black/80"
+              >
+                ✕
+              </button>
+            </div>
+          ))}
         </div>
       )}
       {error && (
@@ -161,29 +242,31 @@ function Composer({
       <input
         ref={fileRef}
         type="file"
-        accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
+        accept={ACCEPT}
+        multiple
         className="hidden"
-        onChange={(e) => pickImage(e.target.files?.[0] ?? null)}
+        onChange={(e) => addFiles(e.target.files)}
       />
 
       <div className="mt-3 flex items-center justify-between gap-3">
         <button
           type="button"
+          disabled={busy || picked.length >= MAX_FILES}
           onClick={() => fileRef.current?.click()}
-          className="inline-flex items-center gap-1.5 font-mono text-[0.68rem] text-muted transition-colors hover:text-accent"
+          className="inline-flex items-center gap-1.5 font-mono text-[0.68rem] text-muted transition-colors hover:text-accent disabled:opacity-40"
         >
           <span aria-hidden className="text-sm leading-none">
             📷
           </span>
-          {image ? "Change photo" : "Add a photo"}
+          {picked.length > 0 ? "Add more" : "Add photos or a video"}
         </button>
         <button
           type="button"
-          disabled={pending || !canSend}
+          disabled={!canSend}
           onClick={submit}
           className="btn-primary rounded-lg px-5 py-2.5 font-mono text-sm font-medium text-on-accent transition-transform active:scale-[0.98] disabled:opacity-40"
         >
-          {pending ? "Sharing…" : "Share"}
+          {uploading ? "Uploading…" : pending ? "Sharing…" : "Share"}
         </button>
       </div>
     </div>
@@ -201,10 +284,11 @@ function PostItem({
   const [pending, start] = useTransition();
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(post.body);
-  const [removeImage, setRemoveImage] = useState(false);
+  const [removeMedia, setRemoveMedia] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [comment, setComment] = useState("");
   const tone = KIND_TONE[post.kind] ?? "sky";
+  const hasMedia = post.media.length > 0;
 
   return (
     <div className="surface-premium rounded-2xl border border-border p-5 md:p-6">
@@ -233,30 +317,30 @@ function PostItem({
             rows={3}
             className="w-full resize-y rounded-lg border border-border bg-bg px-3 py-2 font-mono text-sm leading-relaxed text-ink focus:border-accent focus:outline-none"
           />
-          {post.imageUrl && (
+          {hasMedia && (
             <label className="mt-2 flex items-center gap-2 font-mono text-[0.68rem] text-muted">
               <input
                 type="checkbox"
-                checked={removeImage}
-                onChange={(e) => setRemoveImage(e.target.checked)}
+                checked={removeMedia}
+                onChange={(e) => setRemoveMedia(e.target.checked)}
                 className="accent-[var(--accent)]"
               />
-              Remove the photo
+              Remove the {post.media.length > 1 ? "photos & videos" : "attachment"}
             </label>
           )}
           <div className="mt-2 flex gap-2">
             <button
               type="button"
-              disabled={pending || (!draft.trim() && !post.imageUrl)}
+              disabled={pending || (!draft.trim() && !hasMedia)}
               onClick={() =>
                 start(async () => {
                   await onEdit({
                     id: post.id,
                     body: draft.trim(),
-                    removeImage,
+                    removeMedia,
                   });
                   setEditing(false);
-                  setRemoveImage(false);
+                  setRemoveMedia(false);
                 })
               }
               className="btn-primary rounded-lg px-4 py-2 font-mono text-xs font-medium text-on-accent disabled:opacity-40"
@@ -268,7 +352,7 @@ function PostItem({
               onClick={() => {
                 setEditing(false);
                 setDraft(post.body);
-                setRemoveImage(false);
+                setRemoveMedia(false);
               }}
               className="rounded-lg px-3 py-2 font-mono text-xs text-muted hover:text-ink"
             >
@@ -283,17 +367,7 @@ function PostItem({
               {post.body}
             </p>
           )}
-          {post.imageUrl && (
-            <div className="mt-3 overflow-hidden rounded-xl border border-border">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={post.imageUrl}
-                alt=""
-                loading="lazy"
-                className="max-h-[32rem] w-full object-cover"
-              />
-            </div>
-          )}
+          {hasMedia && <MediaGallery media={post.media} />}
         </>
       )}
 
@@ -409,6 +483,44 @@ function PostItem({
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function MediaGallery({ media }: { media: MediaItem[] }) {
+  const single = media.length === 1;
+  return (
+    <div
+      className={`mt-3 grid gap-1.5 ${single ? "grid-cols-1" : "grid-cols-2"}`}
+    >
+      {media.map((m, i) => (
+        <div
+          key={`${m.url}-${i}`}
+          className={`overflow-hidden rounded-xl border border-border ${
+            single ? "" : "aspect-square"
+          }`}
+        >
+          {m.type === "video" ? (
+            <video
+              src={m.url}
+              controls
+              playsInline
+              preload="metadata"
+              className={single ? "max-h-[32rem] w-full" : "h-full w-full object-cover"}
+            />
+          ) : (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={m.url}
+              alt=""
+              loading="lazy"
+              className={
+                single ? "max-h-[32rem] w-full object-cover" : "h-full w-full object-cover"
+              }
+            />
+          )}
+        </div>
+      ))}
     </div>
   );
 }

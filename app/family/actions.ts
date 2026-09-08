@@ -6,7 +6,20 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { getActiveMembership } from "@/lib/data";
 import { isPostKind, isReactionKind } from "@/lib/feed";
-import { uploadImage } from "@/lib/blob";
+import { mediaTypeFromUrl } from "@/lib/feed-query";
+
+/** Keep only well-formed Vercel Blob URLs, in order, capped. */
+function cleanMediaUrls(urls: unknown): string[] {
+  if (!Array.isArray(urls)) return [];
+  return urls
+    .filter(
+      (u): u is string =>
+        typeof u === "string" &&
+        u.startsWith("https://") &&
+        u.includes("vercel-storage.com"),
+    )
+    .slice(0, 10);
+}
 
 async function member() {
   const session = await auth();
@@ -17,21 +30,24 @@ async function member() {
 }
 
 /** Share something with the circle — an update, praise, prayer, or milestone. */
-export async function createPost(formData: FormData) {
+export async function createPost(input: {
+  kind: string;
+  body: string;
+  mediaUrls?: string[];
+}) {
   const { userId, journeyId } = await member();
-  const body = String(formData.get("body") ?? "").trim();
-  const rawKind = String(formData.get("kind") ?? "UPDATE");
-  const imageUrl = await uploadImage(formData.get("image"), "family");
-  // A photo on its own (no words) is a perfectly good moment to share.
-  if (!body && !imageUrl) return;
-  const kind = isPostKind(rawKind) ? rawKind : "UPDATE";
+  const body = (input.body ?? "").trim();
+  const mediaUrls = cleanMediaUrls(input.mediaUrls);
+  // Media on its own (no words) is a perfectly good moment to share.
+  if (!body && mediaUrls.length === 0) return;
+  const kind = isPostKind(input.kind) ? input.kind : "UPDATE";
   await prisma.post.create({
     data: {
       journeyId,
       authorId: userId,
       kind,
       body: body.slice(0, 4000),
-      imageUrl,
+      mediaUrls,
     },
   });
 
@@ -45,11 +61,20 @@ export async function createPost(formData: FormData) {
       }),
     ]);
     if (others.length) {
+      const hasVideo = mediaUrls.some((u) => mediaTypeFromUrl(u) === "video");
+      const mediaWord =
+        mediaUrls.length === 0
+          ? ""
+          : hasVideo
+            ? "Shared a video"
+            : mediaUrls.length === 1
+              ? "Shared a photo"
+              : `Shared ${mediaUrls.length} photos`;
       const snip = body
         ? body.length > 90
           ? `${body.slice(0, 90)}…`
           : body
-        : "Shared a photo";
+        : mediaWord || "Shared a moment";
       await prisma.notification.createMany({
         data: others.map((o) => ({
           userId: o.userId,
@@ -70,17 +95,17 @@ export async function createPost(formData: FormData) {
 export async function editPost(input: {
   id: string;
   body: string;
-  removeImage?: boolean;
+  removeMedia?: boolean;
 }) {
   const { userId } = await member();
   const body = input.body.trim();
-  // Keep a photo-only post alive even if its caption is cleared.
+  // Keep a media-only post alive even if its caption is cleared.
   await prisma.post.updateMany({
     where: { id: input.id, authorId: userId },
     data: {
       body: body.slice(0, 4000),
       editedAt: new Date(),
-      ...(input.removeImage ? { imageUrl: null } : {}),
+      ...(input.removeMedia ? { imageUrl: null, mediaUrls: [] } : {}),
     },
   });
   revalidatePath("/family");

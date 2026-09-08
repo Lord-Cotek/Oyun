@@ -58,17 +58,44 @@ export function LatestFromFamily({
                 </div>
                 <div className="flex items-start gap-3">
                   <p className="line-clamp-2 flex-1 font-mono text-sm leading-relaxed text-ink/90">
-                    {p.body || (p.imageUrl ? "Shared a photo" : "")}
+                    {p.body ||
+                      (p.media.length > 0
+                        ? p.media[0].type === "video"
+                          ? "Shared a video"
+                          : p.media.length > 1
+                            ? `Shared ${p.media.length} photos`
+                            : "Shared a photo"
+                        : "")}
                   </p>
-                  {p.imageUrl && (
-                    <span className="shrink-0 overflow-hidden rounded-lg border border-border">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={p.imageUrl}
-                        alt=""
-                        loading="lazy"
-                        className="h-14 w-14 object-cover"
-                      />
+                  {p.media[0] && (
+                    <span className="relative shrink-0 overflow-hidden rounded-lg border border-border">
+                      {p.media[0].type === "video" ? (
+                        <>
+                          <video
+                            src={p.media[0].url}
+                            className="h-14 w-14 object-cover"
+                            muted
+                            playsInline
+                            preload="metadata"
+                          />
+                          <span className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/25 text-sm text-white">
+                            ▶
+                          </span>
+                        </>
+                      ) : (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={p.media[0].url}
+                          alt=""
+                          loading="lazy"
+                          className="h-14 w-14 object-cover"
+                        />
+                      )}
+                      {p.media.length > 1 && (
+                        <span className="pointer-events-none absolute bottom-0.5 right-0.5 rounded bg-black/60 px-1 font-mono text-[0.5rem] text-white">
+                          +{p.media.length - 1}
+                        </span>
+                      )}
                     </span>
                   )}
                 </div>

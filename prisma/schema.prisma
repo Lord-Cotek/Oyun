@@ -260,7 +260,8 @@ model Post {
   author    User           @relation(fields: [authorId], references: [id], onDelete: Cascade)
   kind      String         @default("UPDATE") // UPDATE | PRAISE | PRAYER | MILESTONE
   body      String
-  imageUrl  String?
+  imageUrl  String? // legacy single image; new posts use mediaUrls
+  mediaUrls String[]       @default([]) // images and videos, in order
   createdAt DateTime       @default(now())
   editedAt  DateTime?
 

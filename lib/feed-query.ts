@@ -14,11 +14,23 @@ export interface FeedReaction {
   mine: boolean;
 }
 
+export type MediaType = "image" | "video";
+
+export interface MediaItem {
+  url: string;
+  type: MediaType;
+}
+
+/** Infer whether a blob URL points at a video from its file extension. */
+export function mediaTypeFromUrl(url: string): MediaType {
+  return /\.(mp4|m4v|mov|webm|ogg)(\?|#|$)/i.test(url) ? "video" : "image";
+}
+
 export interface FeedPost {
   id: string;
   kind: string;
   body: string;
-  imageUrl: string | null;
+  media: MediaItem[];
   author: string;
   authorId: string;
   mine: boolean;
@@ -72,7 +84,12 @@ export async function loadFeed(
       id: p.id,
       kind: p.kind,
       body: p.body,
-      imageUrl: p.imageUrl,
+      media:
+        p.mediaUrls.length > 0
+          ? p.mediaUrls.map((url) => ({ url, type: mediaTypeFromUrl(url) }))
+          : p.imageUrl
+            ? [{ url: p.imageUrl, type: "image" as const }]
+            : [],
       author: p.author.name ?? "Someone",
       authorId: p.authorId,
       mine: p.authorId === viewerId,
