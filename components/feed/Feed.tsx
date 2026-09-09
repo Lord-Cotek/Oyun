@@ -163,14 +163,16 @@ function Composer({
               access: "public",
               handleUploadUrl: "/api/blob/upload",
               contentType: p.file.type || undefined,
-              multipart: p.file.size > 8 * 1024 * 1024,
             });
             return res.url;
           }),
         );
-      } catch {
+      } catch (err) {
         setUploading(false);
-        setError("Something went wrong uploading. Please try again.");
+        setError(
+          (err as Error)?.message ||
+            "Something went wrong uploading. Please try again.",
+        );
         return;
       }
       setUploading(false);
