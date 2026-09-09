@@ -357,6 +357,8 @@ export default async function JourneyPage() {
           stageLabel={stageLabel}
           progress={position.progress}
           born={position.born}
+          week={position.week}
+          month={position.month}
           familyPosts={familyPosts}
           todayLabel={todayLabel}
         />

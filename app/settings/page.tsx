@@ -7,6 +7,7 @@ import { getActiveMembership } from "@/lib/data";
 import { ROLE_LABEL, INVITABLE_ROLES } from "@/lib/roles";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Card } from "@/components/ui/Card";
+import { ShareButton } from "@/components/ShareButton";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { PageHero } from "@/components/ui/PageHero";
 import { Avatar } from "@/components/ui/Avatar";

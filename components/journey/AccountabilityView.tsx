@@ -2,11 +2,17 @@ import {
   getLatestMotherCheckIn,
   getOpenNudges,
   getSupportSummary,
+  ownsJourney,
 } from "@/lib/data";
 import { getReactionsFor } from "@/lib/reactions";
 import { prisma } from "@/lib/prisma";
 import { Reactions } from "@/components/Reactions";
-import { dailyAccountabilityPractice } from "@/lib/accountability";
+import {
+  walkStage,
+  dailyWalk,
+  weeklyWalk,
+  STAGE_LABEL,
+} from "@/lib/accountability";
 import { type Stage } from "@/lib/journey";
 import { MOOD_META } from "@/lib/moods";
 import { Card } from "@/components/ui/Card";
@@ -51,6 +57,8 @@ export async function AccountabilityView({
   stageLabel,
   progress,
   born,
+  week,
+  month,
   familyPosts = [],
   todayLabel,
 }: {
@@ -62,20 +70,26 @@ export async function AccountabilityView({
   stageLabel: string;
   progress: number;
   born: boolean;
+  week?: number;
+  month?: number;
   familyPosts?: FeedPost[];
   todayLabel?: string;
 }) {
-  const [latest, nudges, support, me] = await Promise.all([
+  const [latest, nudges, support, me, hasOwnJourney] = await Promise.all([
     getLatestMotherCheckIn(journeyId),
     getOpenNudges(journeyId, userId),
     getSupportSummary(journeyId, userId),
     prisma.user.findUnique({ where: { id: userId }, select: { name: true } }),
+    ownsJourney(userId),
   ]);
+  const idileUrl = process.env.NEXT_PUBLIC_IDILE_URL;
   const mood = latest ? MOOD_META[latest.mood] : null;
   const latestReactions = latest
     ? (await getReactionsFor("CHECKIN", [latest.id], userId))[latest.id]
     : null;
-  const practice = dailyAccountabilityPractice();
+  const stageKey = walkStage({ born, week, month });
+  const today = dailyWalk(stageKey);
+  const thisWeek = weeklyWalk(stageKey);
   const firstName = me?.name?.trim().split(/\s+/)[0] ?? null;
   const framing = supporterFraming(role, motherName);
 
@@ -119,10 +133,17 @@ export async function AccountabilityView({
           </div>
 
           <div className="rounded-xl border border-accent/30 bg-accent/[0.08] p-6">
-            <p className="eyebrow mb-2 text-accent">A way to walk with them today</p>
-            <p className="font-serif text-xl leading-snug text-ink">{practice}</p>
-            <p className="mt-3 font-mono text-[0.68rem] leading-relaxed text-muted">
-              {framing.blurb}
+            <p className="eyebrow mb-2 text-accent">
+              Today · {STAGE_LABEL[stageKey]}
+            </p>
+            <p className="font-serif text-xl leading-snug text-ink">
+              {today.text}
+            </p>
+            <p className="mt-3 border-t border-accent/20 pt-3 font-mono text-[0.68rem] leading-relaxed text-muted">
+              “{today.verse.text}”
+              <span className="mt-1 block uppercase tracking-widest text-accent">
+                {today.verse.ref}
+              </span>
             </p>
           </div>
         </div>
@@ -131,6 +152,16 @@ export async function AccountabilityView({
       <div className="mt-6">
         <JourneyProgress progress={progress} label={stageLabel} />
       </div>
+
+      <Card className="mt-4 border-accent2/30 bg-accent2/[0.05] p-8">
+        <Eyebrow className="mb-3">This week</Eyebrow>
+        <p className="font-serif text-xl leading-snug text-ink">
+          {thisWeek.text}
+        </p>
+        <div className="mt-5 border-t border-border pt-5">
+          <Verse text={thisWeek.verse.text} reference={thisWeek.verse.ref} />
+        </div>
+      </Card>
 
       {/* Life as the family shares it — the reason most people are here. */}
       <div className="mt-6">
@@ -208,6 +239,52 @@ export async function AccountabilityView({
               }))}
             />
           </Card>
+
+          {(idileUrl || !hasOwnJourney) && (
+            <Card className="border-accent2/30 bg-accent2/[0.05]">
+              <Eyebrow className="mb-3">And your own home</Eyebrow>
+              <p className="mb-4 font-mono text-xs leading-relaxed text-muted">
+                You are carrying someone else&rsquo;s season well. Your own
+                family is worth tending too.
+              </p>
+              <div className="space-y-2">
+                {idileUrl && (
+                  <a
+                    href={idileUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-between gap-3 rounded-lg border border-border bg-bg px-4 py-3 transition-colors hover:border-accent"
+                  >
+                    <span className="min-w-0">
+                      <span className="block font-serif text-base text-ink">
+                        Ìdílé — for your household
+                      </span>
+                      <span className="block font-mono text-[0.62rem] uppercase tracking-widest text-muted">
+                        Family worship, prayer &amp; discipleship
+                      </span>
+                    </span>
+                    <span className="shrink-0 font-mono text-accent">→</span>
+                  </a>
+                )}
+                {!hasOwnJourney && (
+                  <Link
+                    href="/onboarding"
+                    className="flex items-center justify-between gap-3 rounded-lg border border-border bg-bg px-4 py-3 transition-colors hover:border-accent"
+                  >
+                    <span className="min-w-0">
+                      <span className="block font-serif text-base text-ink">
+                        Expecting yourself?
+                      </span>
+                      <span className="block font-mono text-[0.62rem] uppercase tracking-widest text-muted">
+                        Start your own journey in Oyun
+                      </span>
+                    </span>
+                    <span className="shrink-0 font-mono text-accent">→</span>
+                  </Link>
+                )}
+              </div>
+            </Card>
+          )}
 
           <Card>
             <div className="mb-3 flex items-center gap-2 text-accent">
