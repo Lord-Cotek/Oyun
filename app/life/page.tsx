@@ -16,14 +16,14 @@ import {
 } from "./actions";
 
 export const metadata: Metadata = {
-  title: "Family",
+  title: "Life",
   description: "Life shared with your circle.",
   robots: { index: false },
 };
 
-export default async function FamilyPage() {
+export default async function LifePage() {
   const session = await auth();
-  if (!session?.user?.id) redirect("/sign-in?callbackUrl=/family");
+  if (!session?.user?.id) redirect("/sign-in?callbackUrl=/life");
   const active = await getActiveMembership(session.user.id);
   if (!active) redirect("/onboarding");
 
@@ -31,11 +31,11 @@ export default async function FamilyPage() {
 
   return (
     <>
-      <SiteHeader active="family" />
+      <SiteHeader active="life" />
       <main className="mx-auto max-w-shell px-6 py-10">
         <PageHero
-          eyebrow="Family"
-          title="Life, shared."
+          eyebrow="Life"
+          title="Shared, as it happens."
           lede="A quiet place for the ones walking with you — how you are, a praise, a prayer to be carried, a small moment worth keeping."
         />
         <div className="mt-8 max-w-2xl">

@@ -13,7 +13,7 @@ import { getActiveMembership, getMyJourneys } from "@/lib/data";
 
 type ActiveKey =
   | "journey"
-  | "family"
+  | "life"
   | "letters"
   | "care"
   | "firsts"
@@ -55,7 +55,7 @@ export async function SiteHeader({
   // The full nav, used inline on desktop and inside the mobile menu.
   const links: { href: string; label: string; current: boolean }[] = [
     { href: "/journey", label: "Journey", current: active === "journey" },
-    { href: "/family", label: "Family", current: active === "family" },
+    { href: "/life", label: "Life", current: active === "life" },
     ...(isHousehold
       ? [{ href: "/letters", label: "Letters", current: active === "letters" }]
       : []),
@@ -85,7 +85,7 @@ export async function SiteHeader({
   // sheet. "Journey" becomes "Home".
   const ICON_BY_HREF: Record<string, IconName> = {
     "/journey": "home",
-    "/family": "leaf",
+    "/life": "leaf",
     "/letters": "message",
     "/prayer": "hands",
     "/worship": "flame",

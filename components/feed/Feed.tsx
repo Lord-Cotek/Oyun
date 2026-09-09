@@ -10,6 +10,7 @@ import {
   type PostKind,
 } from "@/lib/feed";
 import type { FeedPost, MediaItem } from "@/lib/feed-query";
+import { Lightbox } from "@/components/media/Lightbox";
 
 type CreateFn = (input: {
   kind: string;
@@ -530,39 +531,70 @@ function PostItem({
 }
 
 function MediaGallery({ media }: { media: MediaItem[] }) {
+  const [at, setAt] = useState<number | null>(null);
   const single = media.length === 1;
+
   return (
-    <div
-      className={`mt-3 grid gap-1.5 ${single ? "grid-cols-1" : "grid-cols-2"}`}
-    >
-      {media.map((m, i) => (
-        <div
-          key={`${m.url}-${i}`}
-          className={`overflow-hidden rounded-xl border border-border ${
-            single ? "" : "aspect-square"
-          }`}
-        >
-          {m.type === "video" ? (
-            <video
-              src={m.url}
-              controls
-              playsInline
-              preload="metadata"
-              className={single ? "max-h-[32rem] w-full" : "h-full w-full object-cover"}
-            />
-          ) : (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={m.url}
-              alt=""
-              loading="lazy"
-              className={
-                single ? "max-h-[32rem] w-full object-cover" : "h-full w-full object-cover"
-              }
-            />
-          )}
-        </div>
-      ))}
-    </div>
+    <>
+      <div
+        className={`mt-3 grid gap-1.5 ${single ? "grid-cols-1" : "grid-cols-2"}`}
+      >
+        {media.map((m, i) => (
+          <button
+            key={`${m.url}-${i}`}
+            type="button"
+            onClick={() => setAt(i)}
+            aria-label={
+              m.type === "video" ? "Play video" : `Open photo ${i + 1}`
+            }
+            className={`group relative block w-full overflow-hidden rounded-xl border border-border transition-colors hover:border-accent/50 ${
+              single ? "" : "aspect-square"
+            }`}
+          >
+            {m.type === "video" ? (
+              <>
+                <video
+                  src={m.url}
+                  muted
+                  playsInline
+                  preload="metadata"
+                  className={
+                    single
+                      ? "max-h-[32rem] w-full object-cover"
+                      : "h-full w-full object-cover"
+                  }
+                />
+                <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                  <span className="grid h-14 w-14 place-items-center rounded-full bg-black/55 text-xl text-white backdrop-blur-sm">
+                    ▶
+                  </span>
+                </span>
+              </>
+            ) : (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={m.url}
+                alt=""
+                loading="lazy"
+                className={`transition-transform duration-500 ease-out group-hover:scale-[1.03] ${
+                  single
+                    ? "max-h-[32rem] w-full object-cover"
+                    : "h-full w-full object-cover"
+                }`}
+              />
+            )}
+          </button>
+        ))}
+      </div>
+
+      {at !== null && (
+        <Lightbox
+          items={media}
+          index={at}
+          onIndex={setAt}
+          onClose={() => setAt(null)}
+        />
+      )}
+    </>
   );
 }

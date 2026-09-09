@@ -24,7 +24,7 @@ function cleanMediaUrls(urls: unknown): string[] {
 
 async function member() {
   const session = await auth();
-  if (!session?.user?.id) redirect("/sign-in?callbackUrl=/family");
+  if (!session?.user?.id) redirect("/sign-in?callbackUrl=/life");
   const active = await getActiveMembership(session.user.id);
   if (!active) redirect("/onboarding");
   return { userId: session.user.id, journeyId: active.journey.id };
@@ -83,7 +83,7 @@ export async function createPost(input: {
             type: "post",
             title: `${author?.name ?? "Someone"} shared with the family`,
             body: snip,
-            href: "/family",
+            href: "/life",
           }),
         ),
       );
@@ -91,7 +91,7 @@ export async function createPost(input: {
   } catch {
     // A missed notice must never fail the post.
   }
-  revalidatePath("/family");
+  revalidatePath("/life");
   revalidatePath("/journey");
 }
 
@@ -111,14 +111,14 @@ export async function editPost(input: {
       ...(input.removeMedia ? { imageUrl: null, mediaUrls: [] } : {}),
     },
   });
-  revalidatePath("/family");
+  revalidatePath("/life");
   revalidatePath("/journey");
 }
 
 export async function deletePost(id: string) {
   const { userId } = await member();
   await prisma.post.deleteMany({ where: { id, authorId: userId } });
-  revalidatePath("/family");
+  revalidatePath("/life");
   revalidatePath("/journey");
 }
 
@@ -164,20 +164,20 @@ export async function addComment(input: { postId: string; body: string }) {
               ? `${who} replied to your post`
               : `${who} also replied to a post you're on`,
           body: snip,
-          href: "/family",
+          href: "/life",
         }),
       ),
     );
   } catch {
     // A missed notice must never fail the reply.
   }
-  revalidatePath("/family");
+  revalidatePath("/life");
 }
 
 export async function deleteComment(id: string) {
   const { userId } = await member();
   await prisma.postComment.deleteMany({ where: { id, authorId: userId } });
-  revalidatePath("/family");
+  revalidatePath("/life");
 }
 
 /** Add or remove one reaction of a kind on a post. */
@@ -217,12 +217,12 @@ export async function toggleReaction(input: { postId: string; kind: string }) {
           userId: post.authorId,
           type: "reaction",
           title: `${who} reacted ${reactionGlyph(input.kind)} ${label.toLowerCase()} to your post`,
-          href: "/family",
+          href: "/life",
         });
       } catch {
         // A missed notice must never fail the reaction.
       }
     }
   }
-  revalidatePath("/family");
+  revalidatePath("/life");
 }

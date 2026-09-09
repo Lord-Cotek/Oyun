@@ -25,7 +25,7 @@ export function LatestFromFamily({
           <Eyebrow className={greeting ? "mt-1" : ""}>Latest from the family</Eyebrow>
         </div>
         <Link
-          href="/family"
+          href="/life"
           className="shrink-0 font-mono text-[0.68rem] uppercase tracking-widest text-accent underline underline-offset-4 hover:text-accent-deep"
         >
           All →
@@ -36,7 +36,7 @@ export function LatestFromFamily({
         <p className="font-mono text-sm leading-relaxed text-muted">
           Nothing shared yet.{" "}
           <Link
-            href="/family"
+            href="/life"
             className="text-accent underline underline-offset-4"
           >
             Share the first thing →
@@ -47,7 +47,7 @@ export function LatestFromFamily({
           {posts.map((p) => (
             <li key={p.id}>
               <Link
-                href="/family"
+                href="/life"
                 className="block rounded-xl border border-border bg-bg/50 p-4 transition-colors hover:border-accent/40"
               >
                 <div className="mb-1 flex flex-wrap items-center gap-2 font-mono text-[0.6rem] uppercase tracking-widest text-muted">
