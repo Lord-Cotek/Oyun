@@ -73,6 +73,7 @@ export default async function CirclePage() {
                     name={m.user.name ?? m.user.email ?? "A supporter"}
                     sub={m.user.email ?? ""}
                     role={m.role}
+                    photoUrl={m.user.image}
                     removeId={m.id}
                   />
                 ))}
@@ -141,11 +142,13 @@ function MemberRow({
   name,
   sub,
   role,
+  photoUrl,
   removeId,
 }: {
   name: string;
   sub: string;
   role: string;
+  photoUrl?: string | null;
   removeId?: string;
 }) {
   return (
@@ -153,6 +156,7 @@ function MemberRow({
       <div className="flex min-w-0 items-center gap-3">
         <Avatar
           name={name}
+          photoUrl={photoUrl}
           tone={isHousehold(role) ? "accent" : "accent2"}
           size={36}
         />

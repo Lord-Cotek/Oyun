@@ -80,7 +80,9 @@ export async function ownsJourney(userId: string): Promise<boolean> {
 export async function getJourneyMembers(journeyId: string) {
   return prisma.membership.findMany({
     where: { journeyId },
-    include: { user: { select: { id: true, name: true, email: true } } },
+    include: {
+      user: { select: { id: true, name: true, email: true, image: true } },
+    },
     orderBy: { createdAt: "asc" },
   });
 }

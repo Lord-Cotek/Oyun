@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
+import { uploadToBlob, filesFromForm } from "@/lib/blob-client";
+import { Avatar } from "@/components/ui/Avatar";
 import {
   updateProfile,
   changePassword,
@@ -66,24 +68,69 @@ const inputClass =
 export function ProfileForm({
   name,
   email,
+  image,
 }: {
   name: string;
   email: string;
+  image?: string | null;
 }) {
   const { busy, result, run } = useAction(updateProfile);
+  const [preview, setPreview] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (busy || uploading) return;
+    setUploadError(null);
+    const form = e.currentTarget;
+    const fd = new FormData(form);
+    const files = filesFromForm(form, "photo");
+    if (files.length) {
+      setUploading(true);
+      try {
+        const [url] = await uploadToBlob(files.slice(0, 1), "people");
+        if (url) fd.set("photoUrl", url);
+      } catch (err) {
+        setUploading(false);
+        setUploadError((err as Error).message);
+        return;
+      }
+      setUploading(false);
+    }
+    fd.delete("photo");
+    await run(fd);
+  }
+
   return (
-    <form
-      action={run}
-      className="space-y-3"
-    >
+    <form onSubmit={onSubmit} className="space-y-3">
+      <div className="flex items-center gap-4">
+        <Avatar name={name} photoUrl={preview ?? image ?? null} size={64} />
+        <div className="min-w-0 flex-1">
+          <span className="eyebrow mb-2 block text-muted">Profile photo</span>
+          <input
+            type="file"
+            name="photo"
+            accept="image/jpeg,image/png,image/webp,image/gif"
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              setPreview(f ? URL.createObjectURL(f) : null);
+            }}
+            className="w-full rounded-lg border border-border bg-bg px-4 py-2.5 font-mono text-xs text-muted file:mr-3 file:rounded-md file:border-0 file:bg-accent file:px-3 file:py-1.5 file:font-mono file:text-xs file:text-on-accent"
+          />
+        </div>
+      </div>
       <Field label="Your name">
         <input name="name" defaultValue={name} placeholder="What Agbebi calls you" className={inputClass} />
       </Field>
       <Field label="Email">
         <input name="email" type="email" defaultValue={email} className={inputClass} />
       </Field>
+      {uploadError && (
+        <p className="font-mono text-xs text-negative">{uploadError}</p>
+      )}
       <div className="flex items-center gap-4">
-        <SubmitBtn busy={busy} label="Save profile" />
+        <SubmitBtn busy={busy || uploading} label={uploading ? "Uploading…" : "Save profile"} />
         <Status result={result} />
       </div>
     </form>

@@ -33,6 +33,7 @@ export interface FeedPost {
   media: MediaItem[];
   author: string;
   authorId: string;
+  authorImage: string | null;
   mine: boolean;
   when: string;
   reactions: FeedReaction[];
@@ -62,7 +63,7 @@ export async function loadFeed(
     orderBy: { createdAt: "desc" },
     take,
     include: {
-      author: { select: { id: true, name: true } },
+      author: { select: { id: true, name: true, image: true } },
       reactions: { select: { kind: true, userId: true } },
       comments: {
         orderBy: { createdAt: "asc" },
@@ -92,6 +93,7 @@ export async function loadFeed(
             : [],
       author: p.author.name ?? "Someone",
       authorId: p.authorId,
+      authorImage: p.author.image ?? null,
       mine: p.authorId === viewerId,
       when: relative(p.createdAt, now),
       reactions: [...byKind.values()],

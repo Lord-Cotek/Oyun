@@ -11,6 +11,7 @@ import {
 } from "@/lib/feed";
 import type { FeedPost, MediaItem } from "@/lib/feed-query";
 import { Lightbox } from "@/components/media/Lightbox";
+import { Avatar } from "@/components/ui/Avatar";
 
 type CreateFn = (input: {
   kind: string;
@@ -336,7 +337,9 @@ function PostItem({
   return (
     <div className="surface-premium rounded-2xl border border-border p-5 md:p-6">
       <div className="flex items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-2 font-mono text-[0.64rem] uppercase tracking-widest text-muted">
+        <div className="flex min-w-0 items-center gap-2.5">
+          <Avatar name={post.author} photoUrl={post.authorImage} size={34} />
+          <div className="flex min-w-0 flex-wrap items-center gap-2 font-mono text-[0.64rem] uppercase tracking-widest text-muted">
           <span className="text-ink/85">{post.author}</span>
           <span aria-hidden>·</span>
           <span>{post.when}</span>
@@ -349,6 +352,7 @@ function PostItem({
           >
             {KIND_LABEL[post.kind] ?? "Update"}
           </span>
+          </div>
         </div>
       </div>
 

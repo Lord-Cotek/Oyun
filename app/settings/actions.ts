@@ -30,11 +30,22 @@ export async function updateProfile(_prev: unknown, formData: FormData): Promise
     if (clash) return { ok: false, error: "That email is already in use." };
   }
 
+  // The browser uploaded any new photo straight to Blob and passed the URL.
+  const rawPhoto = String(formData.get("photoUrl") ?? "").trim();
+  const photoUrl = rawPhoto.startsWith("http") ? rawPhoto : null;
+
   await prisma.user.update({
     where: { id: userId },
-    data: { name: name || null, ...(email ? { email } : {}) },
+    data: {
+      name: name || null,
+      ...(email ? { email } : {}),
+      ...(photoUrl ? { image: photoUrl } : {}),
+    },
   });
   revalidatePath("/settings");
+  revalidatePath("/journey");
+  revalidatePath("/circle");
+  revalidatePath("/life");
   return { ok: true, message: "Profile saved." };
 }
 

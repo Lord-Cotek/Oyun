@@ -84,7 +84,11 @@ export default async function SettingsPage() {
         <div className="mt-6 space-y-4">
           <Card className="p-8">
             <Eyebrow className="mb-4">Profile</Eyebrow>
-            <ProfileForm name={user.name ?? ""} email={user.email ?? ""} />
+            <ProfileForm
+              name={user.name ?? ""}
+              email={user.email ?? ""}
+              image={user.image}
+            />
           </Card>
 
           <Card className="p-8">
