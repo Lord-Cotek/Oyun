@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { INVITABLE_ROLES } from "@/lib/roles";
 import { auth } from "@/lib/auth";
 import { getActiveMembership } from "@/lib/data";
 import { sendInviteEmail } from "@/lib/email";
@@ -27,7 +28,9 @@ export async function createInvite(
   if (!email || !email.includes("@")) {
     return { ok: false, error: "Please enter a valid email." };
   }
-  const role = roleRaw === "ACCOUNTABILITY" ? Role.ACCOUNTABILITY : Role.PARTNER;
+  const role = (INVITABLE_ROLES as string[]).includes(roleRaw)
+    ? (roleRaw as Role)
+    : Role.PARTNER;
 
   // A journey has exactly one husband/partner (but any number of accountability
   // partners). Block a second partner invite when one already exists.

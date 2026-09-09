@@ -11,11 +11,7 @@ type JourneyItem = {
   isOwner: boolean;
 };
 
-const ROLE_LABEL: Record<string, string> = {
-  MOTHER: "Your journey",
-  PARTNER: "Partner",
-  ACCOUNTABILITY: "Accountability",
-};
+import { ROLE_SHORT as ROLE_LABEL } from "@/lib/roles";
 
 export function JourneySwitcher({
   journeys,

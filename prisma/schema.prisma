@@ -191,6 +191,8 @@ enum Role {
   MOTHER
   PARTNER
   ACCOUNTABILITY
+  FAMILY // a close relative — grandparent, sister, cousin
+  FRIEND // a close friend walking with them
 }
 
 enum JourneyStatus {

@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getActiveMembership } from "@/lib/data";
+import { ROLE_LABEL, INVITABLE_ROLES } from "@/lib/roles";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Card } from "@/components/ui/Card";
 import { Eyebrow } from "@/components/ui/Eyebrow";
@@ -12,11 +13,6 @@ import { Avatar } from "@/components/ui/Avatar";
 import { SignOutButton } from "@/components/SignOutButton";
 import { InvitePanel } from "@/components/InvitePanel";
 
-const ROLE_LABEL: Record<string, string> = {
-  MOTHER: "Mother",
-  PARTNER: "Husband / Partner",
-  ACCOUNTABILITY: "Accountability partner",
-};
 import {
   ProfileForm,
   PasswordForm,
@@ -53,7 +49,7 @@ export default async function SettingsPage() {
       ? await prisma.membership.count({
           where: {
             journeyId: active.journey.id,
-            role: { in: ["PARTNER", "ACCOUNTABILITY"] },
+            role: { in: INVITABLE_ROLES },
           },
         })
       : 0;

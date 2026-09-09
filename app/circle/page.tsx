@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getActiveMembership, getJourneyMembers } from "@/lib/data";
+import { ROLE_LABEL, isHousehold } from "@/lib/roles";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Card } from "@/components/ui/Card";
 import { Eyebrow } from "@/components/ui/Eyebrow";
@@ -19,11 +20,6 @@ export const metadata: Metadata = {
   robots: { index: false },
 };
 
-const ROLE_LABEL: Record<string, string> = {
-  MOTHER: "Mother",
-  PARTNER: "Husband / Partner",
-  ACCOUNTABILITY: "Accountability partner",
-};
 
 export default async function CirclePage() {
   const session = await auth();
@@ -157,7 +153,7 @@ function MemberRow({
       <div className="flex min-w-0 items-center gap-3">
         <Avatar
           name={name}
-          tone={role === "ACCOUNTABILITY" ? "accent2" : "accent"}
+          tone={isHousehold(role) ? "accent" : "accent2"}
           size={36}
         />
         <div className="min-w-0">

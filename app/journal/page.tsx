@@ -5,6 +5,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getActiveMembership } from "@/lib/data";
 import { chapterRef } from "@/lib/bible";
+import { isHousehold } from "@/lib/roles";
 import { SiteHeader } from "@/components/SiteHeader";
 import { PageHero } from "@/components/ui/PageHero";
 import {
@@ -32,7 +33,8 @@ export default async function JournalPage() {
   if (!session?.user?.id) redirect("/sign-in?callbackUrl=/journal");
   const active = await getActiveMembership(session.user.id);
   if (!active) redirect("/onboarding");
-  if (active.role === "ACCOUNTABILITY") redirect("/journey");
+  // The reflections journal belongs to the household, not the wider circle.
+  if (!isHousehold(active.role)) redirect("/journey");
 
   const rows = await prisma.readingNote.findMany({
     where: {

@@ -53,6 +53,8 @@ const ROLE_LABEL: Record<Role, string> = {
   MOTHER: "the expectant mother",
   PARTNER: "the husband / partner",
   ACCOUNTABILITY: "an accountability partner",
+  FAMILY: "a close relative",
+  FRIEND: "a close friend",
 };
 
 export interface AgbebiContext {

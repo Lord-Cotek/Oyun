@@ -14,6 +14,7 @@ import {
 import { getChapter } from "@/lib/bible";
 import { shareSlug } from "@/lib/share";
 import { hymnSlug } from "@/lib/hymns";
+import { isHousehold } from "@/lib/roles";
 import {
   markWorship,
   chooseReadingPlan,
@@ -70,7 +71,7 @@ export default async function WorshipPage({
 
   const active = await getActiveMembership(session.user.id);
   if (!active) redirect("/onboarding");
-  if (active.role === "ACCOUNTABILITY") redirect("/journey");
+  if (!isHousehold(active.role)) redirect("/journey");
   if (active.journey.status === "LOSS") redirect("/journey");
 
   const born = computePosition(active.journey.dueDate).born;

@@ -20,6 +20,7 @@ import { partnerDailyCare, dayKey } from "@/lib/partner-care";
 import { getReactionsFor } from "@/lib/reactions";
 import { MOOD_META } from "@/lib/moods";
 import { loadFeed } from "@/lib/feed-query";
+import { INVITABLE_ROLES, isSupporter } from "@/lib/roles";
 import { LatestFromFamily } from "@/components/feed/LatestFromFamily";
 import { OnThisDay } from "@/components/journey/OnThisDay";
 import { UpcomingStrip } from "@/components/journey/UpcomingStrip";
@@ -124,7 +125,7 @@ export default async function JourneyPage() {
       await Promise.all([
         prisma.milestone.count({ where: { journeyId: journey.id } }),
         prisma.membership.count({
-          where: { journeyId: journey.id, role: { in: ["PARTNER", "ACCOUNTABILITY"] } },
+          where: { journeyId: journey.id, role: { in: INVITABLE_ROLES } },
         }),
         getEncouragementsForViewer(journey.id, session.user.id),
         prisma.milestone.count({
@@ -343,18 +344,21 @@ export default async function JourneyPage() {
   }
 
   // ── Accountability partner — a distinct, non-household view ─────────────
-  if (role === "ACCOUNTABILITY") {
+  if (isSupporter(role)) {
     return (
       <>
         <SiteHeader active="journey" />
         <AccountabilityView
           journeyId={journey.id}
           userId={session.user.id}
+          role={role}
           motherName={journey.owner.name ?? "her"}
           stage={stage}
           stageLabel={stageLabel}
           progress={position.progress}
           born={position.born}
+          familyPosts={familyPosts}
+          todayLabel={todayLabel}
         />
       </>
     );

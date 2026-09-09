@@ -14,6 +14,11 @@ import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Verse } from "@/components/ui/Verse";
 import { PageHero } from "@/components/ui/PageHero";
 import { Icon } from "@/components/ui/Icon";
+import Link from "next/link";
+import { type Role } from "@prisma/client";
+import { supporterFraming } from "@/lib/roles";
+import { type FeedPost } from "@/lib/feed-query";
+import { LatestFromFamily } from "@/components/feed/LatestFromFamily";
 import { JourneyProgress } from "@/components/JourneyProgress";
 import { SupportActions } from "@/components/journey/SupportActions";
 import { NudgeList } from "@/components/journey/NudgeList";
@@ -28,26 +33,37 @@ const MOOD_TONE_TEXT: Record<string, string> = {
 };
 
 /**
- * The accountability partner's view — prayer, encouragement, and faithful
- * presence, framed for a spiritual friend rather than a spouse. No household
- * intimacy (no co-parenting instructions, no family-worship rhythm).
+ * The home of everyone walking alongside — an accountability partner, a close
+ * relative, a dear friend. They see life as the family shares it, they can
+ * rejoice and pray, and they can send a word. They never see the household's
+ * private rooms (letters, her care journal, family worship).
+ *
+ * The welcome is shaped by why they came: an accountability partner is here
+ * for spiritual friendship, a grandmother is here to see the baby. Same
+ * access, same call to pray — different framing.
  */
 export async function AccountabilityView({
   journeyId,
   userId,
+  role,
   motherName,
   stage,
   stageLabel,
   progress,
   born,
+  familyPosts = [],
+  todayLabel,
 }: {
   journeyId: string;
   userId: string;
+  role: Role;
   motherName: string;
   stage: Stage;
   stageLabel: string;
   progress: number;
   born: boolean;
+  familyPosts?: FeedPost[];
+  todayLabel?: string;
 }) {
   const [latest, nudges, support, me] = await Promise.all([
     getLatestMotherCheckIn(journeyId),
@@ -61,13 +77,14 @@ export async function AccountabilityView({
     : null;
   const practice = dailyAccountabilityPractice();
   const firstName = me?.name?.trim().split(/\s+/)[0] ?? null;
+  const framing = supporterFraming(role, motherName);
 
   return (
     <main className="mx-auto max-w-shell px-6 py-10">
       <PageHero
         greeting={firstName ? `Hello, ${firstName}.` : undefined}
-        eyebrow={`Accountability partner · ${stageLabel}`}
-        title={`Walking faithfully alongside ${motherName}.`}
+        eyebrow={`${framing.eyebrow} · ${stageLabel}`}
+        title={framing.title}
       >
         <div className="mt-8 grid gap-4 md:grid-cols-2">
           <div className="rounded-xl border border-border bg-bg/50 p-6">
@@ -104,12 +121,47 @@ export async function AccountabilityView({
           <div className="rounded-xl border border-accent/30 bg-accent/[0.08] p-6">
             <p className="eyebrow mb-2 text-accent">A way to walk with them today</p>
             <p className="font-serif text-xl leading-snug text-ink">{practice}</p>
+            <p className="mt-3 font-mono text-[0.68rem] leading-relaxed text-muted">
+              {framing.blurb}
+            </p>
           </div>
         </div>
       </PageHero>
 
       <div className="mt-6">
         <JourneyProgress progress={progress} label={stageLabel} />
+      </div>
+
+      {/* Life as the family shares it — the reason most people are here. */}
+      <div className="mt-6">
+        <LatestFromFamily posts={familyPosts} greeting={todayLabel} />
+      </div>
+
+      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+        <Link
+          href="/life"
+          className="surface-premium flex items-center justify-between rounded-2xl border border-border p-5 transition-colors hover:border-accent/50"
+        >
+          <div>
+            <p className="font-serif text-lg text-ink">Life</p>
+            <p className="font-mono text-[0.66rem] uppercase tracking-widest text-muted">
+              Share, react, and reply
+            </p>
+          </div>
+          <span className="font-mono text-accent">→</span>
+        </Link>
+        <Link
+          href="/prayer"
+          className="surface-premium flex items-center justify-between rounded-2xl border border-border p-5 transition-colors hover:border-accent/50"
+        >
+          <div>
+            <p className="font-serif text-lg text-ink">Prayer wall</p>
+            <p className="font-mono text-[0.66rem] uppercase tracking-widest text-muted">
+              What to carry for them
+            </p>
+          </div>
+          <span className="font-mono text-accent">→</span>
+        </Link>
       </div>
 
       <div className="mt-6 grid gap-4 lg:grid-cols-[1.3fr_1fr]">

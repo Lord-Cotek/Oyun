@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { getActiveMembership } from "@/lib/data";
+import { INVITABLE_ROLES } from "@/lib/roles";
 
 async function requireMother() {
   const session = await auth();
@@ -30,7 +31,7 @@ export async function removeMember(formData: FormData) {
     where: {
       id: membershipId,
       journeyId,
-      role: { in: ["PARTNER", "ACCOUNTABILITY"] },
+      role: { in: INVITABLE_ROLES },
       userId: { not: userId },
     },
   });

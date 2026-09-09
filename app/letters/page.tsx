@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { getActiveMembership, getCoupleLetters, getBabyLetters } from "@/lib/data";
+import { isHousehold } from "@/lib/roles";
 import { SiteHeader } from "@/components/SiteHeader";
 import { PageHero } from "@/components/ui/PageHero";
 import { Card } from "@/components/ui/Card";
@@ -21,7 +22,7 @@ export default async function LettersPage() {
   const active = await getActiveMembership(session.user.id);
   if (!active) redirect("/onboarding");
   // Letters are for the mother and the one beside her — not the wider circle.
-  if (active.role === "ACCOUNTABILITY") redirect("/journey");
+  if (!isHousehold(active.role)) redirect("/journey");
 
   const { journey } = active;
   const motherName = journey.owner.name ?? "her";

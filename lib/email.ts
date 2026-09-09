@@ -144,7 +144,15 @@ export async function sendInviteEmail({
   motherName: string;
   role: Role;
 }): Promise<boolean> {
-  const roleWord = role === "ACCOUNTABILITY" ? "an accountability partner" : "a partner";
+  const roleWord =
+    (
+      {
+        PARTNER: "a partner",
+        ACCOUNTABILITY: "an accountability partner",
+        FAMILY: "family",
+        FRIEND: "a close friend",
+      } as Record<string, string>
+    )[role] ?? "a partner";
   const html = shell(`
     <p style="font-size:16px;line-height:1.6;color:#ECE8DE;">${escapeHtml(motherName)} invited you to walk with them.</p>
     <p style="font-size:14px;line-height:1.7;color:#ECE8DE;">

@@ -46,6 +46,8 @@ export function InvitePanel({ hasSupporter }: { hasSupporter: boolean }) {
         >
           <option value="PARTNER">Husband / Partner</option>
           <option value="ACCOUNTABILITY">Accountability partner</option>
+          <option value="FAMILY">Family (grandparent, sister…)</option>
+          <option value="FRIEND">Close friend</option>
         </select>
         <button
           type="submit"

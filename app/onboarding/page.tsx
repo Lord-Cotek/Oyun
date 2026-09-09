@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getActiveMembership, ownsJourney } from "@/lib/data";
+import { ROLE_LABEL } from "@/lib/roles";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { OyunMark } from "@/components/ui/OyunMark";
 import { Verse } from "@/components/ui/Verse";
@@ -17,11 +18,6 @@ export const metadata: Metadata = {
   robots: { index: false },
 };
 
-const ROLE_LABEL: Record<string, string> = {
-  MOTHER: "Mother",
-  PARTNER: "Husband / Partner",
-  ACCOUNTABILITY: "Accountability partner",
-};
 
 export default async function Onboarding({
   searchParams,
