@@ -26,7 +26,7 @@ export const STAGES: Stage[] = [
     title: "Week 1 — Before the beginning",
     body: "This first week is counted before conception, measured from the close of your last cycle. Nothing is visible yet, and much is unknown to you. Still, the whole story is already open before the One who ordains it.",
     verse: {
-      text: "Your eyes saw my unformed substance; in your book were written, every one of them, the days that were formed for me, when as yet there was none of them.",
+      text: "Your eyes saw my body. In your book they were all written, the days that were ordained for me, when as yet there were none of them.",
       ref: "Psalm 139:16",
     },
     reflection: "You are at the very start of something you cannot yet see or control. That is a good place to learn to trust the God who already sees the end.",
@@ -56,7 +56,7 @@ export const STAGES: Stage[] = [
     title: "Week 3 — A single spark of life",
     body: "Around now, two cells become one, and a whole person begins from a single spark you cannot see. Everything that makes this child uniquely themselves is already set. No microscope caught the moment, but heaven did.",
     verse: {
-      text: "For you formed my inward parts; you knitted me together in my mother's womb.",
+      text: "For you formed my inmost being. You knit me together in my mother’s womb.",
       ref: "Psalm 139:13",
     },
     reflection: "From the first cell, this is a person known and loved by God, not a project you must complete. Your part is to steward what he has begun.",
@@ -71,7 +71,7 @@ export const STAGES: Stage[] = [
     title: "Week 4 — Smaller than a seed",
     body: "The tiny one settles in and takes root, smaller than a poppy seed. The first structures that will become a heart and spine begin to gather. So much is happening in a space too small to see.",
     verse: {
-      text: "Before I formed you in the womb I knew you, and before you were born I consecrated you.",
+      text: "Before I formed you in the womb, I knew you. Before you were born, I sanctified you. I have appointed you a prophet to the nations.",
       ref: "Jeremiah 1:5",
     },
     reflection: "Before you knew this child existed, God already knew them by name. You are not the author of this life, only a witness to it.",
@@ -86,7 +86,7 @@ export const STAGES: Stage[] = [
     title: "Week 5 — A first flutter of a heart",
     body: "A minute heart begins its first flutters this week, and the earliest lines of the brain and spine appear. It is all still no bigger than a grain of rice. And already there is a rhythm where before there was none.",
     verse: {
-      text: "You clothed me with skin and flesh, and knit me together with bones and sinews.",
+      text: "You have clothed me with skin and flesh, and knit me together with bones and sinews.",
       ref: "Job 10:11",
     },
     reflection: "A heartbeat you cannot yet hear is being kept by the God who never sleeps. Every beat is measured out by him.",
@@ -101,7 +101,7 @@ export const STAGES: Stage[] = [
     title: "Week 6 — Tiny buds appear",
     body: "Small buds appear where arms and legs will grow, and the face begins its earliest shaping. The heart is beating more steadily now. A person is unfolding in miniature.",
     verse: {
-      text: "I praise you, for I am fearfully and wonderfully made. Wonderful are your works; my soul knows it very well.",
+      text: "I will give thanks to you, for I am fearfully and wonderfully made. Your works are wonderful. My soul knows that very well.",
       ref: "Psalm 139:14",
     },
     reflection: "What is forming in you is fearful and wonderful, worthy of praise long before it is finished. Wonder is the right response, not worry.",
@@ -116,7 +116,7 @@ export const STAGES: Stage[] = [
     title: "Week 7 — The brain grows quickly",
     body: "The brain is growing at a remarkable pace this week, and the face gathers its first features. Little arm and leg buds are lengthening. Each day brings changes too small to feel but real all the same.",
     verse: {
-      text: "My frame was not hidden from you, when I was being made in secret, intricately woven in the depths of the earth.",
+      text: "My frame wasn’t hidden from you, when I was made in secret, woven together in the depths of the earth.",
       ref: "Psalm 139:15",
     },
     reflection: "Nothing about this hidden work is hidden from God. He watches every intricate thread being woven.",
@@ -131,7 +131,7 @@ export const STAGES: Stage[] = [
     title: "Week 8 — Fingers and toes",
     body: "Tiny fingers and toes are taking shape, and the major organs have all begun their work. The little one is now about the size of a raspberry. Movement has started, though far too gentle to feel.",
     verse: {
-      text: "As you do not know the way the spirit comes to the bones in the womb of a woman with child, so you do not know the work of God who makes everything.",
+      text: "As you don’t know what is the way of the wind, nor how the bones grow in the womb of her who is with child; even so you don’t know the work of God who does all.",
       ref: "Ecclesiastes 11:5",
     },
     reflection: "You do not have to understand the work of God to trust the God who is at work. Mystery is not the same as chaos.",
@@ -146,7 +146,7 @@ export const STAGES: Stage[] = [
     title: "Week 9 — The first small movements",
     body: "The baby begins to make small, unfelt movements this week, stretching and shifting in a space no larger than a grape. Essential features are all present now, waiting to mature. Life is quietly on the move.",
     verse: {
-      text: "Did not he who made me in the womb make him? And did not one fashion us in the womb?",
+      text: "Didn’t he who made me in the womb make him? Didn’t one fashion us in the womb?",
       ref: "Job 31:15",
     },
     reflection: "The same God who made you is making this child, with equal care and equal love. You share one Maker.",
@@ -161,7 +161,7 @@ export const STAGES: Stage[] = [
     title: "Week 10 — Vital organs at work",
     body: "The vital organs are now formed and beginning to function together, and tiny nails start to appear on fingers and toes. The little one is roughly the size of a strawberry. What was fragile is steadily strengthening.",
     verse: {
-      text: "Yet you are he who took me from the womb; you made me trust you at my mother's breasts.",
+      text: "But you brought me out of the womb. You made me trust while at my mother’s breasts.",
       ref: "Psalm 22:9",
     },
     reflection: "God is already the keeper of this child, teaching trust before the child could ever speak. His care begins in the womb and never ends.",
@@ -176,7 +176,7 @@ export const STAGES: Stage[] = [
     title: "Week 11 — Practicing to move",
     body: "Nearly all the body's structures are present now, and the baby practices moving arms and legs in the fluid. The head is still large compared to the body, cradling that fast-growing brain. Practice is quietly underway for a life of motion.",
     verse: {
-      text: "Behold, children are a heritage from the LORD, the fruit of the womb a reward.",
+      text: "Behold, children are a heritage of the LORD. The fruit of the womb is his reward.",
       ref: "Psalm 127:3",
     },
     reflection: "This child is a gift entrusted to you, not a possession earned by you. A heritage is received, then stewarded.",
@@ -191,7 +191,7 @@ export const STAGES: Stage[] = [
     title: "Week 12 — A face takes shape",
     body: "The features of a distinct little face are coming together this week as the first trimester draws to a close. Reflexes are developing, and the baby may curl fingers or open and close their mouth. A recognizable person is emerging.",
     verse: {
-      text: "When Elizabeth heard the greeting of Mary, the baby leaped in her womb.",
+      text: "When Elizabeth heard Mary’s greeting, the baby leaped in her womb; and Elizabeth was filled with the Holy Spirit.",
       ref: "Luke 1:41",
     },
     reflection: "Scripture treats the child in the womb as fully a person, capable of response and worthy of welcome. You are not waiting for a person to arrive; one is already here.",
@@ -206,7 +206,7 @@ export const STAGES: Stage[] = [
     title: "Week 13 — Fingerprints form",
     body: "Unique fingerprints are beginning to form on those tiny fingertips, patterns no other person will ever share. The vocal cords are developing too. Everything about this child is being marked as one of a kind.",
     verse: {
-      text: "Upon you I have leaned from before my birth; you are he who took me from my mother's womb.",
+      text: "I have relied on you from the womb. You are he who took me out of my mother’s womb. I will always praise you.",
       ref: "Psalm 71:6",
     },
     reflection: "God writes a signature on every life that has never been written before. This child will be like no one else because he made them so.",
@@ -221,7 +221,7 @@ export const STAGES: Stage[] = [
     title: "Week 14 — First expressions",
     body: "The baby may begin to make small facial expressions now, squinting or frowning as the muscles practice. Some little ones start to bring a thumb toward the mouth. The face is learning to move before anyone will see it.",
     verse: {
-      text: "Thus says the LORD who made you, who formed you from the womb and will help you.",
+      text: "This is what the LORD who made you, and formed you from the womb, who will help you says: “Don’t be afraid, Jacob my servant; and you, Jeshurun, whom I have chosen.",
       ref: "Isaiah 44:2",
     },
     reflection: "The God who is forming this child has also promised to help you carry them. He does not make and then abandon.",
@@ -236,7 +236,7 @@ export const STAGES: Stage[] = [
     title: "Week 15 — Bones begin to harden",
     body: "The soft framework of the skeleton is slowly hardening into bone, and the baby may begin to sense light beyond the womb. Little movements are becoming stronger. What was pliable is being given quiet strength.",
     verse: {
-      text: "The LORD is my shepherd; I shall not want.",
+      text: "the LORD is my shepherd: I shall lack nothing.",
       ref: "Psalm 23:1",
     },
     reflection: "The Shepherd who tends this child will tend you too, providing what each of you truly needs. To be shepherded is to lack no good thing.",
@@ -251,7 +251,7 @@ export const STAGES: Stage[] = [
     title: "Week 16 — Ears settle into place",
     body: "The ears are moving into their final position, and the baby may begin to catch muffled sounds from the world outside. Your voice is among the first sounds they will ever know. The child is starting to listen.",
     verse: {
-      text: "Come to me, all who labor and are heavy laden, and I will give you rest.",
+      text: "Come to me, all you who labor and are heavily burdened, and I will give you rest.",
       ref: "Matthew 11:28",
     },
     reflection: "The One your child will one day hear about is inviting you to rest in him now. Carry your load to him rather than under it.",
@@ -266,7 +266,7 @@ export const STAGES: Stage[] = [
     title: "Week 17 — Growing stronger",
     body: "A soft layer of fat is beginning to form, helping the baby regulate warmth in time. The umbilical cord grows stronger to carry all that the little one needs. Steady provision flows to a growing child.",
     verse: {
-      text: "Casting all your anxieties on him, because he cares for you.",
+      text: "casting all your worries on him, because he cares for you.",
       ref: "1 Peter 5:7",
     },
     reflection: "You were not meant to carry your anxieties and your child at the same time. Hand one of them over.",
@@ -281,7 +281,7 @@ export const STAGES: Stage[] = [
     title: "Week 18 — The first felt movements",
     body: "Somewhere around now you may feel the earliest flutters, faint as a butterfly or a bubble. These first felt movements are often called quickening. What was only believed can now be gently felt.",
     verse: {
-      text: "The LORD your God is in your midst, a mighty one who will save; he will rejoice over you with gladness; he will quiet you by his love; he will exult over you with loud singing.",
+      text: "the LORD, your God, is among you, a mighty one who will save. He will rejoice over you with joy. He will calm you in his love. He will rejoice over you with singing.",
       ref: "Zephaniah 3:17",
     },
     reflection: "As you rejoice over the child within you, remember that God rejoices over you with singing. You are cherished by the One you are learning to cherish this little one for.",
@@ -296,7 +296,7 @@ export const STAGES: Stage[] = [
     title: "Week 19 — A protective covering",
     body: "A soft, waxy coating now covers the baby's delicate skin, guarding it in the watery world of the womb. The senses are steadily developing. Even here, the little one is being protected in ways you never arranged.",
     verse: {
-      text: "He will cover you with his pinions, and under his wings you will find refuge; his faithfulness is a shield and buckler.",
+      text: "He will cover you with his feathers. Under his wings you will take refuge. His faithfulness is your shield and rampart.",
       ref: "Psalm 91:4",
     },
     reflection: "The God who covers this child in the womb covers you under his wings. Refuge is not something you build; it is someone you run to.",
@@ -311,7 +311,7 @@ export const STAGES: Stage[] = [
     title: "Week 20 — Halfway there",
     body: "You have reached the midpoint of the journey. The baby is swallowing small amounts of fluid, fine hair is growing, and movements are becoming more regular. Half the waiting is behind you now.",
     verse: {
-      text: "The steadfast love of the LORD never ceases; his mercies never come to an end; they are new every morning; great is your faithfulness.",
+      text: "It is because of the LORD’s loving kindnesses that we are not consumed, because his compassion doesn’t fail. They are new every morning. Great is your faithfulness.",
       ref: "Lamentations 3:22-23",
     },
     reflection: "Halfway through, you have already received mercy upon mercy, new every single morning. Look back and count the faithfulness that carried you here.",
@@ -326,7 +326,7 @@ export const STAGES: Stage[] = [
     title: "Week 21 — Growing by the day",
     body: "The baby is growing steadily now and beginning to develop the sense of taste as they swallow. Movements are stronger and more frequent, a language all their own. Day by day, the little one fills out and grows.",
     verse: {
-      text: "The LORD will fulfill his purpose for me; your steadfast love, O LORD, endures forever. Do not forsake the work of your hands.",
+      text: "the LORD will fulfill that which concerns me. Your loving kindness, the LORD, endures forever. Don’t forsake the works of your own hands.",
       ref: "Psalm 138:8",
     },
     reflection: "The God who began this good work will bring it to completion in his time. He does not abandon what his own hands have started.",
@@ -341,7 +341,7 @@ export const STAGES: Stage[] = [
     title: "Week 22 — Small and detailed",
     body: "Fine details are emerging, from wispy eyebrows and lashes to a developing grip in those tiny hands. The baby is looking more and more like the child you will hold. God attends to the smallest things.",
     verse: {
-      text: "When I am afraid, I put my trust in you.",
+      text: "When I am afraid, I will put my trust in you.",
       ref: "Psalm 56:3",
     },
     reflection: "Fear and faith can share the same moment; the question is which one you act on. Trust is a choice you make even while afraid.",
@@ -356,7 +356,7 @@ export const STAGES: Stage[] = [
     title: "Week 23 — Beginning to hear you",
     body: "The baby's hearing is sharpening, and they may begin to respond to familiar voices and sounds. Your words, your songs, and your prayers reach into the womb. A relationship is quietly forming through sound.",
     verse: {
-      text: "Fear not, for I have redeemed you; I have called you by name, you are mine.",
+      text: "But now the LORD who created you, Jacob, and he who formed you, Israel, says: “Don’t be afraid, for I have redeemed you. I have called you by your name. You are mine.",
       ref: "Isaiah 43:1",
     },
     reflection: "The child who is learning your voice belongs first to the God who calls each of his own by name. Their deepest identity is his, before it is yours.",
@@ -371,7 +371,7 @@ export const STAGES: Stage[] = [
     title: "Week 24 — Tiny footprints",
     body: "The lungs are developing in preparation for the day the baby will breathe air, and the little feet now bear their own unique prints. The baby is becoming ever more responsive to the world. Life is preparing for its first breath.",
     verse: {
-      text: "I lift up my eyes to the hills. From where does my help come? My help comes from the LORD, who made heaven and earth.",
+      text: "I will lift up my eyes to the hills. Where does my help come from? My help comes from the LORD, who made heaven and earth.",
       ref: "Psalm 121:1-2",
     },
     reflection: "When you feel the weight of what is coming, lift your eyes higher than the hills. Your help is not in your own strength but in the Maker of it all.",
@@ -386,7 +386,7 @@ export const STAGES: Stage[] = [
     title: "Week 25 — Responsive and growing",
     body: "The baby now responds to sound and touch, sometimes shifting when you rest a hand on your belly. Hair is gaining its color, and the little one is filling out steadily. There is a growing back-and-forth between you and your child.",
     verse: {
-      text: "And we know that for those who love God all things work together for good, for those who are called according to his purpose.",
+      text: "We know that all things work together for good for those who love God, for those who are called according to his purpose.",
       ref: "Romans 8:28",
     },
     reflection: "God is weaving even the hard and hidden parts of this season toward good for those who are his. Good does not always mean easy, but it is always sure.",
@@ -401,7 +401,7 @@ export const STAGES: Stage[] = [
     title: "Week 26 — Eyes begin to open",
     body: "The baby's eyes, long fused shut, are beginning to open for the first time. Though there is little to see in the womb, the readiness for light is being formed. New capacities are quietly awakening.",
     verse: {
-      text: "The LORD is near to the brokenhearted and saves the crushed in spirit.",
+      text: "the LORD is near to those who have a broken heart, and saves those who have a crushed spirit.",
       ref: "Psalm 34:18",
     },
     reflection: "Whatever this journey has cost you, God draws near to the broken rather than away. He is nearest when you feel least whole.",
@@ -416,7 +416,7 @@ export const STAGES: Stage[] = [
     title: "Week 27 — A new season begins",
     body: "The third trimester begins, and the baby's brain is remarkably active, forming patterns of sleeping and waking. The little one is growing rounder and stronger by the week. A final stretch of waiting opens before you.",
     verse: {
-      text: "Do not be anxious about anything, but in everything by prayer and supplication with thanksgiving let your requests be made known to God.",
+      text: "In nothing be anxious, but in everything, by prayer and petition with thanksgiving, let your requests be made known to God.",
       ref: "Philippians 4:6",
     },
     reflection: "As the finish line comes into view, let each new worry become a new prayer. Thanksgiving is what keeps requests from turning into fear.",
@@ -431,7 +431,7 @@ export const STAGES: Stage[] = [
     title: "Week 28 — Rest and waking",
     body: "The baby now cycles through periods of sleep and waking, and the eyes can open and close. They may respond to light that reaches the womb and to the rhythms of your day. A little life is settling into patterns of rest.",
     verse: {
-      text: "My grace is sufficient for you, for my power is made perfect in weakness.",
+      text: "He has said to me, “My grace is sufficient for you, for my power is made perfect in weakness.” Most gladly therefore I will rather glory in my weaknesses, that the power of Christ may rest on me.",
       ref: "2 Corinthians 12:9",
     },
     reflection: "You do not need to feel strong to be carried; God's grace meets you precisely in your weakness. Weakness is where his power shows most clearly.",
@@ -446,7 +446,7 @@ export const STAGES: Stage[] = [
     title: "Week 29 — Steadily maturing",
     body: "The baby's muscles and lungs continue to mature, and the bones are drawing in strength for the days ahead. Movements may feel more deliberate now, even a little crowded. Everything is being made ready in its time.",
     verse: {
-      text: "It is the LORD who goes before you. He will be with you; he will not leave you or forsake you. Do not fear or be dismayed.",
+      text: "the LORD himself is who goes before you. He will be with you. He will not fail you nor forsake you. Don’t be afraid. Don’t be discouraged.",
       ref: "Deuteronomy 31:8",
     },
     reflection: "Whatever the coming weeks hold, God has already gone ahead of you into them. You are not walking into an unknown; he is there already.",
@@ -461,7 +461,7 @@ export const STAGES: Stage[] = [
     title: "Week 30 — A growing grip",
     body: "The baby's grip is strengthening, and the brain is developing quickly, forming the folds it will keep for life. There is less room to move, so kicks may feel firmer and closer. A capable little person is taking shape.",
     verse: {
-      text: "Trust in the LORD with all your heart, and do not lean on your own understanding. In all your ways acknowledge him, and he will make straight your paths.",
+      text: "Trust in the LORD with all your heart, and don’t lean on your own understanding. In all your ways acknowledge him, and he will make your paths straight.",
       ref: "Proverbs 3:5-6",
     },
     reflection: "You cannot see the whole path, but you can trust the One who does. Straight paths are his work, not yours to engineer.",
@@ -476,7 +476,7 @@ export const STAGES: Stage[] = [
     title: "Week 31 — Senses awake",
     body: "All five senses are working now, and the baby is taking in the muffled sounds, gentle light, and movements of the world you share. Rapid brain growth continues. The little one is becoming keenly aware.",
     verse: {
-      text: "Be still, and know that I am God.",
+      text: "Be still, and know that I am God. I will be exalted among the nations. I will be exalted in the earth.",
       ref: "Psalm 46:10",
     },
     reflection: "In a season of much doing and preparing, God calls you first to be still and know him. Stillness is not idleness; it is trust with its hands open.",
@@ -491,7 +491,7 @@ export const STAGES: Stage[] = [
     title: "Week 32 — Practicing to breathe",
     body: "The baby is practicing breathing motions and steadily gaining weight, growing rounder and softer. Their movements are strong and often felt throughout the day. Preparation for the first breath continues in earnest.",
     verse: {
-      text: "By the word of the LORD the heavens were made, and by the breath of his mouth all their host.",
+      text: "By the LORD’s word, the heavens were made: all their army by the breath of his mouth.",
       ref: "Psalm 33:6",
     },
     reflection: "The breath your child is practicing for is a gift from the God whose breath made the stars. Every breath, first to last, is grace.",
@@ -506,7 +506,7 @@ export const STAGES: Stage[] = [
     title: "Week 33 — Softly cradled",
     body: "The baby's bones are hardening, though the plates of the skull stay soft and separate to ease the journey of birth. The little one is running low on room and curling in close. Tender provision has been made even for the way out.",
     verse: {
-      text: "Can a woman forget her nursing child, that she should have no compassion on the son of her womb? Even these may forget, yet I will not forget you.",
+      text: "Can a woman forget her nursing child, that she should not have compassion on the son of her womb? Yes, these may forget, yet I will not forget you!",
       ref: "Isaiah 49:15",
     },
     reflection: "The tender love you feel is a small echo of a love that will never fail or forget. God's love outlasts even a mother's.",
@@ -521,7 +521,7 @@ export const STAGES: Stage[] = [
     title: "Week 34 — Small and complete",
     body: "Fingernails have grown to the very tips of the fingers, and the baby looks much as they will at birth, only smaller. The central nervous system and lungs keep maturing. The little one is nearly ready.",
     verse: {
-      text: "Blessed be the God and Father of our Lord Jesus Christ, the Father of mercies and God of all comfort.",
+      text: "Blessed be the God and Father of our Lord Jesus Christ, the Father of mercies and God of all comfort;",
       ref: "2 Corinthians 1:3",
     },
     reflection: "Whatever comfort you need in these final weeks, it flows from the Father of all mercies. He comforts not so you would forget the trouble, but so you would know him in it.",
@@ -536,7 +536,7 @@ export const STAGES: Stage[] = [
     title: "Week 35 — Filling out",
     body: "The baby is filling out with soft rounded cheeks and a fuller frame, and the kidneys and other organs are fully developed. Most of the major growing is done; now it is about final readiness. The little one is nearly complete.",
     verse: {
-      text: "Fear not, for I am with you; be not dismayed, for I am your God; I will strengthen you, I will help you, I will uphold you with my righteous right hand.",
+      text: "Don’t you be afraid, for I am with you. Don’t be dismayed, for I am your God. I will strengthen you. Yes, I will help you. Yes, I will uphold you with the right hand of my righteousness.",
       ref: "Isaiah 41:10",
     },
     reflection: "As the day approaches, God's answer to your fear is not a promise of ease but his own presence. He does not merely send help; he comes himself.",
@@ -551,7 +551,7 @@ export const STAGES: Stage[] = [
     title: "Week 36 — Settling into place",
     body: "The baby is often settling head-down and dropping lower in readiness for birth. Cheeks are plump now from the developing sucking muscles. The little one is quietly getting into position for the day ahead.",
     verse: {
-      text: "He will tend his flock like a shepherd; he will gather the lambs in his arms; he will carry them in his bosom, and gently lead those that are with young.",
+      text: "He will feed his flock like a shepherd. He will gather the lambs in his arm, and carry them in his bosom. He will gently lead those who have their young.",
       ref: "Isaiah 40:11",
     },
     reflection: "God has a special gentleness for mothers with young, leading you at a pace you can bear. He does not drive the ones who carry lambs; he leads them softly.",
@@ -566,7 +566,7 @@ export const STAGES: Stage[] = [
     title: "Week 37 — Nearly ready",
     body: "The baby is considered early term now and continues practicing breathing and swallowing. Fat is being added for warmth in the world outside. Nearly everything is ready for the meeting to come.",
     verse: {
-      text: "Do not be anxious about tomorrow, for tomorrow will be anxious for itself. Sufficient for the day is its own trouble.",
+      text: "Therefore don’t be anxious for tomorrow, for tomorrow will be anxious for itself. Each day’s own evil is sufficient.",
       ref: "Matthew 6:34",
     },
     reflection: "You cannot live tomorrow's labor today; God gives grace for one day at a time. Meet only the trouble that has actually arrived.",
@@ -581,7 +581,7 @@ export const STAGES: Stage[] = [
     title: "Week 38 — Ready and waiting",
     body: "The baby has a firm grasp and organs prepared for life outside the womb. Now it is largely a matter of waiting for the appointed time. Everything that can be made ready has been made ready.",
     verse: {
-      text: "Know that the LORD, he is God! It is he who made us, and we are his; we are his people, and the sheep of his pasture.",
+      text: "Know that the LORD, he is God. It is he who has made us, and we are his. We are his people, and the sheep of his pasture.",
       ref: "Psalm 100:3",
     },
     reflection: "This child was made by God and belongs to God before they ever belong to you. You will hold what is ultimately his.",
@@ -596,7 +596,7 @@ export const STAGES: Stage[] = [
     title: "Week 39 — Full term",
     body: "The baby is now full term, fully formed and simply growing and resting until birth. Any day now, the waiting may give way to meeting. The little one you have carried is nearly in your arms.",
     verse: {
-      text: "Every good gift and every perfect gift is from above, coming down from the Father of lights.",
+      text: "Every good gift and every perfect gift is from above, coming down from the Father of lights, with whom can be no variation, nor turning shadow.",
       ref: "James 1:17",
     },
     reflection: "The child soon to be placed in your arms is a good and perfect gift from above. Receive them as grace, not as reward.",
@@ -611,7 +611,7 @@ export const STAGES: Stage[] = [
     title: "Week 40 — The appointed time",
     body: "You have reached the due date, though babies keep their own timing. Soon the long season of waiting will give way to labor and to the first sight of your child's face. Joy is drawing near, on the other side of the work.",
     verse: {
-      text: "When a woman is giving birth, she has sorrow because her hour has come, but when she has delivered the baby, she no longer remembers the anguish, for joy that a human being has been born into the world.",
+      text: "A woman, when she gives birth, has sorrow because her time has come. But when she has delivered the child, she doesn’t remember the anguish any more, for the joy that a human being is born into the world.",
       ref: "John 16:21",
     },
     reflection: "The hard hour ahead is real, and so is the joy that will follow it. God does not spare you the labor, but he does not waste it either.",
@@ -626,7 +626,7 @@ export const STAGES: Stage[] = [
     title: "Month 0 — The fourth trimester",
     body: "Your newborn is here, curled and sleepy, still learning the wide world after the snugness of the womb. Days and nights blur together as feeding, soothing, and holding fill nearly every hour. This tender, foggy season is its own kind of holy ground.",
     verse: {
-      text: "For this child I prayed, and the LORD has granted me my petition that I made to him.",
+      text: "I prayed for this child, and the LORD has given me my petition which I asked of him.",
       ref: "1 Samuel 1:27",
     },
     reflection: "The child in your arms is an answered prayer, whatever the exhaustion of these first days. Grace does not stop being grace because it is tiring.",
@@ -641,7 +641,7 @@ export const STAGES: Stage[] = [
     title: "Month 1 — Learning your face",
     body: "Your baby is beginning to focus on faces and may offer the first tiny coos. They are comforted most by being held, fed, and hearing your voice. Slowly, a small person is learning that the world is a safe place to be.",
     verse: {
-      text: "But I have calmed and quieted my soul, like a weaned child with its mother; like a weaned child is my soul within me.",
+      text: "Surely I have stilled and quieted my soul, like a weaned child with his mother, like a weaned child is my soul within me.",
       ref: "Psalm 131:2",
     },
     reflection: "As your baby learns to be calmed by you, learn to be calmed by God. A quieted soul is not one without trouble, but one that has found where to rest.",
@@ -656,7 +656,7 @@ export const STAGES: Stage[] = [
     title: "Month 2 — The first true smiles",
     body: "Around now your baby may give their first real, responsive smiles, lighting up at the sight of you. Sleep may begin to gather into slightly longer stretches, though rhythms are still forming. Every smile is a small gift of connection.",
     verse: {
-      text: "In peace I will both lie down and sleep; for you alone, O LORD, make me dwell in safety.",
+      text: "In peace I will both lay myself down and sleep, for you, the LORD alone, make me live in safety.",
       ref: "Psalm 4:8",
     },
     reflection: "In a season measured by sleep you rarely get, God alone is the one who keeps you safe through the night. Your security rests in his watch, not your rest.",
@@ -671,7 +671,7 @@ export const STAGES: Stage[] = [
     title: "Month 3 — Coos and laughter",
     body: "Your baby is finding their voice with coos and gurgles, and the first laughs may bubble up. They hold their head steadier now and love watching the people around them. Their little personality is beginning to shine through.",
     verse: {
-      text: "As a father shows compassion to his children, so the LORD shows compassion to those who fear him.",
+      text: "Like a father has compassion on his children, so the LORD has compassion on those who fear him.",
       ref: "Psalm 103:13",
     },
     reflection: "The tenderness you feel toward your child is a window into God's compassion toward you. He is not a distant judge but a compassionate Father.",
@@ -686,7 +686,7 @@ export const STAGES: Stage[] = [
     title: "Month 4 — Reaching out",
     body: "Your baby is reaching for things, grasping at faces and toys, and may be starting to roll. They are increasingly curious about the world and delighted by play. Their growing awareness is a good time to begin small rhythms of family worship.",
     verse: {
-      text: "And these words that I command you today shall be on your heart. You shall teach them diligently to your children, and shall talk of them when you sit in your house, and when you walk by the way, and when you lie down, and when you rise.",
+      text: "These words, which I command you today, shall be on your heart; and you shall teach them diligently to your children, and shall talk of them when you sit in your house, and when you walk by the way, and when you lie down, and when you rise up.",
       ref: "Deuteronomy 6:6-7",
     },
     reflection: "Discipleship is not a program but a texture woven through ordinary days. Before your child understands the words, they will absorb the rhythm.",
@@ -701,7 +701,7 @@ export const STAGES: Stage[] = [
     title: "Month 5 — Grabbing the world",
     body: "Your baby grabs at everything within reach and brings much of it to their mouth to explore. They may sit with support and babble in strings of sounds. This is a season of eager discovery, and of parents telling of God's works aloud.",
     verse: {
-      text: "We will not hide them from their children, but tell to the coming generation the glorious deeds of the LORD, and his might, and the wonders that he has done.",
+      text: "We will not hide them from their children, telling to the generation to come the praises of the LORD, his strength, and his wondrous deeds that he has done.",
       ref: "Psalm 78:4",
     },
     reflection: "Long before your child can understand doctrine, they can hear you speak of God's goodness with joy. The next generation learns to treasure what they hear us treasure.",
@@ -716,7 +716,7 @@ export const STAGES: Stage[] = [
     title: "Month 6 — Sitting up to see",
     body: "Your baby may sit up on their own now, taking in the world from a new vantage point, and could be trying first tastes of solid food. Half a year of growth is behind you. Bring this little one into the family's worship, even as an observer in arms.",
     verse: {
-      text: "Let the children come to me; do not hinder them, for to such belongs the kingdom of God.",
+      text: "But when Jesus saw it, he was moved with indignation, and said to them, “Allow the little children to come to me! Don’t forbid them, for God’s Kingdom belongs to such as these.",
       ref: "Mark 10:14",
     },
     reflection: "Jesus welcomes the smallest children; so should our homes and worship. No one is too young to be brought near to Christ.",
@@ -731,7 +731,7 @@ export const STAGES: Stage[] = [
     title: "Month 7 — On the move",
     body: "Your baby may be babbling in longer strings and beginning to scoot or crawl toward what they want. They are learning cause and effect, testing what happens when they act. Gentle, consistent guidance begins to matter now.",
     verse: {
-      text: "Train up a child in the way he should go; even when he is old he will not depart from it.",
+      text: "Train up a child in the way he should go, and when he is old he will not depart from it.",
       ref: "Proverbs 22:6",
     },
     reflection: "Training is patient and long, aimed not at this moment only but at the whole of a life. You are laying grooves your child may run in for years to come.",
@@ -746,7 +746,7 @@ export const STAGES: Stage[] = [
     title: "Month 8 — Pulling to stand",
     body: "Your baby may pull up to standing and grow more aware of who is familiar and who is not, sometimes clinging when strangers come near. They are bonding deeply with you. This closeness is a good reminder of who truly holds your home together.",
     verse: {
-      text: "Unless the LORD builds the house, those who build it labor in vain.",
+      text: "Unless the LORD builds the house, they who build it labor in vain. Unless the LORD watches over the city, the watchman guards it in vain.",
       ref: "Psalm 127:1",
     },
     reflection: "All your efforts to build a strong family come to nothing unless God is the builder. Work hard, but rest in the fact that the outcome is his.",
@@ -761,7 +761,7 @@ export const STAGES: Stage[] = [
     title: "Month 9 — First words forming",
     body: "Your baby may be pointing, waving, and shaping their first word-like sounds, perhaps a mama or dada. They understand far more than they can say. What they hear from your lips is filling the well they will one day draw speech from.",
     verse: {
-      text: "Let the words of my mouth and the meditation of my heart be acceptable in your sight, O LORD, my rock and my redeemer.",
+      text: "Let the words of my mouth and the meditation of my heart be acceptable in your sight, the LORD, my rock, and my redeemer.",
       ref: "Psalm 19:14",
     },
     reflection: "As your child gathers their first words, consider the words that fill your home. What they hear you say most will shape what they learn to treasure.",
@@ -776,7 +776,7 @@ export const STAGES: Stage[] = [
     title: "Month 10 — Little understandings",
     body: "Your baby is beginning to grasp simple words like no and bye, and may wave or clap on cue. Their reasoning is still that of a small child, wonderfully concrete. Meet them where they are, gently and patiently.",
     verse: {
-      text: "When I was a child, I spoke like a child, I thought like a child, I reasoned like a child.",
+      text: "When I was a child, I spoke as a child, I felt as a child, I thought as a child. Now that I have become a man, I have put away childish things.",
       ref: "1 Corinthians 13:11",
     },
     reflection: "God is patient with our childlike understanding, and calls us to the same patience. Your child cannot reason as an adult yet, and does not need to.",
@@ -791,7 +791,7 @@ export const STAGES: Stage[] = [
     title: "Month 11 — Cruising along",
     body: "Your baby may be cruising along the furniture and standing with more confidence, edging toward those first independent steps. All this activity can leave parents worn thin. In the tiredness, God renews the strength of those who wait on him.",
     verse: {
-      text: "But they who wait for the LORD shall renew their strength; they shall mount up with wings like eagles; they shall run and not be weary; they shall walk and not faint.",
+      text: "but those who wait for the LORD will renew their strength. They will mount up with wings like eagles. They will run, and not be weary. They will walk, and not faint.",
       ref: "Isaiah 40:31",
     },
     reflection: "The strength you lack is not manufactured but received, given fresh to those who wait on the Lord. Waiting on him is not passive; it is where renewal comes.",
@@ -806,7 +806,7 @@ export const STAGES: Stage[] = [
     title: "Month 12 — The first year complete",
     body: "Your baby may be taking first steps and saying a few clear words as they reach their first birthday. A whole year of growth and grace lies behind you. This little one is growing in body and, by God's kindness, in favor.",
     verse: {
-      text: "Now the boy Samuel continued to grow both in stature and in favor with the LORD and also with man.",
+      text: "The child Samuel grew on, and increased in favor both with the LORD and also with men.",
       ref: "1 Samuel 2:26",
     },
     reflection: "Look back over a year of small daily faithfulness and see how God has grown your child. What felt like ordinary days added up to a year of grace.",
@@ -821,7 +821,7 @@ export const STAGES: Stage[] = [
     title: "Month 13 — Toddling forward",
     body: "Your little one is toddling with growing confidence and exploring everything within reach. New words and gestures appear almost daily. The family table is becoming a place where this little shoot grows up among you.",
     verse: {
-      text: "Your children will be like olive shoots around your table.",
+      text: "Your wife will be as a fruitful vine in the innermost parts of your house, your children like olive plants around your table.",
       ref: "Psalm 128:3",
     },
     reflection: "The family table is a small nursery for growing souls, gathered close around you. Ordinary meals become the soil where children take root.",
@@ -836,7 +836,7 @@ export const STAGES: Stage[] = [
     title: "Month 14 — Watching and copying",
     body: "Your toddler is a keen imitator now, copying your words, gestures, and even your tone of voice. They are learning how to live by watching how you live. What they see in you teaches more than anything you say.",
     verse: {
-      text: "Even a child makes himself known by his acts, by whether his conduct is pure and upright.",
+      text: "Even a child makes himself known by his doings, whether his work is pure, and whether it is right.",
       ref: "Proverbs 20:11",
     },
     reflection: "Your child is learning godliness less from your instructions than from your example. They will imitate the life they see, not merely the words they hear.",
@@ -851,7 +851,7 @@ export const STAGES: Stage[] = [
     title: "Month 15 — Words on the rise",
     body: "Your toddler's vocabulary is growing, and they are eager to name the world around them. They test limits and feelings with equal energy. Loving discipline and instruction now go hand in hand.",
     verse: {
-      text: "Fathers, do not provoke your children to anger, but bring them up in the discipline and instruction of the Lord.",
+      text: "You fathers, don’t provoke your children to wrath, but nurture them in the discipline and instruction of the Lord.",
       ref: "Ephesians 6:4",
     },
     reflection: "Discipline is not the opposite of love but one of its truest forms, aimed always at the child's good. It is nurture, not merely correction.",
@@ -866,7 +866,7 @@ export const STAGES: Stage[] = [
     title: "Month 16 — Big feelings",
     body: "Your toddler feels things strongly and may not yet have words for the storms inside them, so frustration can spill into tears or tantrums. This is normal and not a sign of failure. It is a tender place to teach the heart with patience.",
     verse: {
-      text: "Folly is bound up in the heart of a child, but the rod of discipline drives it far from him.",
+      text: "Folly is bound up in the heart of a child: the rod of discipline drives it far from him.",
       ref: "Proverbs 22:15",
     },
     reflection: "Your child's struggles are not surprising; folly is bound up in every human heart, including your own. Loving correction is part of shepherding, not rejecting, your child.",
@@ -881,7 +881,7 @@ export const STAGES: Stage[] = [
     title: "Month 17 — Testing and tender",
     body: "Your toddler swings between fierce independence and needing your comfort, often within the same minute. They are learning how to handle big emotions with small resources. Your steady, gentle presence teaches them more than any lecture.",
     verse: {
-      text: "Fathers, do not provoke your children, lest they become discouraged.",
+      text: "Fathers, don’t provoke your children, so that they won’t be discouraged.",
       ref: "Colossians 3:21",
     },
     reflection: "Discipline that crushes rather than shepherds leaves a child discouraged. Aim to correct in a way that builds up and never breaks the spirit.",
@@ -896,7 +896,7 @@ export const STAGES: Stage[] = [
     title: "Month 18 — Off and running",
     body: "Your child is likely walking well and may be running, climbing, and exploring with fearless energy. Their world is expanding fast, and so is their will. These little ones are arrows being carefully aimed for years to come.",
     verse: {
-      text: "Like arrows in the hand of a warrior are the children of one's youth.",
+      text: "As arrows in the hand of a mighty man, so are the children of youth.",
       ref: "Psalm 127:4",
     },
     reflection: "Children are arrows meant to be aimed and released, not kept forever on the string. Even now you are shaping a life meant one day to fly.",
@@ -911,7 +911,7 @@ export const STAGES: Stage[] = [
     title: "Month 19 — Make-believe begins",
     body: "Your toddler is beginning to pretend, feeding a doll or talking on a toy phone, a sign of a growing imagination. They come to the world with wide-eyed trust and wonder. There is much to learn from the simple, dependent faith of a small child.",
     verse: {
-      text: "Truly, I say to you, unless you turn and become like children, you will never enter the kingdom of heaven.",
+      text: "and said, “Most certainly I tell you, unless you turn, and become as little children, you will in no way enter into the Kingdom of Heaven.",
       ref: "Matthew 18:3",
     },
     reflection: "Jesus points to the trust and lowliness of children as the shape of true faith. Your child's simple dependence is a picture of how God calls you to come to him.",
@@ -926,7 +926,7 @@ export const STAGES: Stage[] = [
     title: "Month 20 — A growing memory",
     body: "Your toddler remembers routines, people, and favorite stories, and loves the comfort of repetition. Their memory is a fertile field for the truths you plant. What you teach now can take root and last.",
     verse: {
-      text: "Make them known to your children and your children's children.",
+      text: "Only be careful, and keep your soul diligently, lest you forget the things which your eyes saw, and lest they depart from your heart all the days of your life; but make them known to your children and your children’s children—",
       ref: "Deuteronomy 4:9",
     },
     reflection: "The truths you repeat now are being stored for a lifetime and beyond. You are teaching not only your child but generations you may never meet.",
@@ -941,7 +941,7 @@ export const STAGES: Stage[] = [
     title: "Month 21 — Little choices",
     body: "Your toddler is asserting preferences and making small choices, discovering they have a will of their own. This growing independence is an opportunity to model whom your family serves. Even small daily choices point toward larger loyalties.",
     verse: {
-      text: "But as for me and my house, we will serve the LORD.",
+      text: "If it seems evil to you to serve the LORD, choose today whom you will serve; whether the gods which your fathers served that were beyond the River, or the gods of the Amorites, in whose land you dwell; but as for me and my house, we will serve the LORD.",
       ref: "Joshua 24:15",
     },
     reflection: "Your child will learn what it means to serve the Lord largely by watching your household do it. The choice is renewed daily, in ordinary decisions.",
@@ -956,7 +956,7 @@ export const STAGES: Stage[] = [
     title: "Month 22 — Stringing words together",
     body: "Your toddler is beginning to put two or three words together into little sentences, telling you more of what they see and want. Language is opening up their inner world. The faith you live is being passed into a heart that is starting to speak.",
     verse: {
-      text: "I am reminded of your sincere faith, a faith that dwelt first in your grandmother Lois and your mother Eunice.",
+      text: "having been reminded of the sincere faith that is in you, which lived first in your grandmother Lois, and your mother Eunice, and, I am persuaded, in you also.",
       ref: "2 Timothy 1:5",
     },
     reflection: "Faith is often handed down through ordinary, sincere households across generations. The quiet faith of parents becomes the inheritance of children.",
@@ -971,7 +971,7 @@ export const STAGES: Stage[] = [
     title: "Month 23 — Hungry for stories",
     body: "Your toddler loves stories now, asking for the same ones again and again and soaking up every word. This appetite is a gift and an open door. It is a fitting time to make the Scriptures a familiar and beloved part of their days.",
     verse: {
-      text: "From childhood you have been acquainted with the sacred writings, which are able to make you wise for salvation through faith in Christ Jesus.",
+      text: "From infancy, you have known the holy Scriptures which are able to make you wise for salvation through faith, which is in Christ Jesus.",
       ref: "2 Timothy 3:15",
     },
     reflection: "The Scriptures your child hears now can make them wise for salvation later. You are not merely reading stories; you are sowing seeds of eternal life.",
@@ -986,7 +986,7 @@ export const STAGES: Stage[] = [
     title: "Month 24 — Two years of grace",
     body: "Your child is full of words, will, and wonder as they reach two years old. Every day they grow in body, mind, and understanding. Like the Lord Jesus in his childhood, they grow in stature and, by grace, in favor with God and people.",
     verse: {
-      text: "And Jesus increased in wisdom and in stature and in favor with God and man.",
+      text: "And Jesus increased in wisdom and stature, and in favor with God and men.",
       ref: "Luke 2:52",
     },
     reflection: "Even the Son of God grew as a child, through ordinary years of increasing wisdom and favor. Your child's slow growth is holy ground, and God is at work in every step.",

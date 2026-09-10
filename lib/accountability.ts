@@ -59,7 +59,7 @@ const V = {
   heritage: { text: "Behold, children are a heritage of the LORD. The fruit of the womb is his reward.", ref: "Psalm 127:3" },
   help: { text: "My help comes from the LORD, who made heaven and earth.", ref: "Psalm 121:2" },
   refuge: { text: "God is our refuge and strength, a very present help in trouble.", ref: "Psalm 46:1" },
-  brokenhearted: { text: "The LORD is near to those who have a broken heart, and saves those who have a crushed spirit.", ref: "Psalm 34:18" },
+  brokenhearted: { text: "the LORD is near to those who have a broken heart, and saves those who have a crushed spirit.", ref: "Psalm 34:18" },
   anxious: { text: "In nothing be anxious, but in everything, by prayer and petition with thanksgiving, let your requests be made known to God.", ref: "Philippians 4:6" },
   rejoiceWeep: { text: "Rejoice with those who rejoice. Weep with those who weep.", ref: "Romans 12:15" },
   hospitality: { text: "contributing to the needs of the saints; given to hospitality.", ref: "Romans 12:13" },
@@ -71,7 +71,7 @@ const V = {
   fearNot: { text: "Don’t you be afraid, for I am with you. Don’t be dismayed, for I am your God. I will strengthen you. Yes, I will help you. Yes, I will uphold you with the right hand of my righteousness.", ref: "Isaiah 41:10" },
   renew: { text: "but those who wait for the LORD will renew their strength. They will mount up with wings like eagles. They will run, and not be weary. They will walk, and not faint.", ref: "Isaiah 40:31" },
   gently: { text: "He will feed his flock like a shepherd. He will gather the lambs in his arm, and carry them in his bosom. He will gently lead those who have their young.", ref: "Isaiah 40:11" },
-  comfort: { text: "As one whom his mother comforts, so I will comfort you.", ref: "Isaiah 66:13" },
+  comfort: { text: "As one whom his mother comforts, so I will comfort you. You will be comforted in Jerusalem.", ref: "Isaiah 66:13" },
   travail: { text: "A woman, when she gives birth, has sorrow because her time has come. But when she has delivered the child, she doesn’t remember the anguish any more, for the joy that a human being is born into the world.", ref: "John 16:21" },
   mercies: { text: "They are new every morning. Great is your faithfulness.", ref: "Lamentations 3:23" },
   provoke: { text: "Let’s consider how to provoke one another to love and good works,", ref: "Hebrews 10:24" },
@@ -80,8 +80,8 @@ const V = {
   speech: { text: "Let no corrupt speech proceed out of your mouth, but only what is good for building others up as the need may be, that it may give grace to those who hear.", ref: "Ephesians 4:29" },
   prayForOne: { text: "Confess your offenses to one another, and pray for one another, that you may be healed. The insistent prayer of a righteous person is powerfully effective.", ref: "James 5:16" },
   steadfast: { text: "Continue steadfastly in prayer, watching in it with thanksgiving,", ref: "Colossians 4:2" },
-  visited: { text: "I was sick, and you visited me.", ref: "Matthew 25:36" },
-  bless: { text: "The LORD bless you, and keep you.", ref: "Numbers 6:24" },
+  visited: { text: "I was naked, and you clothed me. I was sick, and you visited me. I was in prison, and you came to me.", ref: "Matthew 25:36" },
+  bless: { text: "the LORD bless you, and keep you.", ref: "Numbers 6:24" },
 } satisfies Record<string, Verse>;
 
 // ── Day by day ─────────────────────────────────────────────────────────────
