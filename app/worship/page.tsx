@@ -37,6 +37,8 @@ import { PageHero } from "@/components/ui/PageHero";
 import { ProgressRing } from "@/components/ui/ProgressRing";
 import { AnimatedNumber } from "@/components/ui/AnimatedNumber";
 import { LiturgyRail, type Station } from "@/components/worship/LiturgyRail";
+import { bookBySlug } from "@/lib/bible";
+import { bookIntro } from "@/lib/book-intros";
 
 export const metadata: Metadata = {
   title: "Family worship",
@@ -126,8 +128,13 @@ export default async function WorshipPage({
         }
       : null;
   const chapterPayload: ChapterPayload | null =
-    chapterText && st?.nextRef
-      ? { ref: st.nextRef, verses: chapterText.verses }
+    chapterText && st?.nextRef && st.next
+      ? {
+          ref: st.nextRef,
+          verses: chapterText.verses,
+          bookName: bookBySlug(st.next.slug)?.name ?? st.next.slug,
+          intro: bookIntro(st.next.slug),
+        }
       : null;
   const planOptions = READING_PLANS.map((p) => ({
     id: p.id,

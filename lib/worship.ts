@@ -648,6 +648,426 @@ export const LITURGIES: Liturgy[] = [
     pray: "LORD, guard our souls from forgetting your works, that we may make them known to our children.",
     talk: "What has God done in our lives that we are in danger of forgetting before we pass it on?",
   },
+  {
+    read: { text: "She called the name of the LORD who spoke to her, “You are a God who sees,” for she said, “Have I even stayed alive after seeing him?", ref: "Genesis 16:13" },
+    reflection:
+      "You are a God who sees. Hagar names God after being found in a desert — a pregnant, used, runaway slave woman with no standing at all. The first person in Scripture to give God a name is her. God's attention does not track our importance.",
+    talk: "Where do you feel unseen in this season? What would it mean that God sees you there?",
+    pray: "God who sees, you found Hagar in the desert. See us here.",
+  },
+  {
+    read: { text: "The children struggled together within her. She said, “If it is like this, why do I live?” She went to inquire of the LORD.", ref: "Genesis 25:22" },
+    reflection:
+      "The children struggled together within her. She said, 'Why do I live?' and went to inquire of the LORD. A difficult pregnancy drove Rebekah to ask God a raw question. Scripture records the question without correcting her for asking it.",
+    talk: "What raw question would you ask God about this season if you knew you would not be scolded for it?",
+    pray: "Lord, we bring you our hard questions. Thank you that you receive them.",
+  },
+  {
+    read: { text: "God remembered Rachel, and God listened to her, and opened her womb.", ref: "Genesis 30:22" },
+    reflection:
+      "God remembered Rachel, and God listened to her. The Bible speaks plainly about wombs that stayed closed for years. It does not offer a formula for opening them, and it never treats the waiting woman as at fault.",
+    talk: "How has waiting shaped what you believe about God — honestly?",
+    pray: "Lord, you remember and you listen. We are still waiting on you for some things.",
+  },
+  {
+    read: { text: "When she could no longer hide him, she took a papyrus basket for him, and coated it with tar and with pitch. She put the child in it, and laid it in the reeds by the river’s bank.", ref: "Exodus 2:3" },
+    reflection:
+      "When she could no longer hide him, she took a papyrus basket for him. A mother does what she can and then must let the river carry him. Every parent reaches the edge of what they can protect, usually sooner than they expected.",
+    talk: "What are you already having to entrust to God rather than control?",
+    pray: "Lord, we can only do so much. We put this child into your hands.",
+  },
+  {
+    read: { text: "the LORD said to him, “Who made man’s mouth? Or who makes one mute, or deaf, or seeing, or blind? Isn’t it I, the LORD?", ref: "Exodus 4:11" },
+    reflection:
+      "Who made man's mouth? Or who makes one mute, or deaf, or seeing, or blind? Isn't it I, the LORD? God does not distance himself from disability. He claims it — and then sends Moses anyway. A child God gives is not a mistake, whatever their body does.",
+    talk: "What are you afraid this child might be or might lack? Can you bring that fear to God as it is?",
+    pray: "Lord, you make and you know. Whatever this child is, you have not made a mistake.",
+  },
+  {
+    read: { text: "The eternal God is your dwelling place. Underneath are the everlasting arms. He thrust out the enemy from before you, and said, ‘Destroy!", ref: "Deuteronomy 33:27" },
+    reflection:
+      "The eternal God is your dwelling place. Underneath are the everlasting arms. Not a promise of an easy road but of a floor that will not give way. Some nights that is exactly the promise you need.",
+    talk: "What would it mean tonight to trust that underneath everything are everlasting arms?",
+    pray: "Eternal God, be our dwelling place. Hold us with your everlasting arms.",
+  },
+  {
+    read: { text: "I prayed for this child, and the LORD has given me my petition which I asked of him. Therefore I have also given him to the LORD. As long as he lives he is given to the LORD.” He worshiped the LORD there.", ref: "1 Samuel 1:27-28" },
+    reflection:
+      "For this child I prayed... therefore I have also given him to the LORD. Hannah's answered prayer ended in giving him away. A child who is a gift is never a possession, and holding them loosely starts long before they leave.",
+    talk: "What does it look like to give this child back to God while still longing for them?",
+    pray: "Lord, this child is yours before they are ours. Help us hold them with open hands.",
+  },
+  {
+    read: { text: "Hannah prayed, and said: “My heart exults in the LORD! My horn is exalted in the LORD. My mouth is enlarged over my enemies, because I rejoice in your salvation. There is no one as holy as the LORD, for there is no one besides you, nor is there any rock like our God.", ref: "1 Samuel 2:1-2" },
+    reflection:
+      "My heart exults in the LORD... There is no rock like our God. Hannah's song is not about her baby. Having finally received what she begged for, she sings about God's character, not her outcome.",
+    talk: "When God gives you what you asked for, what do you end up praising — the gift or the giver?",
+    pray: "Lord, there is no rock like you. Let our joy land on you, not only on your gifts.",
+  },
+  {
+    read: { text: "Please run now to meet her, and ask her, ‘Is it well with you? Is it well with your husband? Is it well with your child?’ ” She answered, “It is well.", ref: "2 Kings 4:26" },
+    reflection:
+      "Is it well with you? Is it well with your husband? Is it well with the child? And she answered, 'It is well.' She says it while carrying her dead son upstairs. Faith here is not denial — it is a refusal to let the worst day have the final word.",
+    talk: "Can you say 'it is well' about something not yet well? What does that mean and not mean?",
+    pray: "Lord, when it is not well, hold us until it is. We will not let go of you.",
+  },
+  {
+    read: { text: "But you brought me out of the womb. You made me trust while at my mother’s breasts. I was thrown on you from my mother’s womb. You are my God since my mother bore me.", ref: "Psalm 22:9-10" },
+    reflection:
+      "You brought me out of the womb. You made me trust while at my mother's breasts. Written by David and quoted by Christ from the cross. God's care reaches back before memory — before this child can know anything, God is already at work.",
+    talk: "What comfort is there in God's care beginning before a child can understand it?",
+    pray: "Lord, you have kept us since the womb. Keep this child from the very beginning.",
+  },
+  {
+    read: { text: "For his anger is but for a moment. His favor is for a lifetime. Weeping may stay for the night, but joy comes in the morning.", ref: "Psalm 30:5" },
+    reflection:
+      "Weeping may stay for the night, but joy comes in the morning. Note the night is real and it lasts. This is not a promise about how long — it is a promise about the direction things finally go for those who belong to God.",
+    talk: "What has your night been? Do you believe there is a morning?",
+    pray: "Lord, our weeping has been long. We wait for the morning you have promised.",
+  },
+  {
+    read: { text: "You count my wanderings. You put my tears into your container. Aren’t they in your book?", ref: "Psalm 56:8" },
+    reflection:
+      "You count my wanderings. You put my tears into your container. Aren't they in your book? God does not merely tolerate our crying; he keeps it. Nothing you have wept in this season has been unnoticed or wasted.",
+    talk: "What have you cried about that you assumed nobody counted?",
+    pray: "Lord, you keep our tears in your bottle. Thank you that none of them are lost.",
+  },
+  {
+    read: { text: "A father of the fatherless, and a defender of the widows, is God in his holy habitation. God sets the lonely in families. He brings out the prisoners with singing, but the rebellious dwell in a sun-scorched land.", ref: "Psalm 68:5-6" },
+    reflection:
+      "A father of the fatherless, and a defender of the widows, is God. God sets the lonely in families. God's instinct runs toward those without support. If your circle is thin right now, this is his particular concern.",
+    talk: "Who has God set around you? Who could you invite closer?",
+    pray: "Lord, you set the lonely in families. Give us people, and make us people to others.",
+  },
+  {
+    read: { text: "I have relied on you from the womb. You are he who took me out of my mother’s womb. I will always praise you.", ref: "Psalm 71:6" },
+    reflection:
+      "I have relied on you from the womb. You are he who took me out of my mother's womb. Whatever your own start in life was, the psalmist claims God's hand on it. That claim is available to this child too.",
+    talk: "What kind of start did you have? What do you want to be different, and what do you want to keep?",
+    pray: "Lord, you have held us since birth. Hold this child from the first moment.",
+  },
+  {
+    read: { text: "In the multitude of my thoughts within me, your comforts delight my soul.", ref: "Psalm 94:19" },
+    reflection:
+      "In the multitude of my thoughts within me, your comforts delight my soul. The psalmist names the racing mind and then names the comfort. God's consolation does not require you to first stop worrying.",
+    talk: "What thoughts multiply in you at 3am? What comfort could you bring to them?",
+    pray: "Lord, when our thoughts multiply, let your comfort delight our souls.",
+  },
+  {
+    read: { text: "He settles the barren woman in her home as a joyful mother of children. Praise Yah!", ref: "Psalm 113:9" },
+    reflection:
+      "He settles the barren woman in her home as a joyful mother of children. This is a psalm of praise for God's reversals — and it is honest that the situation being reversed was a real grief. Praise here does not skip the pain.",
+    talk: "What reversal are you hoping for? Can you praise God before you see it?",
+    pray: "Lord, you lift the needy from the ash heap. We wait on you and praise you.",
+  },
+  {
+    read: { text: "Precious in the LORD’s sight is the death of his saints.", ref: "Psalm 116:15" },
+    reflection:
+      "Precious in the LORD's sight is the death of his saints. Some pregnancies end, and some children do not stay. Scripture does not explain that away, and it does say that God does not treat any of it as cheap.",
+    talk: "If you have lost a child, have you been able to grieve out loud? Who have you told?",
+    pray: "Lord, precious to you is every one of your saints. Hold those who are grieving.",
+  },
+  {
+    read: { text: "the LORD will fulfill that which concerns me. Your loving kindness, the LORD, endures forever. Don’t forsake the works of your own hands.", ref: "Psalm 138:8" },
+    reflection:
+      "The LORD will fulfill that which concerns me. Your loving kindness, LORD, endures forever. Don't forsake the works of your own hands. Confidence and pleading in one breath. Faith is allowed to ask God to do what it just declared he would.",
+    talk: "What are you both confident about and still pleading for?",
+    pray: "Lord, fulfil your purpose for us. Do not forsake the work of your own hands.",
+  },
+  {
+    read: { text: "He will feed his flock like a shepherd. He will gather the lambs in his arm, and carry them in his bosom. He will gently lead those who have their young.", ref: "Isaiah 40:11" },
+    reflection:
+      "He will gently lead those who have their young. God's care is specifically calibrated to those carrying and nursing — he leads them gently, at their pace. He does not drive a new mother the way the world does.",
+    talk: "Where are you being driven rather than led? What would a gentler pace require?",
+    pray: "Shepherd of your people, gather us in your arms and lead us gently.",
+  },
+  {
+    read: { text: "Can a woman forget her nursing child, that she should not have compassion on the son of her womb? Yes, these may forget, yet I will not forget you! Behold, I have engraved you on the palms of my hands. Your walls are continually before me.", ref: "Isaiah 49:15-16" },
+    reflection:
+      "Can a woman forget her nursing child? ... Yes, these may forget, yet I will not forget you. God takes the strongest human bond he can name and says his own is stronger. And then: I have engraved you on the palms of my hands.",
+    talk: "Which do you find harder to believe — that God loves this child, or that he loves you?",
+    pray: "Lord, you have engraved us on your palms. You will not forget us.",
+  },
+  {
+    read: { text: "For the mountains may depart, and the hills be removed; but my loving kindness will not depart from you, and my covenant of peace will not be removed,” says the LORD who has mercy on you.", ref: "Isaiah 54:10" },
+    reflection:
+      "The mountains may depart, and the hills be removed; but my loving kindness will not depart from you. The covenant of peace is more stable than geology. Whatever else moves in these months, this does not.",
+    talk: "What has moved under you recently? What has not?",
+    pray: "Lord, mountains may move but your steadfast love will not depart from us.",
+  },
+  {
+    read: { text: "Before I formed you in the womb, I knew you. Before you were born, I sanctified you. I have appointed you a prophet to the nations.", ref: "Jeremiah 1:5" },
+    reflection:
+      "Before I formed you in the womb, I knew you. Spoken to Jeremiah about his calling, and it says something true of every person God forms: knowing precedes forming. This child is already known.",
+    talk: "How does it change your waiting to know God already knows this child fully?",
+    pray: "Lord, you knew us before you formed us. You already know this child.",
+  },
+  {
+    read: { text: "the LORD is my portion,” says my soul. “Therefore I will hope in him.” the LORD is good to those who wait for him, to the soul who seeks him. It is good that a man should hope and quietly wait for the salvation of the LORD.", ref: "Lamentations 3:24-26" },
+    reflection:
+      "The LORD is my portion, says my soul. Therefore I will hope in him... It is good that a man should hope and quietly wait. Written in the ruins. Waiting quietly is named as good — not passive, not resigned, but hopeful.",
+    talk: "What does quiet waiting look like for you, practically, this week?",
+    pray: "Lord, you are our portion. We will hope in you and wait quietly.",
+  },
+  {
+    read: { text: "For the vision is yet for the appointed time, and it hurries toward the end, and won’t prove false. Though it takes time, wait for it; because it will surely come. It won’t delay.", ref: "Habakkuk 2:3" },
+    reflection:
+      "For the vision is yet for the appointed time... Though it takes time, wait for it; because it will surely come. God's timing is described as appointed, not arbitrary — and as slower than we would like.",
+    talk: "What are you waiting for that has taken longer than you expected?",
+    pray: "Lord, your time is appointed. Give us patience until it comes.",
+  },
+  {
+    read: { text: "Behold, the virgin shall be with child, and shall give birth to a son. They shall call his name Immanuel;” which is, being interpreted, “God with us.", ref: "Matthew 1:23" },
+    reflection:
+      "Behold, the virgin shall be with child, and shall give birth to a son. They shall call his name Immanuel — God with us. An unplanned, socially catastrophic pregnancy is how God chose to come. He is not embarrassed by complicated circumstances.",
+    talk: "What is complicated about your circumstances? Does God seem embarrassed by it?",
+    pray: "Immanuel, you came through a difficult story. Be with us in ours.",
+  },
+  {
+    read: { text: "See the birds of the sky, that they don’t sow, neither do they reap, nor gather into barns. Your heavenly Father feeds them. Aren’t you of much more value than they? “Which of you, by being anxious, can add one moment to his lifespan?", ref: "Matthew 6:26-27" },
+    reflection:
+      "Which of you by being anxious, can add one moment to his lifespan? Jesus does not shame the anxious; he reasons with them. Worry has never once changed an outcome, and he knows how hard that is to feel.",
+    talk: "What is your worry actually accomplishing? What would it take to hand it over?",
+    pray: "Father, you feed the birds. Teach us to stop trying to control what we cannot.",
+  },
+  {
+    read: { text: "But Jesus said, “Allow the little children, and don’t forbid them to come to me; for the Kingdom of Heaven belongs to ones like these.", ref: "Matthew 19:14" },
+    reflection:
+      "Allow the little children, and don't forbid them to come to me. The disciples thought children were an interruption to real ministry. Jesus corrected them sharply. In his kingdom the small are not in the way.",
+    talk: "Where do you treat children as an interruption to more important things?",
+    pray: "Lord Jesus, you welcomed children. Let this home welcome them as you do.",
+  },
+  {
+    read: { text: "For nothing spoken by God is impossible.", ref: "Luke 1:37" },
+    reflection:
+      "For nothing spoken by God is impossible. Said to a young woman being told something biologically impossible. It is a statement about God's power, not a blank cheque for our plans — Mary's yes led to a sword through her own soul.",
+    talk: "How is this verse usually used? What does Mary's whole story do to that reading?",
+    pray: "Lord, nothing is impossible for you. Give us Mary's yes, whatever it costs.",
+  },
+  {
+    read: { text: "Mary said, “My soul magnifies the Lord. My spirit has rejoiced in God my Savior, for he has looked at the humble state of his servant. For behold, from now on, all generations will call me blessed.", ref: "Luke 1:46-48" },
+    reflection:
+      "My soul magnifies the Lord... for he has looked at the humble state of his servant. Mary's song celebrates a God who notices the lowly and unseats the powerful. Pregnancy in Scripture is often political before it is sentimental.",
+    talk: "What does it mean that God looked on the humble state of an unimportant girl?",
+    pray: "Lord, you regard the lowly. Magnify yourself in this ordinary house.",
+  },
+  {
+    read: { text: "She gave birth to her firstborn son. She wrapped him in bands of cloth, and laid him in a feeding trough, because there was no room for them in the inn.", ref: "Luke 2:7" },
+    reflection:
+      "She wrapped him in bands of cloth and laid him in a feeding trough, because there was no room for them in the inn. The Saviour's first bed was borrowed and unsuitable. God's plans are rarely delivered under ideal conditions.",
+    talk: "What is not ideal about your circumstances? Does that disqualify anything?",
+    pray: "Lord Jesus, you were laid in a manger. Meet us in our unideal circumstances.",
+  },
+  {
+    read: { text: "and Simeon blessed them, and said to Mary, his mother, “Behold, this child is set for the falling and the rising of many in Israel, and for a sign which is spoken against. Yes, a sword will pierce through your own soul, that the thoughts of many hearts may be revealed.", ref: "Luke 2:34-35" },
+    reflection:
+      "A sword will pierce through your own soul. Simeon blesses Mary and tells her the truth in the same breath. Nobody promised her an easy motherhood, and God was not less good to her for it.",
+    talk: "Have you assumed that God's blessing means an easy road? Where did that idea come from?",
+    pray: "Lord, you tell us the truth. Prepare us for what is coming, and be with us in it.",
+  },
+  {
+    read: { text: "And Jesus increased in wisdom and stature, and in favor with God and men.", ref: "Luke 2:52" },
+    reflection:
+      "Jesus increased in wisdom and stature, and in favour with God and men. The Son of God grew — learned to walk, learned to speak, grew up. Whatever this child needs to learn slowly, so did he.",
+    talk: "Where are you impatient for growth that can only be slow?",
+    pray: "Lord Jesus, you grew as a child. Give us patience with growth that takes time.",
+  },
+  {
+    read: { text: "His disciples asked him, “Rabbi, who sinned, this man or his parents, that he was born blind?” Jesus answered, “This man didn’t sin, nor did his parents; but, that the works of God might be revealed in him.", ref: "John 9:2-3" },
+    reflection:
+      "Who sinned, this man or his parents, that he was born blind? Jesus answered, 'Neither.' He refuses the whole question. Suffering is not a code to be decoded back to somebody's fault — least of all a parent's.",
+    talk: "Have you searched for what you did wrong when something went wrong? What does Jesus say here?",
+    pray: "Lord Jesus, you refused to blame. Free us from hunting for our own guilt in every hard thing.",
+  },
+  {
+    read: { text: "Peace I leave with you. My peace I give to you; not as the world gives, I give to you. Don’t let your heart be troubled, neither let it be fearful.", ref: "John 14:27" },
+    reflection:
+      "Peace I leave with you. My peace I give to you; not as the world gives. The world's peace depends on things going well. Christ's does not, which is why it can be given the night before a crucifixion.",
+    talk: "What kind of peace are you actually looking for? Which one is on offer?",
+    pray: "Lord Jesus, give us your peace, not the world's. Let our hearts not be troubled.",
+  },
+  {
+    read: { text: "They said, “Believe in the Lord Jesus Christ, and you will be saved, you and your household.", ref: "Acts 16:31" },
+    reflection:
+      "Believe in the Lord Jesus Christ, and you will be saved, you and your household. A jailer's whole house heard the word and believed. It is a promise about the gospel reaching a household, not a guarantee that a parent's faith saves a child automatically.",
+    talk: "What does it mean to want the gospel for your whole house without presuming on it?",
+    pray: "Lord, bring this whole household to yourself. We ask, and we do not presume.",
+  },
+  {
+    read: { text: "For I consider that the sufferings of this present time are not worthy to be compared with the glory which will be revealed toward us.", ref: "Romans 8:18" },
+    reflection:
+      "The sufferings of this present time are not worthy to be compared with the glory which will be revealed. Paul does not minimise present suffering — he weighs it against something. The comparison is what makes it bearable, not denial.",
+    talk: "What are you carrying that needs weighing against something bigger?",
+    pray: "Lord, our sufferings are real. Let them be outweighed by the glory to come.",
+  },
+  {
+    read: { text: "For we know that the whole creation groans and travails in pain together until now. Not only so, but ourselves also, who have the first fruits of the Spirit, even we ourselves groan within ourselves, waiting for adoption, the redemption of our body.", ref: "Romans 8:22-23" },
+    reflection:
+      "The whole creation groans and travails in pain together until now. Paul reaches for the language of labour to describe creation itself. Groaning is not a sign that something has gone wrong — it is what waiting for redemption feels like.",
+    talk: "What are you groaning about? Does it help to know creation groans with you?",
+    pray: "Lord, we groan inwardly, waiting. Come quickly and make all things new.",
+  },
+  {
+    read: { text: "Now we who are strong ought to bear the weaknesses of the weak, and not to please ourselves.", ref: "Romans 15:1" },
+    reflection:
+      "We who are strong ought to bear the weaknesses of the weak, and not to please ourselves. In a household with a pregnancy, an infant, or exhaustion, there is always someone weaker this week. The strong one carries — and next week it reverses.",
+    talk: "Who is weaker this week? What would bearing with them look like tonight?",
+    pray: "Lord, make the stronger among us carry the weaker, and make us willing to be carried.",
+  },
+  {
+    read: { text: "I always thank my God concerning you, for the grace of God which was given you in Christ Jesus; that in everything you were enriched in him, in all speech and all knowledge;", ref: "1 Corinthians 1:4-5" },
+    reflection:
+      "I always thank my God concerning you, for the grace of God which was given you in Christ Jesus. Paul thanks God for a church he is about to rebuke for six chapters. Gratitude does not require the situation to be sorted.",
+    talk: "What can you thank God for about each other right now, before anything is fixed?",
+    pray: "Lord, we thank you for grace already given, before anything is resolved.",
+  },
+  {
+    read: { text: "When one member suffers, all the members suffer with it. When one member is honored, all the members rejoice with it.", ref: "1 Corinthians 12:26" },
+    reflection:
+      "When one member suffers, all the members suffer with it. Suffering in a household is never private. If one of you is struggling, the whole house is carrying it, whether or not anyone says so.",
+    talk: "Who in this circle is suffering right now? Has the rest of the body noticed?",
+    pray: "Lord, we are one body. Let us suffer and rejoice together, not alone.",
+  },
+  {
+    read: { text: "But we have this treasure in clay vessels, that the exceeding greatness of the power may be of God, and not from ourselves.", ref: "2 Corinthians 4:7" },
+    reflection:
+      "We have this treasure in clay pots, that the exceeding greatness of the power may be of God, and not from ourselves. Frailty is not a design fault. It is the arrangement, so that when something holds, everyone knows who held it.",
+    talk: "Where are you most aware of being a clay pot right now?",
+    pray: "Lord, we are fragile. Let your power be obvious precisely because we are.",
+  },
+  {
+    read: { text: "But when the fullness of the time came, God sent out his Son, born to a woman, born under the law, that he might redeem those who were under the law, that we might receive the adoption of children.", ref: "Galatians 4:4-5" },
+    reflection:
+      "When the fullness of the time came, God sent out his Son, born to a woman, born under the law. The eternal Son entered the world through a pregnancy and a birth. There is no part of this that God has kept at arm's length.",
+    talk: "What does it mean to you that God chose to arrive this way?",
+    pray: "Father, you sent your Son, born of a woman. Thank you for coming so close.",
+  },
+  {
+    read: { text: "For this cause, I bow my knees to the Father of our Lord Jesus Christ, from whom every family in heaven and on earth is named, that he would grant you, according to the riches of his glory, that you may be strengthened with power through his Spirit in the inner person,", ref: "Ephesians 3:14-16" },
+    reflection:
+      "That he would grant you, according to the riches of his glory, that you may be strengthened with power through his Spirit in the inner person. Paul prays for inner strength, not for changed circumstances. That is a different prayer from the one we usually pray.",
+    talk: "What would you ask God for if you asked for inner strength rather than a changed situation?",
+    pray: "Father, strengthen us with power through your Spirit in the inner person.",
+  },
+  {
+    read: { text: "This I pray, that your love may abound yet more and more in knowledge and all discernment, so that you may approve the things that are excellent, that you may be sincere and without offense to the day of Christ, being filled with the fruits of righteousness, which are through Jesus Christ, to the glory and praise of God.", ref: "Philippians 1:9-11" },
+    reflection:
+      "That your love may abound yet more and more in knowledge and all discernment. Paul prays for love that grows in knowledge — not sentiment, but love that gets wiser. Parenting will require both.",
+    talk: "Where does your love for each other need more knowledge and discernment?",
+    pray: "Lord, make our love abound more and more, with knowledge and discernment.",
+  },
+  {
+    read: { text: "My God will supply every need of yours according to his riches in glory in Christ Jesus.", ref: "Philippians 4:19" },
+    reflection:
+      "My God will supply every need of yours according to his riches in glory in Christ Jesus. Paul writes this to a poor church that had just given sacrificially — and he distinguishes needs from wants without apology.",
+    talk: "What do you call a need that is actually a want? What is a real need here?",
+    pray: "Lord, supply our needs according to your riches. Teach us the difference from our wants.",
+  },
+  {
+    read: { text: "strengthened with all power, according to the might of his glory, for all endurance and perseverance with joy,", ref: "Colossians 1:11" },
+    reflection:
+      "Strengthened with all power, according to the might of his glory, for all endurance and perseverance with joy. All that divine power, and the stated purpose is endurance — with patience. Sometimes God's great power shows up as an ordinary ability to keep going.",
+    talk: "What do you need to endure this week? What would enduring with joy look like?",
+    pray: "Lord, strengthen us with your power — for endurance and patience, with joy.",
+  },
+  {
+    read: { text: "But we were gentle among you, like a nursing mother cherishes her own children. Even so, affectionately longing for you, we were well pleased to impart to you, not the Good News of God only, but also our own souls, because you had become very dear to us.", ref: "1 Thessalonians 2:7-8" },
+    reflection:
+      "We were gentle among you, like a nursing mother cherishes her own children. Paul, a hard man in many ways, reaches for the image of a nursing mother to describe ministry. Tenderness is not a lesser form of strength.",
+    talk: "Where do you confuse gentleness with weakness?",
+    pray: "Lord, make us gentle as a nursing mother, and count that strength.",
+  },
+  {
+    read: { text: "We exhort you, brothers: Admonish the disorderly; encourage the faint-hearted; support the weak; be patient toward all.", ref: "1 Thessalonians 5:14" },
+    reflection:
+      "Admonish the disorderly; encourage the faint-hearted; support the weak; be patient toward all. Four different responses for four different people. Wisdom is knowing which one this person needs today.",
+    talk: "Which of those four does your partner need from you this week? Ask, don't guess.",
+    pray: "Lord, give us wisdom to know when to admonish, encourage, support, and simply be patient.",
+  },
+  {
+    read: { text: "For God didn’t give us a spirit of fear, but of power, love, and self-control.", ref: "2 Timothy 1:7" },
+    reflection:
+      "God didn't give us a spirit of fear, but of power, love, and self-control. Written to a timid young man facing real danger. It is not a promise that you will stop feeling afraid — it is a statement about what God has actually given.",
+    talk: "What are you afraid of? What has God given you instead of that spirit?",
+    pray: "Lord, you have not given us fear but power, love and self-control. Let those govern us.",
+  },
+  {
+    read: { text: "This hope we have as an anchor of the soul, a hope both sure and steadfast and entering into that which is within the veil;", ref: "Hebrews 6:19" },
+    reflection:
+      "This hope we have as an anchor of the soul, a hope both sure and steadfast. An anchor does not stop the storm; it stops the drift. That is the specific work hope does in a season with no guarantees.",
+    talk: "What is your soul currently anchored to? Will it hold?",
+    pray: "Lord, be the anchor of our souls, sure and steadfast, in every storm.",
+  },
+  {
+    read: { text: "let’s hold fast the confession of our hope without wavering; for he who promised is faithful.", ref: "Hebrews 10:23" },
+    reflection:
+      "Let's hold fast the confession of our hope without wavering; for he who promised is faithful. The reason to hold on is not our grip but his faithfulness. Some seasons the only honest thing is to hold on badly to someone who is holding you well.",
+    talk: "What are you holding onto by your fingernails? Who is actually holding you?",
+    pray: "Lord, we hold fast because you are faithful, not because we are strong.",
+  },
+  {
+    read: { text: "Is any among you suffering? Let him pray. Is any cheerful? Let him sing praises. Is any among you sick? Let him call for the elders of the assembly, and let them pray over him, anointing him with oil in the name of the Lord,", ref: "James 5:13-14" },
+    reflection:
+      "Is any among you suffering? Let him pray. Is any cheerful? Let him sing praises. Is any among you sick? Let him call for the elders. Practical instructions, and note the third: sickness sends you to the church, not to a formula.",
+    talk: "Who would you call if things got hard? Do they know they are on that list?",
+    pray: "Lord, when we suffer let us pray, and when we are sick let us call for help.",
+  },
+  {
+    read: { text: "as newborn babies, long for the pure milk of the Word, that with it you may grow,", ref: "1 Peter 2:2" },
+    reflection:
+      "As newborn babies, long for the pure milk of the Word, that with it you may grow. Peter uses an infant's hunger as the picture of how Christians should want Scripture. Watching a newborn feed is a sermon about your own soul.",
+    talk: "When did you last long for God's word the way a hungry baby wants milk?",
+    pray: "Lord, give us appetite for your word, like a newborn for milk.",
+  },
+  {
+    read: { text: "By this God’s love was revealed in us, that God has sent his one and only Son into the world that we might live through him. In this is love, not that we loved God, but that he loved us, and sent his Son as the atoning sacrifice for our sins.", ref: "1 John 4:9-10" },
+    reflection:
+      "In this is love, not that we loved God, but that he loved us, and sent his Son as the atoning sacrifice for our sins. Love is defined by God's initiative, not our response. This is the pattern for how you will love a child who cannot yet love you back.",
+    talk: "How is loving a newborn a picture of how God has loved us?",
+    pray: "Lord, you loved us first. Let us love this child the same way — first, and without return.",
+  },
+  {
+    read: { text: "for the Lamb who is in the middle of the throne shepherds them and leads them to springs of life-giving waters. And God will wipe away every tear from their eyes.", ref: "Revelation 7:17" },
+    reflection:
+      "The Lamb will be their shepherd, and will guide them to springs of waters of life. God will wipe away every tear from their eyes. Every tear — including the ones nobody else has seen in this season.",
+    talk: "Which of your tears do you most want wiped away? Tell God about that one.",
+    pray: "Lord, you will wipe away every tear. Until then, keep them in your bottle.",
+  },
+  {
+    read: { text: "Some trust in chariots, and some in horses, but we trust in the name of the LORD our God.", ref: "Psalm 20:7" },
+    reflection:
+      "Some trust in chariots, and some in horses, but we trust in the name of the LORD our God. Chariots were the best available technology. Trusting God does not mean refusing good medicine — it means knowing what is finally holding you.",
+    talk: "What is your chariot in this season? Is it holding the weight you have put on it?",
+    pray: "Lord, we will use every good gift you provide — and trust in your name, not in them.",
+  },
+  {
+    read: { text: "when I remember you on my bed, and think about you in the night watches. For you have been my help. I will rejoice in the shadow of your wings. My soul stays close to you. Your right hand holds me up.", ref: "Psalm 63:6-8" },
+    reflection:
+      "When I remember you on my bed, and think about you in the night watches... My soul stays close to you. The night watches are named. Someone awake at 3am wrote this, and made it worship.",
+    talk: "What do you do when you are awake in the night? Could some of it become prayer?",
+    pray: "Lord, in the night watches, let our souls cling to you. Your right hand upholds us.",
+  },
+  {
+    read: { text: "Therefore the LORD will wait, that he may be gracious to you; and therefore he will be exalted, that he may have mercy on you, for the LORD is a God of justice. Blessed are all those who wait for him.", ref: "Isaiah 30:18" },
+    reflection:
+      "Therefore the LORD will wait, that he may be gracious to you... Blessed are all those who wait for him. God is described as waiting — for the right moment to be gracious. His delays are not neglect.",
+    talk: "What if God's delay is itself part of his grace? Does that change anything for you?",
+    pray: "Lord, you wait to be gracious to us. Make us those who wait for you.",
+  },
+  {
+    read: { text: "Aren’t two sparrows sold for an assarion coin? Not one of them falls on the ground apart from your Father’s will, but the very hairs of your head are all numbered. Therefore don’t be afraid. You are of more value than many sparrows.", ref: "Matthew 10:29-31" },
+    reflection:
+      "Not one sparrow falls to the ground apart from your Father's will... you are of more value than many sparrows. Note what Jesus does not say: he does not say the sparrow will not fall. He says the Father is there when it does.",
+    talk: "What comfort is there in God's presence at the fall, rather than the prevention of it?",
+    pray: "Father, not one sparrow falls without you. We are worth more than many sparrows.",
+  },
+  {
+    read: { text: "I laid myself down and slept. I awakened; for the LORD sustains me.", ref: "Psalm 3:5" },
+    reflection:
+      "I laid myself down and slept. I awakened, for the LORD sustains me. David wrote this while fleeing his own son. Sleep in a crisis is a small act of faith — it says someone else is keeping watch.",
+    talk: "How is your sleep? What does it say about who you think is keeping watch?",
+    pray: "Lord, we lie down and sleep because you sustain us. Keep watch tonight.",
+  },
 ];
 
 // The hymnal lives in its own module now — a larger, year-round rotation with

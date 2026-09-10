@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { ShareButton } from "@/components/ShareButton";
+import { type BookIntro } from "@/lib/book-intros";
 
 export type Track = "shared" | "me";
 
@@ -19,6 +20,9 @@ export interface PlanOption {
 export interface ChapterPayload {
   ref: string;
   verses: string[];
+  /** Where this book sits in the story, and how it points to Christ. */
+  intro: BookIntro | null;
+  bookName: string;
 }
 
 export interface JourneyState {
@@ -268,6 +272,23 @@ export function ScriptureJourney({
               </span>
             )}
           </div>
+          {/* Orientation, so a chapter of Habakkuk never arrives bare. */}
+          {chapter.intro && (
+            <details className="group mb-4 rounded-lg border border-border bg-surface/60 p-4">
+              <summary className="cursor-pointer list-none font-mono text-[0.66rem] leading-relaxed text-muted marker:content-['']">
+                <span className="text-ink/80">{chapter.bookName}</span> —{" "}
+                {chapter.intro.what}
+                <span className="ml-1 text-accent group-open:hidden">
+                  more →
+                </span>
+              </summary>
+              <dl className="mt-3 space-y-2.5 border-t border-border pt-3">
+                <IntroLine label="In the story" body={chapter.intro.story} />
+                <IntroLine label="Points to Christ" body={chapter.intro.christ} />
+                <IntroLine label="Watch for" body={chapter.intro.watch} />
+              </dl>
+            </details>
+          )}
           <ChapterText verses={chapter.verses} />
         </div>
       )}
@@ -331,6 +352,20 @@ function ChapterText({ verses }: { verses: string[] }) {
           Read all {verses.length} verses
         </button>
       )}
+    </div>
+  );
+}
+
+/** One labelled line of a book's orientation. */
+function IntroLine({ label, body }: { label: string; body: string }) {
+  return (
+    <div>
+      <dt className="font-mono text-[0.56rem] uppercase tracking-widest text-accent">
+        {label}
+      </dt>
+      <dd className="mt-0.5 font-mono text-[0.66rem] leading-relaxed text-muted">
+        {body}
+      </dd>
     </div>
   );
 }
