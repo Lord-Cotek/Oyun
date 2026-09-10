@@ -133,6 +133,39 @@
     text-rendering: optimizeLegibility;
   }
 
+  /* ── Holding the viewport still on iOS ────────────────────────────────
+     iOS Safari zooms the whole page in when a form control whose computed
+     font-size is under 16px takes focus — and it does NOT zoom back out
+     afterwards. That is why the app can end up wider than the screen and
+     simply stay there, with the header running off the edge.
+
+     So on a touch device, anything you can type into is at least 16px.
+     Pointer-based screens keep the original typographic scale, which is
+     where the smaller sizes were designed to live. */
+  @media (pointer: coarse) {
+    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not(
+        [type="submit"]
+      ):not([type="button"]),
+    textarea,
+    select {
+      /* !important on purpose. A bare `textarea`/`select` selector loses to
+         Tailwind's text-sm utility on specificity, and this is not a style
+         preference to be overridden — it is the one thing standing between a
+         user and a viewport that zooms in and never comes back. */
+      font-size: 16px !important;
+    }
+  }
+
+  /* The other way a phone zooms unbidden: a double tap on something
+     tappable. Nothing here wants that gesture. */
+  button,
+  a,
+  label,
+  summary,
+  [role="button"] {
+    touch-action: manipulation;
+  }
+
   html,
   body {
     /* Never allow a stray wide element to make the whole page scroll sideways. */

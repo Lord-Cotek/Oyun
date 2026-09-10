@@ -50,8 +50,12 @@ export function WorshipTracker({
           stroke={11}
         />
         {button}
+        {/* Days kept out of the last seven — never a consecutive run. A run
+            is a streak whatever it is called: it can be broken, and whoever
+            broke it is met with an accusation on a morning they may already
+            be on the floor. There is nothing here to fail. */}
         <p className="font-mono text-[0.68rem] uppercase tracking-widest text-muted">
-          {streak} day{streak === 1 ? "" : "s"} in a row
+          {last7 > 0 ? "days kept" : "begin again today"}
         </p>
       </div>
     );
@@ -61,10 +65,9 @@ export function WorshipTracker({
     <div className="flex flex-wrap items-center gap-4">
       {button}
       <div className="flex items-center gap-3">
-        <span className="font-serif text-2xl leading-none text-accent">{streak}</span>
+        <span className="font-serif text-2xl leading-none text-accent">{last7}</span>
         <span className="font-mono text-[0.68rem] uppercase tracking-widest text-muted">
-          day{streak === 1 ? "" : "s"} in a row
-          {last7 > 0 ? ` · ${last7} of the last 7` : ""}
+          of the last 7
         </span>
       </div>
     </div>

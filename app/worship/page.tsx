@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -254,9 +255,7 @@ export default async function WorshipPage({
                 stroke={11}
               />
               <p className="font-mono text-[0.68rem] uppercase tracking-widest text-muted">
-                {streak.streak > 0
-                  ? `${streak.streak}-day streak`
-                  : "begin again today"}
+                {streak.last7 > 0 ? "days kept" : "begin again today"}
               </p>
             </div>
           }
@@ -288,6 +287,18 @@ export default async function WorshipPage({
             }
           />
         </section>
+
+        {/* The journal is reachable from here whatever is being read — a
+            journey between plans must never be locked out of reflections it
+            has already written. */}
+        <div className="mt-4 flex justify-end">
+          <Link
+            href="/journal"
+            className="font-mono text-[0.66rem] uppercase tracking-widest text-accent underline underline-offset-4 hover:text-accent-deep"
+          >
+            The reflection journal →
+          </Link>
+        </div>
 
         {st?.next && st.nextRef && (
           <section className="mt-4">

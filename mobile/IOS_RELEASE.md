@@ -76,3 +76,35 @@ ID** and **Key ID**, and download the **.p8** (only downloadable once).
 - Marketing version is **1.0**; the build number is set automatically from
   Codemagic's `$BUILD_NUMBER`. Bump the version in Xcode / `Info.plist` for
   later releases.
+## Viewport stability on iOS
+
+If the app ever appears zoomed in and wider than the screen, and stays that
+way, the cause is almost always the same one — and it is a web-side issue, not
+a native one.
+
+**iOS Safari (and therefore WKWebView) zooms the entire viewport in when a
+form control whose computed `font-size` is under 16px takes focus, and it does
+not zoom back out afterwards.** One tap into a small text box and the whole
+app is left oversized until it is relaunched.
+
+The guard lives in `app/globals.css`:
+
+```css
+@media (pointer: coarse) {
+  input:not([type="checkbox"])…, textarea, select { font-size: 16px !important; }
+}
+```
+
+`!important` is deliberate: a bare `textarea`/`select` selector loses to
+Tailwind's `text-sm` utility on specificity, and this is a platform guard
+rather than a style preference.
+
+Because the shell loads the live site, the fix ships with the next web deploy
+— no new build is needed. To check it holds, run the audit in
+`.tmp-nav/ios.js`, which walks every signed-in page at iPhone width and
+reports any typable control under 16px (and anything wider than the viewport).
+It should report `TOTAL: 0` for both.
+
+Pinch-to-zoom is deliberately left enabled. The bug was the app zooming when
+nobody asked it to; being able to zoom on purpose is an accessibility
+affordance and should stay.

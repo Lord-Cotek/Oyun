@@ -41,15 +41,17 @@ export function SupportActions({
 
       <div className="mt-4 flex items-center gap-4">
         <div>
-          <p className="font-serif text-3xl leading-none text-accent">{streak}</p>
+          <p className="font-serif text-3xl leading-none text-accent">
+            {prayedLast7}
+          </p>
           <p className="mt-1 font-mono text-[0.68rem] uppercase tracking-widest text-muted">
-            day{streak === 1 ? "" : "s"} in prayer
+            of the last 7
           </p>
         </div>
         <div className="h-8 w-px bg-border" aria-hidden />
         <p className="font-mono text-xs leading-relaxed text-muted">
-          {streak > 0
-            ? `You've prayed for ${motherName} ${prayedLast7} of the last 7 days. Keep the faith — steady presence is the gift.`
+          {prayedLast7 > 0
+            ? `You've prayed for ${motherName} ${prayedLast7} of the last 7 days. Steady presence is the gift; there is no run here to keep up.`
             : `Begin today. A single faithful prayer for ${motherName} is not small in God's eyes.`}
         </p>
       </div>
