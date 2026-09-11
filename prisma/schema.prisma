@@ -435,9 +435,14 @@ model Nudge {
   text      String
   dueAt     DateTime
   doneAt    DateTime?
+  /// Stamped the morning this one is told, so it is told once and never again.
+  /// Null on every row that existed before reminders worked at all; those are
+  /// skipped by the date window rather than fired off in a batch.
+  remindedAt DateTime?
   createdAt DateTime  @default(now())
 
   @@index([journeyId, dueAt])
+  @@index([dueAt])
 }
 
 /// A short word of encouragement or Scripture from one member to another —

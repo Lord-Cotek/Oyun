@@ -229,7 +229,7 @@ export async function AccountabilityView({
           </Card>
 
           <Card>
-            <Eyebrow className="mb-3">This week</Eyebrow>
+            <Eyebrow className="mb-3">Your reminders</Eyebrow>
             <NudgeList
               motherName={motherName}
               nudges={nudges.map((n) => ({

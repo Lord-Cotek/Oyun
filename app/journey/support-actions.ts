@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { getActiveMembership } from "@/lib/data";
 import { notify } from "@/lib/notify";
+import { NUDGE_CAP, NUDGE_TEXT_MAX, parseWhen } from "@/lib/nudges";
 
 /** Midnight UTC for "today" — matches Prisma's @db.Date storage. */
 function utcToday(): Date {
@@ -71,6 +72,49 @@ export async function completeNudge(nudgeId: string) {
     where: { id: nudgeId, userId, doneAt: null },
     data: { doneAt: new Date() },
   });
+  revalidatePath("/journey");
+}
+
+/**
+ * Set a reminder for yourself.
+ *
+ * These are nobody else's business: "ring her mum about Saturday", "order the
+ * car seat". Only the person who set it ever sees it or is told about it —
+ * which is what separates this from the appointment book, where the whole
+ * household is reminded of a date you all have to be at.
+ */
+export async function setNudge(
+  formData: FormData,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const { userId, journeyId } = await requireMember();
+
+  const text = String(formData.get("text") ?? "").trim();
+  if (!text) return { ok: false, error: "Write what you want to remember." };
+  if (text.length > NUDGE_TEXT_MAX) {
+    return { ok: false, error: "Keep it to a line — it is a nudge, not a note." };
+  }
+
+  const when = String(formData.get("when") ?? "").trim();
+  const dueAt = parseWhen(when);
+  if (!dueAt) return { ok: false, error: "Choose a day." };
+
+  const open = await prisma.nudge.count({ where: { journeyId, userId, doneAt: null } });
+  if (open >= NUDGE_CAP) {
+    return {
+      ok: false,
+      error: `That's ${NUDGE_CAP} already waiting. Tick one off before adding another.`,
+    };
+  }
+
+  await prisma.nudge.create({ data: { journeyId, userId, text, dueAt } });
+  revalidatePath("/journey");
+  return { ok: true };
+}
+
+/** Drop a reminder you no longer want. Ticking it off is the usual way out. */
+export async function dropNudge(nudgeId: string) {
+  const { userId } = await requireMember();
+  await prisma.nudge.deleteMany({ where: { id: nudgeId, userId } });
   revalidatePath("/journey");
 }
 

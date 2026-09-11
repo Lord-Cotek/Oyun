@@ -10,6 +10,7 @@ import {
   timeLabel,
   type ReminderStage,
 } from "@/lib/appointments";
+import { nudgeDueToday } from "@/lib/nudges";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -146,5 +147,61 @@ export async function GET(req: Request) {
     sent += 1;
   }
 
-  return NextResponse.json({ ok: true, reminders: sent, notified: people });
+  // ── Reminders people set for themselves ─────────────────────────────────
+  // Only the one who set it is told, and only on the morning it is due. See
+  // `nudgeDueToday` for why "anything overdue" would have been a cruelty to
+  // every account that predates this working.
+  const nudges = await prisma.nudge.findMany({
+    where: {
+      doneAt: null,
+      remindedAt: null,
+      dueAt: { gte: new Date(now.getTime() - 86_400_000), lte: new Date(now.getTime() + 86_400_000) },
+    },
+    select: {
+      id: true,
+      text: true,
+      dueAt: true,
+      doneAt: true,
+      remindedAt: true,
+      journey: { select: { status: true } },
+      user: { select: { id: true, name: true, email: true, notifyByEmail: true } },
+    },
+  });
+
+  let nudgesSent = 0;
+  for (const n of nudges) {
+    if (n.journey.status !== "ACTIVE") continue;
+    if (!nudgeDueToday(n, now)) continue;
+
+    await notify({
+      userId: n.user.id,
+      type: "nudge",
+      title: n.text,
+      body: "You asked to be reminded of this today.",
+      href: "/journey",
+    });
+    if (n.user.email && n.user.notifyByEmail) {
+      await sendNotificationEmail({
+        to: n.user.email,
+        name: n.user.name,
+        title: n.text,
+        body: "You asked to be reminded of this today.",
+        href: "/journey",
+      }).catch(() => {});
+    }
+
+    // Stamped last, for the same reason as the appointments above.
+    await prisma.nudge.update({
+      where: { id: n.id },
+      data: { remindedAt: new Date() },
+    });
+    nudgesSent += 1;
+  }
+
+  return NextResponse.json({
+    ok: true,
+    reminders: sent,
+    notified: people,
+    nudges: nudgesSent,
+  });
 }
