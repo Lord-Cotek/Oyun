@@ -17,8 +17,11 @@ export function NudgeList({
   if (nudges.length === 0) {
     return (
       <p className="font-mono text-xs leading-relaxed text-muted">
-        No reminders right now. The simplest nudge still holds: check in on{" "}
-        {motherName} today.
+        {/* Deliberately not the word "reminders": appointment reminders are a
+            different thing entirely, and this card used to read as though the
+            book were empty when it was not. */}
+        Nothing set for yourself this week. The simplest thing still holds:
+        check in on {motherName} today.
       </p>
     );
   }

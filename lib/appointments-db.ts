@@ -92,7 +92,7 @@ function startOfToday(now = new Date()): Date {
  * Today counts as ahead right up until midnight, because somebody checking at
  * lunchtime still needs to see the two o'clock.
  */
-export async function getUpcoming(
+export async function getUpcomingAppointments(
   journeyId: string,
   viewerId: string,
   take = 50,
@@ -113,7 +113,7 @@ export async function getUpcoming(
 }
 
 /** What has been and gone — newest first, so the last one is at the top. */
-export async function getPast(
+export async function getPastAppointments(
   journeyId: string,
   viewerId: string,
   take = 50,
@@ -147,5 +147,5 @@ export async function getNextFew(
   viewerId: string,
   now = new Date(),
 ): Promise<AppointmentView[]> {
-  return getUpcoming(journeyId, viewerId, 2, now);
+  return getUpcomingAppointments(journeyId, viewerId, 2, now);
 }

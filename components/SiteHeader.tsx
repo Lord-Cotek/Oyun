@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { OyunMark } from "@/components/ui/OyunMark";
-import { SignOutButton } from "@/components/SignOutButton";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { InstallButton } from "@/components/InstallButton";
+import { NavMoreMenu } from "@/components/NavMoreMenu";
 import { NotificationBell } from "@/components/NotificationBell";
 import { TabBar, type Tab } from "@/components/TabBar";
 import { type IconName } from "@/components/ui/Icon";
@@ -78,10 +77,11 @@ export async function SiteHeader({
     ...(showCare && isMother && !inLoss
       ? [{ href: "/care", label: "Care", current: active === "care" }]
       : []),
-    ...(isMother && !inLoss
+    // The nursery and the firsts belong to both parents — he keeps these too.
+    ...(isHousehold && !inLoss
       ? [{ href: "/child", label: "Nursery", current: active === "nursery" }]
       : []),
-    ...(isMother && !inLoss
+    ...(isHousehold && !inLoss
       ? [{ href: "/firsts", label: "Firsts", current: active === "firsts" }]
       : []),
     ...(isMother
@@ -89,6 +89,13 @@ export async function SiteHeader({
       : []),
     { href: "/settings", label: "Settings", current: active === "settings" },
   ];
+
+  // Desktop: the daily rooms stay inline, the rest go under More. Eleven links
+  // measured 1042px inside a 1024px screen, so the last simply fell off the
+  // edge — a nav you cannot reach is worse than one that asks for a click.
+  const DESK_INLINE = ["/journey", "/life", "/worship", "/prayer", "/appointments"];
+  const deskPrimary = links.filter((l) => DESK_INLINE.includes(l.href));
+  const deskSecondary = links.filter((l) => !DESK_INLINE.includes(l.href));
 
   // Bottom tab bar (phones/tablets): the same role-filtered nav, with the four
   // most-used sections as thumb-reachable primaries and the rest in a More
@@ -141,12 +148,13 @@ export async function SiteHeader({
         <div className="flex items-center gap-1">
           {/* Inline nav — larger screens only */}
           <nav className="hidden items-center gap-1 font-mono text-xs lg:flex">
-            {links.map((l) => (
+            {deskPrimary.map((l) => (
               <NavLink key={l.href} {...l} />
             ))}
-            <span className="mx-1 h-4 w-px bg-border" aria-hidden />
-            <InstallButton className="mr-1 hidden lg:block" />
-            <SignOutButton />
+            <NavMoreMenu
+              items={deskSecondary}
+              current={deskSecondary.some((l) => l.current)}
+            />
           </nav>
 
           {/* Always-visible controls */}

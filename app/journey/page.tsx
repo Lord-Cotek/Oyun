@@ -20,7 +20,7 @@ import { partnerDailyCare, dayKey } from "@/lib/partner-care";
 import { getReactionsFor } from "@/lib/reactions";
 import { MOOD_META } from "@/lib/moods";
 import { loadFeed } from "@/lib/feed-query";
-import { INVITABLE_ROLES, isSupporter } from "@/lib/roles";
+import { INVITABLE_ROLES, isSupporter, isHousehold } from "@/lib/roles";
 import { LatestFromFamily } from "@/components/feed/LatestFromFamily";
 import { OnThisDay } from "@/components/journey/OnThisDay";
 import { UpcomingStrip } from "@/components/journey/UpcomingStrip";
@@ -76,11 +76,13 @@ export default async function JourneyPage() {
   const familyPosts = await loadFeed(journey.id, session.user.id, 3);
   // Keepsakes from earlier years falling on today's date (usually empty).
   const memories = await getOnThisDay(journey.id);
-  // A gentle look-ahead — due date, next month, appointment reminders.
+  // A gentle look-ahead — due date, next month, and (for the household only)
+  // the real appointments in the book.
   const upcoming = await getUpcoming(
     journey.id,
     session.user.id,
     journey.dueDate,
+    isHousehold(role),
   );
   const todayLabel = new Date().toLocaleDateString("en-GB", {
     weekday: "long",
@@ -117,10 +119,9 @@ export default async function JourneyPage() {
   const position = computePosition(journey.dueDate);
   // The next date or two, for the household. Supporters see nothing of this:
   // a scan date is health information, not circle news.
-  const nextAppointments =
-    active.role === "MOTHER" || active.role === "PARTNER"
-      ? await getNextFew(journey.id, session.user.id)
-      : [];
+  const nextAppointments = isHousehold(role)
+    ? await getNextFew(journey.id, session.user.id)
+    : [];
   const { stage } = position;
   const worship = await getWorshipStreak(journey.id);
 
@@ -230,11 +231,9 @@ export default async function JourneyPage() {
             </div>
           </section>
 
-          {(active.role === "MOTHER" || active.role === "PARTNER") && (
-            <div className="mt-4">
-              <ComingUp appointments={nextAppointments} />
-            </div>
-          )}
+          <div className="mt-4">
+            <ComingUp appointments={nextAppointments} />
+          </div>
 
           <div className="mt-6">
             <JourneyProgress progress={position.progress} label={stageLabel} />
@@ -468,6 +467,11 @@ export default async function JourneyPage() {
 
         <div className="mt-6">
           <JourneyProgress progress={position.progress} label={stageLabel} />
+        </div>
+
+        {/* The same book she keeps. He is not a visitor to these dates. */}
+        <div className="mt-4">
+          <ComingUp appointments={nextAppointments} />
         </div>
 
         {upcoming.length > 0 && (

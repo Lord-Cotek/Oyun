@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getActiveMembership } from "@/lib/data";
+import { isHousehold } from "@/lib/roles";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Card } from "@/components/ui/Card";
 import { Eyebrow } from "@/components/ui/Eyebrow";
@@ -24,7 +25,9 @@ export default async function FirstsPage() {
 
   const active = await getActiveMembership(session.user.id);
   if (!active) redirect("/onboarding");
-  if (active.role !== "MOTHER") redirect("/journey");
+  // A father remembers the first smile too — and should be able to write it
+  // down himself, not ask for it to be written down for him.
+  if (!isHousehold(active.role)) redirect("/journey");
 
   const journeyId = active.journey.id;
 

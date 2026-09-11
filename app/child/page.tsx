@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getActiveMembership } from "@/lib/data";
+import { isHousehold } from "@/lib/roles";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Card } from "@/components/ui/Card";
 import { Eyebrow } from "@/components/ui/Eyebrow";
@@ -37,7 +38,9 @@ export default async function ChildPage() {
 
   const active = await getActiveMembership(session.user.id);
   if (!active) redirect("/onboarding");
-  if (active.role !== "MOTHER") redirect("/journey");
+  // The nursery belongs to both parents: he adds, edits and names his own
+  // children. Gate on the household, never on one role.
+  if (!isHousehold(active.role)) redirect("/journey");
 
   const children = await prisma.child.findMany({
     where: { journeyId: active.journey.id },

@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { getActiveMembership } from "@/lib/data";
-import { getUpcoming, getPast } from "@/lib/appointments-db";
+import {
+  getUpcomingAppointments,
+  getPastAppointments,
+} from "@/lib/appointments-db";
 import { SiteHeader } from "@/components/SiteHeader";
 import { PageHero } from "@/components/ui/PageHero";
 import { Card } from "@/components/ui/Card";
@@ -29,8 +32,8 @@ export default async function AppointmentsPage() {
   }
 
   const [upcoming, past] = await Promise.all([
-    getUpcoming(active.journey.id, session.user.id),
-    getPast(active.journey.id, session.user.id),
+    getUpcomingAppointments(active.journey.id, session.user.id),
+    getPastAppointments(active.journey.id, session.user.id),
   ]);
 
   return (

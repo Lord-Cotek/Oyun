@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { type Role } from "@prisma/client";
 import { getReactionsFor } from "@/lib/reactions";
 import { computePosition } from "@/lib/stage";
+import { appointmentTitle, timeLabel } from "@/lib/appointments";
 
 /** Remembers which journey a supporter is currently viewing. */
 export const ACTIVE_JOURNEY_COOKIE = "oyun_journey";
@@ -282,14 +283,18 @@ function upcomingDateLabel(d: Date): string {
 
 /**
  * A gentle look-ahead for the home — the next handful of things coming up:
- * the due date (or the baby's next month milestone once born), and any
- * appointment reminders this member has set within the next few weeks. Sorted
- * soonest-first; empty when nothing is on the horizon.
+ * the due date (or the baby's next month milestone once born), the real
+ * appointments in the book, and any private nudges this member has set.
+ * Sorted soonest-first; empty when nothing is on the horizon.
+ *
+ * `withAppointments` must be true only for the household. A scan date is
+ * health information, and this strip is rendered on the supporter home too.
  */
 export async function getUpcoming(
   journeyId: string,
   userId: string,
   dueDate: Date,
+  withAppointments = false,
   windowDays = 45,
 ): Promise<UpcomingItem[]> {
   const now = new Date();
@@ -344,7 +349,37 @@ export async function getUpcoming(
     });
   }
 
-  // Appointment reminders / nudges this member has set, coming up soon.
+  // The real appointment book — scans, checks, clinics. Household only.
+  if (withAppointments) {
+    // From the start of today, not from this minute: a 09:00 appointment is
+    // still "today" when you open the app at lunchtime.
+    const startOfToday = new Date(now);
+    startOfToday.setHours(0, 0, 0, 0);
+    const appts = await prisma.appointment.findMany({
+      where: {
+        journeyId,
+        attendedAt: null,
+        cancelledAt: null,
+        at: { gte: startOfToday, lte: horizon },
+      },
+      orderBy: { at: "asc" },
+      take: 6,
+      select: { id: true, kind: true, title: true, at: true, hasTime: true, where: true },
+    });
+    for (const a of appts) {
+      const time = timeLabel(a.at, a.hasTime);
+      items.push({
+        id: `appt-${a.id}`,
+        label: appointmentTitle(a.kind, a.title),
+        detail: [time, a.where].filter(Boolean).join(" · ") || null,
+        dateLabel: upcomingDateLabel(a.at),
+        daysAway: daysBetween(now, a.at),
+        tone: "sky",
+      });
+    }
+  }
+
+  // Private nudges this member has set for themselves, coming up soon.
   const nudges = await prisma.nudge.findMany({
     where: { journeyId, userId, doneAt: null, dueAt: { gte: now, lte: horizon } },
     orderBy: { dueAt: "asc" },
@@ -354,7 +389,7 @@ export async function getUpcoming(
     items.push({
       id: `nudge-${n.id}`,
       label: n.text,
-      detail: "reminder",
+      detail: "note to self",
       dateLabel: upcomingDateLabel(n.dueAt),
       daysAway: daysBetween(now, n.dueAt),
       tone: "sky",

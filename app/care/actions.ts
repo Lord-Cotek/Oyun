@@ -91,7 +91,7 @@ async function resolveChildId(journeyId: string, raw: string): Promise<string | 
 }
 
 export async function addMilestone(formData: FormData) {
-  const { journeyId } = await requireMother();
+  const { journeyId } = await requireParent();
   const kindRaw = String(formData.get("kind") ?? "");
   const title = String(formData.get("title") ?? "").trim() || null;
   const note = String(formData.get("note") ?? "").trim() || null;
@@ -114,7 +114,7 @@ export async function addMilestone(formData: FormData) {
 }
 
 export async function updateMilestone(formData: FormData) {
-  const { journeyId } = await requireMother();
+  const { journeyId } = await requireParent();
   const id = String(formData.get("id") ?? "");
   const kindRaw = String(formData.get("kind") ?? "");
   const title = String(formData.get("title") ?? "").trim() || null;
@@ -155,7 +155,7 @@ export async function updateMilestone(formData: FormData) {
 }
 
 export async function deleteMilestone(formData: FormData) {
-  const { journeyId } = await requireMother();
+  const { journeyId } = await requireParent();
   const id = String(formData.get("id") ?? "");
   await prisma.milestone.deleteMany({ where: { id, journeyId } });
   revalidatePath("/firsts");
