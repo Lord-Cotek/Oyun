@@ -20,6 +20,7 @@ type ActiveKey =
   | "circle"
   | "settings"
   | "prayer"
+  | "appointments"
   | "nursery"
   | "worship";
 
@@ -65,6 +66,15 @@ export async function SiteHeader({
       ? [{ href: "/worship", label: "Worship", current: active === "worship" }]
       : []),
     { href: "/prayer", label: "Prayer", current: active === "prayer" },
+    ...(isHousehold && !inLoss
+      ? [
+          {
+            href: "/appointments",
+            label: "Appointments",
+            current: active === "appointments",
+          },
+        ]
+      : []),
     ...(showCare && isMother && !inLoss
       ? [{ href: "/care", label: "Care", current: active === "care" }]
       : []),
@@ -89,6 +99,7 @@ export async function SiteHeader({
     "/letters": "message",
     "/prayer": "hands",
     "/worship": "flame",
+    "/appointments": "calendar",
     "/care": "heart",
     "/child": "star",
     "/firsts": "sparkles",

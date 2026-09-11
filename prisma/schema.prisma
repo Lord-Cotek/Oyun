@@ -29,6 +29,7 @@ model User {
   supportDays       SupportDay[]
   notifications     Notification[]
   prayerRequests    PrayerRequest[]
+  appointments      Appointment[]
   prayerPrays       PrayerPray[]
   pushSubscriptions PushSubscription[]
   nativePushTokens  NativePushToken[]
@@ -250,21 +251,22 @@ model Journey {
   worshipDays    WorshipDay[]
   readingNotes   ReadingNote[]
   posts          Post[]
+  appointments   Appointment[]
 }
 
 /// The family feed — an update, a praise, a prayer, or a milestone that the
 /// circle (mother, partner, and supporters) shares and carries together.
 model Post {
-  id        String         @id @default(cuid())
+  id        String    @id @default(cuid())
   journeyId String
-  journey   Journey        @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  journey   Journey   @relation(fields: [journeyId], references: [id], onDelete: Cascade)
   authorId  String
-  author    User           @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  kind      String         @default("UPDATE") // UPDATE | PRAISE | PRAYER | MILESTONE
+  author    User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  kind      String    @default("UPDATE") // UPDATE | PRAISE | PRAYER | MILESTONE
   body      String
   imageUrl  String? // legacy single image; new posts use mediaUrls
-  mediaUrls String[]       @default([]) // images and videos, in order
-  createdAt DateTime       @default(now())
+  mediaUrls String[]  @default([]) // images and videos, in order
+  createdAt DateTime  @default(now())
   editedAt  DateTime?
 
   comments  PostComment[]
@@ -468,4 +470,70 @@ model SupportDay {
 
   @@unique([journeyId, userId, day])
   @@index([journeyId, userId])
+}
+
+// ── Appointments ──────────────────────────────────────────────────────────
+/// What kind of appointment it is. The kind decides how far ahead it is worth
+/// reminding somebody — see lib/appointments.ts.
+enum AppointmentKind {
+  ANTENATAL // a routine midwife or doctor check
+  SCAN // an ultrasound — dating, anomaly, growth
+  TEST // bloods, glucose, swabs
+  CONSULTANT // a specialist
+  POSTNATAL // the mother's own check after the birth
+  BABY_CHECK // the baby's check
+  IMMUNISATION
+  CLASS // an antenatal or parenting class
+  OTHER
+}
+
+/// A hospital or clinic appointment, and everything a tired person needs to
+/// walk into the room prepared.
+///
+/// Deliberately household-only: a scan date is health information, and the
+/// wider circle of friends and relatives has no business with it unless the
+/// mother chooses to name it on the prayer wall herself.
+model Appointment {
+  id          String          @id @default(cuid())
+  journeyId   String
+  journey     Journey         @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  createdById String
+  createdBy   User            @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  kind        AppointmentKind @default(ANTENATAL)
+  /// An optional name of its own, when "Antenatal" is not enough.
+  title       String?
+
+  /// When it is. Stored as an instant; see `hasTime` for whether the clock
+  /// part means anything.
+  at      DateTime
+  /// Hospital letters often say "Tuesday the 4th" with no hour at all, and
+  /// inventing 09:00 would be a lie that later becomes a missed morning
+  /// reminder. When this is false only the day is shown, and no morning-of
+  /// reminder is sent.
+  hasTime Boolean  @default(true)
+
+  where     String?
+  /// The midwife, doctor or clinic — so you know who to ask for on arrival.
+  who       String?
+  notes     String?
+  /// The things you mean to ask and always forget once you are in the room.
+  questions String?
+
+  /// Afterwards.
+  attendedAt  DateTime?
+  outcome     String?
+  cancelledAt DateTime?
+
+  /// Reminder bookkeeping. Each stage is stamped the moment it is sent, so a
+  /// reminder can never go twice however often the job runs — and a row that
+  /// was created late simply skips the stages whose moment has passed.
+  remindedWeekAt    DateTime?
+  remindedDayAt     DateTime?
+  remindedMorningAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([journeyId, at])
+  @@index([at])
 }

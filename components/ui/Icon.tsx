@@ -14,6 +14,7 @@ export type IconName =
   | "church"
   | "sparkles"
   | "clock"
+  | "calendar"
   | "star"
   | "users"
   | "heart"
@@ -31,6 +32,8 @@ const PATHS: Record<IconName, string> = {
   flame:
     "M12 3c1.2 3 4 4.2 4 7.8A4 4 0 0 1 8 11c0-1.8 1-3 2.2-4 .3 1.8 1.8 2 1.8 3.4 0 .8-.4 1.2-.4 1.2",
   music: "M9 18a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0V6l10-2v10",
+  // A leaf of a wall calendar: two hooks, the page, and the week's rule.
+  calendar: "M8 3v3 M16 3v3 M4 8h16 M4 6h16v14H4z",
   church:
     "M12 2v3 M10 4h4 M5 21V11l7-4 7 4v10 M9.5 21v-5h5v5",
   sparkles:

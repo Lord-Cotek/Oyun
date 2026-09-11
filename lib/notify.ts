@@ -11,7 +11,9 @@ export type NotificationType =
   | "checkin"
   | "post"
   | "comment"
-  | "reaction";
+  | "reaction"
+  | "appointment"
+  | "appointment_reminder";
 
 interface NotifyInput {
   userId: string;

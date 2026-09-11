@@ -28,6 +28,8 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { Card } from "@/components/ui/Card";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { ProgressRing } from "@/components/ui/ProgressRing";
+import { ComingUp } from "@/components/appointments/ComingUp";
+import { getNextFew } from "@/lib/appointments-db";
 import { Verse } from "@/components/ui/Verse";
 import { Button } from "@/components/ui/Button";
 import { ActionTile } from "@/components/ui/ActionTile";
@@ -113,6 +115,12 @@ export default async function JourneyPage() {
   }
 
   const position = computePosition(journey.dueDate);
+  // The next date or two, for the household. Supporters see nothing of this:
+  // a scan date is health information, not circle news.
+  const nextAppointments =
+    active.role === "MOTHER" || active.role === "PARTNER"
+      ? await getNextFew(journey.id, session.user.id)
+      : [];
   const { stage } = position;
   const worship = await getWorshipStreak(journey.id);
 
@@ -221,6 +229,12 @@ export default async function JourneyPage() {
               </div>
             </div>
           </section>
+
+          {(active.role === "MOTHER" || active.role === "PARTNER") && (
+            <div className="mt-4">
+              <ComingUp appointments={nextAppointments} />
+            </div>
+          )}
 
           <div className="mt-6">
             <JourneyProgress progress={position.progress} label={stageLabel} />
