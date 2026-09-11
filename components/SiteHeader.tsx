@@ -20,6 +20,7 @@ type ActiveKey =
   | "settings"
   | "prayer"
   | "appointments"
+  | "help"
   | "nursery"
   | "worship";
 
@@ -87,6 +88,7 @@ export async function SiteHeader({
     ...(isMother
       ? [{ href: "/circle", label: "Circle", current: active === "circle" }]
       : []),
+    { href: "/help", label: "How this works", current: active === "help" },
     { href: "/settings", label: "Settings", current: active === "settings" },
   ];
 
@@ -111,6 +113,7 @@ export async function SiteHeader({
     "/child": "star",
     "/firsts": "sparkles",
     "/circle": "users",
+    "/help": "question",
     "/settings": "settings",
   };
   const navTabs: Tab[] = links.map((l) => ({
