@@ -12,6 +12,7 @@ import {
 import type { FeedPost, MediaItem } from "@/lib/feed-query";
 import { Lightbox } from "@/components/media/Lightbox";
 import { Avatar } from "@/components/ui/Avatar";
+import { isIosNativeShell } from "@/lib/shell";
 
 type CreateFn = (input: {
   kind: string;
@@ -137,10 +138,13 @@ function Composer({
   const [pending, start] = useTransition();
   /** Set when a kept draft came back, so we can say why it is there. */
   const [restored, setRestored] = useState<null | "draft" | "camera">(null);
+  /** The installed iOS app, where "Take Photo" still ends the app. */
+  const [iosApp, setIosApp] = useState(false);
 
   // Bring back anything the last run of the app was holding. In an effect, not
   // in the initial state, so the server and the first client render agree.
   useEffect(() => {
+    setIosApp(isIosNativeShell());
     const draft = readDraft();
     if (!draft) return;
     setKind(draft.kind);
@@ -418,6 +422,16 @@ function Composer({
         onChange={(e) => addFiles(e.target.files)}
       />
 
+      {iosApp && (
+        <p className="mt-3 rounded-lg border border-border bg-bg/50 px-3 py-2 font-mono text-[0.62rem] leading-relaxed text-muted">
+          In the app, choose{" "}
+          <span className="text-ink">Photo Library</span>.{" "}
+          <span className="text-ink">Take Photo</span> closes the app — a fault
+          in the current build, fixed in the next one. Anything written is kept
+          either way. Safari and the home-screen app are fine.
+        </p>
+      )}
+
       <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-4">
           <button
@@ -429,7 +443,7 @@ function Composer({
             <span aria-hidden className="text-sm leading-none">
               📷
             </span>
-            Photos
+            {iosApp ? "Photo library" : "Photos"}
           </button>
           <button
             type="button"
