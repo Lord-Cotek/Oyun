@@ -38,7 +38,7 @@ export default async function SignInPage({
         <div className="max-w-sm">
           <Verse
             size="lg"
-            text="For you formed my inward parts; you knitted me together in my mother's womb."
+            text="For you formed my inmost being. You knit me together in my mother’s womb."
             reference="Psalm 139:13"
           />
         </div>

@@ -140,7 +140,7 @@ export default function Landing() {
         <div className="mx-auto max-w-prose text-center">
           <Verse
             size="lg"
-            text="For you formed my inward parts; you knitted me together in my mother's womb."
+            text="For you formed my inmost being. You knit me together in my mother’s womb."
             reference="Psalm 139:13"
           />
         </div>

@@ -342,6 +342,23 @@ export default async function HelpPage() {
             midwife.
           </Q>
 
+          <Q q="Can I take everything out?">
+            Yes, whenever you like, and without asking us.{" "}
+            <Link href="/settings" className="text-accent underline underline-offset-4">
+              Settings
+            </Link>{" "}
+            &rarr; <span className="text-ink">Take everything with you</span>{" "}
+            builds one file holding the lot: a page you can open, read and print
+            in any browser with no app at all, and the same records again as
+            data if you ever want them somewhere else. Photographs are linked
+            rather than packed in — a family&rsquo;s pictures run to hundreds of
+            megabytes — so save those down separately if you want them for good.
+            What comes out is exactly what you can see in the app: a husband or
+            partner gets the letters, the care journal and the appointments;
+            someone in the circle gets life and prayer and what they themselves
+            wrote, and none of the private rooms.
+          </Q>
+
           <Q q="Is this a social network?">
             No. There are no strangers, no followers, no public profiles, no
             algorithm, no advertising, and no endless scroll. There are also no
@@ -353,7 +370,7 @@ export default async function HelpPage() {
 
         <div className="mt-8">
           <Verse
-            text="For you formed my inward parts; you knitted me together in my mother's womb."
+            text="For you formed my inmost being. You knit me together in my mother’s womb."
             reference="Psalm 139:13"
           />
         </div>

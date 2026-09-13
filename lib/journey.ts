@@ -221,7 +221,7 @@ export const STAGES: Stage[] = [
     title: "Week 14 — First expressions",
     body: "The baby may begin to make small facial expressions now, squinting or frowning as the muscles practice. Some little ones start to bring a thumb toward the mouth. The face is learning to move before anyone will see it.",
     verse: {
-      text: "This is what the LORD who made you, and formed you from the womb, who will help you says: “Don’t be afraid, Jacob my servant; and you, Jeshurun, whom I have chosen.",
+      text: "This is what the LORD who made you, and formed you from the womb, who will help you says: “Don’t be afraid, Jacob my servant; and you, Jeshurun, whom I have chosen.”",
       ref: "Isaiah 44:2",
     },
     reflection: "The God who is forming this child has also promised to help you carry them. He does not make and then abandon.",
@@ -356,7 +356,7 @@ export const STAGES: Stage[] = [
     title: "Week 23 — Beginning to hear you",
     body: "The baby's hearing is sharpening, and they may begin to respond to familiar voices and sounds. Your words, your songs, and your prayers reach into the womb. A relationship is quietly forming through sound.",
     verse: {
-      text: "But now the LORD who created you, Jacob, and he who formed you, Israel, says: “Don’t be afraid, for I have redeemed you. I have called you by your name. You are mine.",
+      text: "But now the LORD who created you, Jacob, and he who formed you, Israel, says: “Don’t be afraid, for I have redeemed you. I have called you by your name. You are mine.”",
       ref: "Isaiah 43:1",
     },
     reflection: "The child who is learning your voice belongs first to the God who calls each of his own by name. Their deepest identity is his, before it is yours.",
@@ -716,7 +716,7 @@ export const STAGES: Stage[] = [
     title: "Month 6 — Sitting up to see",
     body: "Your baby may sit up on their own now, taking in the world from a new vantage point, and could be trying first tastes of solid food. Half a year of growth is behind you. Bring this little one into the family's worship, even as an observer in arms.",
     verse: {
-      text: "But when Jesus saw it, he was moved with indignation, and said to them, “Allow the little children to come to me! Don’t forbid them, for God’s Kingdom belongs to such as these.",
+      text: "But when Jesus saw it, he was moved with indignation, and said to them, “Allow the little children to come to me! Don’t forbid them, for God’s Kingdom belongs to such as these.”",
       ref: "Mark 10:14",
     },
     reflection: "Jesus welcomes the smallest children; so should our homes and worship. No one is too young to be brought near to Christ.",
@@ -911,7 +911,7 @@ export const STAGES: Stage[] = [
     title: "Month 19 — Make-believe begins",
     body: "Your toddler is beginning to pretend, feeding a doll or talking on a toy phone, a sign of a growing imagination. They come to the world with wide-eyed trust and wonder. There is much to learn from the simple, dependent faith of a small child.",
     verse: {
-      text: "and said, “Most certainly I tell you, unless you turn, and become as little children, you will in no way enter into the Kingdom of Heaven.",
+      text: "and said, “Most certainly I tell you, unless you turn, and become as little children, you will in no way enter into the Kingdom of Heaven.”",
       ref: "Matthew 18:3",
     },
     reflection: "Jesus points to the trust and lowliness of children as the shape of true faith. Your child's simple dependence is a picture of how God calls you to come to him.",

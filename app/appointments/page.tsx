@@ -82,7 +82,7 @@ export default async function AppointmentsPage() {
 
         <div className="mt-8">
           <Verse
-            text="Commit your deeds to Yahweh, and your plans shall succeed."
+            text="Commit your deeds to the LORD, and your plans shall succeed."
             reference="Proverbs 16:3"
           />
         </div>

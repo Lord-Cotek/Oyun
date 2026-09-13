@@ -73,7 +73,7 @@ export default async function PrayerPage() {
                 icon={<Icon name="flame" size={40} />}
                 title="Nothing on the wall right now."
                 verse={{
-                  text: "Do not be anxious about anything, but in everything by prayer and petition, present your requests to God.",
+                  text: "In nothing be anxious, but in everything, by prayer and petition with thanksgiving, let your requests be made known to God.",
                   reference: "Philippians 4:6",
                 }}
               >

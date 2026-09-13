@@ -84,7 +84,7 @@ export async function sendWelcomeEmail({
       Whenever you're ready, sign in and set where you are. Agbebi will meet you there.
     </p>
     <p style="font-size:14px;line-height:1.7;color:#8A9099;margin-top:20px;">
-      "For you formed my inward parts; you knitted me together in my mother's womb." — Psalm 139:13
+      "For you formed my inmost being. You knit me together in my mother’s womb." — Psalm 139:13
     </p>
   `);
   const text = [

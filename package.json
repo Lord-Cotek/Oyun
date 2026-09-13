@@ -9,6 +9,7 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
+    "verify:scripture": "node scripts/verify-scripture.js",
     "db:push": "prisma db push",
     "db:generate": "prisma generate",
     "db:baseline": "prisma migrate diff --from-empty --to-schema-datamodel prisma/schema.prisma --script",

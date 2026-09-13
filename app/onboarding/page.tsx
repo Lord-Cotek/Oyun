@@ -113,7 +113,7 @@ export default async function Onboarding({
           </p>
           <div className="mt-8 max-w-sm border-t border-border pt-6">
             <Verse
-              text="Behold, children are a heritage from the LORD, the fruit of the womb a reward."
+              text="Behold, children are a heritage of the LORD. The fruit of the womb is his reward."
               reference="Psalm 127:3"
             />
           </div>
@@ -204,7 +204,7 @@ export default async function Onboarding({
             <div className="mt-6 border-y border-border/70 py-5">
               <Verse
                 size="sm"
-                text="For you formed my inward parts; you knitted me together in my mother's womb."
+                text="For you formed my inmost being. You knit me together in my mother’s womb."
                 reference="Psalm 139:13"
               />
             </div>

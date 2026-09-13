@@ -85,7 +85,7 @@ export default async function ChildPage() {
               <EmptyState
                 title="A place is ready for them."
                 verse={{
-                  text: "Behold, children are a heritage from the Lord, the fruit of the womb a reward.",
+                  text: "Behold, children are a heritage of the LORD. The fruit of the womb is his reward.",
                   reference: "Psalm 127:3",
                 }}
                 action={

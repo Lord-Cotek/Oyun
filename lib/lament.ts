@@ -60,7 +60,7 @@ export const LAMENTS: Lament[] = [
       "This is not yet — and we do not rush there. But it is coming, and it is sure. Death does not get the last word.",
   },
   {
-    text: "He said, “Naked I came out of my mother’s womb, and naked will I return there. the LORD gave, and the LORD has taken away. Blessed be the LORD’s name.",
+    text: "He said, “Naked I came out of my mother’s womb, and naked will I return there. the LORD gave, and the LORD has taken away. Blessed be the LORD’s name.”",
     ref: "Job 1:21",
     reflection:
       "Job says this while tearing his robe in grief. Worship and weeping are not enemies. You can bless God and be broken at the same time.",

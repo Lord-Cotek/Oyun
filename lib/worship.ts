@@ -45,7 +45,7 @@ export const LITURGIES: Liturgy[] = [
     pray: "Father, we cannot see how you are working. Make us like your Son through whatever comes.",
   },
   {
-    read: { text: "For I know the thoughts that I think toward you,” says the LORD, “thoughts of peace, and not of evil, to give you hope and a future.", ref: "Jeremiah 29:11" },
+    read: { text: "“For I know the thoughts that I think toward you,” says the LORD, “thoughts of peace, and not of evil, to give you hope and a future.”", ref: "Jeremiah 29:11" },
     reflection:
       "These words were written to exiles told to settle down in Babylon for seventy years — most would die there. God's good plan was real, but it ran straight through decades of hardship and a generation's whole lifetime. Take the comfort, but take it honestly: God's plans are good and long, not always quick or comfortable.",
     talk: "Have you ever heard this verse used to promise something God did not promise?",
@@ -164,7 +164,7 @@ export const LITURGIES: Liturgy[] = [
     pray: "Father, we are your children. Let us parent out of being loved by you, not out of our own emptiness.",
   },
   {
-    read: { text: "For you didn’t receive the spirit of bondage again to fear, but you received the Spirit of adoption, by whom we cry, “Abba! Father!", ref: "Romans 8:15" },
+    read: { text: "For you didn’t receive the spirit of bondage again to fear, but you received the Spirit of adoption, by whom we cry, “Abba! Father!”", ref: "Romans 8:15" },
     reflection:
       "The Spirit we received is not a spirit of slavery leading back to fear but the Spirit of adoption, by whom we cry Abba, Father. Fear is the native language of a slave; Abba is the language of a child. In an anxious season, notice which language your prayers are speaking.",
     talk: "Do your prayers this week sound more like a slave's or a child's?",
@@ -395,7 +395,7 @@ export const LITURGIES: Liturgy[] = [
     talk: "What is one truth about God you most want your child to know deep in their bones?",
   },
   {
-    read: { text: "Jesus said to him, “ ‘You shall love the Lord your God with all your heart, with all your soul, and with all your mind.’ This is the first and great commandment.", ref: "Matthew 22:37-38" },
+    read: { text: "Jesus said to him, “‘You shall love the Lord your God with all your heart, with all your soul, and with all your mind.’ This is the first and great commandment.”", ref: "Matthew 22:37-38" },
     reflection:
       "The first commandment is to love God — not our children. This is not cold; it is the only order that keeps love from becoming idolatry. A child loved more than God is a child crushed under a weight they were never meant to bear. Love God first, and your children are freed to be loved as children, not as gods.",
     pray: "Father, capture our hearts' first love. From loving you supremely, teach us to love our children truly.",
@@ -416,7 +416,7 @@ export const LITURGIES: Liturgy[] = [
     talk: "Where are you tempted to treat parenting as something that earns God's favor — for you or your child?",
   },
   {
-    read: { text: "But when Jesus saw it, he was moved with indignation, and said to them, “Allow the little children to come to me! Don’t forbid them, for God’s Kingdom belongs to such as these.", ref: "Mark 10:14" },
+    read: { text: "But when Jesus saw it, he was moved with indignation, and said to them, “Allow the little children to come to me! Don’t forbid them, for God’s Kingdom belongs to such as these.”", ref: "Mark 10:14" },
     reflection:
       "Jesus was indignant when children were kept from Him. He does not merely tolerate the young — He welcomes them and holds them up as a picture of the kingdom. Our job is never to be a barrier between our children and Christ, but a door: pointing, inviting, making the way to Him plain and warm.",
     pray: "Jesus, draw our child to yourself early. Let us never hinder them, but always point the way to your open arms.",
@@ -570,7 +570,7 @@ export const LITURGIES: Liturgy[] = [
     talk: "When parenting feels like a long, tiring race, what does 'looking to Jesus' practically mean for you?",
   },
   {
-    read: { text: "but just as he who called you is holy, you yourselves also be holy in all of your behavior; because it is written, “You shall be holy; for I am holy.", ref: "1 Peter 1:15-16" },
+    read: { text: "but just as he who called you is holy, you yourselves also be holy in all of your behavior; because it is written, “You shall be holy; for I am holy.”", ref: "1 Peter 1:15-16" },
     reflection:
       "God's call is not first to raise good children but to be holy as He is holy. Our children's clearest sermon is the holiness — or the hypocrisy — they see in us. Pursue God's holiness for its own sake, out of reverence for Him, and your children will see a faith worth having.",
     pray: "Holy Father, make us holy as you are holy. Let our children see in us a faith that is real.",
@@ -649,7 +649,7 @@ export const LITURGIES: Liturgy[] = [
     talk: "What has God done in our lives that we are in danger of forgetting before we pass it on?",
   },
   {
-    read: { text: "She called the name of the LORD who spoke to her, “You are a God who sees,” for she said, “Have I even stayed alive after seeing him?", ref: "Genesis 16:13" },
+    read: { text: "She called the name of the LORD who spoke to her, “You are a God who sees,” for she said, “Have I even stayed alive after seeing him?”", ref: "Genesis 16:13" },
     reflection:
       "You are a God who sees. Hagar names God after being found in a desert — a pregnant, used, runaway slave woman with no standing at all. The first person in Scripture to give God a name is her. God's attention does not track our importance.",
     talk: "Where do you feel unseen in this season? What would it mean that God sees you there?",
@@ -677,7 +677,7 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, we can only do so much. We put this child into your hands.",
   },
   {
-    read: { text: "the LORD said to him, “Who made man’s mouth? Or who makes one mute, or deaf, or seeing, or blind? Isn’t it I, the LORD?", ref: "Exodus 4:11" },
+    read: { text: "the LORD said to him, “Who made man’s mouth? Or who makes one mute, or deaf, or seeing, or blind? Isn’t it I, the LORD?”", ref: "Exodus 4:11" },
     reflection:
       "Who made man's mouth? Or who makes one mute, or deaf, or seeing, or blind? Isn't it I, the LORD? God does not distance himself from disability. He claims it — and then sends Moses anyway. A child God gives is not a mistake, whatever their body does.",
     talk: "What are you afraid this child might be or might lack? Can you bring that fear to God as it is?",
@@ -691,21 +691,21 @@ export const LITURGIES: Liturgy[] = [
     pray: "Eternal God, be our dwelling place. Hold us with your everlasting arms.",
   },
   {
-    read: { text: "I prayed for this child, and the LORD has given me my petition which I asked of him. Therefore I have also given him to the LORD. As long as he lives he is given to the LORD.” He worshiped the LORD there.", ref: "1 Samuel 1:27-28" },
+    read: { text: "“I prayed for this child, and the LORD has given me my petition which I asked of him. Therefore I have also given him to the LORD. As long as he lives he is given to the LORD.” He worshiped the LORD there.", ref: "1 Samuel 1:27-28" },
     reflection:
       "For this child I prayed... therefore I have also given him to the LORD. Hannah's answered prayer ended in giving him away. A child who is a gift is never a possession, and holding them loosely starts long before they leave.",
     talk: "What does it look like to give this child back to God while still longing for them?",
     pray: "Lord, this child is yours before they are ours. Help us hold them with open hands.",
   },
   {
-    read: { text: "Hannah prayed, and said: “My heart exults in the LORD! My horn is exalted in the LORD. My mouth is enlarged over my enemies, because I rejoice in your salvation. There is no one as holy as the LORD, for there is no one besides you, nor is there any rock like our God.", ref: "1 Samuel 2:1-2" },
+    read: { text: "Hannah prayed, and said: “My heart exults in the LORD! My horn is exalted in the LORD. My mouth is enlarged over my enemies, because I rejoice in your salvation. There is no one as holy as the LORD, for there is no one besides you, nor is there any rock like our God.”", ref: "1 Samuel 2:1-2" },
     reflection:
       "My heart exults in the LORD... There is no rock like our God. Hannah's song is not about her baby. Having finally received what she begged for, she sings about God's character, not her outcome.",
     talk: "When God gives you what you asked for, what do you end up praising — the gift or the giver?",
     pray: "Lord, there is no rock like you. Let our joy land on you, not only on your gifts.",
   },
   {
-    read: { text: "Please run now to meet her, and ask her, ‘Is it well with you? Is it well with your husband? Is it well with your child?’ ” She answered, “It is well.", ref: "2 Kings 4:26" },
+    read: { text: "“Please run now to meet her, and ask her, ‘Is it well with you? Is it well with your husband? Is it well with your child?’ ” She answered, “It is well.”", ref: "2 Kings 4:26" },
     reflection:
       "Is it well with you? Is it well with your husband? Is it well with the child? And she answered, 'It is well.' She says it while carrying her dead son upstairs. Faith here is not denial — it is a refusal to let the worst day have the final word.",
     talk: "Can you say 'it is well' about something not yet well? What does that mean and not mean?",
@@ -789,7 +789,7 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, you have engraved us on your palms. You will not forget us.",
   },
   {
-    read: { text: "For the mountains may depart, and the hills be removed; but my loving kindness will not depart from you, and my covenant of peace will not be removed,” says the LORD who has mercy on you.", ref: "Isaiah 54:10" },
+    read: { text: "“For the mountains may depart, and the hills be removed; but my loving kindness will not depart from you, and my covenant of peace will not be removed,” says the LORD who has mercy on you.", ref: "Isaiah 54:10" },
     reflection:
       "The mountains may depart, and the hills be removed; but my loving kindness will not depart from you. The covenant of peace is more stable than geology. Whatever else moves in these months, this does not.",
     talk: "What has moved under you recently? What has not?",
@@ -803,7 +803,7 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, you knew us before you formed us. You already know this child.",
   },
   {
-    read: { text: "the LORD is my portion,” says my soul. “Therefore I will hope in him.” the LORD is good to those who wait for him, to the soul who seeks him. It is good that a man should hope and quietly wait for the salvation of the LORD.", ref: "Lamentations 3:24-26" },
+    read: { text: "“the LORD is my portion,” says my soul. “Therefore I will hope in him.” the LORD is good to those who wait for him, to the soul who seeks him. It is good that a man should hope and quietly wait for the salvation of the LORD.", ref: "Lamentations 3:24-26" },
     reflection:
       "The LORD is my portion, says my soul. Therefore I will hope in him... It is good that a man should hope and quietly wait. Written in the ruins. Waiting quietly is named as good — not passive, not resigned, but hopeful.",
     talk: "What does quiet waiting look like for you, practically, this week?",
@@ -817,21 +817,21 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, your time is appointed. Give us patience until it comes.",
   },
   {
-    read: { text: "Behold, the virgin shall be with child, and shall give birth to a son. They shall call his name Immanuel;” which is, being interpreted, “God with us.", ref: "Matthew 1:23" },
+    read: { text: "“Behold, the virgin shall be with child, and shall give birth to a son. They shall call his name Immanuel;” which is, being interpreted, “God with us.”", ref: "Matthew 1:23" },
     reflection:
       "Behold, the virgin shall be with child, and shall give birth to a son. They shall call his name Immanuel — God with us. An unplanned, socially catastrophic pregnancy is how God chose to come. He is not embarrassed by complicated circumstances.",
     talk: "What is complicated about your circumstances? Does God seem embarrassed by it?",
     pray: "Immanuel, you came through a difficult story. Be with us in ours.",
   },
   {
-    read: { text: "See the birds of the sky, that they don’t sow, neither do they reap, nor gather into barns. Your heavenly Father feeds them. Aren’t you of much more value than they? “Which of you, by being anxious, can add one moment to his lifespan?", ref: "Matthew 6:26-27" },
+    read: { text: "See the birds of the sky, that they don’t sow, neither do they reap, nor gather into barns. Your heavenly Father feeds them. Aren’t you of much more value than they? “Which of you, by being anxious, can add one moment to his lifespan?”", ref: "Matthew 6:26-27" },
     reflection:
       "Which of you by being anxious, can add one moment to his lifespan? Jesus does not shame the anxious; he reasons with them. Worry has never once changed an outcome, and he knows how hard that is to feel.",
     talk: "What is your worry actually accomplishing? What would it take to hand it over?",
     pray: "Father, you feed the birds. Teach us to stop trying to control what we cannot.",
   },
   {
-    read: { text: "But Jesus said, “Allow the little children, and don’t forbid them to come to me; for the Kingdom of Heaven belongs to ones like these.", ref: "Matthew 19:14" },
+    read: { text: "But Jesus said, “Allow the little children, and don’t forbid them to come to me; for the Kingdom of Heaven belongs to ones like these.”", ref: "Matthew 19:14" },
     reflection:
       "Allow the little children, and don't forbid them to come to me. The disciples thought children were an interruption to real ministry. Jesus corrected them sharply. In his kingdom the small are not in the way.",
     talk: "Where do you treat children as an interruption to more important things?",
@@ -845,7 +845,7 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, nothing is impossible for you. Give us Mary's yes, whatever it costs.",
   },
   {
-    read: { text: "Mary said, “My soul magnifies the Lord. My spirit has rejoiced in God my Savior, for he has looked at the humble state of his servant. For behold, from now on, all generations will call me blessed.", ref: "Luke 1:46-48" },
+    read: { text: "Mary said, “My soul magnifies the Lord. My spirit has rejoiced in God my Savior, for he has looked at the humble state of his servant. For behold, from now on, all generations will call me blessed.”", ref: "Luke 1:46-48" },
     reflection:
       "My soul magnifies the Lord... for he has looked at the humble state of his servant. Mary's song celebrates a God who notices the lowly and unseats the powerful. Pregnancy in Scripture is often political before it is sentimental.",
     talk: "What does it mean that God looked on the humble state of an unimportant girl?",
@@ -859,7 +859,7 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord Jesus, you were laid in a manger. Meet us in our unideal circumstances.",
   },
   {
-    read: { text: "and Simeon blessed them, and said to Mary, his mother, “Behold, this child is set for the falling and the rising of many in Israel, and for a sign which is spoken against. Yes, a sword will pierce through your own soul, that the thoughts of many hearts may be revealed.", ref: "Luke 2:34-35" },
+    read: { text: "and Simeon blessed them, and said to Mary, his mother, “Behold, this child is set for the falling and the rising of many in Israel, and for a sign which is spoken against. Yes, a sword will pierce through your own soul, that the thoughts of many hearts may be revealed.”", ref: "Luke 2:34-35" },
     reflection:
       "A sword will pierce through your own soul. Simeon blesses Mary and tells her the truth in the same breath. Nobody promised her an easy motherhood, and God was not less good to her for it.",
     talk: "Have you assumed that God's blessing means an easy road? Where did that idea come from?",
@@ -873,7 +873,7 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord Jesus, you grew as a child. Give us patience with growth that takes time.",
   },
   {
-    read: { text: "His disciples asked him, “Rabbi, who sinned, this man or his parents, that he was born blind?” Jesus answered, “This man didn’t sin, nor did his parents; but, that the works of God might be revealed in him.", ref: "John 9:2-3" },
+    read: { text: "His disciples asked him, “Rabbi, who sinned, this man or his parents, that he was born blind?” Jesus answered, “This man didn’t sin, nor did his parents; but, that the works of God might be revealed in him.”", ref: "John 9:2-3" },
     reflection:
       "Who sinned, this man or his parents, that he was born blind? Jesus answered, 'Neither.' He refuses the whole question. Suffering is not a code to be decoded back to somebody's fault — least of all a parent's.",
     talk: "Have you searched for what you did wrong when something went wrong? What does Jesus say here?",
@@ -887,7 +887,7 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord Jesus, give us your peace, not the world's. Let our hearts not be troubled.",
   },
   {
-    read: { text: "They said, “Believe in the Lord Jesus Christ, and you will be saved, you and your household.", ref: "Acts 16:31" },
+    read: { text: "They said, “Believe in the Lord Jesus Christ, and you will be saved, you and your household.”", ref: "Acts 16:31" },
     reflection:
       "Believe in the Lord Jesus Christ, and you will be saved, you and your household. A jailer's whole house heard the word and believed. It is a promise about the gospel reaching a household, not a guarantee that a parent's faith saves a child automatically.",
     talk: "What does it mean to want the gospel for your whole house without presuming on it?",
@@ -1090,7 +1090,7 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, you form us from dust and give us breath. Do it again here.",
   },
   {
-    read: { text: "To the woman he said, “I will greatly multiply your pain in childbirth. You will bear children in pain. Your desire will be for your husband, and he will rule over you.", ref: "Genesis 3:16" },
+    read: { text: "To the woman he said, “I will greatly multiply your pain in childbirth. You will bear children in pain. Your desire will be for your husband, and he will rule over you.”", ref: "Genesis 3:16" },
     reflection:
       "I will greatly multiply your pain in childbirth. In pain you will bear children. Scripture does not pretend this is easy. The pain is named honestly and it is not a punishment for anything you did.",
     talk: "Has anyone ever made you feel the difficulty is your fault? What does this verse actually say?",
@@ -1125,35 +1125,35 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, you visit as you have said. We wait on your timing.",
   },
   {
-    read: { text: "God heard the voice of the boy. The angel of God called to Hagar out of the sky, and said to her, “What troubles you, Hagar? Don’t be afraid. For God has heard the voice of the boy where he is.", ref: "Genesis 21:17" },
+    read: { text: "God heard the voice of the boy. The angel of God called to Hagar out of the sky, and said to her, “What troubles you, Hagar? Don’t be afraid. For God has heard the voice of the boy where he is.”", ref: "Genesis 21:17" },
     reflection:
       "God heard the voice of the boy. The angel of God called to Hagar out of the sky. A dying child in a desert, and God heard the child's own voice. He hears children directly.",
     talk: "Does it comfort you that God hears this child independently of you?",
     pray: "Lord, you hear the voice of the child. Hear ours.",
   },
   {
-    read: { text: "They blessed Rebekah, and said to her, “Our sister, may you be the mother of thousands of ten thousands, and let your offspring possess the gate of those who hate them.", ref: "Genesis 24:60" },
+    read: { text: "They blessed Rebekah, and said to her, “Our sister, may you be the mother of thousands of ten thousands, and let your offspring possess the gate of those who hate them.”", ref: "Genesis 24:60" },
     reflection:
       "Our sister, may you be the mother of thousands of ten thousands. A family blessing spoken over a woman before she was married. Households have always spoken blessings out loud.",
     talk: "What blessing would you speak over this child? Say it out loud tonight.",
     pray: "Lord, we speak your blessing over this child. Make it so.",
   },
   {
-    read: { text: "He lifted up his eyes, and saw the women and the children; and said, “Who are these with you?” He said, “The children whom God has graciously given your servant.", ref: "Genesis 33:5" },
+    read: { text: "He lifted up his eyes, and saw the women and the children; and said, “Who are these with you?” He said, “The children whom God has graciously given your servant.”", ref: "Genesis 33:5" },
     reflection:
       "Who are these with you? He said, 'The children whom God has graciously given your servant.' Jacob calls his children a gracious gift, not an achievement.",
     talk: "Do you think of this child as a gift or as an accomplishment? What is the difference?",
     pray: "Lord, these are the children you have graciously given. Thank you.",
   },
   {
-    read: { text: "He blessed Joseph, and said, “The God before whom my fathers Abraham and Isaac walked, the God who has fed me all my life long to this day, the angel who has redeemed me from all evil, bless the lads, and let my name be named on them, and the name of my fathers Abraham and Isaac. Let them grow into a multitude upon the earth.", ref: "Genesis 48:15-16" },
+    read: { text: "He blessed Joseph, and said, “The God before whom my fathers Abraham and Isaac walked, the God who has fed me all my life long to this day, the angel who has redeemed me from all evil, bless the lads, and let my name be named on them, and the name of my fathers Abraham and Isaac. Let them grow into a multitude upon the earth.”", ref: "Genesis 48:15-16" },
     reflection:
       "The God who has fed me all my life long to this day, the angel who has redeemed me from all evil, bless the boys. An old man blesses his grandsons out of his own long experience of God.",
     talk: "What has God done in your life that you want this child to know about?",
     pray: "Lord, the God who has fed us all our life long, bless this child.",
   },
   {
-    read: { text: "Pharaoh commanded all his people, saying, “You shall cast every son who is born into the river, and every daughter you shall save alive.", ref: "Exodus 1:22" },
+    read: { text: "Pharaoh commanded all his people, saying, “You shall cast every son who is born into the river, and every daughter you shall save alive.”", ref: "Exodus 1:22" },
     reflection:
       "Pharaoh commanded all his people, saying, 'You shall cast every son who is born into the river.' Children have been at risk from powerful people since the beginning. God's rescue plan came through one of them.",
     talk: "What threatens children in your world? What can this household do?",
@@ -1174,7 +1174,7 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, make us parents worth honouring, and this child able to honour.",
   },
   {
-    read: { text: "the LORD passed by before him, and proclaimed, “the LORD! the LORD, a merciful and gracious God, slow to anger, and abundant in loving kindness and truth,", ref: "Exodus 34:6" },
+    read: { text: "the LORD passed by before him, and proclaimed, “the LORD! the LORD, a merciful and gracious God, slow to anger, and abundant in loving kindness and truth,”", ref: "Exodus 34:6" },
     reflection:
       "The LORD, a merciful and gracious God, slow to anger, and abundant in loving kindness and truth. God's own self-description. This is the God your child will meet through you first.",
     talk: "Which of God's qualities do you most need to show this child?",
@@ -1216,28 +1216,28 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, you have commanded us. Be with us wherever we go.",
   },
   {
-    read: { text: "Manoah said, “Now let your words happen. What shall the child’s way of life and mission be?", ref: "Judges 13:12" },
+    read: { text: "Manoah said, “Now let your words happen. What shall the child’s way of life and mission be?”", ref: "Judges 13:12" },
     reflection:
       "When your words happen, what shall be the child's way of life and mission? A father asks God what the child is for, before the child arrives. That is a good question to ask.",
     talk: "What do you hope this child is for? Can you hold it loosely?",
     pray: "Lord, what will this child's life be? We give them to you.",
   },
   {
-    read: { text: "The women said to Naomi, “Blessed be the LORD, who has not left you today without a near kinsman. Let his name be famous in Israel. He shall be to you a restorer of life and sustain you in your old age; for your daughter-in-law, who loves you, who is better to you than seven sons, has given birth to him.", ref: "Ruth 4:14-15" },
+    read: { text: "The women said to Naomi, “Blessed be the LORD, who has not left you today without a near kinsman. Let his name be famous in Israel. He shall be to you a restorer of life and sustain you in your old age; for your daughter-in-law, who loves you, who is better to you than seven sons, has given birth to him.”", ref: "Ruth 4:14-15" },
     reflection:
       "Blessed be the LORD, who has not left you today without a near kinsman. He shall be to you a restorer of life. A grandmother's grief answered by a grandchild. God restores by generations.",
     talk: "What has been restored in your family? What still needs restoring?",
     pray: "Lord, you restore life and nourish old age. Do that here.",
   },
   {
-    read: { text: "She was in bitterness of soul, and prayed to the LORD, weeping bitterly. She vowed a vow, and said, “the LORD of Armies, if you will indeed look at the affliction of your servant and remember me, and not forget your servant, but will give to your servant a boy, then I will give him to the LORD all the days of his life, and no razor shall come on his head.", ref: "1 Samuel 1:10-11" },
+    read: { text: "She was in bitterness of soul, and prayed to the LORD, weeping bitterly. She vowed a vow, and said, “the LORD of Armies, if you will indeed look at the affliction of your servant and remember me, and not forget your servant, but will give to your servant a boy, then I will give him to the LORD all the days of his life, and no razor shall come on his head.”", ref: "1 Samuel 1:10-11" },
     reflection:
       "She was in bitterness of soul, and prayed to the LORD, and wept bitterly. Bitter prayer, recorded without correction. God receives what is bitter as prayer.",
     talk: "Have you prayed bitterly? Did you feel you were allowed to?",
     pray: "Lord, we come bitter and weeping. Receive it as prayer.",
   },
   {
-    read: { text: "Then Eli answered, “Go in peace; and may the God of Israel grant your petition that you have asked of him.", ref: "1 Samuel 1:17" },
+    read: { text: "Then Eli answered, “Go in peace; and may the God of Israel grant your petition that you have asked of him.”", ref: "1 Samuel 1:17" },
     reflection:
       "Go in peace; and may the God of Israel grant your petition. Eli, who had misjudged her, blesses her. Sometimes the person who misread you is still the one who blesses you.",
     talk: "Who has misjudged you in this season? Could they still be a blessing?",
@@ -1251,21 +1251,21 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, you are no one's debtor. We trust you with what we surrender.",
   },
   {
-    read: { text: "He said, “While the child was yet alive, I fasted and wept; for I said, ‘Who knows whether the LORD will not be gracious to me, that the child may live?’ But now he is dead, why should I fast? Can I bring him back again? I will go to him, but he will not return to me.", ref: "2 Samuel 12:22-23" },
+    read: { text: "He said, “While the child was yet alive, I fasted and wept; for I said, ‘Who knows whether the LORD will not be gracious to me, that the child may live?’ But now he is dead, why should I fast? Can I bring him back again? I will go to him, but he will not return to me.”", ref: "2 Samuel 12:22-23" },
     reflection:
       "While the child was yet alive, I fasted and wept... but now he is dead, why should I fast? I will go to him, but he will not return to me. David prays until there is nothing to pray for, and then hopes.",
     talk: "If you have lost a child, have you been allowed to grieve out loud? Who knows?",
     pray: "Lord, we shall go to them. Hold those who have buried a child.",
   },
   {
-    read: { text: "Then the woman whose the living child was spoke to the king, for her heart yearned over her son, and she said, “Oh, my lord, give her the living child, and in no way kill him!” But the other said, “He shall be neither mine nor yours. Divide him.", ref: "1 Kings 3:26" },
+    read: { text: "Then the woman whose the living child was spoke to the king, for her heart yearned over her son, and she said, “Oh, my lord, give her the living child, and in no way kill him!” But the other said, “He shall be neither mine nor yours. Divide him.”", ref: "1 Kings 3:26" },
     reflection:
       "Then the woman whose the living child was spoke to the king, for her heart yearned over her son. A mother's love revealed by willingness to lose. That instinct is from God.",
     talk: "What would you give up for this child's good?",
     pray: "Lord, you put this fierce love in us. Let it be like yours.",
   },
   {
-    read: { text: "He said, “At this season, when the time comes around, you will embrace a son.” She said, “No, my lord, you man of God, do not lie to your servant.", ref: "2 Kings 4:16" },
+    read: { text: "He said, “At this season, when the time comes around, you will embrace a son.” She said, “No, my lord, you man of God, do not lie to your servant.”", ref: "2 Kings 4:16" },
     reflection:
       "About this season, when the time comes around, you will embrace a son. She said, 'No, my lord, you man of God, do not lie to your servant.' She could not bear to hope again.",
     talk: "Have you been afraid to hope? What made hope feel dangerous?",
@@ -1279,14 +1279,14 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, everything in heaven and earth is yours. This child too.",
   },
   {
-    read: { text: "and he said, “Listen, all Judah, and you inhabitants of Jerusalem, and you, king Jehoshaphat. the LORD says to you, ‘Don’t be afraid, and don’t be dismayed because of this great multitude; for the battle is not yours, but God’s.", ref: "2 Chronicles 20:15" },
+    read: { text: "and he said, “Listen, all Judah, and you inhabitants of Jerusalem, and you, king Jehoshaphat. the LORD says to you, ‘Don’t be afraid, and don’t be dismayed because of this great multitude; for the battle is not yours, but God’s.”", ref: "2 Chronicles 20:15" },
     reflection:
       "Don't be afraid or dismayed because of this great multitude; for the battle is not yours, but God's. Whatever is coming, the outcome does not rest on your strength.",
     talk: "What battle are you treating as yours to win?",
     pray: "Lord, the battle is not ours but yours. We stand still and watch.",
   },
   {
-    read: { text: "Then he said to them, “Go your way. Eat the fat, drink the sweet, and send portions to him for whom nothing is prepared, for today is holy to our Lord. Don’t be grieved, for the joy of the LORD is your strength.", ref: "Nehemiah 8:10" },
+    read: { text: "Then he said to them, “Go your way. Eat the fat, drink the sweet, and send portions to him for whom nothing is prepared, for today is holy to our Lord. Don’t be grieved, for the joy of the LORD is your strength.”", ref: "Nehemiah 8:10" },
     reflection:
       "Don't be grieved, for the joy of the LORD is your strength. Spoken to people undone by realising how far they had drifted. The joy is his, not manufactured by us.",
     talk: "Where are you trying to manufacture strength? What is offered instead?",
@@ -1384,7 +1384,7 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, be within us. Help us when morning dawns.",
   },
   {
-    read: { text: "I said, “Oh that I had wings like a dove! Then I would fly away, and be at rest.", ref: "Psalm 55:6" },
+    read: { text: "I said, “Oh that I had wings like a dove! Then I would fly away, and be at rest.”", ref: "Psalm 55:6" },
     reflection:
       "Oh that I had wings like a dove! Then I would fly away, and be at rest. The wish to escape is in the Bible. You are not faithless for having felt it.",
     talk: "Have you wished to escape? Can you say that here without judgement?",
@@ -1545,7 +1545,7 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, all our days were written before one of them came to be. We trust the book.",
   },
   {
-    read: { text: "I cried to you, the LORD. I said, “You are my refuge, my portion in the land of the living.", ref: "Psalm 142:5" },
+    read: { text: "I cried to you, the LORD. I said, “You are my refuge, my portion in the land of the living.”", ref: "Psalm 142:5" },
     reflection:
       "I cried to you, LORD. I said, 'You are my refuge, my portion in the land of the living.' Said from a cave. Refuge is not a place; it is a person.",
     talk: "What is your refuge when things are hardest?",
@@ -1643,7 +1643,7 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, we do not understand the work of your hands. We trust it anyway.",
   },
   {
-    read: { text: "Come now, and let’s reason together,” says the LORD: “Though your sins are as scarlet, they shall be as white as snow. Though they are red like crimson, they shall be as wool.", ref: "Isaiah 1:18" },
+    read: { text: "“Come now, and let’s reason together,” says the LORD: “Though your sins are as scarlet, they shall be as white as snow. Though they are red like crimson, they shall be as wool.”", ref: "Isaiah 1:18" },
     reflection:
       "Though your sins are as scarlet, they shall be as white as snow. Whatever came before this pregnancy, God's invitation is to reason together and be made clean.",
     talk: "Is there guilt you have carried into this season? Have you brought it to him?",
@@ -1678,7 +1678,7 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, lead us in a way we do not know. Make the rough places level.",
   },
   {
-    read: { text: "This is what the LORD who made you, and formed you from the womb, who will help you says: “Don’t be afraid, Jacob my servant; and you, Jeshurun, whom I have chosen.", ref: "Isaiah 44:2" },
+    read: { text: "This is what the LORD who made you, and formed you from the womb, who will help you says: “Don’t be afraid, Jacob my servant; and you, Jeshurun, whom I have chosen.”", ref: "Isaiah 44:2" },
     reflection:
       "The LORD who made you, and formed you from the womb, who will help you says: 'Don't be afraid.' The one who formed you is the one telling you not to fear.",
     talk: "Does it help that the God telling you not to fear is the one who made you?",
@@ -1804,14 +1804,14 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, be a wall of fire around this house, and the glory within it.",
   },
   {
-    read: { text: "But when he thought about these things, behold, an angel of the Lord appeared to him in a dream, saying, “Joseph, son of David, don’t be afraid to take to yourself Mary, your wife, for that which is conceived in her is of the Holy Spirit.", ref: "Matthew 1:20" },
+    read: { text: "But when he thought about these things, behold, an angel of the Lord appeared to him in a dream, saying, “Joseph, son of David, don’t be afraid to take to yourself Mary, your wife, for that which is conceived in her is of the Holy Spirit.”", ref: "Matthew 1:20" },
     reflection:
       "Joseph, son of David, don't be afraid to take to yourself Mary as your wife; for that which is conceived in her is of the Holy Spirit. A man told not to fear a complicated situation.",
     talk: "What complication are you afraid of? What might God be doing in it?",
     pray: "Lord, do not let us fear the situations you have given us.",
   },
   {
-    read: { text: "Now when they had departed, behold, an angel of the Lord appeared to Joseph in a dream, saying, “Arise and take the young child and his mother, and flee into Egypt, and stay there until I tell you, for Herod will seek the young child to destroy him.", ref: "Matthew 2:13" },
+    read: { text: "Now when they had departed, behold, an angel of the Lord appeared to Joseph in a dream, saying, “Arise and take the young child and his mother, and flee into Egypt, and stay there until I tell you, for Herod will seek the young child to destroy him.”", ref: "Matthew 2:13" },
     reflection:
       "Arise and take the young child and his mother, and flee into Egypt. The holy family became refugees. God's protection sometimes looks like being told to run.",
     talk: "Has God's protection ever looked like upheaval to you?",
@@ -1853,21 +1853,21 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, you honour little ones. Teach us to do the same.",
   },
   {
-    read: { text: "But Jesus, when he heard the message spoken, immediately said to the ruler of the synagogue, “Don’t be afraid, only believe.", ref: "Mark 5:36" },
+    read: { text: "But Jesus, when he heard the message spoken, immediately said to the ruler of the synagogue, “Don’t be afraid, only believe.”", ref: "Mark 5:36" },
     reflection:
       "Don't be afraid, only believe. Said to a father whose daughter had just died. It is not a denial of the situation but a redirection of where to look.",
     talk: "What is the worst news you fear? Where would you look if it came?",
     pray: "Lord Jesus, do not let us fear. Help us believe.",
   },
   {
-    read: { text: "He took a little child, and set him in the middle of them. Taking him in his arms, he said to them, “Whoever receives one such little child in my name, receives me, and whoever receives me, doesn’t receive me, but him who sent me.", ref: "Mark 9:36-37" },
+    read: { text: "He took a little child, and set him in the middle of them. Taking him in his arms, he said to them, “Whoever receives one such little child in my name, receives me, and whoever receives me, doesn’t receive me, but him who sent me.”", ref: "Mark 9:36-37" },
     reflection:
       "He took a little child, and set him in the middle of them. Taking him in his arms, he said... 'Whoever receives one such little child in my name, receives me.' Welcoming a child is welcoming Christ.",
     talk: "How does it change your night feeds to know you are receiving Christ?",
     pray: "Lord Jesus, when we receive this child, we receive you.",
   },
   {
-    read: { text: "But the angel said to him, “Don’t be afraid, Zacharias, because your request has been heard. Your wife, Elizabeth, will bear you a son, and you shall call his name John. You will have joy and gladness, and many will rejoice at his birth.", ref: "Luke 1:13-14" },
+    read: { text: "But the angel said to him, “Don’t be afraid, Zacharias, because your request has been heard. Your wife, Elizabeth, will bear you a son, and you shall call his name John. You will have joy and gladness, and many will rejoice at his birth.”", ref: "Luke 1:13-14" },
     reflection:
       "Your request has been heard, and your wife Elizabeth will bear you a son... You will have joy and gladness. A prayer answered decades after it was prayed.",
     talk: "What did you pray years ago that has not yet been answered?",
@@ -1881,7 +1881,7 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, you look on us and take away our reproach.",
   },
   {
-    read: { text: "When Elizabeth heard Mary’s greeting, the baby leaped in her womb; and Elizabeth was filled with the Holy Spirit. She called out with a loud voice and said, “Blessed are you among women, and blessed is the fruit of your womb!", ref: "Luke 1:41-42" },
+    read: { text: "When Elizabeth heard Mary’s greeting, the baby leaped in her womb; and Elizabeth was filled with the Holy Spirit. She called out with a loud voice and said, “Blessed are you among women, and blessed is the fruit of your womb!”", ref: "Luke 1:41-42" },
     reflection:
       "When Elizabeth heard Mary's greeting, the baby leaped in her womb... 'Blessed are you among women, and blessed is the fruit of your womb!' A child responds in the womb.",
     talk: "What have you noticed already from this child? What do you make of it?",
@@ -1902,7 +1902,7 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord Jesus, you were laid in a manger. Meet us where we are.",
   },
   {
-    read: { text: "When the days of their purification according to the law of Moses were fulfilled, they brought him up to Jerusalem, to present him to the Lord (as it is written in the law of the Lord, “Every male who opens the womb shall be called holy to the Lord”), and to offer a sacrifice according to that which is said in the law of the Lord, “A pair of turtledoves, or two young pigeons.", ref: "Luke 2:22-24" },
+    read: { text: "When the days of their purification according to the law of Moses were fulfilled, they brought him up to Jerusalem, to present him to the Lord (as it is written in the law of the Lord, “Every male who opens the womb shall be called holy to the Lord”), and to offer a sacrifice according to that which is said in the law of the Lord, “A pair of turtledoves, or two young pigeons.”", ref: "Luke 2:22-24" },
     reflection:
       "They brought him up to Jerusalem, to present him to the Lord... a pair of turtledoves. An ordinary religious duty, done by a poor family, for the Son of God.",
     talk: "What ordinary act of devotion could you do for this child?",
@@ -1930,7 +1930,7 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, not one sparrow is forgotten. Neither are we.",
   },
   {
-    read: { text: "Jesus summoned them, saying, “Allow the little children to come to me, and don’t hinder them, for God’s Kingdom belongs to such as these.", ref: "Luke 18:16" },
+    read: { text: "Jesus summoned them, saying, “Allow the little children to come to me, and don’t hinder them, for God’s Kingdom belongs to such as these.”", ref: "Luke 18:16" },
     reflection:
       "Allow the little children to come to me, and don't hinder them, for God's Kingdom belongs to such as these. Repeated in three gospels, because the disciples kept getting it wrong.",
     talk: "What hinders children coming to Christ in a household? Be specific.",
@@ -2126,7 +2126,7 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, we have doubted and we still count you faithful.",
   },
   {
-    read: { text: "Be free from the love of money, content with such things as you have, for he has said, “I will in no way leave you, neither will I in any way forsake you.” So that with good courage we say, “The Lord is my helper. I will not fear. What can man do to me?", ref: "Hebrews 13:5-6" },
+    read: { text: "Be free from the love of money, content with such things as you have, for he has said, “I will in no way leave you, neither will I in any way forsake you.” So that with good courage we say, “The Lord is my helper. I will not fear. What can man do to me?”", ref: "Hebrews 13:5-6" },
     reflection:
       "I will in no way leave you, neither will I in any way forsake you. So that with good courage we say, 'The Lord is my helper. I will not fear.' A double negative, twice, for certainty.",
     talk: "What are you afraid of losing? What can never be lost?",
@@ -2161,14 +2161,14 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, cast out our fear with your perfect love.",
   },
   {
-    read: { text: "He who sits on the throne said, “Behold, I am making all things new.” He said, “Write, for these words of God are faithful and true.", ref: "Revelation 21:5" },
+    read: { text: "He who sits on the throne said, “Behold, I am making all things new.” He said, “Write, for these words of God are faithful and true.”", ref: "Revelation 21:5" },
     reflection:
       "Behold, I am making all things new. Not all new things — all things new. Including bodies, including grief, including whatever this season has cost.",
     talk: "What do you most want made new?",
     pray: "Lord, you make all things new. We wait for that day.",
   },
   {
-    read: { text: "The man knew Eve his wife. She conceived, and gave birth to Cain, and said, “I have gotten a man with the LORD’s help.", ref: "Genesis 4:1" },
+    read: { text: "The man knew Eve his wife. She conceived, and gave birth to Cain, and said, “I have gotten a man with the LORD’s help.”", ref: "Genesis 4:1" },
     reflection:
       "She conceived, and gave birth to Cain, and said, 'I have gotten a man with the LORD's help.' The first mother credits God for the birth. Even outside Eden, children come with his help.",
     talk: "Who do you credit for this child? Does it show in how you speak about it?",
@@ -2182,28 +2182,28 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, you made and blessed us before we did anything. Thank you.",
   },
   {
-    read: { text: "the LORD brought him outside, and said, “Look now toward the sky, and count the stars, if you are able to count them.” He said to Abram, “So your offspring will be.", ref: "Genesis 15:5" },
+    read: { text: "the LORD brought him outside, and said, “Look now toward the sky, and count the stars, if you are able to count them.” He said to Abram, “So your offspring will be.”", ref: "Genesis 15:5" },
     reflection:
       "Look now toward the sky, and count the stars, if you are able to count them. So shall your offspring be. God took a childless man outside to look up.",
     talk: "When did you last look up? What does the sky say to you about God?",
     pray: "Lord, you count the stars and the generations. We trust you with ours.",
   },
   {
-    read: { text: "Abraham called the name of that place “the LORD Will Provide”. As it is said to this day, “On the LORD’s mountain, it will be provided.", ref: "Genesis 22:14" },
+    read: { text: "Abraham called the name of that place “the LORD Will Provide”. As it is said to this day, “On the LORD’s mountain, it will be provided.”", ref: "Genesis 22:14" },
     reflection:
       "Abraham called the name of that place 'The LORD will provide.' God's provision came at the last moment, and Abraham named the place for it.",
     talk: "What has God provided at the last moment? Have you named it?",
     pray: "Lord, you provide. On the mountain of the Lord it will be provided.",
   },
   {
-    read: { text: "Jacob awakened out of his sleep, and he said, “Surely the LORD is in this place, and I didn’t know it.", ref: "Genesis 28:16" },
+    read: { text: "Jacob awakened out of his sleep, and he said, “Surely the LORD is in this place, and I didn’t know it.”", ref: "Genesis 28:16" },
     reflection:
       "Surely the LORD is in this place, and I didn't know it. Jacob wakes up and realises God was present all along. Some of God's presence is recognised late.",
     talk: "Where might God be present that you have not noticed?",
     pray: "Lord, surely you are in this place. Open our eyes to see it.",
   },
   {
-    read: { text: "He said, “If you will diligently listen to the LORD your God’s voice, and will do that which is right in his eyes, and will pay attention to his commandments, and keep all his statutes, I will put none of the diseases on you, which I have put on the Egyptians; for I am the LORD who heals you.", ref: "Exodus 15:26" },
+    read: { text: "He said, “If you will diligently listen to the LORD your God’s voice, and will do that which is right in his eyes, and will pay attention to his commandments, and keep all his statutes, I will put none of the diseases on you, which I have put on the Egyptians; for I am the LORD who heals you.”", ref: "Exodus 15:26" },
     reflection:
       "For I am the LORD who heals you. God names himself as healer. Whatever medicine you use, this is who stands behind healing.",
     talk: "How do you hold together medicine and prayer?",
@@ -2224,7 +2224,7 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, you are not a man that you should lie. We stand on your word.",
   },
   {
-    read: { text: "About Benjamin he said, “The beloved of the LORD will dwell in safety by him. He covers him all day long. He dwells between his shoulders.", ref: "Deuteronomy 33:12" },
+    read: { text: "About Benjamin he said, “The beloved of the LORD will dwell in safety by him. He covers him all day long. He dwells between his shoulders.”", ref: "Deuteronomy 33:12" },
     reflection:
       "The beloved of the LORD will dwell in safety by him. He covers him all day long. He dwells between his shoulders. Carried on the shoulders, all day. That is the picture.",
     talk: "What would it mean to be carried on God's shoulders through today?",
@@ -2343,7 +2343,7 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, two are better than one. Give us people close enough to lift us.",
   },
   {
-    read: { text: "But now the LORD who created you, Jacob, and he who formed you, Israel, says: “Don’t be afraid, for I have redeemed you. I have called you by your name. You are mine.", ref: "Isaiah 43:1" },
+    read: { text: "But now the LORD who created you, Jacob, and he who formed you, Israel, says: “Don’t be afraid, for I have redeemed you. I have called you by your name. You are mine.”", ref: "Isaiah 43:1" },
     reflection:
       "Don't be afraid, for I have redeemed you. I have called you by your name. You are mine. Named and owned. That is said to you, and it will be true of this child.",
     talk: "What does it mean to be called by name and belong to God?",
@@ -2462,7 +2462,7 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, you spoke light into darkness. Speak into ours.",
   },
   {
-    read: { text: "the LORD God said, “It is not good for the man to be alone. I will make him a helper comparable to him.", ref: "Genesis 2:18" },
+    read: { text: "the LORD God said, “It is not good for the man to be alone. I will make him a helper comparable to him.”", ref: "Genesis 2:18" },
     reflection:
       "It is not good that the man should be alone. The first thing called 'not good' was loneliness — before sin, in a perfect world. New parents are often lonelier than anyone admits.",
     talk: "Where do you feel alone in this? Have you said it out loud?",
@@ -2504,7 +2504,7 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, be with us and keep us wherever we go.",
   },
   {
-    read: { text: "The man said, “Let me go, for the day breaks.” Jacob said, “I won’t let you go unless you bless me.", ref: "Genesis 32:26" },
+    read: { text: "The man said, “Let me go, for the day breaks.” Jacob said, “I won’t let you go unless you bless me.”", ref: "Genesis 32:26" },
     reflection:
       "I won't let you go, unless you bless me. Jacob wrestles all night and leaves blessed and limping. Some blessings come only through a struggle that changes how you walk.",
     talk: "What has this season already changed about how you walk?",
@@ -2525,7 +2525,7 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, you are not defeated by what people do. Work your good.",
   },
   {
-    read: { text: "God said to Moses, “I AM WHO I AM,” and he said, “You shall tell the children of Israel this: ‘I AM has sent me to you.", ref: "Exodus 3:14" },
+    read: { text: "God said to Moses, “I AM WHO I AM,” and he said, “You shall tell the children of Israel this: ‘I AM has sent me to you.”", ref: "Exodus 3:14" },
     reflection:
       "I AM WHO I AM. God's name is a declaration that he simply is. Everything about this child depends on him; he depends on nothing.",
     talk: "What are you depending on that could fail?",
@@ -2539,14 +2539,14 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, fight for us. And where you say move, give us courage.",
   },
   {
-    read: { text: "Then the LORD said to Moses, “Behold, I will rain bread from the sky for you, and the people shall go out and gather a day’s portion every day, that I may test them, whether they will walk in my law or not.", ref: "Exodus 16:4" },
+    read: { text: "Then the LORD said to Moses, “Behold, I will rain bread from the sky for you, and the people shall go out and gather a day’s portion every day, that I may test them, whether they will walk in my law or not.”", ref: "Exodus 16:4" },
     reflection:
       "I will rain bread from the sky for you... a day's portion every day. They could not store it. Daily dependence was designed, not accidental.",
     talk: "What would today's portion be? Are you trying to stockpile?",
     pray: "Give us this day our daily bread, and teach us to depend.",
   },
   {
-    read: { text: "He said, “My presence will go with you, and I will give you rest.", ref: "Exodus 33:14" },
+    read: { text: "He said, “My presence will go with you, and I will give you rest.”", ref: "Exodus 33:14" },
     reflection:
       "My presence will go with you, and I will give you rest. Presence and rest, promised together. God's answer to an overwhelmed leader was himself.",
     talk: "What would rest look like this week? Have you asked for it?",
@@ -2595,35 +2595,35 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, give us stones of remembrance for our children to ask about.",
   },
   {
-    read: { text: "He said to him, “O Lord, how shall I save Israel? Behold, my family is the poorest in Manasseh, and I am the least in my father’s house.” the LORD said to him, “Surely I will be with you, and you shall strike the Midianites as one man.", ref: "Judges 6:15-16" },
+    read: { text: "He said to him, “O Lord, how shall I save Israel? Behold, my family is the poorest in Manasseh, and I am the least in my father’s house.” the LORD said to him, “Surely I will be with you, and you shall strike the Midianites as one man.”", ref: "Judges 6:15-16" },
     reflection:
       "My family is the poorest... and I am the least in my father's house. The LORD said to him, 'Surely I will be with you.' God does not argue with the low estimate. He adds himself.",
     talk: "What is your version of 'I am the least'? What is God's answer?",
     pray: "Lord, we are small. Be with us, and that will be enough.",
   },
   {
-    read: { text: "Ruth said, “Don’t urge me to leave you, and to return from following you, for where you go, I will go; and where you stay, I will stay. Your people will be my people, and your God my God.", ref: "Ruth 1:16" },
+    read: { text: "Ruth said, “Don’t urge me to leave you, and to return from following you, for where you go, I will go; and where you stay, I will stay. Your people will be my people, and your God my God.”", ref: "Ruth 1:16" },
     reflection:
       "Your people will be my people, and your God my God. Ruth binds herself to a bitter woman and a foreign God. She ends up in the line of Christ.",
     talk: "Who has bound themselves to you at cost? Have you thanked them?",
     pray: "Lord, you draw outsiders in. Thank you for making us family.",
   },
   {
-    read: { text: "the LORD came, and stood, and called as at other times, “Samuel! Samuel!” Then Samuel said, “Speak; for your servant hears.", ref: "1 Samuel 3:10" },
+    read: { text: "the LORD came, and stood, and called as at other times, “Samuel! Samuel!” Then Samuel said, “Speak; for your servant hears.”", ref: "1 Samuel 3:10" },
     reflection:
       "Speak, for your servant hears. A boy in the temple answers God. Do not assume God is waiting for this child to grow up before he speaks to them.",
     talk: "When did God first speak to you? How old were you?",
     pray: "Speak, Lord. Your servants are listening — even the youngest.",
   },
   {
-    read: { text: "Then Samuel took a stone, and set it between Mizpah and Shen, and called its name Ebenezer, saying, “the LORD helped us until now.", ref: "1 Samuel 7:12" },
+    read: { text: "Then Samuel took a stone, and set it between Mizpah and Shen, and called its name Ebenezer, saying, “the LORD helped us until now.”", ref: "1 Samuel 7:12" },
     reflection:
       "He called its name Ebenezer, saying, 'The LORD helped us all the way here.' A stone for the journey, not for a victory. Most help is only visible looking back.",
     talk: "Look back a year. Where did God help that you did not see at the time?",
     pray: "Lord, you have helped us all the way here.",
   },
   {
-    read: { text: "But the LORD said to Samuel, “Don’t look on his face, or on the height of his stature, because I have rejected him; for I don’t see as man sees. For man looks at the outward appearance, but the LORD looks at the heart.", ref: "1 Samuel 16:7" },
+    read: { text: "But the LORD said to Samuel, “Don’t look on his face, or on the height of his stature, because I have rejected him; for I don’t see as man sees. For man looks at the outward appearance, but the LORD looks at the heart.”", ref: "1 Samuel 16:7" },
     reflection:
       "Man looks at the outward appearance, but the LORD looks at the heart. Every scan, every measurement, every comparison — God is looking at something else.",
     talk: "What are you measuring that God is not?",
@@ -2651,7 +2651,7 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, you fed Elijah before you spoke to him. Care for our bodies.",
   },
   {
-    read: { text: "He answered, “Don’t be afraid; for those who are with us are more than those who are with them.", ref: "2 Kings 6:16" },
+    read: { text: "He answered, “Don’t be afraid; for those who are with us are more than those who are with them.”", ref: "2 Kings 6:16" },
     reflection:
       "Don't be afraid; for those who are with us are more than those who are with them. Nothing changed outside — only what the servant could see.",
     talk: "What are you afraid of? What else is also true that you cannot see?",
@@ -2679,7 +2679,7 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, give us a safe journey, for us and for our little ones.",
   },
   {
-    read: { text: "I looked, and rose up, and said to the nobles, to the rulers, and to the rest of the people, “Don’t be afraid of them! Remember the Lord, who is great and awesome, and fight for your brothers, your sons, your daughters, your wives, and your houses.", ref: "Nehemiah 4:14" },
+    read: { text: "I looked, and rose up, and said to the nobles, to the rulers, and to the rest of the people, “Don’t be afraid of them! Remember the Lord, who is great and awesome, and fight for your brothers, your sons, your daughters, your wives, and your houses.”", ref: "Nehemiah 4:14" },
     reflection:
       "Remember the Lord, who is great and awesome, and fight for your brothers, your sons, your daughters, your wives, and your houses. Courage grounded in God, exercised for family.",
     talk: "What do you need courage for on behalf of this child?",
@@ -2693,7 +2693,7 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, you do not need us and still you call us. Give us courage.",
   },
   {
-    read: { text: "He said, “Naked I came out of my mother’s womb, and naked will I return there. the LORD gave, and the LORD has taken away. Blessed be the LORD’s name.", ref: "Job 1:21" },
+    read: { text: "He said, “Naked I came out of my mother’s womb, and naked will I return there. the LORD gave, and the LORD has taken away. Blessed be the LORD’s name.”", ref: "Job 1:21" },
     reflection:
       "The LORD gave, and the LORD has taken away. Blessed be the LORD's name. Job says this having just buried his children. Scripture lets grief and worship stand together.",
     talk: "Can you grieve hard and worship at the same time? What does that look like?",
@@ -2966,14 +2966,14 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, teach us that enough with quietness is better.",
   },
   {
-    read: { text: "I heard the Lord’s voice, saying, “Whom shall I send, and who will go for us?” Then I said, “Here I am. Send me!", ref: "Isaiah 6:8" },
+    read: { text: "I heard the Lord’s voice, saying, “Whom shall I send, and who will go for us?” Then I said, “Here I am. Send me!”", ref: "Isaiah 6:8" },
     reflection:
       "Whom shall I send, and who will go for us? Then I said, 'Here I am. Send me!' Note the order: his guilt was taken away first. Cleansing precedes commissioning.",
     talk: "Are you trying to serve God before letting him deal with you?",
     pray: "Lord, cleanse us and then send us. Here we are.",
   },
   {
-    read: { text: "and when you turn to the right hand, and when you turn to the left, your ears will hear a voice behind you, saying, “This is the way. Walk in it.", ref: "Isaiah 30:21" },
+    read: { text: "and when you turn to the right hand, and when you turn to the left, your ears will hear a voice behind you, saying, “This is the way. Walk in it.”", ref: "Isaiah 30:21" },
     reflection:
       "Your ears will hear a word behind you, saying, 'This is the way. Walk in it.' Guidance comes as we move, and often from behind.",
     talk: "Have you been waiting for direction before moving?",
@@ -3001,7 +3001,7 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, do a new thing. Make a way in this wilderness.",
   },
   {
-    read: { text: "For my thoughts are not your thoughts, and your ways are not my ways,” says the LORD. “For as the heavens are higher than the earth, so are my ways higher than your ways, and my thoughts than your thoughts.", ref: "Isaiah 55:8-9" },
+    read: { text: "“For my thoughts are not your thoughts, and your ways are not my ways,” says the LORD. “For as the heavens are higher than the earth, so are my ways higher than your ways, and my thoughts than your thoughts.”", ref: "Isaiah 55:8-9" },
     reflection:
       "For my thoughts are not your thoughts, neither are your ways my ways. Sometimes the answer is that God is doing something we cannot see from here.",
     talk: "What do you not understand about God's dealings with you?",
@@ -3071,7 +3071,7 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, though everything fails, we will rejoice in you.",
   },
   {
-    read: { text: "Then he answered and spoke to me, saying, “This is the LORD’s word to Zerubbabel, saying, ‘Not by might, nor by power, but by my Spirit,’ says the LORD of Armies.", ref: "Zechariah 4:6" },
+    read: { text: "Then he answered and spoke to me, saying, “This is the LORD’s word to Zerubbabel, saying, ‘Not by might, nor by power, but by my Spirit,’ says the LORD of Armies.”", ref: "Zechariah 4:6" },
     reflection:
       "Not by might, nor by power, but by my Spirit, says the LORD of Armies. Said to a discouraged builder facing a job too big.",
     talk: "What are you trying to do by sheer effort?",
@@ -3106,28 +3106,28 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, we ask, seek and knock. Teach us to keep going.",
   },
   {
-    read: { text: "At that time, Jesus answered, “I thank you, Father, Lord of heaven and earth, that you hid these things from the wise and understanding, and revealed them to infants.", ref: "Matthew 11:25" },
+    read: { text: "At that time, Jesus answered, “I thank you, Father, Lord of heaven and earth, that you hid these things from the wise and understanding, and revealed them to infants.”", ref: "Matthew 11:25" },
     reflection:
       "You hid these things from the wise and understanding, and revealed them to infants. Jesus thanks the Father for a pattern that would offend most academies.",
     talk: "Where does your knowledge get in the way of receiving like a child?",
     pray: "Father, you reveal these things to little children. Make us small.",
   },
   {
-    read: { text: "But when he saw that the wind was strong, he was afraid, and beginning to sink, he cried out, saying, “Lord, save me!” Immediately Jesus stretched out his hand, took hold of him, and said to him, “You of little faith, why did you doubt?", ref: "Matthew 14:30-31" },
+    read: { text: "But when he saw that the wind was strong, he was afraid, and beginning to sink, he cried out, saying, “Lord, save me!” Immediately Jesus stretched out his hand, took hold of him, and said to him, “You of little faith, why did you doubt?”", ref: "Matthew 14:30-31" },
     reflection:
       "Beginning to sink, he cried out, saying, 'Lord, save me!' Immediately Jesus stretched out his hand. Peter's faith failed; the hand did not.",
     talk: "Where are you sinking? Have you called out?",
     pray: "Lord, save us. Take hold of us before we go under.",
   },
   {
-    read: { text: "and said, “Most certainly I tell you, unless you turn, and become as little children, you will in no way enter into the Kingdom of Heaven.", ref: "Matthew 18:3" },
+    read: { text: "and said, “Most certainly I tell you, unless you turn, and become as little children, you will in no way enter into the Kingdom of Heaven.”", ref: "Matthew 18:3" },
     reflection:
       "Unless you turn and become as little children, you will in no way enter into the Kingdom of Heaven. Not childish, but dependent — nothing to bring, nothing to protect.",
     talk: "What do you bring to God that a child could not? Is it helping?",
     pray: "Lord, make us like children — dependent, and glad to be.",
   },
   {
-    read: { text: "teaching them to observe all things that I commanded you. Behold, I am with you always, even to the end of the age.” Amen.", ref: "Matthew 28:20" },
+    read: { text: "“teaching them to observe all things that I commanded you. Behold, I am with you always, even to the end of the age.” Amen.", ref: "Matthew 28:20" },
     reflection:
       "Behold, I am with you always, even to the end of the age. The last words of the gospel are a promise of presence.",
     talk: "Where has God sent you? Does his promise of presence reach there?",
@@ -3155,28 +3155,28 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord Jesus, you call us aside to rest. Give us permission to obey.",
   },
   {
-    read: { text: "Immediately the father of the child cried out with tears, “I believe. Help my unbelief!", ref: "Mark 9:24" },
+    read: { text: "Immediately the father of the child cried out with tears, “I believe. Help my unbelief!”", ref: "Mark 9:24" },
     reflection:
       "I believe. Help my unbelief! A father asks for help with faith he does not fully have, and Jesus acts anyway.",
     talk: "Where do you believe and doubt at once? Have you told God?",
     pray: "Lord, we believe. Help our unbelief.",
   },
   {
-    read: { text: "Jesus, looking at them, said, “With men it is impossible, but not with God, for all things are possible with God.", ref: "Mark 10:27" },
+    read: { text: "Jesus, looking at them, said, “With men it is impossible, but not with God, for all things are possible with God.”", ref: "Mark 10:27" },
     reflection:
       "With men it is impossible, but not with God, for all things are possible with God. Said about salvation, in context — the impossible thing is a person being saved.",
     talk: "Whose salvation feels impossible to you?",
     pray: "Lord, with you all things are possible. Save those we love.",
   },
   {
-    read: { text: "Mary said, “My soul magnifies the Lord. My spirit has rejoiced in God my Savior,", ref: "Luke 1:46-47" },
+    read: { text: "Mary said, “My soul magnifies the Lord. My spirit has rejoiced in God my Savior,”", ref: "Luke 1:46-47" },
     reflection:
       "My soul magnifies the Lord. My spirit has rejoiced in God my Saviour. A pregnant teenager's song is about God, not about her circumstances.",
     talk: "Can you magnify God about this pregnancy rather than only worry about it?",
     pray: "Lord, our souls magnify you. Our spirits rejoice in God our Saviour.",
   },
   {
-    read: { text: "The angel said to them, “Don’t be afraid, for behold, I bring you good news of great joy which will be to all the people.", ref: "Luke 2:10" },
+    read: { text: "The angel said to them, “Don’t be afraid, for behold, I bring you good news of great joy which will be to all the people.”", ref: "Luke 2:10" },
     reflection:
       "Don't be afraid, for behold, I bring you good news of great joy which will be to all the people. Announced to shepherds working nights, of no social standing.",
     talk: "Why do you think God chose shepherds as the first congregation?",
@@ -3204,14 +3204,14 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, even our hairs are numbered. Do not let us fear.",
   },
   {
-    read: { text: "But he said, “The things which are impossible with men are possible with God.", ref: "Luke 18:27" },
+    read: { text: "But he said, “The things which are impossible with men are possible with God.”", ref: "Luke 18:27" },
     reflection:
       "The things which are impossible with men are possible with God. Said in a conversation about who can be saved. The impossible thing is salvation.",
     talk: "What have you decided is beyond God?",
     pray: "Lord, what is impossible with us is possible with you.",
   },
   {
-    read: { text: "saying, “Father, if you are willing, remove this cup from me. Nevertheless, not my will, but yours, be done.", ref: "Luke 22:42" },
+    read: { text: "saying, “Father, if you are willing, remove this cup from me. Nevertheless, not my will, but yours, be done.”", ref: "Luke 22:42" },
     reflection:
       "Not my will, but yours, be done. Jesus asks for a different outcome, genuinely, and then submits. Wanting something else is not unbelief.",
     talk: "What are you asking God to change? Can you pray this alongside it?",
@@ -3225,7 +3225,7 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, you gave your only Son. Teach us love that gives.",
   },
   {
-    read: { text: "Jesus said to them, “I am the bread of life. Whoever comes to me will not be hungry, and whoever believes in me will never be thirsty.", ref: "John 6:35" },
+    read: { text: "Jesus said to them, “I am the bread of life. Whoever comes to me will not be hungry, and whoever believes in me will never be thirsty.”", ref: "John 6:35" },
     reflection:
       "I am the bread of life. He who comes to me will not be hungry, and he who believes in me will never be thirsty. He offers himself, not a technique.",
     talk: "What hunger have you tried to satisfy elsewhere?",
@@ -3400,7 +3400,7 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, let endurance have its full effect in us.",
   },
   {
-    read: { text: "Come now, you who say, “Today or tomorrow let’s go into this city, and spend a year there, trade, and make a profit.” Whereas you don’t know what your life will be like tomorrow. For what is your life? For you are a vapor that appears for a little time, and then vanishes away. For you ought to say, “If the Lord wills, we will both live, and do this or that.", ref: "James 4:13-15" },
+    read: { text: "Come now, you who say, “Today or tomorrow let’s go into this city, and spend a year there, trade, and make a profit.” Whereas you don’t know what your life will be like tomorrow. For what is your life? For you are a vapor that appears for a little time, and then vanishes away. For you ought to say, “If the Lord wills, we will both live, and do this or that.”", ref: "James 4:13-15" },
     reflection:
       "You ought to say, 'If the Lord wills, we will both live, and do this or that.' Every plan for this child is provisional on his will.",
     talk: "What are you planning as though your life were guaranteed?",
@@ -3428,14 +3428,14 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, you set your bow in the clouds. Thank you for keeping promises.",
   },
   {
-    read: { text: "Sarah said, “God has made me laugh. Everyone who hears will laugh with me.", ref: "Genesis 21:6" },
+    read: { text: "Sarah said, “God has made me laugh. Everyone who hears will laugh with me.”", ref: "Genesis 21:6" },
     reflection:
       "God has made me laugh. Everyone who hears will laugh with me. Sarah, who laughed bitterly, laughs differently. God can change the meaning of a laugh.",
     talk: "What have you laughed at bitterly? Could that change?",
     pray: "Lord, you turn bitter laughter to joy. Do it in your own time.",
   },
   {
-    read: { text: "Elkanah her husband said to her, “Hannah, why do you weep? Why don’t you eat? Why is your heart grieved? Am I not better to you than ten sons?", ref: "1 Samuel 1:8" },
+    read: { text: "Elkanah her husband said to her, “Hannah, why do you weep? Why don’t you eat? Why is your heart grieved? Am I not better to you than ten sons?”", ref: "1 Samuel 1:8" },
     reflection:
       "Am I not better to you than ten sons? A husband means well and misses her completely. Loving someone includes not requiring them to be comforted on your terms.",
     talk: "When have you tried to fix rather than sit with the other's grief?",
@@ -3449,7 +3449,7 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, we want answers. Give us yourself, which is better.",
   },
   {
-    read: { text: "Jesus answered, “This man didn’t sin, nor did his parents; but, that the works of God might be revealed in him.", ref: "John 9:3" },
+    read: { text: "Jesus answered, “This man didn’t sin, nor did his parents; but, that the works of God might be revealed in him.”", ref: "John 9:3" },
     reflection:
       "Neither did this man sin, nor his parents; but, that the works of God might be revealed in him. Jesus refuses the whole question of blame.",
     talk: "Have you searched for what you did wrong when something went wrong?",
@@ -3498,7 +3498,7 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, you are on your throne. The foundations shake and you do not.",
   },
   {
-    read: { text: "Because of the oppression of the weak and because of the groaning of the needy, I will now arise,” says the LORD; “I will set him in safety from those who malign him.", ref: "Psalm 12:5" },
+    read: { text: "“Because of the oppression of the weak and because of the groaning of the needy, I will now arise,” says the LORD; “I will set him in safety from those who malign him.”", ref: "Psalm 12:5" },
     reflection:
       "Because of the oppression of the weak and because of the groaning of the needy, I will now arise, says the LORD. Groaning is what moves God to act.",
     talk: "Who is groaning near you? What might God be about to do?",
@@ -3778,7 +3778,7 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, we will listen. Speak peace to your people.",
   },
   {
-    read: { text: "Yes, of Zion it will be said, “This one and that one was born in her;” the Most High himself will establish her. the LORD will count, when he writes up the peoples, “This one was born there.", ref: "Psalm 87:5-6" },
+    read: { text: "Yes, of Zion it will be said, “This one and that one was born in her;” the Most High himself will establish her. the LORD will count, when he writes up the peoples, “This one was born there.”", ref: "Psalm 87:5-6" },
     reflection:
       "Yes, of Zion it will be said, 'This one and that one was born in her.' The LORD will count, when he writes up the peoples, 'This one was born there.' God keeps a birth register.",
     talk: "What would it mean for this child's name to be written in God's register?",
@@ -3876,7 +3876,7 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, we are poor and needy, and our hearts are wounded within us.",
   },
   {
-    read: { text: "the LORD says to my Lord, “Sit at my right hand, until I make your enemies your footstool for your feet.", ref: "Psalm 110:1" },
+    read: { text: "the LORD says to my Lord, “Sit at my right hand, until I make your enemies your footstool for your feet.”", ref: "Psalm 110:1" },
     reflection:
       "The LORD says to my Lord, 'Sit at my right hand, until I make your enemies your footstool.' The most quoted Old Testament verse in the New Testament.",
     talk: "Where is Jesus now? What difference does that make to today?",
@@ -3918,7 +3918,7 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, in our distress we cry to you. Answer us.",
   },
   {
-    read: { text: "I was glad when they said to me, “Let’s go to the LORD’s house!", ref: "Psalm 122:1" },
+    read: { text: "I was glad when they said to me, “Let’s go to the LORD’s house!”", ref: "Psalm 122:1" },
     reflection:
       "I was glad when they said to me, 'Let's go to the LORD's house!' Gladness at gathering with God's people. That instinct is worth cultivating in a child from the start.",
     talk: "Is going to church a gladness or a duty for you? What would move it?",
@@ -4079,7 +4079,7 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, when there is no one, let us strengthen ourselves in you.",
   },
   {
-    read: { text: "Then David the king went in, and sat before the LORD; and he said, “Who am I, Lord the LORD, and what is my house, that you have brought me this far?", ref: "2 Samuel 7:18" },
+    read: { text: "Then David the king went in, and sat before the LORD; and he said, “Who am I, Lord the LORD, and what is my house, that you have brought me this far?”", ref: "2 Samuel 7:18" },
     reflection:
       "Who am I, Lord the LORD, and what is my house, that you have brought me this far? Grace received rightly makes us smaller, not bigger.",
     talk: "How do you respond to God's kindness — entitlement or astonishment?",
@@ -4114,7 +4114,7 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, you come in the whisper. Give us ears quiet enough.",
   },
   {
-    read: { text: "Elisha said to her, “What should I do for you? Tell me: what do you have in the house?” She said, “Your servant has nothing in the house, except a pot of oil.", ref: "2 Kings 4:2" },
+    read: { text: "Elisha said to her, “What should I do for you? Tell me: what do you have in the house?” She said, “Your servant has nothing in the house, except a pot of oil.”", ref: "2 Kings 4:2" },
     reflection:
       "What do you have in the house? A widow with nothing is asked what she has. The miracle starts with an almost-empty jar.",
     talk: "What little thing have you dismissed as too small?",
@@ -4254,7 +4254,7 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, make us shelter to one another in a weary land.",
   },
   {
-    read: { text: "Strengthen the weak hands, and make the feeble knees firm. Tell those who have a fearful heart, “Be strong! Don’t be afraid! Behold, your God will come with vengeance, God’s retribution. He will come and save you.", ref: "Isaiah 35:3-4" },
+    read: { text: "Strengthen the weak hands, and make the feeble knees firm. Tell those who have a fearful heart, “Be strong! Don’t be afraid! Behold, your God will come with vengeance, God’s retribution. He will come and save you.”", ref: "Isaiah 35:3-4" },
     reflection:
       "Strengthen the weak hands, and make the feeble knees firm. Tell those who have a fearful heart, 'Be strong! Don't be afraid!' Someone must say this to someone.",
     talk: "Whose hands are weak? Say the words to them now.",
@@ -4289,7 +4289,7 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, we walk in darkness. We will trust in your name.",
   },
   {
-    read: { text: "For the high and lofty One who inhabits eternity, whose name is Holy, says: “I dwell in the high and holy place, with him also who is of a contrite and humble spirit, to revive the spirit of the humble, and to revive the heart of the contrite.", ref: "Isaiah 57:15" },
+    read: { text: "For the high and lofty One who inhabits eternity, whose name is Holy, says: “I dwell in the high and holy place, with him also who is of a contrite and humble spirit, to revive the spirit of the humble, and to revive the heart of the contrite.”", ref: "Isaiah 57:15" },
     reflection:
       "I dwell in the high and holy place, with him also who is of a contrite and humble spirit. God's two addresses: the highest place, and the broken heart.",
     talk: "Do you believe God wants to be near you at your lowest?",
@@ -4310,7 +4310,7 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, your words were found and we ate them. Be our joy.",
   },
   {
-    read: { text: "the LORD appeared of old to me, saying, “Yes, I have loved you with an everlasting love. Therefore I have drawn you with loving kindness.", ref: "Jeremiah 31:3" },
+    read: { text: "the LORD appeared of old to me, saying, “Yes, I have loved you with an everlasting love. Therefore I have drawn you with loving kindness.”", ref: "Jeremiah 31:3" },
     reflection:
       "I have loved you with an everlasting love. Therefore I have drawn you with loving kindness. His love is the cause of our being drawn.",
     talk: "Did God's love for you start when you turned to him? What does this say?",
@@ -4338,7 +4338,7 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, take out our hearts of stone. Give us hearts of flesh.",
   },
   {
-    read: { text: "He said to me, “Son of man, can these bones live?” I answered, “Lord the LORD, you know.", ref: "Ezekiel 37:3" },
+    read: { text: "He said to me, “Son of man, can these bones live?” I answered, “Lord the LORD, you know.”", ref: "Ezekiel 37:3" },
     reflection:
       "Son of man, can these bones live? I answered, 'Lord the LORD, you know.' Neither false optimism nor despair. Sometimes 'you know' is the honest answer.",
     talk: "What looks like dry bones? Can you say 'Lord, you know'?",
@@ -4499,7 +4499,7 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord Jesus, you are found among the least. Open our eyes.",
   },
   {
-    read: { text: "Jesus sat down opposite the treasury, and saw how the multitude cast money into the treasury. Many who were rich cast in much. A poor widow came, and she cast in two small brass coins, which equal a quadrans coin. He called his disciples to himself, and said to them, “Most certainly I tell you, this poor widow gave more than all those who are giving into the treasury, for they all gave out of their abundance, but she, out of her poverty, gave all that she had to live on.", ref: "Mark 12:41-44" },
+    read: { text: "Jesus sat down opposite the treasury, and saw how the multitude cast money into the treasury. Many who were rich cast in much. A poor widow came, and she cast in two small brass coins, which equal a quadrans coin. He called his disciples to himself, and said to them, “Most certainly I tell you, this poor widow gave more than all those who are giving into the treasury, for they all gave out of their abundance, but she, out of her poverty, gave all that she had to live on.”", ref: "Mark 12:41-44" },
     reflection:
       "This poor widow put in more than all of them. He measures by what is left, not by what is given.",
     talk: "What have you given that felt too small to matter?",
@@ -4520,7 +4520,7 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, let us give generously, and receive the same measure back.",
   },
   {
-    read: { text: "Jesus answered her, “Martha, Martha, you are anxious and troubled about many things, but one thing is needed. Mary has chosen the good part, which will not be taken away from her.", ref: "Luke 10:41-42" },
+    read: { text: "Jesus answered her, “Martha, Martha, you are anxious and troubled about many things, but one thing is needed. Mary has chosen the good part, which will not be taken away from her.”", ref: "Luke 10:41-42" },
     reflection:
       "Martha, Martha, you are anxious and troubled about many things, but one thing is needed. Busyness crowding out the necessary thing.",
     talk: "What is the one needful thing being crowded out here?",
@@ -4541,7 +4541,7 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord Jesus, you came to seek and to save. Thank you for looking for us.",
   },
   {
-    read: { text: "They said to one another, “Weren’t our hearts burning within us, while he spoke to us along the way, and while he opened the Scriptures to us?", ref: "Luke 24:32" },
+    read: { text: "They said to one another, “Weren’t our hearts burning within us, while he spoke to us along the way, and while he opened the Scriptures to us?”", ref: "Luke 24:32" },
     reflection:
       "Weren't our hearts burning within us while he spoke to us along the way? Two disciples walked seven miles with the risen Christ and only recognised him afterwards.",
     talk: "Where might Christ have been present and you saw it only later?",
@@ -4555,7 +4555,7 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, you gave us the right to become children of God.",
   },
   {
-    read: { text: "Again, therefore, Jesus spoke to them, saying, “I am the light of the world. He who follows me will not walk in the darkness, but will have the light of life.", ref: "John 8:12" },
+    read: { text: "Again, therefore, Jesus spoke to them, saying, “I am the light of the world. He who follows me will not walk in the darkness, but will have the light of life.”", ref: "John 8:12" },
     reflection:
       "I am the light of the world. He who follows me will not walk in the darkness, but will have the light of life.",
     talk: "Where are you walking by a smaller light?",
@@ -4590,7 +4590,7 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord Jesus, you prayed that we would be one. Begin in this house.",
   },
   {
-    read: { text: "Then he said to Thomas, “Reach here your finger, and see my hands. Reach here your hand, and put it into my side. Don’t be unbelieving, but believing.” Thomas answered him, “My Lord and my God!", ref: "John 20:27-28" },
+    read: { text: "Then he said to Thomas, “Reach here your finger, and see my hands. Reach here your hand, and put it into my side. Don’t be unbelieving, but believing.” Thomas answered him, “My Lord and my God!”", ref: "John 20:27-28" },
     reflection:
       "Don't be unbelieving, but believing. Thomas answered, 'My Lord and my God!' Christ meets a doubter with evidence rather than rebuke.",
     talk: "What doubt have you hidden because you think it disqualifies you?",
@@ -4646,7 +4646,7 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, we present our bodies as a living sacrifice.",
   },
   {
-    read: { text: "But as it is written, “Things which an eye didn’t see, and an ear didn’t hear, which didn’t enter into the heart of man, these God has prepared for those who love him.", ref: "1 Corinthians 2:9" },
+    read: { text: "But as it is written, “Things which an eye didn’t see, and an ear didn’t hear, which didn’t enter into the heart of man, these God has prepared for those who love him.”", ref: "1 Corinthians 2:9" },
     reflection:
       "Things which an eye didn't see, and an ear didn't hear... God has prepared for those who love him. Whatever this season lacks, something better is prepared.",
     talk: "What has this season not given you? What has God prepared?",
@@ -4786,7 +4786,7 @@ export const LITURGIES: Liturgy[] = [
     pray: "To him who is able to keep us from stumbling — glory, majesty, dominion and power.",
   },
   {
-    read: { text: "When I saw him, I fell at his feet like a dead man. He laid his right hand on me, saying, “Don’t be afraid. I am the first and the last, and the Living one. I was dead, and behold, I am alive forever and ever. Amen. I have the keys of Death and of Hades.", ref: "Revelation 1:17-18" },
+    read: { text: "When I saw him, I fell at his feet like a dead man. He laid his right hand on me, saying, “Don’t be afraid. I am the first and the last, and the Living one. I was dead, and behold, I am alive forever and ever. Amen. I have the keys of Death and of Hades.”", ref: "Revelation 1:17-18" },
     reflection:
       "Don't be afraid. I am the first and the last, and the Living one. I was dead, and behold, I am alive forever more. His first act toward a terrified man was a touch.",
     talk: "How do you hold together Christ's terrifying glory and his gentle hand?",
@@ -4800,14 +4800,14 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord Jesus, you stand and knock. We open the door.",
   },
   {
-    read: { text: "They sang a new song, saying, “You are worthy to take the book and to open its seals: for you were killed, and bought us for God with your blood out of every tribe, language, people, and nation,", ref: "Revelation 5:9" },
+    read: { text: "They sang a new song, saying, “You are worthy to take the book and to open its seals: for you were killed, and bought us for God with your blood out of every tribe, language, people, and nation,”", ref: "Revelation 5:9" },
     reflection:
       "You are worthy... for you were killed, and bought us for God with your blood out of every tribe, language, people, and nation. Heaven's song, about the cross and every nation.",
     talk: "Does your church's worship sound like this song?",
     pray: "Worthy is the Lamb who was slain, who ransomed people from every nation.",
   },
   {
-    read: { text: "I heard a loud voice out of heaven saying, “Behold, God’s dwelling is with people, and he will dwell with them, and they will be his people, and God himself will be with them as their God.", ref: "Revelation 21:3" },
+    read: { text: "I heard a loud voice out of heaven saying, “Behold, God’s dwelling is with people, and he will dwell with them, and they will be his people, and God himself will be with them as their God.”", ref: "Revelation 21:3" },
     reflection:
       "Behold, God's dwelling is with people; and he will dwell with them, and they will be his people. The end is not us going up but God coming down to stay.",
     talk: "Is your hope 'going to heaven' or 'God dwelling with us'?",
@@ -4849,7 +4849,7 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, give us agreement — not silence mistaken for peace. Let us walk together.",
   },
   {
-    read: { text: "Behold, the days come,” says the Lord the LORD, “that I will send a famine in the land, not a famine of bread, nor a thirst for water, but of hearing the LORD’s words.", ref: "Amos 8:11" },
+    read: { text: "“Behold, the days come,” says the Lord the LORD, “that I will send a famine in the land, not a famine of bread, nor a thirst for water, but of hearing the LORD’s words.”", ref: "Amos 8:11" },
     reflection:
       "The worst famine God names is not of bread but of hearing his words. It is possible to be well fed, well housed and starving. In a season crowded with practical need, guard the intake of Scripture as carefully as you guard meals.",
     talk: "Is our household better fed on food or on the word right now?",
@@ -5052,7 +5052,7 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, let no generation of this family arise not knowing you. Make us tell them.",
   },
   {
-    read: { text: "So let all your enemies perish, the LORD, but let those who love him be as the sun when it rises in its strength.” Then the land had rest forty years.", ref: "Judges 5:31" },
+    read: { text: "“So let all your enemies perish, the LORD, but let those who love him be as the sun when it rises in its strength.” Then the land had rest forty years.", ref: "Judges 5:31" },
     reflection:
       "Deborah's song ends asking that those who love the LORD would be like the sun rising in strength. It is a mother's image of the faithful — not spectacular, but rising again, reliably, every morning.",
     talk: "What would rising in strength look like in your household tomorrow morning?",
@@ -5073,7 +5073,7 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, give us settled hearts. Let us decide before we are tested.",
   },
   {
-    read: { text: "Daniel answered, “Blessed be the name of God forever and ever; for wisdom and might are his. He changes the times and the seasons. He removes kings, and sets up kings. He gives wisdom to the wise, and knowledge to those who have understanding.", ref: "Daniel 2:20-21" },
+    read: { text: "Daniel answered, “Blessed be the name of God forever and ever; for wisdom and might are his. He changes the times and the seasons. He removes kings, and sets up kings. He gives wisdom to the wise, and knowledge to those who have understanding.”", ref: "Daniel 2:20-21" },
     reflection:
       "Daniel blesses God who changes the times and the seasons, gives wisdom to the wise and knowledge to those with understanding. He praises God's control over time on the very night his life depended on it. Seasons change by God's hand, not by ours.",
     talk: "What season are you desperate to be out of? Who holds its end?",
@@ -5087,7 +5087,7 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, pour out your Spirit on our sons and daughters. Do not wait for them to be old enough.",
   },
   {
-    read: { text: "He answered and spoke to those who stood before him, saying, “Take the filthy garments off him.” To him he said, “Behold, I have caused your iniquity to pass from you, and I will clothe you with rich clothing.", ref: "Zechariah 3:4" },
+    read: { text: "He answered and spoke to those who stood before him, saying, “Take the filthy garments off him.” To him he said, “Behold, I have caused your iniquity to pass from you, and I will clothe you with rich clothing.”", ref: "Zechariah 3:4" },
     reflection:
       "The angel takes filthy garments off Joshua the high priest and clothes him with rich robes while Satan stands accusing. God does not defend our record; he replaces our clothing. On a day when you have failed your child badly, this is the gospel.",
     talk: "What accusation are you carrying that Christ has already answered by clothing you?",
@@ -5108,7 +5108,7 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, let us speak of your good hand on us, and let it stir others to build.",
   },
   {
-    read: { text: "I sent messengers to them, saying, “I am doing a great work, so that I can’t come down. Why should the work cease, while I leave it, and come down to you?", ref: "Nehemiah 6:3" },
+    read: { text: "I sent messengers to them, saying, “I am doing a great work, so that I can’t come down. Why should the work cease, while I leave it, and come down to you?”", ref: "Nehemiah 6:3" },
     reflection:
       "Nehemiah refuses to come down from the wall: I am doing a great work, so that I cannot come down. He does not argue with his critics; he declines to be interrupted. Raising a child is a great work, and much that demands your attention can wait.",
     talk: "What is calling you down off the wall that you should simply decline?",
@@ -5157,7 +5157,7 @@ export const LITURGIES: Liturgy[] = [
     pray: "Unchanging God, we are not consumed because you do not change. Hold this house together.",
   },
   {
-    read: { text: "It will happen at that time, that I will search Jerusalem with lamps, and I will punish the men who are settled on their dregs, who say in their heart, “the LORD will not do good, neither will he do evil.", ref: "Zephaniah 1:12" },
+    read: { text: "It will happen at that time, that I will search Jerusalem with lamps, and I will punish the men who are settled on their dregs, who say in their heart, “the LORD will not do good, neither will he do evil.”", ref: "Zephaniah 1:12" },
     reflection:
       "God searches out those settled on their dregs, who say in their heart that the LORD will not do good or evil. Practical unbelief is not loud; it is settled. It looks like a Christian who no longer expects God to do anything.",
     talk: "Have you quietly stopped expecting God to act in some area of your life?",
@@ -5192,7 +5192,7 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, we do not see it. Work anyway, and give us eyes later.",
   },
   {
-    read: { text: "Joshua said to the people, “Sanctify yourselves; for tomorrow the LORD will do wonders among you.", ref: "Joshua 3:5" },
+    read: { text: "Joshua said to the people, “Sanctify yourselves; for tomorrow the LORD will do wonders among you.”", ref: "Joshua 3:5" },
     reflection:
       "Sanctify yourselves, for tomorrow the LORD will do wonders among you. Preparation preceded the miracle. There are seasons where the right response to what God is about to do is to get ready.",
     talk: "What preparation is God asking of us before the next thing?",
@@ -5213,7 +5213,7 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, you do not cast off forever. Have compassion according to your mercies, not our sense of them.",
   },
   {
-    read: { text: "David said to him, “Don’t be afraid; for I will surely show you kindness for Jonathan your father’s sake, and will restore to you all the land of Saul your father. You will eat bread at my table continually.", ref: "2 Samuel 9:7" },
+    read: { text: "David said to him, “Don’t be afraid; for I will surely show you kindness for Jonathan your father’s sake, and will restore to you all the land of Saul your father. You will eat bread at my table continually.”", ref: "2 Samuel 9:7" },
     reflection:
       "David tells Mephibosheth not to fear, promises him kindness for his father's sake, and seats him at the king's table permanently. Kindness for someone else's sake, given to a man who could offer nothing back. That is the gospel with a limp.",
     talk: "Who could you show kindness to this month who cannot repay it?",
@@ -5227,7 +5227,7 @@ export const LITURGIES: Liturgy[] = [
     pray: "Lord, thank you for enough. Keep the jar from failing, and keep us from despising it.",
   },
   {
-    read: { text: "Turn back, and tell Hezekiah the prince of my people, ‘the LORD, the God of David your father, says, “I have heard your prayer. I have seen your tears. Behold, I will heal you. On the third day, you will go up to the LORD’s house.", ref: "2 Kings 20:5" },
+    read: { text: "Turn back, and tell Hezekiah the prince of my people, ‘the LORD, the God of David your father, says, “I have heard your prayer. I have seen your tears. Behold, I will heal you. On the third day, you will go up to the LORD’s house.”", ref: "2 Kings 20:5" },
     reflection:
       "God tells Hezekiah: I have heard your prayer, I have seen your tears. Both are noted separately. God attends not only to what we say but to what we could not put into words.",
     talk: "What have you cried about that you have never actually prayed about?",
