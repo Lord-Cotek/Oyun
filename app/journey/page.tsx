@@ -72,23 +72,36 @@ export default async function JourneyPage() {
 
   const { role, journey } = active;
 
-  // The family feed's newest few, surfaced on the home page.
-  const familyPosts = await loadFeed(journey.id, session.user.id, 3);
-  // Keepsakes from earlier years falling on today's date (usually empty).
-  const memories = await getOnThisDay(journey.id);
-  // A gentle look-ahead — due date, next month, and (for the household only)
-  // the real appointments in the book.
-  const upcoming = await getUpcoming(
-    journey.id,
-    session.user.id,
-    journey.dueDate,
-    isHousehold(role),
-  );
   const todayLabel = new Date().toLocaleDateString("en-GB", {
     weekday: "long",
     day: "numeric",
     month: "long",
   });
+
+  /**
+   * Everything this page needs, asked for at once.
+   *
+   * Only the two lookups above genuinely come first — who is signed in, and
+   * which journey they are in. The rest depend on those and on nothing else,
+   * yet each used to sit on its own `await`, so the page waited for round-trip
+   * after round-trip before rendering anything at all.
+   */
+  const [familyPosts, memories, upcoming, nextAppointments, worship] =
+    await Promise.all([
+      // The family feed's newest few, surfaced on the home page.
+      loadFeed(journey.id, session.user.id, 3),
+      // Keepsakes from earlier years falling on today's date (usually empty).
+      getOnThisDay(journey.id),
+      // A gentle look-ahead — due date, next month, and (household only) the
+      // real appointments in the book.
+      getUpcoming(journey.id, session.user.id, journey.dueDate, isHousehold(role)),
+      // The next date or two. Supporters see nothing of this: a scan date is
+      // health information, not circle news.
+      isHousehold(role)
+        ? getNextFew(journey.id, session.user.id)
+        : Promise.resolve([]),
+      getWorshipStreak(journey.id),
+    ]);
 
   // When a journey is walking through loss, it becomes a grief companion.
   if (journey.status === "LOSS") {
@@ -117,13 +130,7 @@ export default async function JourneyPage() {
   }
 
   const position = computePosition(journey.dueDate);
-  // The next date or two, for the household. Supporters see nothing of this:
-  // a scan date is health information, not circle news.
-  const nextAppointments = isHousehold(role)
-    ? await getNextFew(journey.id, session.user.id)
-    : [];
   const { stage } = position;
-  const worship = await getWorshipStreak(journey.id);
 
   const stageLabel = position.born
     ? `Month ${position.month}`

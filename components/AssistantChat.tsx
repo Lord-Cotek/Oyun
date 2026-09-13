@@ -13,8 +13,52 @@ type Ctx = {
   stageTitle?: string | null;
 };
 
+/**
+ * Keep the launcher out of the way of the words.
+ *
+ * It is a fixed circle at the bottom right, so whatever sits there scrolls
+ * underneath it — on the Oyun home page it covered the link in "No
+ * appointments in the book. Put the next one in →", which is the whole point
+ * of an empty state. Reserving a gutter cannot fix that, because the button
+ * stays put while the page moves past it.
+ *
+ * So it gets out of the way while somebody is reading downwards, and comes
+ * back the moment they stop or turn back. It never hides while it is open,
+ * and never hides at the top of a page, where there is nothing to cover.
+ */
+function useHideOnScroll(open: boolean) {
+  const [hidden, setHidden] = useState(false);
+  const lastY = useRef(0);
+  const idle = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (open) {
+      setHidden(false);
+      return;
+    }
+    function onScroll() {
+      const y = window.scrollY;
+      const down = y > lastY.current;
+      lastY.current = y;
+      setHidden(down && y > 120);
+      if (idle.current) clearTimeout(idle.current);
+      // Reading stopped — hand it back.
+      idle.current = setTimeout(() => setHidden(false), 700);
+    }
+    lastY.current = window.scrollY;
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (idle.current) clearTimeout(idle.current);
+    };
+  }, [open]);
+
+  return hidden;
+}
+
 export function AssistantChat() {
   const [open, setOpen] = useState(false);
+  const hidden = useHideOnScroll(open);
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
@@ -93,7 +137,11 @@ export function AssistantChat() {
         aria-label={open ? "Close Agbebi" : "Open Agbebi"}
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
-        className="fab-bottom fixed right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full border border-border bg-surface text-ink shadow-lg transition-colors hover:border-accent"
+        className={`fab-bottom fixed right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full border border-border bg-surface text-ink shadow-lg transition-all duration-300 hover:border-accent ${
+          hidden
+            ? "pointer-events-none translate-y-4 opacity-0"
+            : "translate-y-0 opacity-100"
+        }`}
       >
         <OyunMark size={30} title="Agbebi" className={open ? "opacity-70" : "animate-breathe"} />
       </button>
