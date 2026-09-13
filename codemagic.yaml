@@ -123,6 +123,33 @@ workflows:
           PLIST="$CM_BUILD_DIR/mobile/ios/App/App/Info.plist"
           /usr/libexec/PlistBuddy -c "Add :ITSAppUsesNonExemptEncryption bool false" "$PLIST" \
             || /usr/libexec/PlistBuddy -c "Set :ITSAppUsesNonExemptEncryption false" "$PLIST"
+      # ── Why these three keys are not optional ──────────────────────────
+      # The iOS project is generated fresh every build by `npx cap add ios`, so
+      # Info.plist is Capacitor's bare template and keeps nothing added by hand.
+      #
+      # When a file input in the web view asks for the camera and
+      # NSCameraUsageDescription is absent, iOS does not refuse — it TERMINATES
+      # the app, instantly and every time. That was the "it closes the app the
+      # moment you choose camera" report, and it is why the photo library was
+      # fine: the modern picker runs out of process and needs no key at all.
+      # Safari was fine for the same reason — it has its own strings.
+      #
+      # The microphone key is the same trap one step later: recording a video
+      # without it terminates the app when the recorder starts.
+      - name: Declare why the camera, microphone and photos are used
+        script: |
+          PLIST="$CM_BUILD_DIR/mobile/ios/App/App/Info.plist"
+          set_key() {
+            /usr/libexec/PlistBuddy -c "Add :$1 string $2" "$PLIST" \
+              || /usr/libexec/PlistBuddy -c "Set :$1 $2" "$PLIST"
+          }
+          set_key NSCameraUsageDescription "Oyun uses the camera so you can take a photo or video to share with your circle."
+          set_key NSMicrophoneUsageDescription "Oyun uses the microphone so a video you record for your circle has sound."
+          set_key NSPhotoLibraryUsageDescription "Oyun asks for your photos so you can choose one to share with your circle."
+          echo "── usage descriptions now in Info.plist ──"
+          /usr/libexec/PlistBuddy -c "Print :NSCameraUsageDescription" "$PLIST"
+          /usr/libexec/PlistBuddy -c "Print :NSMicrophoneUsageDescription" "$PLIST"
+          /usr/libexec/PlistBuddy -c "Print :NSPhotoLibraryUsageDescription" "$PLIST"
       - name: Install CocoaPods
         script: cd mobile/ios/App && pod install
       - name: Set build number

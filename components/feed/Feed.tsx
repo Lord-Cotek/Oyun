@@ -110,15 +110,6 @@ function readDraft(): { kind: PostKind; body: string } | null {
   }
 }
 
-/** An installed app on an iPhone — the one place this happens. */
-function isIosStandalone(): boolean {
-  if (typeof window === "undefined") return false;
-  const ios = /iPad|iPhone|iPod/.test(navigator.userAgent);
-  const standalone =
-    (window.navigator as Navigator & { standalone?: boolean }).standalone ===
-      true || window.matchMedia("(display-mode: standalone)").matches;
-  return ios && standalone;
-}
 
 interface Picked {
   id: string;
@@ -146,12 +137,10 @@ function Composer({
   const [pending, start] = useTransition();
   /** Set when a kept draft came back, so we can say why it is there. */
   const [restored, setRestored] = useState<null | "draft" | "camera">(null);
-  const [warnCamera, setWarnCamera] = useState(false);
 
   // Bring back anything the last run of the app was holding. In an effect, not
   // in the initial state, so the server and the first client render agree.
   useEffect(() => {
-    setWarnCamera(isIosStandalone());
     const draft = readDraft();
     if (!draft) return;
     setKind(draft.kind);
@@ -377,11 +366,9 @@ function Composer({
           <p className="min-w-0 flex-1 font-mono text-[0.68rem] leading-relaxed text-muted">
             {restored === "camera" ? (
               <>
-                <span className="text-ink">iPhone closed the app</span> while the
-                camera was open — it does that to free memory, and there is
-                nothing you did wrong. Your words were kept; the photograph
-                wasn&rsquo;t, so it needs taking again. Choosing from the photo
-                library instead avoids it.
+                <span className="text-ink">The app closed</span> while the
+                picker was open — nothing you did wrong. Your words were kept;
+                the photograph wasn&rsquo;t, so it needs choosing again.
               </>
             ) : (
               <>
@@ -430,14 +417,6 @@ function Composer({
         className="sr-only"
         onChange={(e) => addFiles(e.target.files)}
       />
-
-      {warnCamera && (
-        <p className="mt-3 font-mono text-[0.6rem] leading-relaxed text-muted/80">
-          On iPhone, taking a photo from inside an installed app can make iOS
-          close it. Your words are kept either way — choose from the photo
-          library to be sure of keeping the picture too.
-        </p>
-      )}
 
       <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-4">
