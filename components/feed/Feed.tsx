@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { upload } from "@vercel/blob/client";
 import {
   POST_KINDS,
@@ -75,6 +75,51 @@ const MAX_FILES = 10;
 const MAX_IMAGE_BYTES = 25 * 1024 * 1024; // 25 MB
 const MAX_VIDEO_BYTES = 200 * 1024 * 1024; // 200 MB
 
+/**
+ * ── Why a half-written post is kept on disk ──────────────────────────────
+ *
+ * On an iPhone, an installed app that opens the CAMERA from a file input is
+ * very often killed by iOS while the camera is up: the camera runs in the same
+ * memory-limited process the app does, and iOS reclaims the memory by ending
+ * the app. Coming back, it relaunches from scratch — which is exactly what
+ * "it closed the app" looks like. The photo library does not do this, because
+ * that picker runs in a process of its own.
+ *
+ * None of that is ours to fix; it is Apple's. What is ours is what survives
+ * it. The words are written to disk as they are typed, so the app comes back
+ * with the post still there instead of an empty box. The photograph itself
+ * cannot be saved — a File dies with the process that held it — so we say so
+ * plainly rather than letting somebody wonder where it went.
+ */
+const DRAFT_KEY = "composer:draft";
+const CAMERA_KEY = "composer:camera-opened-at";
+/** After this long a kept draft is stale and is dropped rather than restored. */
+const DRAFT_TTL = 24 * 60 * 60 * 1000;
+/** A relaunch this soon after the picker opened was almost certainly the kill. */
+const CAMERA_WINDOW = 3 * 60 * 1000;
+
+function readDraft(): { kind: PostKind; body: string } | null {
+  try {
+    const raw = localStorage.getItem(DRAFT_KEY);
+    if (!raw) return null;
+    const d = JSON.parse(raw) as { kind: PostKind; body: string; at: number };
+    if (!d?.body?.trim() || Date.now() - (d.at ?? 0) > DRAFT_TTL) return null;
+    return { kind: d.kind ?? "UPDATE", body: d.body };
+  } catch {
+    return null;
+  }
+}
+
+/** An installed app on an iPhone — the one place this happens. */
+function isIosStandalone(): boolean {
+  if (typeof window === "undefined") return false;
+  const ios = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  const standalone =
+    (window.navigator as Navigator & { standalone?: boolean }).standalone ===
+      true || window.matchMedia("(display-mode: standalone)").matches;
+  return ios && standalone;
+}
+
 interface Picked {
   id: string;
   file: File;
@@ -99,6 +144,79 @@ function Composer({
   const photoRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLInputElement>(null);
   const [pending, start] = useTransition();
+  /** Set when a kept draft came back, so we can say why it is there. */
+  const [restored, setRestored] = useState<null | "draft" | "camera">(null);
+  const [warnCamera, setWarnCamera] = useState(false);
+
+  // Bring back anything the last run of the app was holding. In an effect, not
+  // in the initial state, so the server and the first client render agree.
+  useEffect(() => {
+    setWarnCamera(isIosStandalone());
+    const draft = readDraft();
+    if (!draft) return;
+    setKind(draft.kind);
+    setBody(draft.body);
+    let why: "draft" | "camera" = "draft";
+    try {
+      const opened = Number(localStorage.getItem(CAMERA_KEY) ?? 0);
+      if (opened && Date.now() - opened < CAMERA_WINDOW) why = "camera";
+      localStorage.removeItem(CAMERA_KEY);
+    } catch {
+      /* private browsing — the draft still came back, which is the point */
+    }
+    setRestored(why);
+  }, []);
+
+  // Keep it current as it is typed. Cheap, and the alternative is losing it.
+  useEffect(() => {
+    try {
+      if (body.trim()) {
+        localStorage.setItem(
+          DRAFT_KEY,
+          JSON.stringify({ kind, body, at: Date.now() }),
+        );
+      } else {
+        localStorage.removeItem(DRAFT_KEY);
+      }
+    } catch {
+      /* nothing to do; the composer still works, it just won't survive */
+    }
+  }, [kind, body]);
+
+  // Back in the app with the picker closed and nothing taken: the flag has
+  // done its job and must not make the NEXT launch claim a crash.
+  useEffect(() => {
+    const onShow = () => {
+      if (document.visibilityState !== "visible") return;
+      try {
+        localStorage.removeItem(CAMERA_KEY);
+      } catch {
+        /* ignore */
+      }
+    };
+    document.addEventListener("visibilitychange", onShow);
+    return () => document.removeEventListener("visibilitychange", onShow);
+  }, []);
+
+  /** Open a picker, having noted that we did — see DRAFT_KEY above. */
+  function openPicker(ref: React.RefObject<HTMLInputElement>) {
+    try {
+      localStorage.setItem(CAMERA_KEY, String(Date.now()));
+    } catch {
+      /* ignore */
+    }
+    setRestored(null);
+    ref.current?.click();
+  }
+
+  function forgetDraft() {
+    try {
+      localStorage.removeItem(DRAFT_KEY);
+      localStorage.removeItem(CAMERA_KEY);
+    } catch {
+      /* ignore */
+    }
+  }
 
   const busy = pending || uploading;
   const canSend = (!!body.trim() || picked.length > 0) && !busy;
@@ -183,6 +301,8 @@ function Composer({
       await onCreate({ kind, body: body.trim(), mediaUrls: urls });
       setBody("");
       setKind("UPDATE");
+      setRestored(null);
+      forgetDraft();
       clearAll();
     });
   }
@@ -252,6 +372,38 @@ function Composer({
           ))}
         </div>
       )}
+      {restored && (
+        <div className="mt-3 flex items-start gap-3 rounded-xl border border-accent/30 bg-accent/[0.06] p-3">
+          <p className="min-w-0 flex-1 font-mono text-[0.68rem] leading-relaxed text-muted">
+            {restored === "camera" ? (
+              <>
+                <span className="text-ink">iPhone closed the app</span> while the
+                camera was open — it does that to free memory, and there is
+                nothing you did wrong. Your words were kept; the photograph
+                wasn&rsquo;t, so it needs taking again. Choosing from the photo
+                library instead avoids it.
+              </>
+            ) : (
+              <>
+                <span className="text-ink">Picked up where you left off.</span>{" "}
+                This was still unfinished from last time.
+              </>
+            )}
+          </p>
+          <button
+            type="button"
+            onClick={() => {
+              setBody("");
+              setKind("UPDATE");
+              setRestored(null);
+              forgetDraft();
+            }}
+            className="shrink-0 font-mono text-[0.62rem] uppercase tracking-widest text-muted hover:text-ink"
+          >
+            Discard
+          </button>
+        </div>
+      )}
       {error && (
         <p className="mt-2 font-mono text-[0.68rem] text-negative">{error}</p>
       )}
@@ -279,12 +431,20 @@ function Composer({
         onChange={(e) => addFiles(e.target.files)}
       />
 
+      {warnCamera && (
+        <p className="mt-3 font-mono text-[0.6rem] leading-relaxed text-muted/80">
+          On iPhone, taking a photo from inside an installed app can make iOS
+          close it. Your words are kept either way — choose from the photo
+          library to be sure of keeping the picture too.
+        </p>
+      )}
+
       <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-4">
           <button
             type="button"
             disabled={busy || picked.length >= MAX_FILES}
-            onClick={() => photoRef.current?.click()}
+            onClick={() => openPicker(photoRef)}
             className="inline-flex items-center gap-1.5 font-mono text-[0.68rem] text-muted transition-colors hover:text-accent disabled:opacity-40"
           >
             <span aria-hidden className="text-sm leading-none">
@@ -295,7 +455,7 @@ function Composer({
           <button
             type="button"
             disabled={busy || picked.length >= MAX_FILES}
-            onClick={() => videoRef.current?.click()}
+            onClick={() => openPicker(videoRef)}
             className="inline-flex items-center gap-1.5 font-mono text-[0.68rem] text-muted transition-colors hover:text-accent disabled:opacity-40"
           >
             <span aria-hidden className="text-sm leading-none">
