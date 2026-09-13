@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { MediaItem } from "@/lib/feed-query";
+import { isNativeShell } from "@/lib/shell";
 
 const MAX_SCALE = 5;
 const DOUBLE_TAP_SCALE = 2.5;
@@ -44,6 +45,8 @@ export function Lightbox({
   const [loaded, setLoaded] = useState(false);
   const [zoom, setZoom] = useState({ scale: 1, x: 0, y: 0 });
   const [canShare, setCanShare] = useState(false);
+  /** Inside one of our Capacitor shells, where neither route below works. */
+  const [inShell, setInShell] = useState(false);
   const [saving, setSaving] = useState<"idle" | "working" | "done" | "failed">(
     "idle",
   );
@@ -101,6 +104,7 @@ export function Lightbox({
     setCanShare(
       typeof navigator !== "undefined" && typeof navigator.share === "function",
     );
+    setInShell(isNativeShell());
   }, []);
 
   useEffect(() => {
@@ -235,18 +239,49 @@ export function Lightbox({
     if (!item) return;
     setSaving("working");
     const name = item.url.split("/").pop()?.split("?")[0] || "photo";
-    try {
-      if (canShare) {
+
+    // 1. The share sheet, where the browser exposes one. On a phone this is
+    //    what a person means by "save" — "Save Image" is the first thing in it.
+    if (canShare) {
+      try {
         const res = await fetch(item.url);
         const blob = await res.blob();
         const file = new File([blob], name, { type: blob.type });
-        // Not every browser that has share() will take a file.
         if (navigator.canShare?.({ files: [file] })) {
           await navigator.share({ files: [file] });
           setSaving("done");
+          setTimeout(() => setSaving("idle"), 2500);
           return;
         }
+      } catch (err) {
+        // A sheet somebody dismissed is not a failure, and not a reason to
+        // then do something they did not ask for.
+        if (err instanceof Error && err.name === "AbortError") {
+          setSaving("idle");
+          return;
+        }
+        // Anything else — the fetch refused, the sheet was unavailable — is a
+        // reason to try a plainer route rather than show a dead button.
       }
+    }
+
+    try {
+      // 2. Inside the native shells BOTH remaining routes are dead ends: a
+      //    WKWebView does not expose the share sheet to the page and ignores
+      //    `download` outright, and an Android WebView ignores it too unless
+      //    the app wires a download listener. The button looked like it worked
+      //    and did nothing.
+      //
+      //    The picture's host is not in the shell's allowNavigation, so opening
+      //    it hands it to the system browser — where holding it down offers
+      //    "Save to Photos" the way somebody expects.
+      if (inShell) {
+        window.open(item.url, "_blank");
+        setSaving("done");
+        return;
+      }
+
+      // 3. An ordinary browser: an ordinary download.
       const a = document.createElement("a");
       a.href = `${item.url}?download=1`;
       a.download = name;
@@ -256,14 +291,13 @@ export function Lightbox({
       a.click();
       a.remove();
       setSaving("done");
-    } catch (err) {
-      // A share the person dismissed is not a failure worth shouting about.
-      const aborted = err instanceof Error && err.name === "AbortError";
-      setSaving(aborted ? "idle" : "failed");
+    } catch {
+      setSaving("failed");
     } finally {
       setTimeout(() => setSaving("idle"), 2500);
     }
   }
+
 
   if (!item) return null;
 
@@ -299,10 +333,22 @@ export function Lightbox({
               type="button"
               onClick={save}
               disabled={saving === "working"}
-              aria-label={canShare ? "Share or save this photo" : "Save this photo"}
+              aria-label={
+                canShare
+                  ? "Share or save this photo"
+                  : inShell
+                    ? "Open this photo to save it"
+                    : "Save this photo"
+              }
               className={`${chip} font-mono text-base disabled:opacity-50`}
             >
-              {saving === "working" ? "…" : saving === "failed" ? "!" : "↓"}
+              {saving === "working"
+                ? "…"
+                : saving === "failed"
+                  ? "!"
+                  : inShell && !canShare
+                    ? "↗"
+                    : "↓"}
             </button>
           )}
           <button
@@ -347,6 +393,9 @@ export function Lightbox({
             style={{
               transform: `translate(${zoom.x}px, ${zoom.y}px) scale(${zoom.scale})`,
               transition: pointers.current.size ? "none" : "transform 180ms ease-out",
+              WebkitTouchCallout: "default",
+              WebkitUserSelect: "auto",
+              userSelect: "auto",
             }}
             className={`max-h-full max-w-full rounded-lg object-contain ${
               loaded ? "opacity-100" : "opacity-0"
@@ -358,8 +407,11 @@ export function Lightbox({
       {/* How it works, once, quietly — and out of the way when zoomed in. */}
       {item.type === "image" && !zoomed && (
         <p className="pointer-events-none absolute inset-x-0 bottom-0 pb-3 text-center font-mono text-[0.6rem] text-white/35 safe-bottom">
-          Pinch or double-tap to zoom
-          {items.length > 1 ? " · swipe for the next" : ""}
+          {inShell && !canShare
+            ? "Pinch to zoom · tap ↗ to open the photo and save it there"
+            : `Pinch or double-tap to zoom${
+                items.length > 1 ? " · swipe for the next" : ""
+              }`}
         </p>
       )}
 
