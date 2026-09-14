@@ -30,7 +30,7 @@ export default async function SignInPage({
       <ThemeToggle className="fixed right-5 top-5 z-30" />
 
       {/* Brand & Scripture — desktop */}
-      <aside className="relative hidden overflow-hidden bg-gradient-to-br from-accent/[0.12] via-surface to-accent2/[0.10] p-12 md:flex md:flex-col md:justify-between">
+      <aside className="relative hidden overflow-hidden bg-surface p-12 md:flex md:flex-col md:justify-between">
         <Link href="/" className="inline-flex items-center gap-3">
           <OyunMark size={44} className="animate-breathe text-ink" />
           <span className="font-serif text-xl text-ink">Oyun</span>

@@ -135,7 +135,7 @@ export default async function Onboarding({
             <WrongAccountSignOut returnTo={`/onboarding?invite=${invite.token}`} />
           </div>
         ) : hasPendingInvite && invite ? (
-          <div className="rounded-2xl border border-accent/25 bg-gradient-to-br from-accent/[0.10] via-surface to-accent2/[0.09] p-8">
+          <div className="rounded-2xl border border-border bg-surface p-8">
             <Eyebrow className="mb-4">You&rsquo;ve been invited</Eyebrow>
             <h1 className="font-serif text-3xl leading-snug text-ink">
               Walk with{" "}
@@ -191,7 +191,7 @@ export default async function Onboarding({
             </Link>
           </div>
         ) : (
-          <div className="rounded-2xl border border-accent/25 bg-gradient-to-br from-accent/[0.10] via-surface to-accent2/[0.09] p-8">
+          <div className="rounded-2xl border border-border bg-surface p-8">
             <Eyebrow className="mb-4">Begin your journey</Eyebrow>
             <h1 className="font-serif text-3xl leading-snug text-ink">
               Tell Agbebi where you are.

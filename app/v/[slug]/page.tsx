@@ -82,7 +82,7 @@ export default async function SharedVerse({
         </div>
 
         {/* The invitation back to the app */}
-        <div className="surface-raised rounded-2xl border border-accent/25 bg-gradient-to-br from-accent/[0.10] via-surface to-accent2/[0.09] p-6 md:p-8">
+        <div className="surface-raised rounded-2xl border border-border bg-surface p-6 md:p-8">
           <Eyebrow className="mb-3">A COTEK companion</Eyebrow>
           <h2 className="font-serif text-2xl leading-snug text-ink">
             Family worship, every day.

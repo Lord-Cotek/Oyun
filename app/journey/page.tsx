@@ -206,7 +206,7 @@ export default async function JourneyPage() {
               times a day; at full size the band *was* the first screen on a
               phone and pushed every action below the fold. The ring stays —
               a week of forty is real news, not a score. */}
-          <section className="animate-fade-up overflow-hidden rounded-2xl border border-accent/25 bg-gradient-to-br from-accent/[0.10] via-surface to-accent2/[0.09] p-6 md:p-9">
+          <section className="animate-fade-up overflow-hidden rounded-2xl border border-border bg-surface p-6 md:p-9">
             <div className="flex flex-col-reverse items-start gap-5 md:flex-row md:items-center md:justify-between md:gap-8">
               <div className="min-w-0">
                 {motherName && (
@@ -419,7 +419,7 @@ export default async function JourneyPage() {
     <>
       <SiteHeader active="journey" showCare={false} />
       <main className="mx-auto max-w-shell px-6 py-10">
-        <section className="animate-fade-up overflow-hidden rounded-2xl border border-accent/25 bg-gradient-to-br from-accent/[0.10] via-surface to-accent2/[0.09] p-8 md:p-10">
+        <section className="animate-fade-up overflow-hidden rounded-2xl border border-border bg-surface p-8 md:p-10">
           {partnerFirst && (
             <p className="mb-3 font-serif text-lg italic text-muted">
               Hello, {partnerFirst}.

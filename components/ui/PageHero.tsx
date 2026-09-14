@@ -37,7 +37,14 @@ export function PageHero({
 }) {
   return (
     <section
-      className={`animate-fade-up overflow-hidden rounded-2xl border border-accent/25 bg-gradient-to-br from-accent/[0.10] via-surface to-accent2/[0.09] ${
+      // The same material as every other surface — one shadow over a ground it
+      // can be told apart from. It used to be a three-stop accent gradient with
+      // an accent-tinted border, and on the new ground that recipe landed
+      // almost exactly on the page colour: the hero had no edge at all while a
+      // plain card beside it read fine. A hero earns its place with type and
+      // space, not with a different background; the ambient warmth lives on
+      // <body>, once, where it belongs.
+      className={`surface-raised animate-fade-up overflow-hidden rounded-2xl border border-border bg-surface ${
         compact ? "p-6 md:p-7" : "p-8 md:p-10"
       } ${className}`}
     >

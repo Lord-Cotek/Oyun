@@ -9,11 +9,11 @@
 /* Dark is the default (brand: dark editorial). */
 :root,
 :root[data-theme="dark"] {
-  --bg: #0b0e14;
-  --surface: #12151d;
-  --border: #232833;
+  --bg: #080b11;
+  --surface: #1a202c;
+  --border: #333b48;
   --ink: #ece8de;
-  --muted: #8a9099;
+  --muted: #939aa6;
 
   --accent: #efb35c; /* amber, primary — tuned warmer/maternal, brightened */
   --accent-deep: #f6c479; /* lighter on hover so it stays legible on dark */
@@ -42,29 +42,12 @@
      surfaces catch light like glass. Re-theme here, never in JS. */
   --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.38), 0 8px 22px -6px rgba(0, 0, 0, 0.58);
   --shadow-2: 0 3px 8px rgba(0, 0, 0, 0.44), 0 28px 60px -16px rgba(0, 0, 0, 0.68);
-  /* Glass thickness: a bright top edge, a soft dark bottom edge, and a hairline
-     ring — so a surface reads as a lit slab, not a flat panel. */
-  --sheen: inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.28),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.02);
-  /* A diagonal specular highlight pooled at the top-left over a faint vertical
-     gradient — the signature glossy catch of light. */
-  --surface-grad: radial-gradient(
-      130% 90% at 8% -12%,
-      rgba(255, 255, 255, 0.06),
-      transparent 44%
-    ),
-    linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--ink) 5%, var(--surface)) 0%,
-      var(--surface) 52%
-    );
   /* A plain value first, then the mix. An engine without color-mix()
      (Safari before 16.2, Firefox before 113) drops the second
      declaration and keeps this one — without it the sticky header's
      background resolves to nothing and the page scrolls under its own
      navigation. Same colours, computed against --surface / --ink. */
-  --glass-tint: rgba(18, 21, 29, 0.72);
+  --glass-tint: rgba(26, 32, 44, 0.72);
   --glass-tint: color-mix(in srgb, var(--surface) 72%, transparent);
   --glass-hairline: rgba(236, 232, 222, 0.1);
   --glass-hairline: color-mix(in srgb, var(--ink) 10%, transparent);
@@ -81,19 +64,19 @@
 /* Light — warm ivory, matched to the light lockup. Contrast checked:
    ink/bg, muted/bg, and accent/bg all clear WCAG AA for text. */
 :root[data-theme="light"] {
-  --bg: #f4f1ea;
-  --surface: #fbf9f3;
-  --border: #e2dccf;
+  --bg: #e0e4ea;
+  --surface: #f7f8fa;
+  --border: #c4cad3;
   --ink: #1a1d24;
-  --muted: #5f6570;
+  --muted: #575d68;
 
-  --accent: #9a5a12; /* deep amber — legible as small text on ivory (AA) */
-  --accent-deep: #7c4710; /* darker still, for hover */
-  --on-accent: #fdf7ec; /* near-white text on the deep-amber fill (AA) */
+  --accent: #8f5410; /* deep amber — legible as small text on ivory (AA) */
+  --accent-deep: #71410c; /* darker still, for hover */
+  --on-accent: #f7f8fa; /* near-white text on the deep-amber fill (AA) */
 
   --positive: #3f7d51;
   --negative: #b23b32;
-  --accent2: #b25a54; /* deeper rose so it reads on ivory */
+  --accent2: #a8504a; /* deeper rose so it reads on ivory */
 
   /* Category tones — deepened for legibility as icon/text on the ivory washes
      (all clear AA as small text on their own tint). */
@@ -113,17 +96,7 @@
     0 10px 26px -8px rgba(72, 60, 38, 0.14);
   --shadow-2: 0 3px 10px rgba(72, 60, 38, 0.1),
     0 30px 60px -18px rgba(72, 60, 38, 0.22);
-  /* Bright polished-stone highlight up top, a whisper of shade at the base. */
-  --sheen: inset 0 1px 0 rgba(255, 255, 255, 0.9),
-    inset 0 -1px 0 rgba(72, 60, 38, 0.06),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.5);
-  --surface-grad: radial-gradient(
-      130% 90% at 8% -12%,
-      rgba(255, 255, 255, 0.9),
-      transparent 46%
-    ),
-    linear-gradient(180deg, #ffffff 0%, var(--surface) 66%);
-  --glass-tint: rgba(251, 249, 243, 0.68);
+  --glass-tint: rgba(247, 248, 250, 0.68);
   --glass-tint: color-mix(in srgb, var(--surface) 68%, transparent);
   --glass-hairline: rgba(255, 255, 255, 0.7);
   --glass-hairline: color-mix(in srgb, #ffffff 70%, transparent);
@@ -284,16 +257,26 @@
      Silky, glossy depth applied through shared primitives (Card, panels,
      shell) so the whole app lifts at once. */
 
-  /* Elevated content surface — soft ambient shadow + glossy top sheen + a
-     faint vertical gradient so it catches light. */
+  /* An elevated surface is one shadow over a ground it can actually be told
+     apart from. It used to be a shadow AND three inset sheen lines AND a
+     radial specular highlight AND a vertical gradient, on top of a border —
+     six treatments for one edge. That was compensation: surface against page
+     measured 1.07:1, so the card was invisible and depth had to be painted
+     on. The palette now carries a real step (1.20:1) and a hairline that
+     reads (1.65:1), so the paint came off. */
   .surface-premium {
-    background-image: var(--surface-grad);
-    box-shadow: var(--shadow-1), var(--sheen);
+    /* The fill belongs to the class. It used to arrive through the specular
+       gradient — the last stop of --surface-grad was the surface colour — so
+       deleting that gradient left every elevated panel transparent. An
+       elevated surface should own its own colour rather than inherit it from
+       a decoration that might be removed. */
+    background-color: var(--surface);
+    box-shadow: var(--shadow-1);
   }
   /* A higher float for hero / flagship panels. */
   .surface-raised {
-    background-image: var(--surface-grad);
-    box-shadow: var(--shadow-2), var(--sheen);
+    background-color: var(--surface);
+    box-shadow: var(--shadow-2);
   }
   /* Frosted glass — for the app shell (header, tab bar) and floating controls
      that sit over scrolling content. */
@@ -302,7 +285,7 @@
     background-image: var(--glass-grad);
     -webkit-backdrop-filter: blur(22px) saturate(1.5);
     backdrop-filter: blur(22px) saturate(1.5);
-    box-shadow: var(--shadow-2), var(--sheen);
+    box-shadow: var(--shadow-2);
     border-color: var(--glass-hairline);
   }
   @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
@@ -322,7 +305,7 @@
       rgba(255, 255, 255, 0.04) 44%,
       rgba(0, 0, 0, 0.06) 100%
     );
-    box-shadow: var(--shadow-1), inset 0 1px 0 rgba(255, 255, 255, 0.42),
+    box-shadow: var(--shadow-1), inset 0 1px 0 rgba(255, 255, 255, 0.3),
       inset 0 -1px 0 rgba(0, 0, 0, 0.12);
     transition:
       transform 0.18s ease,
