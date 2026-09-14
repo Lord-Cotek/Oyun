@@ -23,6 +23,21 @@ const DOUBLE_TAP_SCALE = 2.5;
  * drag pans instead of turning the page, and neither a pan nor a pinch is
  * mistaken for the tap that closes it.
  *
+ * ── A video is not a photograph ──────────────────────────────────────────
+ * Everything above is written for a still picture, and all of it is wrong for
+ * a video. The frame used to swallow a video's own controls three ways over:
+ * it took pointer capture on whatever was touched, so the play button in the
+ * browser's own control bar never got the rest of the gesture; it carried
+ * `touch-action: none`, so dragging the scrubber did nothing; and a short tap
+ * inside the frame was read as the first half of a double-tap-to-zoom. On a
+ * desktop that is invisible, because a mouse click reaches the controls before
+ * any of it matters. On an iPhone it meant the play button did nothing at all.
+ *
+ * So a gesture that starts on the video belongs to the video. The surround
+ * still closes on a tap, the arrows still turn the page, and pinch and pan
+ * still work on a photograph — but the moment a finger lands on a video, this
+ * component takes its hands off.
+ *
  * ── Why the bar is min-height and not height ─────────────────────────────
  * It carries `safe-top`, which is `padding-top: env(safe-area-inset-top)`. On
  * an iPhone that inset is around fifty pixels; with a fixed `h-14` and
@@ -62,6 +77,12 @@ export function Lightbox({
   // Live gesture state. Refs, not state: these change on every pointer move
   // and must not re-render the photograph mid-pinch.
   const pointers = useRef(new Map<number, { x: number; y: number }>());
+  /**
+   * This gesture started on the video, so it is the video's, not ours. Held in
+   * a ref because it is read inside the same pointer sequence that sets it.
+   */
+  const onVideo = useRef(false);
+  const videoEl = useRef<HTMLVideoElement | null>(null);
   const start = useRef<{
     dist: number;
     scale: number;
@@ -149,7 +170,34 @@ export function Lightbox({
     return Math.hypot(ps[0].x - ps[1].x, ps[0].y - ps[1].y);
   };
 
+  /**
+   * Start it if we are allowed to, and take no for an answer.
+   *
+   * This was the `autoplay` attribute, which iOS does not honour for a video
+   * that carries sound — and inside a WKWebView (our installed app) it will
+   * not honour it at all without a direct gesture on the element. The attribute
+   * fails silently: no error, no play, a control bar that looks live. Which is
+   * what "it just keeps loading" was.
+   *
+   * Asking with `play()` behaves the same where autoplay is allowed and is
+   * honest where it is not: the promise rejects, we leave it alone, and the
+   * person presses play on controls that now actually work. The rejection is
+   * the expected answer on a phone, not a fault, so nothing is logged.
+   */
+  useEffect(() => {
+    if (item.type !== "video") return;
+    const el = videoEl.current;
+    if (!el) return;
+    void el.play?.()?.catch(() => {
+      /* Not allowed to start on its own here. The controls are right there. */
+    });
+  }, [item.type, item.url]);
+
   function onPointerDown(e: React.PointerEvent) {
+    // Hands off: capturing the pointer here is exactly what stops the play
+    // button from working.
+    onVideo.current = !!(e.target as Element)?.closest?.("video");
+    if (onVideo.current) return;
     (e.target as Element).setPointerCapture?.(e.pointerId);
     pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
     moved.current = 0;
@@ -165,6 +213,7 @@ export function Lightbox({
   }
 
   function onPointerMove(e: React.PointerEvent) {
+    if (onVideo.current) return;
     if (!pointers.current.has(e.pointerId)) return;
     const before = pointers.current.get(e.pointerId)!;
     pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
@@ -186,6 +235,10 @@ export function Lightbox({
   }
 
   function onPointerUp(e: React.PointerEvent) {
+    if (onVideo.current) {
+      onVideo.current = false;
+      return;
+    }
     const was = pointers.current.get(e.pointerId);
     pointers.current.delete(e.pointerId);
 
@@ -384,12 +437,15 @@ export function Lightbox({
         {item.type === "video" ? (
           <video
             key={item.url}
+            ref={videoEl}
             src={item.url}
             controls
-            autoPlay
             playsInline
+            preload="auto"
             aria-label={alts?.[index] || undefined}
-            className="max-h-full max-w-full rounded-lg"
+            // touch-action back to the browser's default: the frame around it
+            // is `touch-none` for pinching, and that also killed the scrubber.
+            className="max-h-full max-w-full touch-auto rounded-lg"
           />
         ) : (
           // eslint-disable-next-line @next/next/no-img-element
