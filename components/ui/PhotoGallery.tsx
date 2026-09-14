@@ -14,10 +14,20 @@ export function PhotoGallery({
   thumbClassName = "h-28 w-28 sm:h-32 sm:w-32",
 }: {
   urls: string[];
+  /** What this set of photographs is of. Numbered per photo — see `name`. */
   alt: string;
   thumbClassName?: string;
 }) {
   const [open, setOpen] = useState<number | null>(null);
+
+  /**
+   * Every thumbnail used to be announced as "View photo", four times over for
+   * four different pictures — and because an aria-label on a button replaces
+   * everything inside it, the img alt below never got a hearing. Now each one
+   * says which of how many it is, and the words the family wrote.
+   */
+  const name = (i: number) =>
+    urls.length > 1 ? `Photo ${i + 1} of ${urls.length} — ${alt}` : alt;
 
   const close = useCallback(() => setOpen(null), []);
   const go = useCallback(
@@ -52,13 +62,13 @@ export function PhotoGallery({
             key={url}
             type="button"
             onClick={() => setOpen(i)}
-            aria-label="View photo"
+            aria-label={`View ${name(i)}`}
             className={`group relative overflow-hidden rounded-lg border border-border ${thumbClassName}`}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={url}
-              alt={alt}
+              alt={name(i)}
               loading="lazy"
               className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
             />
@@ -77,7 +87,7 @@ export function PhotoGallery({
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={urls[open]}
-            alt={alt}
+            alt={name(open)}
             onClick={(e) => e.stopPropagation()}
             className="max-h-[88dvh] max-w-full rounded-lg object-contain shadow-2xl"
           />

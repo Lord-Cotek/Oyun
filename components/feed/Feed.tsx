@@ -11,6 +11,7 @@ import {
 } from "@/lib/feed";
 import type { FeedPost, MediaItem } from "@/lib/feed-query";
 import { Lightbox } from "@/components/media/Lightbox";
+import { mediaAlt } from "@/lib/alt";
 import { Avatar } from "@/components/ui/Avatar";
 import { isIosNativeShell } from "@/lib/shell";
 
@@ -328,7 +329,7 @@ function Composer({
 
       {picked.length > 0 && (
         <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-4">
-          {picked.map((p) => (
+          {picked.map((p, i) => (
             <div
               key={p.id}
               className="relative aspect-square overflow-hidden rounded-lg border border-border"
@@ -336,6 +337,7 @@ function Composer({
               {p.isVideo ? (
                 <video
                   src={p.preview}
+                  aria-label={`Video ${i + 1} of ${picked.length}, ready to post`}
                   className="h-full w-full object-cover"
                   muted
                   playsInline
@@ -344,7 +346,7 @@ function Composer({
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={p.preview}
-                  alt="To share"
+                  alt={`Photo ${i + 1} of ${picked.length}, ready to post`}
                   className="h-full w-full object-cover"
                 />
               )}
@@ -567,7 +569,14 @@ function PostItem({
               {post.body}
             </p>
           )}
-          {hasMedia && <MediaGallery media={post.media} />}
+          {hasMedia && (
+            <MediaGallery
+              media={post.media}
+              said={post.body}
+              author={post.author}
+              when={post.when}
+            />
+          )}
         </>
       )}
 
@@ -687,9 +696,30 @@ function PostItem({
   );
 }
 
-function MediaGallery({ media }: { media: MediaItem[] }) {
+function MediaGallery({
+  media,
+  said,
+  author,
+  when,
+}: {
+  media: MediaItem[];
+  /** What was written alongside — the best description of these we will get. */
+  said?: string | null;
+  author?: string | null;
+  when?: string | null;
+}) {
   const [at, setAt] = useState<number | null>(null);
   const single = media.length === 1;
+  const alts = media.map((m, i) =>
+    mediaAlt({
+      said,
+      author,
+      when,
+      index: i + 1,
+      total: media.length,
+      isVideo: m.type === "video",
+    }),
+  );
 
   return (
     <>
@@ -701,9 +731,13 @@ function MediaGallery({ media }: { media: MediaItem[] }) {
             key={`${m.url}-${i}`}
             type="button"
             onClick={() => setAt(i)}
-            aria-label={
-              m.type === "video" ? "Play video" : `Open photo ${i + 1}`
-            }
+            // An aria-label on the button replaces everything inside it, so
+            // this — not the img alt below — is what a screen reader announces.
+            // The description starts a sentence of its own, so it is lowered
+            // when a verb is put in front of it.
+            aria-label={`${m.type === "video" ? "Play" : "Open"} ${
+              alts[i].charAt(0).toLowerCase() + alts[i].slice(1)
+            }`}
             className={`group relative block w-full overflow-hidden rounded-xl border border-border transition-colors hover:border-accent/50 ${
               single ? "" : "aspect-square"
             }`}
@@ -731,7 +765,7 @@ function MediaGallery({ media }: { media: MediaItem[] }) {
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={m.url}
-                alt=""
+                alt={alts[i]}
                 loading="lazy"
                 className={`transition-transform duration-500 ease-out group-hover:scale-[1.03] ${
                   single
@@ -747,6 +781,7 @@ function MediaGallery({ media }: { media: MediaItem[] }) {
       {at !== null && (
         <Lightbox
           items={media}
+          alts={alts}
           index={at}
           onIndex={setAt}
           onClose={() => setAt(null)}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { mediaAlt } from "@/lib/alt";
 import { useFormStatus } from "react-dom";
 import { updateMilestone, deleteMilestone } from "@/app/care/actions";
 import { MilestoneFields, milestoneTitle } from "@/components/care/MilestoneFields";
@@ -91,7 +92,10 @@ export function MilestoneItem({
           </p>
           <PhotoGallery
             urls={m.photoUrls}
-            alt={`${milestoneTitle(m.kind, m.title)} — photo`}
+            alt={mediaAlt({
+              said: m.note ?? milestoneTitle(m.kind, m.title),
+              kind: "milestone",
+            })}
           />
         </div>
         <div className="flex shrink-0 items-center gap-2">

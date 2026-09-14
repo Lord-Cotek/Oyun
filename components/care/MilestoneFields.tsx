@@ -111,10 +111,14 @@ export function MilestoneFields({
         <div>
           <span className="eyebrow mb-1.5 block text-muted">Photos</span>
           <div className="flex flex-wrap gap-3">
-            {existingPhotoUrls.map((url) => (
+            {existingPhotoUrls.map((url, i) => (
               <label key={url} className="flex cursor-pointer flex-col items-center gap-1">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={url} alt="Photo" className="h-16 w-16 rounded-lg border border-border object-cover" />
+                <img
+                  src={url}
+                  alt={`Photo ${i + 1} of ${existingPhotoUrls.length} already on this milestone`}
+                  className="h-16 w-16 rounded-lg border border-border object-cover"
+                />
                 <span className="flex items-center gap-1 font-mono text-[0.62rem] text-muted">
                   <input
                     type="checkbox"

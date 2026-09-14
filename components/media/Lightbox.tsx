@@ -36,11 +36,19 @@ export function Lightbox({
   index,
   onClose,
   onIndex,
+  alts,
 }: {
   items: MediaItem[];
   index: number;
   onClose: () => void;
   onIndex: (next: number) => void;
+  /**
+   * What each item is, in the family's own words — see lib/alt.ts. Parallel to
+   * `items`. Optional so an older caller still compiles, but every caller in
+   * the app passes it: an enlarged photograph with no name is the same photo
+   * with no name.
+   */
+  alts?: string[];
 }) {
   const [loaded, setLoaded] = useState(false);
   const [zoom, setZoom] = useState({ scale: 1, x: 0, y: 0 });
@@ -380,6 +388,7 @@ export function Lightbox({
             controls
             autoPlay
             playsInline
+            aria-label={alts?.[index] || undefined}
             className="max-h-full max-w-full rounded-lg"
           />
         ) : (
@@ -387,7 +396,7 @@ export function Lightbox({
           <img
             key={item.url}
             src={item.url}
-            alt=""
+            alt={alts?.[index] ?? ""}
             draggable={false}
             onLoad={() => setLoaded(true)}
             style={{

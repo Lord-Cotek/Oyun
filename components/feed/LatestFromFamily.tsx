@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { mediaAlt } from "@/lib/alt";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { KIND_LABEL } from "@/lib/feed";
 import type { FeedPost } from "@/lib/feed-query";
@@ -86,7 +87,13 @@ export function LatestFromFamily({
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
                           src={p.media[0].url}
-                          alt=""
+                          alt={mediaAlt({
+                            said: p.body,
+                            author: p.author,
+                            when: p.when,
+                            total: p.media.length,
+                            index: 1,
+                          })}
                           loading="lazy"
                           className="h-14 w-14 object-cover"
                         />
