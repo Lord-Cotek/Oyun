@@ -805,7 +805,7 @@ export const LITURGIES: Liturgy[] = [
   {
     read: { text: "“the LORD is my portion,” says my soul. “Therefore I will hope in him.” the LORD is good to those who wait for him, to the soul who seeks him. It is good that a man should hope and quietly wait for the salvation of the LORD.", ref: "Lamentations 3:24-26" },
     reflection:
-      "Written in the ruins of Jerusalem, three verses after mercies new every morning. The LORD is my portion — the word is the one used of the tribe of Levi, who got no land because God himself was their inheritance. And then: it is good that one should wait quietly for the salvation of the LORD. Good, not merely bearable. Quietly is the hard word, because most of us can wait if we are allowed to keep agitating.",
+      "Written in the ruins of Jerusalem, the verse straight after mercies new every morning. The LORD is my portion — the word is the one used of the tribe of Levi, who got no land because God himself was their inheritance. And then: it is good that one should wait quietly for the salvation of the LORD. Good, not merely bearable. Quietly is the hard word, because most of us can wait if we are allowed to keep agitating.",
     talk: "What does quiet waiting look like for you, practically, this week?",
     pray: "Lord, you are our portion and we have been looking for a second one. We will hope in you and wait quietly — with our hands down, which is the part we find hardest.",
   },
@@ -1442,7 +1442,7 @@ export const LITURGIES: Liturgy[] = [
   {
     read: { text: "For he will put his angels in charge of you, to guard you in all your ways.", ref: "Psalm 91:11" },
     reflection:
-      "Be careful with this one, because Satan quoted it at Christ in the wilderness to argue for jumping off the temple — and Jesus refused, saying you shall not put the Lord your God to the test. So it is a real promise that has been genuinely misused. Read as comfort, it says God's care is active and detailed. Read as a guarantee against all harm, it becomes the exact temptation Jesus turned down.",
+      "Be careful with this one, because Satan quoted it at Christ during the temptation, standing him on the pinnacle of the temple to argue for jumping — and Jesus refused, saying you shall not put the Lord your God to the test. So it is a real promise that has been genuinely misused. Read as comfort, it says God's care is active and detailed. Read as a guarantee against all harm, it becomes the exact temptation Jesus turned down.",
     talk: "How can a true promise be misused? What is the difference between trust and presumption?",
     pray: "Lord, you command your angels concerning us, and your Son refused to treat that as a dare. Keep us from presuming. Guard us in all our ways as you see fit.",
   },
@@ -1743,7 +1743,7 @@ export const LITURGIES: Liturgy[] = [
   {
     read: { text: "I will seek that which was lost, and will bring back that which was driven away, and will bind up that which was broken, and will strengthen that which was sick; but I will destroy the fat and the strong. I will feed them in justice.", ref: "Ezekiel 34:16" },
     reflection:
-      "God has spent this whole chapter furious with the shepherds of Israel, who fed themselves and let the flock scatter. Then he stops using the third person: I myself will search. Four verbs for four conditions, and none of them is a condition you can fix from inside. Centuries later Jesus stood in the temple and said I am the good shepherd — deliberately taking Ezekiel 34 onto himself, in front of the men who were supposed to be doing this job. God did not send someone. He came.",
+      "God has spent this whole chapter furious with the shepherds of Israel, who fed themselves and let the flock scatter. Then he stops using the third person: I myself will search. Four verbs for four conditions, and none of them is a condition you can fix from inside. Centuries later Jesus said I am the good shepherd — deliberately taking Ezekiel 34 onto himself, in front of the men who were supposed to be doing this job. God did not send someone. He came.",
     talk: "Which of the four are you? Lost, driven away, broken, or sick?",
     pray: "Good Shepherd, we are some of the four tonight — lost, driven away, broken, or simply worn out. You said you would come yourself rather than send. Seek us, carry us back, bind what is torn, and strengthen what is failing.",
   },
@@ -2032,7 +2032,7 @@ export const LITURGIES: Liturgy[] = [
     reflection:
       "This sits in the middle of the love chapter, and Paul's point is about the age to come — now we see in a mirror dimly, then face to face. But he gets there by treating childhood as a stage, not a defect: the child spoke and thought and reasoned as a child, and there was nothing wrong with that. Each thing in its season. A great deal of the impatience that visits Christian homes comes from wanting a four-year-old to behave like a forty-year-old, and calling the wish discipleship.",
     talk: "How will you let this child be a child, without rushing them?",
-    pray: "Lord, you were a child yourself, and grew in wisdom and stature, and nobody hurried you. Let this child be a child. Save us from rushing them towards a maturity only you can give, and in your own time.",
+    pray: "Lord, Paul does not despise the child he was; he says there was a time to speak and think that way, and then it passed. Let this child be a child for the whole of childhood. Save us from hurrying them toward a maturity only you can give.",
   },
   {
     read: { text: "Yes, we ourselves have had the sentence of death within ourselves, that we should not trust in ourselves, but in God who raises the dead, who delivered us out of so great a death, and does deliver; on whom we have set our hope that he will also still deliver us;", ref: "2 Corinthians 1:9-10" },
@@ -2648,7 +2648,7 @@ export const LITURGIES: Liturgy[] = [
     reflection:
       "Elijah has just won the greatest victory of his life and then run a day into the desert and asked God to kill him. What heaven sends is not a rebuke or a vision. An angel wakes him, twice, with baked bread and a jar of water, and lets him sleep in between. The still small voice comes forty days later. God fed him and let him rest first, because he was not primarily in a spiritual crisis — he was exhausted, and God treated that as real.",
     talk: "What does your body need right now? Have you treated that as spiritual?",
-    pray: "Lord, you fed Elijah and let him sleep before you said a word to him. Care for our bodies. Let us stop treating tiredness as a failure of faith when you never did.",
+    pray: "Lord, you fed Elijah twice and let him sleep between, before you asked him a single question. Care for our bodies like that. Let us stop treating tiredness as a failure of faith, since you never did.",
   },
   {
     read: { text: "He answered, “Don’t be afraid; for those who are with us are more than those who are with them.”", ref: "2 Kings 6:16" },
@@ -3115,7 +3115,7 @@ export const LITURGIES: Liturgy[] = [
   {
     read: { text: "But when he saw that the wind was strong, he was afraid, and beginning to sink, he cried out, saying, “Lord, save me!” Immediately Jesus stretched out his hand, took hold of him, and said to him, “You of little faith, why did you doubt?”", ref: "Matthew 14:30-31" },
     reflection:
-      "Peter had walked on water — briefly, genuinely. Then he saw the wind, was afraid, and started to go down. And Matthew's detail is that Jesus reached out his hand immediately: no lecture first, no waiting to see if Peter could recover himself. The rebuke comes after he is already held. Peter's faith failed in about thirty seconds; the hand did not. That is the right way round, and it is the only reason any of us are still upright.",
+      "Peter had walked on water — briefly, genuinely. Then he saw the wind, was afraid, and started to go down. And Matthew's detail is that Jesus reached out his hand immediately: no lecture first, no waiting to see if Peter could recover himself. The rebuke comes after he is already held. Peter's faith failed within a few steps; the hand did not. That is the right way round, and it is the only reason any of us are still upright.",
     talk: "Where are you sinking? Have you called out?",
     pray: "Lord, save us. Take hold of us before we go under — you have never waited for anyone to steady themselves first. Our faith is small and your hand is not.",
   },
@@ -3894,7 +3894,7 @@ export const LITURGIES: Liturgy[] = [
     reflection:
       "The psalm has been almost playful — the sea looked and fled, the mountains skipped like rams — and then it turns and addresses the earth directly: tremble at the presence of the Lord. It is the same God described elsewhere as gathering lambs in his arms and comforting like a mother. Both are true at once, and a household that has only one of them has either a tyrant or a mascot, and neither is him.",
     talk: "Do you hold both God's tenderness and his greatness? Which do you forget?",
-    pray: "Lord, the earth trembles before you and you carry lambs in your arms. Be both to us. Let this house never shrink you down to something manageable.",
+    pray: "Lord, the sea fled and the Jordan turned back and the mountains skipped, because you were passing through. Let this house never shrink you down to something manageable. Tremble the ground under our small fears.",
   },
   {
     read: { text: "Not to us, the LORD, not to us, but to your name give glory, for your loving kindness, and for your truth’s sake.", ref: "Psalm 115:1" },
@@ -4557,7 +4557,7 @@ export const LITURGIES: Liturgy[] = [
   {
     read: { text: "Again, therefore, Jesus spoke to them, saying, “I am the light of the world. He who follows me will not walk in the darkness, but will have the light of life.”", ref: "John 8:12" },
     reflection:
-      "He says this in the temple during the Feast of Tabernacles, when four enormous lampstands were lit in the court of the women and the whole city could see the glow. Standing in that light, he says I am the light of the world. And the promise is not just illumination but a route: whoever follows me will not walk in darkness. You get the light by walking behind him, not by studying it.",
+      "He says this in the temple during the Feast of Tabernacles, the week the great lampstands in the court of the women were lit and the whole city could see the glow. In that setting, he says I am the light of the world. And the promise is not just illumination but a route: whoever follows me will not walk in darkness. You get the light by walking behind him, not by studying it.",
     talk: "Where are you walking by a smaller light?",
     pray: "Lord Jesus, you are the light of the world and we keep trying to find our own way. Let us follow rather than analyse. Do not let this house walk in darkness.",
   },
@@ -4585,9 +4585,9 @@ export const LITURGIES: Liturgy[] = [
   {
     read: { text: "Not for these only do I pray, but for those also who will believe in me through their word, that they may all be one; even as you, Father, are in me, and I in you, that they also may be one in us; that the world may believe that you sent me.", ref: "John 17:20-21" },
     reflection:
-      "Sit with what this verse actually says. In the garden, hours before the arrest, Jesus prays for those who will believe in me through their word — which is everyone since, including whoever reads this tonight. You were prayed for by name in Gethsemane. And what he asked for was not comfort or success. That they may all be one, so that the world may believe. Unity was the request, and it starts somewhere small.",
+      "Sit with what this verse actually says. In the upper room, hours before the arrest, Jesus prays for those who will believe in me through their word — which is everyone since, including whoever reads this tonight. You were prayed for before you existed, by name or not. And what he asked for was not comfort or success. That they may all be one, so that the world may believe. Unity was the request, and it starts somewhere small.",
     talk: "Where are you contributing to division? What would his prayer ask of you?",
-    pray: "Lord Jesus, you prayed for us in the garden and what you asked for was that we would be one. Begin in this house. Let the unity here be something the world could notice.",
+    pray: "Lord Jesus, you prayed this in the upper room, hours before the garden, and what you asked for was that we would be one. Begin in this house. Let the unity here be something the world could notice.",
   },
   {
     read: { text: "Then he said to Thomas, “Reach here your finger, and see my hands. Reach here your hand, and put it into my side. Don’t be unbelieving, but believing.” Thomas answered him, “My Lord and my God!”", ref: "John 20:27-28" },
@@ -4886,7 +4886,7 @@ export const LITURGIES: Liturgy[] = [
   {
     read: { text: "The latter glory of this house will be greater than the former,’ says the LORD of Armies; ‘and in this place I will give peace,’ says the LORD of Armies.", ref: "Haggai 2:9" },
     reflection:
-      "The old men had wept comparing this temple to Solomon's, and God's answer is not that they were wrong about the size. The latter glory of this house shall be greater than the former — and the reason, in context, is that he will fill it, and that in this place he will give peace. Four hundred years later a carpenter's son walked into that building. Your home will not look like the one you grew up in. That was never the measure.",
+      "The old men had wept comparing this temple to Solomon's, and God's answer is not that they were wrong about the size. The latter glory of this house shall be greater than the former — and the reason, in context, is that he will fill it, and that in this place he will give peace. More than five hundred years later a carpenter's son walked into the temple that stood on that ground. Your home will not look like the one you grew up in. That was never the measure.",
     talk: "In what way are you comparing your home to one that came before it?",
     pray: "Lord, let the latter glory of this house be greater than the former — not in what it looks like, but in how much of you is in it. And give peace in this place.",
   },
@@ -5075,7 +5075,7 @@ export const LITURGIES: Liturgy[] = [
   {
     read: { text: "Daniel answered, “Blessed be the name of God forever and ever; for wisdom and might are his. He changes the times and the seasons. He removes kings, and sets up kings. He gives wisdom to the wise, and knowledge to those who have understanding.”", ref: "Daniel 2:20-21" },
     reflection:
-      "Daniel prays this at roughly two in the morning, having been told he and all his colleagues are to be executed and having asked the king for one night. God gives him the dream and its meaning, and the first thing out of his mouth is not relief but worship — and specifically worship of God's control over times and seasons. He blesses God for the calendar before he blesses him for the rescue.",
+      "Daniel prays this in the night, having been told he and all his colleagues are to be executed and having asked the king for one night. God gives him the dream and its meaning, and the first thing out of his mouth is not relief but worship — and specifically worship of God's control over times and seasons. He blesses God for the calendar before he blesses him for the rescue.",
     talk: "What season are you desperate to be out of? Who holds its end?",
     pray: "God of the times and the seasons, this one is yours too — we did not choose its length or its shape. Give us wisdom inside it rather than a way out of it.",
   },
