@@ -53,7 +53,8 @@ export function ReflectionJournal({
         ) : (
           <li
             key={n.id}
-            className="surface-premium rounded-xl border border-border p-5"
+            id={`note-${n.id}`}
+            className="notif-target surface-premium rounded-xl border border-border p-5"
           >
             <div className="mb-1.5 flex flex-wrap items-center gap-2 font-mono text-[0.62rem] uppercase tracking-widest text-muted">
               <span className="text-accent">{n.passageRef}</span>

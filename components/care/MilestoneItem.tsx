@@ -30,7 +30,7 @@ export function MilestoneItem({
 
   if (editing) {
     return (
-      <li className="relative">
+      <li id={`milestone-${m.id}`} className="notif-target relative">
         <span className="absolute -left-[1.4rem] top-1.5 h-2 w-2 rounded-full bg-accent ring-4 ring-bg" />
         <form
           action={async (fd) => {
@@ -67,7 +67,7 @@ export function MilestoneItem({
   }
 
   return (
-    <li className="relative">
+    <li id={`milestone-${m.id}`} className="notif-target relative">
       <span className="absolute -left-[1.4rem] top-1.5 h-2 w-2 rounded-full bg-accent ring-4 ring-bg" />
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">

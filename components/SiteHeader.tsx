@@ -4,7 +4,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { NavMoreMenu } from "@/components/NavMoreMenu";
 import { NotificationBell } from "@/components/NotificationBell";
 import { TabBar, type Tab } from "@/components/TabBar";
-import { type IconName } from "@/components/ui/Icon";
+import { Icon, type IconName } from "@/components/ui/Icon";
 import { JourneySwitcher } from "@/components/JourneySwitcher";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -161,6 +161,14 @@ export async function SiteHeader({
           </nav>
 
           {/* Always-visible controls */}
+          <Link
+            href="/search"
+            aria-label="Search"
+            title="Search"
+            className="rounded-lg p-2 text-muted transition-colors hover:bg-surface hover:text-ink"
+          >
+            <Icon name="search" size={18} aria-hidden="true" />
+          </Link>
           <NotificationBell initialUnread={unread} />
           <ThemeToggle />
         </div>

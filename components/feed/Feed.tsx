@@ -55,7 +55,7 @@ export function Feed({
       ) : (
         <ul className="space-y-4">
           {posts.map((p) => (
-            <li key={p.id}>
+            <li key={p.id} id={`post-${p.id}`} className="notif-target">
               <PostItem post={p} {...actions} />
             </li>
           ))}

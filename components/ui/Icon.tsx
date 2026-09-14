@@ -23,9 +23,11 @@ export type IconName =
   | "home"
   | "hands"
   | "settings"
-  | "leaf";
+  | "leaf"
+  | "search";
 
 const PATHS: Record<IconName, string> = {
+  search: "M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14z M16.5 16.5L21 21",
   book: "M3 5c3-1 6-1 9 1 3-2 6-2 9-1v13c-3-1-6-1-9 1-3-2-6-2-9-1V5z M12 7v13",
   message: "M4 5h16v11H9l-4 4v-4H4z",
   question: "M9 9a3 3 0 1 1 4 2.8c-.8.4-1 .9-1 1.7v.5 M12 17h.01",
