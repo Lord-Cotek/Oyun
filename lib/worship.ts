@@ -2338,1857 +2338,1857 @@ export const LITURGIES: Liturgy[] = [
   {
     read: { text: "Two are better than one, because they have a good reward for their labor. For if they fall, the one will lift up his fellow; but woe to him who is alone when he falls, and doesn’t have another to lift him up.", ref: "Ecclesiastes 4:9-10" },
     reflection:
-      "Two are better than one... For if they fall, the one will lift up his fellow. The passage assumes falling. Company is for the fall, not just the walk.",
+      "Qoheleth is in the middle of the bleakest stretch of his book, having just described a man toiling alone with nobody to toil for. And the argument he makes for company is not that it is pleasant — it is that people fall. If they fall, one will lift up his fellow, and woe to him who is alone when he falls. The falling is assumed. That is the honest case for having people close to you: not for the good days, when you would manage anyway, but for the week you cannot get up.",
     talk: "Who would lift you up if you fell right now? Do they know?",
-    pray: "Lord, two are better than one. Give us people close enough to lift us.",
+    pray: "Lord, two are better than one and we have been living as though we could manage. Give us people close enough to lift us — and make us willing to be seen on the floor when it happens.",
   },
   {
     read: { text: "But now the LORD who created you, Jacob, and he who formed you, Israel, says: “Don’t be afraid, for I have redeemed you. I have called you by your name. You are mine.”", ref: "Isaiah 43:1" },
     reflection:
-      "Don't be afraid, for I have redeemed you. I have called you by your name. You are mine. Named and owned. That is said to you, and it will be true of this child.",
+      "Israel is in exile, and the chapter before has just described them as robbed and plundered, trapped in holes. Into that comes but now — and four short claims in a row: I have redeemed you, I have called you by name, you are mine, do not be afraid. The fear is answered by ownership, not by circumstances changing. Paul says the Spirit of adoption makes the same thing ours in Christ. Whatever else is uncertain about this season, who you belong to is not.",
     talk: "What does it mean to be called by name and belong to God?",
-    pray: "Lord, you have called us by name. We are yours.",
+    pray: "Lord, you have called us by name and we are yours, and nothing about this season changes that. Say it to us again when we forget. And let it be true of this child too.",
   },
   {
     read: { text: "All your children will be taught by the LORD; and your children’s peace will be great.", ref: "Isaiah 54:13" },
     reflection:
-      "All your children will be taught by the LORD; and your children's peace will be great. God teaching children directly. Your teaching is not the only means he has.",
+      "This is said to a city pictured as a barren woman, told to enlarge her tent for children she does not have yet. And the promise about those children is startling: they will be taught by the LORD himself. Jesus quoted this line in John 6 to explain why some people came to him — everyone who has heard and learned from the Father comes to me. Your teaching matters enormously and it is not the only instrument God has. He teaches children directly, and he has done it in houses far worse than yours.",
     talk: "Does it relieve you that God teaches children himself?",
-    pray: "Lord, teach our children yourself. Give them great peace.",
+    pray: "Lord, teach this child yourself — beyond what we are able to explain, and in the years when they stop listening to us. Give them great peace, and let their first teacher be you.",
   },
   {
     read: { text: "Ah Lord the LORD! Behold, you have made the heavens and the earth by your great power and by your outstretched arm. There is nothing too hard for you.", ref: "Jeremiah 32:17" },
     reflection:
-      "Ah Lord the LORD! Behold, you have made the heavens and the earth by your great power... There is nothing too hard for you. Prayed in the middle of a siege.",
+      "Jeremiah prays this having just been told to buy a field. The Babylonians are camped outside the walls, he is under arrest, and God tells him to purchase land in a country about to be destroyed — as a sign that houses and fields will be bought here again. So the Ah, Lord GOD is not a man in a good mood. Nothing is too hard for you is said by someone signing a deed for ground he will never walk on, because God told him to.",
     talk: "What looks too hard right now?",
-    pray: "Lord, nothing is too hard for you. Not even this.",
+    pray: "Lord, nothing is too hard for you — not this, not the thing we have stopped mentioning because it seems settled. Give us Jeremiah's willingness to act on what you have said while the siege is still outside.",
   },
   {
     read: { text: "For he who is mighty has done great things for me. Holy is his name. His mercy is for generations of generations on those who fear him.", ref: "Luke 1:49-50" },
     reflection:
-      "For he who is mighty has done great things for me. Holy is his name. His mercy is for generations of generations on those who fear him. Mary's song looks forward and back.",
+      "Mary is perhaps fourteen, unmarried and pregnant, standing in her cousin's house, and she sings about generations. He who is mighty has done great things for me — and his mercy is on those who fear him from generation to generation. She looks back over centuries and forward over centuries, and locates one obscure pregnancy inside that. What is happening in your house this year is smaller than you fear and larger than you think.",
     talk: "What great thing has God done for you? Say it out loud.",
-    pray: "Lord, you have done great things for us. Holy is your name.",
+    pray: "Lord, you have done great things for us and we have not stopped to say so. Holy is your name. Let your mercy run through this house to generations we will never meet.",
   },
   {
     read: { text: "Don’t be afraid, little flock, for it is your Father’s good pleasure to give you the Kingdom.", ref: "Luke 12:32" },
     reflection:
-      "Don't be afraid, little flock, for it is your Father's good pleasure to give you the Kingdom. Good pleasure — not reluctance. God enjoys giving to his people.",
+      "Jesus has just spent a paragraph on ravens and lilies and told them not to be anxious. Then this, and every word in it is chosen. Little flock — small, defenceless, and he knows it. Do not be afraid — because the Father is not reluctant. It is his good pleasure to give you the kingdom, which is to say he enjoys it. Most of us can believe God gives. Very few of us can believe he is glad to.",
     talk: "Do you experience God as generous or grudging? Where did that come from?",
-    pray: "Father, it is your good pleasure to give. Let us receive gladly.",
+    pray: "Father, it is your good pleasure to give — you enjoy it, and we ask as though we were extracting something. Let us receive gladly. And make this a house where giving is done with pleasure.",
   },
   {
     read: { text: "I give eternal life to them. They will never perish, and no one will snatch them out of my hand. My Father who has given them to me is greater than all. No one is able to snatch them out of my Father’s hand.", ref: "John 10:28-29" },
     reflection:
-      "They will never perish, and no one will snatch them out of my hand... no one is able to snatch them out of my Father's hand. Two hands, and nothing can prise them open.",
+      "Count the securities Jesus stacks up. I give them eternal life. They shall never perish. No one will snatch them out of my hand. My Father is greater than all. No one can snatch them out of the Father's hand. Five, and each one would have been enough. He is speaking to people who had every reason to doubt their own staying power, and he does not point them at their grip. He points them at two hands that cannot be forced open.",
     talk: "What do you fear could take this child from God?",
-    pray: "Lord, no one can snatch them from your hand. Hold this child there.",
+    pray: "Lord, our own grip is poor and we are aware of it. No one can snatch anyone out of your hand. Hold this child there, and hold us, because that is where the safety actually is.",
   },
   {
     read: { text: "For I am persuaded that neither death, nor life, nor angels, nor principalities, nor things present, nor things to come, nor powers, nor height, nor depth, nor any other created thing will be able to separate us from God’s love which is in Christ Jesus our Lord.", ref: "Romans 8:38-39" },
     reflection:
-      "Neither death, nor life... nor any other created thing, will be able to separate us from God's love which is in Christ Jesus our Lord. An exhaustive list, and none of it can separate.",
+      "Paul lists death first, then life, then powers and heights and depths, and closes it off with nor anything else in all creation — sealing every gap he might have missed. And note where the love is located: in Christ Jesus our Lord. Not floating somewhere, not dependent on how well you are coping. It is held in a person who died, rose, and cannot die again. That is why the list can be so total. The love is as secure as he is.",
     talk: "Which item on Paul's list do you fear most?",
-    pray: "Lord, nothing can separate us from your love in Christ Jesus.",
+    pray: "Lord, nothing in the whole of creation can separate us from your love in Christ Jesus. We are frightened of several things on that list. Hold us in the one place nothing reaches.",
   },
   {
     read: { text: "Therefore, my beloved brothers, be steadfast, immovable, always abounding in the Lord’s work, because you know that your labor is not in vain in the Lord.", ref: "1 Corinthians 15:58" },
     reflection:
-      "Be steadfast, immovable, always abounding in the Lord's work, because you know that your labour is not in vain in the Lord. Night feeds are labour in the Lord.",
+      "This is the last line of the resurrection chapter — fifteen hundred words on the risen body, and then therefore. Because he rose, be steadfast, immovable, abounding in the work of the Lord, knowing your labour is not in vain. The therefore is the whole argument: resurrection is what makes unseen work count. Nobody records a night feed. Nobody thanks you for the hundredth load of washing. Paul says the risen Christ does, and that nothing done in him is wasted.",
     talk: "What labour feels wasted right now?",
-    pray: "Lord, our labour is not in vain. Keep us steadfast.",
+    pray: "Lord, most of what we do this week nobody will see and none of it feels like your work. You have said our labour is not in vain. Keep us steadfast, and let us believe you about the small things.",
   },
   {
     read: { text: "For our light affliction, which is for the moment, works for us more and more exceedingly an eternal weight of glory, while we don’t look at the things which are seen, but at the things which are not seen. For the things which are seen are temporal, but the things which are not seen are eternal.", ref: "2 Corinthians 4:17-18" },
     reflection:
-      "For our light affliction, which is for the moment, works for us more and more exceedingly an eternal weight of glory. Paul, who was beaten and shipwrecked, called it light.",
+      "Read the list Paul has just given of his light momentary affliction: beaten, stoned, shipwrecked, hungry, in danger constantly. He calls that light. Not because he is minimising it but because he is weighing it — against an eternal weight of glory beyond all comparison, and the Greek piles superlative on superlative as though the language is buckling. The trick, he says, is where you look. What is seen is temporary. What is not seen is eternal.",
     talk: "What weighs on you? What is it being weighed against?",
-    pray: "Lord, weigh our affliction against your glory. Fix our eyes on what is unseen.",
+    pray: "Lord, what we are carrying does not feel light and we will not pretend it does. Weigh it against your glory for us. Fix our eyes on what we cannot see, because everything we can see is passing.",
   },
   {
     read: { text: "For we are his workmanship, created in Christ Jesus for good works, which God prepared before that we would walk in them.", ref: "Ephesians 2:10" },
     reflection:
-      "For we are his workmanship, created in Christ Jesus for good works, which God prepared before that we would walk in them. Works prepared in advance — including for this child.",
+      "The verse before says we are saved by grace, not by works, so that nobody can boast. Then this: we are his workmanship, created in Christ Jesus for good works, which God prepared beforehand. The word is poiema — a made thing, a piece of work. Works are not how you get in; they are what you were remade for, and they were laid out in advance, like a road already built and waiting to be walked. That is true of you, and it is true of the person you are about to meet.",
     talk: "What might God have prepared for this child to walk in?",
-    pray: "Lord, you prepare works in advance. Prepare them for this child.",
+    pray: "Lord, you prepared works in advance for us to walk in, and you have prepared some for this child. Show us ours. And keep us from trying to choose theirs for them.",
   },
   {
     read: { text: "For it is God who works in you both to will and to work, for his good pleasure.", ref: "Philippians 2:13" },
     reflection:
-      "For it is God who works in you both to will and to work, for his good pleasure. Even the wanting is his work. That takes pressure off exhausted people.",
+      "The sentence before is work out your own salvation with fear and trembling, and this is the reason attached: for it is God who works in you, both to will and to work. Even the wanting is his doing. That is enormous relief for people running on empty, because the hardest thing is rarely the action — it is finding any desire to do it at three in the morning. You cannot manufacture that. He can, and Paul says he does it for his good pleasure, which means gladly.",
     talk: "Where do you need God to change what you want, not just what you do?",
-    pray: "Lord, work in us to will and to work for your good pleasure.",
+    pray: "Lord, we can make ourselves do the next thing for a while; we cannot make ourselves want to. Work in us to will and to work. Change what we actually want, because that is past our reach.",
   },
   {
     read: { text: "Put on therefore, as God’s chosen ones, holy and beloved, a heart of compassion, kindness, lowliness, humility, and perseverance;", ref: "Colossians 3:12" },
     reflection:
-      "Put on therefore, as God's chosen ones, a heart of compassion, kindness, lowliness, humility, and perseverance. Clothing chosen deliberately each morning. Some mornings that is the whole battle.",
+      "Put on — the same word for getting dressed, and Paul chooses it deliberately: these are not moods that descend but garments you reach for. And the reason he gives comes first in the sentence: as God's chosen ones, holy and beloved. You dress like this because of what you already are, not to become it. On a morning after a broken night, deciding to put on kindness rather than what comes naturally is not a small spiritual act. It is most of the day's work.",
     talk: "Which of these did you forget to put on today?",
-    pray: "Lord, clothe us with compassion, kindness, humility, meekness and patience.",
+    pray: "Lord, we are chosen, holy and loved, and we do not feel like any of it this morning. Clothe us anyway — with compassion, kindness, humility, gentleness and patience. Help us get dressed.",
   },
   {
     read: { text: "May the God of peace himself sanctify you completely. May your whole spirit, soul, and body be preserved blameless at the coming of our Lord Jesus Christ.", ref: "1 Thessalonians 5:23" },
     reflection:
-      "May the God of peace himself sanctify you completely. May your whole spirit, soul, and body be preserved blameless. The whole person, body included, named in the prayer.",
+      "Paul ends the letter with a prayer, and notice he does not ask them to sanctify themselves: may the God of peace himself do it. And then the scope — your whole spirit and soul and body. The body is named, which the Greeks around them would have found strange and which exhausted parents need to hear. God's interest in you includes the part that aches. The next verse is the promise attached: he who calls you is faithful, and he will do it.",
     talk: "What part of you most needs preserving right now — body, soul, or spirit?",
-    pray: "God of peace, sanctify us completely and keep us blameless.",
+    pray: "God of peace, sanctify us completely — spirit, soul and body, including the part of us that is simply worn out. You have called us and you are faithful, and you have said you will do it.",
   },
   {
     read: { text: "Confess your offenses to one another, and pray for one another, that you may be healed. The insistent prayer of a righteous person is powerfully effective.", ref: "James 5:16" },
     reflection:
-      "Confess your offences to one another, and pray for one another, that you may be healed. Confession and prayer joined, with healing as the direction.",
+      "James has just described the elders praying over the sick, and then widens it to everyone: confess your sins to one another, and pray for one another, that you may be healed. The two are joined. Confession here is not to a priest but to a person — someone who knows what you actually did and prays for you anyway. Most households have no one like that. The healing James has in view is broader than bodies, and it does not come to people who are managing alone.",
     talk: "Confess one thing to each other now, and pray.",
-    pray: "Lord, we confess to one another. Heal us as we pray.",
+    pray: "Lord, there is no one who knows the worst of us and prays for us anyway. Give us someone. Make this house a place where confession is possible, and heal us as we pray for each other.",
   },
   {
     read: { text: "as newborn babies, long for the pure milk of the Word, that with it you may grow, if indeed you have tasted that the Lord is gracious:", ref: "1 Peter 2:2-3" },
     reflection:
-      "As newborn babies, long for the pure milk of the Word, that with it you may grow, if indeed you have tasted that the Lord is gracious. Watching a baby feed is a sermon about your own soul.",
+      "Peter tells them to crave the pure spiritual milk like newborn infants, and anyone who has watched a newborn feed knows exactly what he means: nothing polite about it, nothing occasional, an absolute and undisguised need. Then the clause that turns it: if indeed you have tasted that the Lord is good. Appetite follows taste. You will spend this year watching a demonstration of how a soul is supposed to want God, several times a night.",
     talk: "When did you last long for God's word the way a baby wants milk?",
-    pray: "Lord, give us appetite for your word, as a newborn for milk.",
+    pray: "Lord, give us the appetite a newborn has, because ours has gone polite. Let us taste that you are good, and want you the way this child wants to be fed.",
   },
   {
     read: { text: "This is the boldness which we have toward him, that if we ask anything according to his will, he listens to us. And if we know that he listens to us, whatever we ask, we know that we have the petitions which we have asked of him.", ref: "1 John 5:14-15" },
     reflection:
-      "If we ask anything according to his will, he listens to us. The condition is his will, not our certainty. That protects prayer from becoming a technique.",
+      "John gives the condition plainly: if we ask anything according to his will, he hears us. Not if we ask with enough certainty, which would make prayer a technique and put the weight on the strength of your own believing. The confidence rests on his will and his character, which is why it is called boldness. And there is freedom in it — you can ask for anything, plainly, without having to work yourself into a state first.",
     talk: "How does 'according to his will' change what you ask for?",
-    pray: "Lord, we ask according to your will, and trust you with the rest.",
+    pray: "Lord, we ask you plainly for what we want, and we place it under your will rather than under our own certainty. Hear us. And where the answer is no, let us trust that it was also love.",
   },
   {
     read: { text: "God said, “Let there be light,” and there was light.", ref: "Genesis 1:3" },
     reflection:
-      "God said, 'Let there be light,' and there was light. The first thing God did in a formless dark was speak light into it. Whatever is formless and dark about this season, he still speaks.",
+      "Four words into the Bible's account of the world and everything is formless, empty and dark. God does not organise the darkness or explain it. He speaks, and there is light — and light exists three days before the sun does, which is the writer's way of saying the light is his and not the sun's. Paul takes exactly this verse and applies it to conversion: God who said let light shine out of darkness has shone in our hearts.",
     talk: "What feels formless right now? What would you ask God to speak into it?",
-    pray: "Lord, you spoke light into darkness. Speak into ours.",
+    pray: "Lord, you spoke light into a dark with nothing in it, and you did not need anything to make it from. Speak into ours. There is a formless part of this season and we cannot organise it ourselves.",
   },
   {
     read: { text: "the LORD God said, “It is not good for the man to be alone. I will make him a helper comparable to him.”", ref: "Genesis 2:18" },
     reflection:
-      "It is not good that the man should be alone. The first thing called 'not good' was loneliness — before sin, in a perfect world. New parents are often lonelier than anyone admits.",
+      "Everything in Genesis 1 is good, repeatedly — and then the first thing God calls not good is a man on his own, in a perfect garden, before anything had gone wrong. Loneliness is not a symptom of the fall; it is a design statement about what a person is. Which matters because new parents are often lonelier than anyone will say out loud: surrounded by people, awake at unsociable hours, and unable to explain it without sounding ungrateful.",
     talk: "Where do you feel alone in this? Have you said it out loud?",
-    pray: "Lord, you saw it was not good to be alone. Meet the loneliness here.",
+    pray: "Lord, you said it was not good to be alone before anything was broken. There is a loneliness in this house that we have not admitted to each other. Meet it — and send us someone.",
   },
   {
     read: { text: "But Noah found favor in the LORD’s eyes.", ref: "Genesis 6:8" },
     reflection:
-      "But Noah found favour in the LORD's eyes. Grace, and it comes before anything is said about Noah's righteousness. You will not earn what God gives this family.",
+      "Read the order carefully. Noah found favour in the eyes of the LORD, and only then does the next verse say he was righteous and blameless in his generation. Grace first; character afterwards. That order is the whole Bible in one paragraph, and it is the order most of us reverse instinctively. You will not earn what God gives this family, and neither will this child. Everything that follows in Noah's life came after the favour, not before it.",
     talk: "Are you trying to earn something from God in this season?",
-    pray: "Lord, we have found favour in your eyes through Christ. Thank you.",
+    pray: "Lord, favour came to Noah before anything was said about his goodness, and it comes to us through your Son. Thank you. Let us stop trying to earn what is already given.",
   },
   {
     read: { text: "While the earth remains, seed time and harvest, and cold and heat, and summer and winter, and day and night will not cease.", ref: "Genesis 8:22" },
     reflection:
-      "While the earth remains, seed time and harvest, and cold and heat, and summer and winter, and day and night shall not cease. God binds himself to the ordinary. Ordinary is a mercy.",
+      "Noah has just come off the ark into a world scoured empty, and God's first promise is not a spectacular one. It is that the seasons will keep turning — seedtime and harvest, cold and heat, summer and winter, day and night. God binds himself to the ordinary as an act of mercy, and Jesus said the same God sends rain on the just and the unjust. When a season is hard, the fact that morning keeps arriving on schedule is not background noise. It is a covenant being kept.",
     talk: "What ordinary thing has been a mercy to you this week?",
-    pray: "Lord, you keep the seasons turning. Thank you for ordinary days.",
+    pray: "Lord, you promised the seasons would not stop and you have kept it every day since. Thank you for ordinary days. Let us notice them as mercies rather than as filler.",
   },
   {
     read: { text: "I will make of you a great nation. I will bless you and make your name great. You will be a blessing.", ref: "Genesis 12:2" },
     reflection:
-      "I will make of you a great nation. I will bless you and make your name great. You will be a blessing. The blessing is given so it can be passed on. Households are conduits, not reservoirs.",
+      "God calls a seventy-five-year-old childless man out of his country and promises him a nation — and then the last clause turns the whole thing outward: you will be a blessing, and in you all the families of the earth will be blessed. Paul says that clause was the gospel preached in advance to Abraham. Nothing given to a household is given only for that household. A family that receives and stores is not doing what Abraham was called into.",
     talk: "Who might be blessed through this family?",
-    pray: "Lord, bless us, and make us a blessing to others.",
+    pray: "Lord, bless us — and then make us a blessing, because the second half is the point of the first. Keep this house from becoming a reservoir. Show us who we are meant to pass this on to.",
   },
   {
     read: { text: "Is anything too hard for the LORD? At the set time I will return to you, when the season comes round, and Sarah will have a son.", ref: "Genesis 18:14" },
     reflection:
-      "Is anything too hard for the LORD? Asked of an old couple who had just laughed at a promise. God does not scold the laugh; he asks a better question.",
+      "Sarah has just laughed inside the tent and then denied laughing, and God's response is not a rebuke but a question: is anything too hard for the LORD? The Hebrew word means too wonderful, too extraordinary. He does not argue her out of her unbelief; he points at himself and lets the question do the work. The angel used almost the same words to Mary — nothing will be impossible with God. Both times it was said to a woman about a child.",
     talk: "What have you quietly written off as impossible?",
-    pray: "Lord, nothing is too hard for you. Meet our unbelief.",
+    pray: "Lord, nothing is too hard for you and part of us does not believe it. Meet our unbelief the way you met Sarah's — without scolding, and by being what you are.",
   },
   {
     read: { text: "Behold, I am with you, and will keep you, wherever you go, and will bring you again into this land. For I will not leave you, until I have done that which I have spoken of to you.", ref: "Genesis 28:15" },
     reflection:
-      "Behold, I am with you, and will keep you wherever you go. Said to a man running from his own family mess. God's promise found him mid-flight.",
+      "Jacob is running. He has cheated his brother out of a blessing, deceived his blind father, and is fleeing a household that wants him dead — and he sleeps on a stone in the open. God meets him there with a ladder and a promise he has done nothing to deserve: I am with you, I will keep you wherever you go, I will not leave you until I have done what I promised. Grace found him mid-flight, in the middle of a mess entirely of his own making.",
     talk: "What are you carrying from your own family that worries you?",
-    pray: "Lord, be with us and keep us wherever we go.",
+    pray: "Lord, be with us and keep us wherever we go — including the places we have ended up through our own fault. You did not wait for Jacob to be sorry. Find us where we are.",
   },
   {
     read: { text: "The man said, “Let me go, for the day breaks.” Jacob said, “I won’t let you go unless you bless me.”", ref: "Genesis 32:26" },
     reflection:
-      "I won't let you go, unless you bless me. Jacob wrestles all night and leaves blessed and limping. Some blessings come only through a struggle that changes how you walk.",
+      "Jacob has spent his life getting blessings by cunning, and on the last night before facing his brother he finally asks for one. He wrestles until daybreak and will not let go — and the man touches his hip and he is lame for the rest of his life. He gets the blessing and a new name and a permanent limp, all in the same encounter. Some things God gives are not given to people who are unchanged by the getting.",
     talk: "What has this season already changed about how you walk?",
-    pray: "Lord, we will not let you go. Bless us, even if we limp.",
+    pray: "Lord, we will not let you go. Bless us — and if the blessing comes with a limp, let us take it. Change our name if you must; we would rather be marked by you than untouched.",
   },
   {
     read: { text: "the LORD was with Joseph, and he was a prosperous man. He was in the house of his master the Egyptian.", ref: "Genesis 39:2" },
     reflection:
-      "The LORD was with Joseph, and he was a prosperous man. He was in the house of his master. Slavery, and God with him in it. Presence in the middle of a wrong situation.",
+      "Look at what the sentence puts side by side. The LORD was with Joseph, and he was a successful man — and then the location: in the house of his Egyptian master. He is a slave. Sold by his brothers, trafficked into a foreign house, and about to be falsely accused and imprisoned. The Bible does not say God was with him afterwards, once things improved. He was with him in it, and the wrong situation was not thereby made right.",
     talk: "Where do you need God's presence rather than a change of circumstances?",
-    pray: "Lord, be with us here, in the situation as it is.",
+    pray: "Lord, be with us here, in the situation as it actually is, rather than in the one we keep hoping to be moved to. You were with Joseph in a house he never chose. Be with us in this one.",
   },
   {
     read: { text: "As for you, you meant evil against me, but God meant it for good, to save many people alive, as is happening today.", ref: "Genesis 50:20" },
     reflection:
-      "You meant evil against me, but God meant it for good. Both are true at once. Nothing that has happened to this family is outside God's hands or his purposes.",
+      "Joseph's brothers are on the floor in front of him, terrified that now their father is dead he will finally take revenge. And what he gives them is neither denial nor absolution of the facts: you meant evil against me, but God meant it for good. Both verbs are the same word. Their intention was genuinely wicked and God's intention ran straight through it without excusing it. Peter says exactly this about the cross — delivered up by the definite plan of God, and crucified by lawless men.",
     talk: "What has been done to you that God might still be using?",
-    pray: "Lord, you are not defeated by what people do. Work your good.",
+    pray: "Lord, people have done real harm and we are not going to call it good. You are not defeated by it. Work your good through what was meant for evil, as you have done before.",
   },
   {
     read: { text: "God said to Moses, “I AM WHO I AM,” and he said, “You shall tell the children of Israel this: ‘I AM has sent me to you.”", ref: "Exodus 3:14" },
     reflection:
-      "I AM WHO I AM. God's name is a declaration that he simply is. Everything about this child depends on him; he depends on nothing.",
+      "Moses asks for a name to take back to Israel, and God gives one that refuses to be defined by anything outside itself: I AM WHO I AM. Every other thing that exists is contingent — it began, it depends, it can stop. He does not. That is not an abstraction when you are about to become responsible for a life: everything about this child hangs on someone else, and he hangs on nothing. Jesus took that name on his own lips: before Abraham was, I am.",
     talk: "What are you depending on that could fail?",
-    pray: "Lord, you are the I AM. Everything we have comes from you.",
+    pray: "Lord, you are the I AM — you depend on nothing and everything depends on you. We are holding a life we cannot sustain. Be for this family what only you are.",
   },
   {
     read: { text: "the LORD will fight for you, and you shall be still.", ref: "Exodus 14:14" },
     reflection:
-      "The LORD will fight for you, and you shall be still. And then, in the very next verse, God tells them to move. Trust is not always stillness; sometimes it is the next obedient step.",
+      "The sea is in front and the chariots are behind, and Moses tells them the LORD will fight for you, and you have only to be silent. Then read the very next verse: God says to Moses, why are you crying to me? Tell the people to go forward. Both in the same breath. Stillness is not the whole of trust, and neither is action. The difference is only ever knowing which one he has asked for, and that is something to pray about rather than decide by temperament.",
     talk: "Is God asking you to be still, or to move? How would you tell?",
-    pray: "Lord, fight for us. And where you say move, give us courage.",
+    pray: "Lord, fight for us — we cannot win this. And where you are telling us to go forward, give us the courage to move rather than call our fear stillness.",
   },
   {
     read: { text: "Then the LORD said to Moses, “Behold, I will rain bread from the sky for you, and the people shall go out and gather a day’s portion every day, that I may test them, whether they will walk in my law or not.”", ref: "Exodus 16:4" },
     reflection:
-      "I will rain bread from the sky for you... a day's portion every day. They could not store it. Daily dependence was designed, not accidental.",
+      "They could gather enough for one day only; what was hoarded bred worms and stank. That was not a flaw in the arrangement, it was the arrangement — God says plainly that he did it to test whether they would walk in his law. Daily dependence was designed. Jesus built it into the prayer he taught: give us this day our daily bread, not this month's. A season where you cannot see past tomorrow is not a failure of planning. It may be the training.",
     talk: "What would today's portion be? Are you trying to stockpile?",
-    pray: "Give us this day our daily bread, and teach us to depend.",
+    pray: "Lord, give us this day our daily bread. We keep trying to secure next month and you have only ever promised today. Teach us to depend, and to sleep anyway.",
   },
   {
     read: { text: "He said, “My presence will go with you, and I will give you rest.”", ref: "Exodus 33:14" },
     reflection:
-      "My presence will go with you, and I will give you rest. Presence and rest, promised together. God's answer to an overwhelmed leader was himself.",
+      "Moses has just told God he will not move an inch unless God goes with them, and this is the answer: my presence will go with you, and I will give you rest. Presence and rest arrive together, in that order. Moses was leading a nation that complained constantly, and God's remedy for the weight of it was not fewer people or better systems. It was himself. Jesus used almost the same pairing: come to me, and I will give you rest.",
     talk: "What would rest look like this week? Have you asked for it?",
-    pray: "Lord, let your presence go with us, and give us rest.",
+    pray: "Lord, let your presence go with us, because we are not moving without it. And give us rest — the kind that comes from you being here rather than from the load getting lighter.",
   },
   {
     read: { text: "You shall rise up before the gray head and honor the face of the elderly; and you shall fear your God. I am the LORD.", ref: "Leviticus 19:32" },
     reflection:
-      "You shall rise up before the gray head and honour the face of an old man. This child will grow up watching how you treat their grandparents.",
+      "It is a small commandment in the middle of a long list, and it is oddly physical: stand up when an old person comes in. And then the reason, which is much larger than manners: you shall fear your God, I am the LORD. How the old are treated is filed under reverence, not etiquette. Whatever you say to this child about honouring their grandparents will matter far less than what they watch you do on the days it is inconvenient.",
     talk: "How are the older people in your family treated here?",
-    pray: "Lord, teach us to honour the old, so our child learns it by watching.",
+    pray: "Lord, teach us to honour the old — in what we say about them when they are not in the room, and in how much of our time they get. Let this child learn it by watching rather than by being told.",
   },
   {
     read: { text: "the LORD bless you, and keep you. the LORD make his face to shine on you, and be gracious to you. the LORD lift up his face toward you, and give you peace.", ref: "Numbers 6:24-26" },
     reflection:
-      "The LORD bless you, and keep you. The LORD make his face to shine on you, and be gracious to you. The blessing God gave for speaking over his people. Speak it over this child.",
+      "God dictates this one himself and tells Aaron to put it on the people — and the last line explains why it works: so they shall put my name on the children of Israel, and I will bless them. The blessing is not a wish. It is God lending his own name. Three lines, each longer than the last, moving from keeping to shining to peace. It is the oldest blessing still spoken over children anywhere on earth, and you have every right to say it over yours.",
     talk: "Say this blessing over your child tonight, by name.",
-    pray: "Lord, bless and keep this child. Make your face shine on them.",
+    pray: "Lord, bless this child and keep them. Make your face shine on them and be gracious to them. Lift up your countenance on them and give them peace — for all their life, and beyond it.",
   },
   {
     read: { text: "I am not able to bear all this people alone, because it is too heavy for me.", ref: "Numbers 11:14" },
     reflection:
-      "I am not able to bear all this people alone, because it is too heavy for me. Moses says it plainly and God sends help rather than a rebuke. Admitting the limit is what opens the help.",
+      "Moses is not being dramatic. A few lines earlier he asks God to kill him rather than go on, and here he simply names the limit: I am not able to carry all this people alone, the burden is too heavy for me. And God's response is not a rebuke, or a lecture on faith. He tells him to gather seventy others and shares the load. The admission is what opened the help. Most exhausted households are still trying to prove they do not need any.",
     talk: "What is too heavy? Have you told anyone?",
-    pray: "Lord, this is too heavy for us alone. Send us help.",
+    pray: "Lord, this is too heavy for us alone and we have been pretending otherwise. Send us help — and give us the humility to accept it when it arrives looking like other people.",
   },
   {
     read: { text: "You shall remember all the way which the LORD your God has led you these forty years in the wilderness, that he might humble you, to test you, to know what was in your heart, whether you would keep his commandments or not.", ref: "Deuteronomy 8:2" },
     reflection:
-      "You shall remember all the way which the LORD your God has led you these forty years in the wilderness, that he might humble you, testing you. The wilderness was the route, not a wrong turn.",
+      "Forty years, and Moses tells them to remember all of it — and then says what it was for: to humble you, to test you, to know what was in your heart. The wilderness was not a detour caused by somebody's mistake. It was the route God chose, and the very next verses say he let them hunger in order to feed them with manna, so they would learn that man does not live by bread alone. Jesus quoted that line to the devil in a wilderness of his own.",
     talk: "What has this season shown you about your own heart?",
-    pray: "Lord, teach us in the wilderness what we could not learn elsewhere.",
+    pray: "Lord, we assumed this stretch was a wrong turn. Teach us here what we could not have learned anywhere easier. Show us what is actually in our hearts, and be patient with what you find.",
   },
   {
     read: { text: "I call heaven and earth to witness against you today that I have set before you life and death, the blessing and the curse. Therefore choose life, that you may live, you and your descendants,", ref: "Deuteronomy 30:19" },
     reflection:
-      "I have set before you life and death, the blessing and the curse. Therefore choose life. A household does not drift into faithfulness. It is chosen, repeatedly.",
+      "Moses is at the end of his life, laying the choice out in front of a whole nation: life and death, blessing and curse, and then — therefore choose life, that you and your offspring may live. Notice who is in the sentence: your offspring. The choosing is not private. And it is not a single decision either; the next verse defines it as loving the LORD, obeying his voice, holding fast to him. Households do not drift into faithfulness. Nobody ever has.",
     talk: "What is the next choice for life this family must make?",
-    pray: "Lord, we choose life. Hold us to it.",
+    pray: "Lord, we choose life — today, and we will need to choose it again tomorrow. Hold us to it. And let this choice reach the children who come after us.",
   },
   {
     read: { text: "that this may be a sign among you, that when your children ask in the future, saying, ‘What do you mean by these stones?’ then you shall tell them, ‘Because the waters of the Jordan were cut off before the ark of the LORD’s covenant. When it crossed over the Jordan, the waters of the Jordan were cut off. These stones shall be for a memorial to the children of Israel forever.", ref: "Joshua 4:6-7" },
     reflection:
-      "When your children ask in time to come, 'What do you mean by these stones?' Stones piled so a future child's question would have an answer.",
+      "Twelve stones out of a dry riverbed, piled up for one purpose: so that when your children ask in time to come, what do these stones mean, there is something to point at. Joshua assumed the question would be asked and built the answer in advance. Children ask about what is visible and odd — a photograph, a date kept every year, a habit nobody explains. A household with nothing unusual in it will not be asked anything.",
     talk: "What could you keep in this house that a child will one day ask about?",
-    pray: "Lord, give us stones of remembrance for our children to ask about.",
+    pray: "Lord, give us stones of remembrance — things kept and marked, so that our children ask what they mean. And when they ask, give us something true to say about what you have done.",
   },
   {
     read: { text: "He said to him, “O Lord, how shall I save Israel? Behold, my family is the poorest in Manasseh, and I am the least in my father’s house.” the LORD said to him, “Surely I will be with you, and you shall strike the Midianites as one man.”", ref: "Judges 6:15-16" },
     reflection:
-      "My family is the poorest... and I am the least in my father's house. The LORD said to him, 'Surely I will be with you.' God does not argue with the low estimate. He adds himself.",
+      "Gideon is threshing wheat in a winepress to hide it from raiders when he is greeted as a mighty man of valour, and his reply is a list of reasons he is the wrong person: poorest clan, least in his father's house. God does not contradict him. He does not say you are underestimating yourself. He says I will be with you — which makes the low estimate irrelevant rather than false. That is a different kind of encouragement, and a far more durable one.",
     talk: "What is your version of 'I am the least'? What is God's answer?",
-    pray: "Lord, we are small. Be with us, and that will be enough.",
+    pray: "Lord, we are small and we are not exaggerating. You never argued with Gideon's estimate; you added yourself to it. Be with us, and let that be enough, because nothing else is.",
   },
   {
     read: { text: "Ruth said, “Don’t urge me to leave you, and to return from following you, for where you go, I will go; and where you stay, I will stay. Your people will be my people, and your God my God.”", ref: "Ruth 1:16" },
     reflection:
-      "Your people will be my people, and your God my God. Ruth binds herself to a bitter woman and a foreign God. She ends up in the line of Christ.",
+      "Ruth is a Moabite — from a people Israel was told to keep at arm's length — and she binds herself to a widow who has just told the whole town to call her Bitter. There is nothing sentimental in the decision; Naomi has no money, no sons, and no prospects. Your people shall be my people, and your God my God. Four generations later her great-grandson is David, and Matthew puts her name in the genealogy of Christ.",
     talk: "Who has bound themselves to you at cost? Have you thanked them?",
-    pray: "Lord, you draw outsiders in. Thank you for making us family.",
+    pray: "Lord, you draw outsiders in and put them in the family line. Thank you for making us family when we had no claim. Give us Ruth's kind of loyalty to the people you have joined us to.",
   },
   {
     read: { text: "the LORD came, and stood, and called as at other times, “Samuel! Samuel!” Then Samuel said, “Speak; for your servant hears.”", ref: "1 Samuel 3:10" },
     reflection:
-      "Speak, for your servant hears. A boy in the temple answers God. Do not assume God is waiting for this child to grow up before he speaks to them.",
+      "Samuel is a boy, and the text says the word of the LORD was rare in those days — there were no frequent visions. He does not recognise the voice and needs an old priest to tell him what is happening. But God spoke to the child, not to the professional. Whatever you plan to teach this child, do not assume God is waiting politely for them to reach an age of understanding. He was speaking to Samuel before anybody had explained him.",
     talk: "When did God first speak to you? How old were you?",
-    pray: "Speak, Lord. Your servants are listening — even the youngest.",
+    pray: "Speak, Lord — your servants are listening, and that includes the youngest person in this house. Give us the sense to help them recognise your voice rather than assume it is not for them yet.",
   },
   {
     read: { text: "Then Samuel took a stone, and set it between Mizpah and Shen, and called its name Ebenezer, saying, “the LORD helped us until now.”", ref: "1 Samuel 7:12" },
     reflection:
-      "He called its name Ebenezer, saying, 'The LORD helped us all the way here.' A stone for the journey, not for a victory. Most help is only visible looking back.",
+      "Samuel sets the stone up after a battle, and the name he gives it looks backwards over everything: Ebenezer, stone of help — the LORD has helped us all the way to here. Not just today. The whole road, including the twenty years the ark had been gone and nothing seemed to be happening. Help is almost always easier to see behind you than in front of you, which is why people set stones up: so that on a day you cannot see any help at all, there is something to point at.",
     talk: "Look back a year. Where did God help that you did not see at the time?",
-    pray: "Lord, you have helped us all the way here.",
+    pray: "Lord, you have helped us all the way here, including the stretches where we could not tell. Let us name it out loud tonight rather than only notice it years from now.",
   },
   {
     read: { text: "But the LORD said to Samuel, “Don’t look on his face, or on the height of his stature, because I have rejected him; for I don’t see as man sees. For man looks at the outward appearance, but the LORD looks at the heart.”", ref: "1 Samuel 16:7" },
     reflection:
-      "Man looks at the outward appearance, but the LORD looks at the heart. Every scan, every measurement, every comparison — God is looking at something else.",
+      "Samuel is standing in front of Jesse's eldest, a tall and impressive young man, and has already decided. God stops him: I have rejected him, for the LORD sees not as man sees. Man looks on the outward appearance; the LORD looks on the heart. The prophet got it wrong, on his first look, using the criteria everybody uses. You are about to enter years of measurement — weights, centiles, milestones, comparisons — and almost none of it is what God is attending to.",
     talk: "What are you measuring that God is not?",
-    pray: "Lord, you look at the heart. Free us from measuring the wrong things.",
+    pray: "Lord, you look at the heart, and we will spend this year measuring everything except that. Free us from the wrong scoreboard, and keep us from teaching this child to live on it.",
   },
   {
     read: { text: "As for God, his way is perfect. the LORD’s word is tested. He is a shield to all those who take refuge in him.", ref: "2 Samuel 22:31" },
     reflection:
-      "As for God, his way is perfect. The LORD's word is tested. He is a shield to all those who take refuge in him. Tested — proven under load, not theoretical.",
+      "David sings this at the end of his life, looking back over years of being hunted, betrayed and at war. Tested is a metalworker's word — refined, put through fire, proven under load. He is not saying God's word sounds true. He is saying he has leaned his whole weight on it repeatedly and it has not given way. That is a different kind of claim, and it is the only kind worth having when you are about to need it.",
     talk: "What promise of God has been tested in your life? Did it hold?",
-    pray: "Lord, your way is perfect and your word proves true. Be our shield.",
+    pray: "Lord, your way is perfect and your word has been proved by people who leaned on it harder than we have. Be a shield to us. Let us find it true by using it, not only by believing it.",
   },
   {
     read: { text: "May the LORD our God be with us, as he was with our fathers. Let him not leave us or forsake us;", ref: "1 Kings 8:57" },
     reflection:
-      "May the LORD our God be with us, as he was with our fathers. Let him not leave us or forsake us. Asking God to be to us what he was to those before us.",
+      "Solomon prays this at the dedication of the temple, in front of the whole nation, and what he asks for is continuity: be with us as you were with our fathers. He is not asking for something new. He is asking the God who kept faith with a previous generation to keep it with this one. Every household that has received anything from those before it can pray exactly this, and every household that has received nothing can ask to be the generation it starts with.",
     talk: "What has God been to your parents or grandparents? Ask for the same.",
-    pray: "Lord, be with us as you were with those before us. Do not leave us.",
+    pray: "Lord, be with us as you were with those before us, and do not leave or forsake us. Where we inherited faith, keep it; where we did not, let it begin here.",
   },
   {
     read: { text: "He lay down and slept under a juniper tree; and behold, an angel touched him, and said to him, “Arise and eat!” He looked, and behold, there was at his head a cake baked on the coals, and a jar of water. He ate and drank, and lay down again.", ref: "1 Kings 19:5-6" },
     reflection:
-      "An angel touched him, and said to him, 'Arise and eat!' A suicidal prophet is given food and sleep before he is given words. God attends to bodies.",
+      "Elijah has just won the greatest victory of his life and then run a day into the desert and asked God to kill him. What heaven sends is not a rebuke or a vision. An angel wakes him, twice, with baked bread and a jar of water, and lets him sleep in between. The still small voice comes forty days later. God fed him and let him rest first, because he was not primarily in a spiritual crisis — he was exhausted, and God treated that as real.",
     talk: "What does your body need right now? Have you treated that as spiritual?",
-    pray: "Lord, you fed Elijah before you spoke to him. Care for our bodies.",
+    pray: "Lord, you fed Elijah and let him sleep before you said a word to him. Care for our bodies. Let us stop treating tiredness as a failure of faith when you never did.",
   },
   {
     read: { text: "He answered, “Don’t be afraid; for those who are with us are more than those who are with them.”", ref: "2 Kings 6:16" },
     reflection:
-      "Don't be afraid; for those who are with us are more than those who are with them. Nothing changed outside — only what the servant could see.",
+      "An army has surrounded the city overnight, the servant panics, and Elisha prays one thing: open his eyes. Nothing outside changes. The Syrians are still there, the horses are still there, the odds are unchanged — and the servant sees the mountain full of horses and chariots of fire. The reality was never in question, only his access to it. Most of the time we are not asking God to alter a situation so much as to let us see what is already in it.",
     talk: "What are you afraid of? What else is also true that you cannot see?",
-    pray: "Lord, open our eyes. Let us see what is really there.",
+    pray: "Lord, open our eyes. We are not asking you to change what is around us so much as to show us what else is there. Those with us are more than those against us, and we cannot see it.",
   },
   {
     read: { text: "Seek the LORD and his strength. Seek his face forever more.", ref: "1 Chronicles 16:11" },
     reflection:
-      "Seek the LORD and his strength. Seek his face forever. Seeking described as a permanent posture, not a crisis measure.",
+      "David gives this to Asaph on the day the ark comes into Jerusalem — the highest point of his life, everything going right. And what he tells the nation at that moment is to seek the LORD and his strength, seek his face continually. Not seek him when things go wrong. Continually, which is the word that makes it a posture rather than an emergency measure. People who only seek God in crises spend most of their lives out of practice.",
     talk: "Do you seek God only when worried? What would continual seeking look like?",
-    pray: "Lord, we seek your face. Keep us seeking.",
+    pray: "Lord, we seek your face — and we mostly do it when something has gone wrong. Keep us seeking on the ordinary days, so that the road is familiar when we need it in a hurry.",
   },
   {
     read: { text: "For the LORD’s eyes run back and forth throughout the whole earth, to show himself strong in the behalf of them whose heart is perfect toward him. You have done foolishly in this; for from now on you will have wars.", ref: "2 Chronicles 16:9" },
     reflection:
-      "For the LORD's eyes run back and forth throughout the whole earth, to show himself strong on the behalf of them whose heart is perfect toward him. He is looking for hearts to strengthen.",
+      "This is said as a rebuke. Asa has just bought a foreign army instead of relying on God, and the seer tells him the eyes of the LORD run to and fro through the whole earth to show himself strong on behalf of those whose heart is whole toward him — and then, you have done foolishly. So the searching is real and so is the missed opportunity. God is actively looking for people to strengthen. The qualification is not competence. It is a heart that is not divided.",
     talk: "Is your heart whole toward God right now? What divides it?",
-    pray: "Lord, your eyes search the earth. Find our hearts whole toward you.",
+    pray: "Lord, your eyes are searching the earth for hearts to strengthen. Find ours whole toward you — and show us where we have been quietly arranging our own support instead of asking.",
   },
   {
     read: { text: "Then I proclaimed a fast there, at the river Ahava, that we might humble ourselves before our God, to seek from him a straight way for us, and for our little ones, and for all our possessions.", ref: "Ezra 8:21" },
     reflection:
-      "Then I proclaimed a fast there, that we might humble ourselves before our God, to seek from him a straight way for us, and for our little ones. A journey prayed over, with children named.",
+      "Ezra is about to lead a convoy of families across hundreds of miles of bandit country carrying a fortune in temple silver, and he has just told the king that God's hand is on those who seek him — so he is too ashamed to ask for soldiers. Instead he fasts. And notice who he names in the prayer: ourselves, our children, and all our goods. In that order, with the little ones second and the money last.",
     talk: "What journey are you on? Have you prayed over it with the children named?",
-    pray: "Lord, give us a safe journey, for us and for our little ones.",
+    pray: "Lord, give us a straight way — for us, for our little ones, and for what you have put in our hands. Keep us from asking everyone else for help before we have asked you.",
   },
   {
     read: { text: "I looked, and rose up, and said to the nobles, to the rulers, and to the rest of the people, “Don’t be afraid of them! Remember the Lord, who is great and awesome, and fight for your brothers, your sons, your daughters, your wives, and your houses.”", ref: "Nehemiah 4:14" },
     reflection:
-      "Remember the Lord, who is great and awesome, and fight for your brothers, your sons, your daughters, your wives, and your houses. Courage grounded in God, exercised for family.",
+      "The wall is half-built, the workers are exhausted, and enemies are threatening a surprise attack. Nehemiah's speech has two halves and both are necessary: remember the Lord, who is great and awesome — and fight for your brothers, your sons, your daughters, your wives and your homes. Courage grounded in God, spent on your family. He does not ask them to feel brave. He gives them something true to remember and something specific to defend.",
     talk: "What do you need courage for on behalf of this child?",
-    pray: "Lord, you are great and awesome. Make us brave for our family.",
+    pray: "Lord, you are great and awesome, and we keep forgetting it at exactly the moment we need it. Make us brave — and let the courage be spent on the people in this house.",
   },
   {
     read: { text: "For if you remain silent now, then relief and deliverance will come to the Jews from another place, but you and your father’s house will perish. Who knows if you haven’t come to the kingdom for such a time as this?", ref: "Esther 4:14" },
     reflection:
-      "Who knows if you haven't come to the kingdom for such a time as this? God's purposes do not depend on us, and the invitation to join them is still real.",
+      "Mordecai's sentence has two halves that sit uncomfortably together. Deliverance will arise from another place — God's purposes do not hang on Esther's nerve. And yet: who knows whether you have not come to the kingdom for such a time as this. Both are true, and the second is not made small by the first. You are not indispensable, and you are genuinely invited. That is a far better place to act from than thinking everything depends on you.",
     talk: "Why might God have put you here, now, with this child?",
-    pray: "Lord, you do not need us and still you call us. Give us courage.",
+    pray: "Lord, you do not need us and you still call us. Give us courage for the thing we are avoiding. Let us act because you invited us, not because we imagine it all rests on us.",
   },
   {
     read: { text: "He said, “Naked I came out of my mother’s womb, and naked will I return there. the LORD gave, and the LORD has taken away. Blessed be the LORD’s name.”", ref: "Job 1:21" },
     reflection:
-      "The LORD gave, and the LORD has taken away. Blessed be the LORD's name. Job says this having just buried his children. Scripture lets grief and worship stand together.",
+      "Read the verse before. Job tears his robe, shaves his head, and falls on the ground — and then worships. He has just been told that all ten of his children are dead. Scripture does not tidy this: the worship and the torn robe are in the same sentence, and the book later has God tell Job's friends that their neat explanations were wrong and Job's raw speech was right. You are allowed to bless God from the floor.",
     talk: "Can you grieve hard and worship at the same time? What does that look like?",
-    pray: "Lord, you give and you take away. Hold us when we cannot understand.",
+    pray: "Lord, you give and you take away, and we do not understand how both are your hand. Hold us when we cannot make sense of it. Let us worship without pretending we are not broken.",
   },
   {
     read: { text: "But he knows the way that I take. When he has tried me, I will come out like gold.", ref: "Job 23:10" },
     reflection:
-      "But he knows the way that I take. When he has tried me, I will come out like gold. He cannot find God, and still says God knows where he is.",
+      "Read what comes just before: Job says he goes forward and God is not there, backward and cannot perceive him, left and right and finds nothing. He has been looking in every direction and God is absent from all of them. Then this — but he knows the way that I take. He cannot locate God and he still insists God can locate him. That is a very thin thread and it holds. Faith is often reduced to exactly that much and is not less real for it.",
     talk: "Do you feel lost? Does it help that God is not lost about you?",
-    pray: "Lord, you know the way we take. Bring us out as gold.",
+    pray: "Lord, we cannot find you in this and you have not lost us. You know the way we are taking. When you have tried us, bring us out as gold — and hold us while it takes.",
   },
   {
     read: { text: "But you, the LORD, are a shield around me, my glory, and the one who lifts up my head.", ref: "Psalm 3:3" },
     reflection:
-      "But you, LORD, are a shield around me, my glory, and the one who lifts up my head. A shield around — on every side — and God himself lifting a bowed head.",
+      "David writes this fleeing from his own son, with an army behind him and people saying there is no salvation for him in God. And what he answers with is three things: a shield about me — not in front, around, on every side; my glory, when his reputation is in ruins; and the lifter of my head, which is what someone does for a person who cannot look up. Not a distant help. Somebody close enough to take your chin.",
     talk: "Whose head needs lifting in this house?",
-    pray: "Lord, be a shield around us and lift our heads.",
+    pray: "Lord, be a shield around us on every side, and lift our heads. We cannot look up on our own this week. Be our glory where we have lost face.",
   },
   {
     read: { text: "the LORD, in the morning you will hear my voice. In the morning I will lay my requests before you, and will watch expectantly.", ref: "Psalm 5:3" },
     reflection:
-      "LORD, in the morning you will hear my voice. In the morning I will lay my requests before you, and will watch expectantly. Laying it out, then watching.",
+      "Two things in one verse: in the morning I prepare a sacrifice for you and watch. The word for prepare is what a priest does laying wood on the altar — it is deliberate, ordered work, not muttering. And then he watches, which assumes something will happen. Most of us do one or the other: we lay things out and walk away, or we wait without ever having asked. David does both, early, before the day has said anything.",
     talk: "Do you watch after you pray, or move straight on?",
-    pray: "Lord, in the morning we lay our requests before you and watch.",
+    pray: "Lord, in the morning we lay our requests out before you, and then we will watch for what you do. Give us the discipline to ask properly and the expectation to look for an answer.",
   },
   {
     read: { text: "When I consider your heavens, the work of your fingers, the moon and the stars, which you have ordained; what is man, that you think of him? What is the son of man, that you care for him?", ref: "Psalm 8:3-4" },
     reflection:
-      "When I consider your heavens... what is man, that you think of him? The maker of galaxies is thinking about this small family.",
+      "David is outside at night, and the scale of it works on him the way it works on anyone: what is man, that you are mindful of him? The question is genuine — he is not fishing for reassurance, he is staggered. And the psalm's answer is not that we are impressive but that God attends anyway. Hebrews takes these verses and applies them to Jesus, who was made lower than the angels so that the mindfulness would cost him something.",
     talk: "Does God's greatness make you feel small or held? Why both?",
-    pray: "Lord, the heavens are your work, and still you think of us.",
+    pray: "Lord, the heavens are the work of your fingers and you are thinking about this small family. We do not understand it and we are not going to argue. Thank you for such attention.",
   },
   {
     read: { text: "How long, the LORD? Will you forget me forever? How long will you hide your face from me? How long shall I take counsel in my soul, having sorrow in my heart every day? How long shall my enemy triumph over me?", ref: "Psalm 13:1-2" },
     reflection:
-      "How long, LORD? Will you forget me forever? God gave his people words for the days he seems absent, and did not correct them for using them.",
+      "Four times: how long, how long, how long, how long. And the accusation underneath them is that God has forgotten and is hiding his face. This is in the Bible. God put words for his own apparent absence into his people's songbook and did not correct anyone for singing them. The psalm does turn — by the end David is singing about steadfast love — but it takes the whole psalm, and nobody hurries him through the first two verses.",
     talk: "Have you stopped praying out of disappointment? Could you pray that instead?",
-    pray: "How long, Lord? We do not understand, and we are still speaking to you.",
+    pray: "How long, Lord? We do not understand and we are still speaking to you, which is most of what we have. Do not let us go quiet. Turn us, in your own time, to the end of the psalm.",
   },
   {
     read: { text: "He sent from on high. He took me. He drew me out of many waters.", ref: "Psalm 18:16" },
     reflection:
-      "He sent from on high. He took me. He drew me out of many waters. Four verbs, all God's. No description of self-rescue.",
+      "Four verbs in a row and every one of them is God's: he sent, he took, he drew me out. David has just described cords of death and torrents of destruction closing over him, and there is nothing in the rescue that he contributes — no swimming, no reaching, no holding on. Many waters is the Bible's picture of chaos, the thing nobody survives by effort. The whole account is of somebody being pulled out by someone else.",
     talk: "Where are you trying to climb out of something God intends to reach into?",
-    pray: "Lord, reach down and draw us out of deep waters.",
+    pray: "Lord, reach down and draw us out. We have been trying to swim and it has not worked. Take us — we have nothing to offer the rescue but being findable.",
   },
   {
     read: { text: "May the LORD answer you in the day of trouble. May the name of the God of Jacob set you up on high, send you help from the sanctuary, grant you support from Zion,", ref: "Psalm 20:1-2" },
     reflection:
-      "May the LORD answer you in the day of trouble. May the name of the God of Jacob set you up on high. Send you help from the sanctuary. A prayer to pray over each other.",
+      "This psalm is unusual: it is not addressed to God but to a person. The congregation is praying it over the king before he goes out to battle — may the LORD answer you, may he send you help, may he grant your heart's desire. It is a prayer written to be said out loud over somebody else, in their hearing. A household that only prays privately misses something. There is a particular comfort in being prayed for by name while you can hear it.",
     talk: "Pray this verse over your spouse by name, right now.",
-    pray: "Lord, answer us in the day of trouble. Send help from your sanctuary.",
+    pray: "Lord, answer us in the day of trouble, and send help from your sanctuary. Give us the habit of praying for each other out loud, where the other can hear it.",
   },
   {
     read: { text: "the LORD is my shepherd: I shall lack nothing. He makes me lie down in green pastures. He leads me beside still waters.", ref: "Psalm 23:1-2" },
     reflection:
-      "The LORD is my shepherd; I shall lack nothing. He makes me lie down in green pastures. Sometimes the shepherd makes us lie down. Rest can be imposed for our good.",
+      "He makes me lie down. Not invites, not permits — makes. Sheep will graze themselves into exhaustion and will not lie down while they are anxious, so a good shepherd puts them down, in good grass, beside water that is not moving fast enough to frighten them. That is an uncomfortable comfort for anyone whose rest has been forced on them by circumstances rather than chosen. Sometimes being made to stop is the shepherd doing his job.",
     talk: "Has God made you stop recently? How did you take it?",
-    pray: "Lord, you are our shepherd. Make us lie down in green pastures.",
+    pray: "Lord, you are our shepherd and we do not lie down well. Make us. Put us in green pastures and beside still water, even if we would not have chosen to stop.",
   },
   {
     read: { text: "the LORD is my light and my salvation. Whom shall I fear? the LORD is the strength of my life. Of whom shall I be afraid?", ref: "Psalm 27:1" },
     reflection:
-      "The LORD is my light and my salvation. Whom shall I fear? A rhetorical question that David clearly had to talk himself into.",
+      "Two rhetorical questions, and by verse three David is talking about an army encamping against him, so this is not a man with nothing to fear. He is stating a conclusion and then spending the rest of the psalm arguing himself into it — by verse fourteen he is telling his own heart to wait for the LORD and be strong. That is how this verse actually works. Not an absence of fear, but a fact about God set deliberately against it.",
     talk: "Whom or what do you actually fear? Ask David's question about it by name.",
-    pray: "Lord, you are our light and our salvation. Whom shall we fear?",
+    pray: "Lord, you are our light and our salvation, and we are still afraid of several things. Say it to us again. Be the strength of our lives while we talk ourselves into believing it.",
   },
   {
     read: { text: "You are my hiding place. You will preserve me from trouble. You will surround me with songs of deliverance.", ref: "Psalm 32:7" },
     reflection:
-      "You are my hiding place. You will preserve me from trouble. You will surround me with songs of deliverance. Surrounded by songs — an odd and lovely image.",
+      "David has just described what it was like to keep silent about his sin — his bones wasting away, his strength dried up as by summer heat. Then he confessed, and this is what he found on the other side: God as a hiding place, and surrounded not by threats but by songs of deliverance. It is a strange and lovely picture. The place you least want to go, because of what you are hiding, turns out to be where the singing is.",
     talk: "What song has carried you through something hard?",
-    pray: "Lord, be our hiding place. Surround us with songs of deliverance.",
+    pray: "Lord, be our hiding place — the one we run to rather than the one we run from. Surround us with songs of deliverance, and take the silence out of us.",
   },
   {
     read: { text: "the LORD is near to those who have a broken heart, and saves those who have a crushed spirit.", ref: "Psalm 34:18" },
     reflection:
-      "The LORD is near to those who have a broken heart, and saves those who have a crushed spirit. Nearness is his instinct toward the crushed, not a reward for coping.",
+      "David wrote this having escaped a foreign king by pretending to be insane — not a dignified season. And what he reports is where God positions himself: near to the brokenhearted, saving the crushed in spirit. It is his instinct, not a reward for coping well. And it is not sentiment either; at Calvary God came so near to the crushed that he was crushed himself, the Servant of Isaiah 53 bruised for our iniquities.",
     talk: "Who is broken-hearted near you? What would nearness look like from you?",
-    pray: "Lord, you are near the broken-hearted. Be near to us.",
+    pray: "Lord, you are near to the broken-hearted and you do not wait for them to pull themselves together. Be near to us. We are not coping as well as we are saying.",
   },
   {
     read: { text: "Rest in the LORD, and wait patiently for him. Don’t fret because of him who prospers in his way, because of the man who makes wicked plots happen.", ref: "Psalm 37:7" },
     reflection:
-      "Rest in the LORD, and wait patiently for him. Don't fret because of him who prospers in his way. Fretting about others' ease is named and forbidden.",
+      "The psalm names something most of us would not confess: fretting over people who are getting away with it and doing well on it. David does not tell you that it does not matter. He tells you it will not last — the whole psalm is about how short the prosperity of the wicked turns out to be — and then asks for something harder than indifference. Be still before the LORD and wait patiently. The stillness is the discipline; the fretting is the default.",
     talk: "Whose pregnancy or family are you comparing yours to?",
-    pray: "Lord, we will rest and wait. Take the fretting out of us.",
+    pray: "Lord, we compare ourselves with people who seem to have it easier and it eats at us. Take the fretting out. Let us be still before you and wait, without needing to see the accounts settled.",
   },
   {
     read: { text: "Why are you in despair, my soul? Why are you disturbed within me? Hope in God! For I shall still praise him for the saving help of his presence.", ref: "Psalm 42:5" },
     reflection:
-      "Why are you in despair, my soul? Why are you disturbed within me? Hope in God! He talks to himself and preaches truth back. Feelings do not get the last word.",
+      "The psalmist does something unusual here: he stops talking to God and starts talking to himself. Why are you cast down, my soul? Hope in God. He is not denying the feeling — he has just described tears as his food day and night — he is refusing to let the feeling have the final word. Half of the Christian life is learning that your soul will tell you things, and that you are allowed to answer it back with something truer.",
     talk: "What does your inner voice say on a bad day? What would Scripture answer?",
-    pray: "Lord, when our souls are cast down, teach us to hope in you.",
+    pray: "Lord, our souls are cast down and we have been listening to them without arguing. Teach us to preach back — to say hope in God out loud, and mean it by the time we finish saying it.",
   },
   {
     read: { text: "God is our refuge and strength, a very present help in trouble.", ref: "Psalm 46:1" },
     reflection:
-      "God is our refuge and strength, a very present help in trouble. Very present — not distant, not delayed.",
+      "The Hebrew behind very present help means found — abundantly found, easily located — in trouble. Not a help that has to be summoned from a distance or that arrives once the crisis has resolved itself. And look at what the psalm goes on to describe: the earth giving way, mountains falling into the sea. It is the psalm Luther built A Mighty Fortress on, written for the moment the ground itself stops being reliable.",
     talk: "Where do you go first in trouble? Is it him?",
-    pray: "Lord, you are a very present help in trouble. We come to you.",
+    pray: "Lord, you are a very present help — not distant and not delayed. We come to you now rather than later. Be our refuge while the ground is still moving.",
   },
   {
     read: { text: "Create in me a clean heart, O God. Renew a right spirit within me.", ref: "Psalm 51:10" },
     reflection:
-      "Create in me a clean heart, O God. Renew a right spirit within me. Create — the word used of making the world from nothing. Only God can do this.",
+      "David has committed adultery and arranged a man's death, and the verb he reaches for is bara — the word used in Genesis 1 for God making the world out of nothing. He is not asking to be tidied up or helped along. He is asking for an act of creation, because he knows there is nothing in him to work with. That is the only honest prayer after real failure, and it is the one God answers.",
     talk: "What in your heart needs creating, not just improving?",
-    pray: "Create in us clean hearts, O God. Renew a right spirit within us.",
+    pray: "Create in us clean hearts, O God, because there is nothing here to repair. Renew a right spirit within us. Do the kind of making you did at the beginning.",
   },
   {
     read: { text: "When I am afraid, I will put my trust in you. In God, I praise his word. In God, I put my trust. I will not be afraid. What can flesh do to me?", ref: "Psalm 56:3-4" },
     reflection:
-      "When I am afraid, I will put my trust in you. In God, I praise his word. In God, I put my trust. I will not be afraid. Fear admitted, then answered.",
+      "Notice the order, because it is the opposite of what we tell ourselves. Not I trust, therefore I am not afraid — but when I am afraid, I put my trust in you. The fear comes first and is admitted without embarrassment; David wrote this while in Philistine hands at Gath. Trust is what he does with the fear, not a state that replaces it. Then he asks the question that puts flesh back in proportion: what can flesh do to me?",
     talk: "What would 'when I am afraid, I will trust' look like practically tonight?",
-    pray: "Lord, when we are afraid, we put our trust in you.",
+    pray: "Lord, when we are afraid — which is now — we put our trust in you. We are not waiting until the fear passes. Be bigger to us than what we are frightened of.",
   },
   {
     read: { text: "My soul, wait in silence for God alone, for my expectation is from him. He alone is my rock and my salvation, my fortress. I will not be shaken.", ref: "Psalm 62:5-6" },
     reflection:
-      "My soul, wait in silence for God alone, for my expectation is from him. He alone is my rock and my salvation. Alone, repeated. A deliberate narrowing of trust.",
+      "The word alone appears again and again in this psalm: for God alone my soul waits, he alone is my rock. It is a deliberate narrowing, and David makes it explicit a few verses later — do not set your heart on riches, and power belongs to God. Waiting in silence is not passivity; it is refusing to go looking elsewhere while the answer is slow. Most of us wait for God and hedge with three other options.",
     talk: "What else are you leaning on that this psalm would remove?",
-    pray: "For God alone our souls wait in silence. He alone is our rock.",
+    pray: "For God alone our souls wait in silence. Take away the hedges — the plans we are quietly keeping in reserve. You alone are our rock, and we will not be shaken.",
   },
   {
     read: { text: "Blessed be God, who has not turned away my prayer, nor his loving kindness from me.", ref: "Psalm 66:20" },
     reflection:
-      "Blessed be God, who has not turned away my prayer, nor his loving kindness from me. Praise for a prayer that was not turned away.",
+      "The psalm ends here after a long account of being tested — brought into the net, crushing burdens laid on the back, going through fire and water. And the blessing at the end is remarkably modest: he has not rejected my prayer or removed his steadfast love from me. Not he gave me everything I asked. The psalmist's joy is that the line stayed open and the love stayed put, through the whole of it.",
     talk: "What prayer has God not turned away? Have you thanked him?",
-    pray: "Blessed be God, who has not rejected our prayer.",
+    pray: "Blessed be God, who has not turned away our prayer or his love from us. Even when the answer has not come, the line has stayed open. Thank you for that much, which is a great deal.",
   },
   {
     read: { text: "You, who have shown us many and bitter troubles, you will let me live. You will bring us up again from the depths of the earth.", ref: "Psalm 71:20" },
     reflection:
-      "You, who have shown us many and bitter troubles, you will let me live. You will bring us up again from the depths of the earth. God credited with the troubles and the raising.",
+      "The sentence is startling in what it attributes to God: you who have made me see many troubles and calamities will revive me again. He does not split the ledger — bad things from elsewhere, good things from God. Both are laid at the same door, and he goes on trusting the same hand. And the language of being brought up again from the depths of the earth is resurrection language, which is where the whole hope finally rests.",
     talk: "Can you name the trouble as from God's hand without concluding he is unkind?",
-    pray: "Lord, you will revive us again and bring us up from the depths.",
+    pray: "Lord, you have shown us hard things and you will revive us again. Bring us up from the depths. We are not going to divide you into the parts we like and the parts we do not.",
   },
   {
     read: { text: "My flesh and my heart fails, but God is the strength of my heart and my portion forever.", ref: "Psalm 73:26" },
     reflection:
-      "My flesh and my heart fails, but God is the strength of my heart and my portion forever. Bodies do fail, sometimes in this exact season. He remains.",
+      "Asaph has spent the whole psalm nearly losing his footing over the prosperity of the wicked, and this is where he lands. My flesh and my heart may fail — he does not say might, he says it as a matter of course. Bodies give out, and sometimes in exactly this season. What he sets against it is not a denial but a possession: God is the strength of my heart and my portion for ever. The body is temporary. The portion is not.",
     talk: "What has failed in one of you? What is still standing underneath?",
-    pray: "Lord, when flesh and heart fail, be the strength of our hearts.",
+    pray: "Lord, our bodies are failing us in small ways and we are tired of pretending otherwise. Be the strength of our hearts. Be our portion when there is not much else left in the account.",
   },
   {
     read: { text: "For the LORD God is a sun and a shield. the LORD will give grace and glory. He withholds no good thing from those who walk blamelessly.", ref: "Psalm 84:11" },
     reflection:
-      "He withholds no good thing from those who walk blamelessly. Read carefully: what is withheld was not good. That is hard and it is a comfort.",
+      "Read it slowly, because the comfort is sharper than it first looks. No good thing does he withhold — which means that what has been withheld was, by his reckoning, not good. That is hard on a day you are grieving something you did not get. And it is the only alternative to a God who is either unable or indifferent. Paul says the same thing from the other end: he who did not spare his own Son will give us all things with him.",
     talk: "What has God withheld? Can you trust that judgement?",
-    pray: "Lord, you withhold no good thing. Help us trust what has not come.",
+    pray: "Lord, you withhold no good thing, which means what we did not get was not good, and we do not always believe you. Help us trust what has not come. You did not spare your own Son.",
   },
   {
     read: { text: "Satisfy us in the morning with your loving kindness, that we may rejoice and be glad all our days.", ref: "Psalm 90:14" },
     reflection:
-      "Satisfy us in the morning with your loving kindness, that we may rejoice and be glad all our days. Asking to be satisfied early, so the day is coloured by it.",
+      "The psalm has been unsparing — our days pass away under your wrath, we bring our years to an end like a sigh, teach us to number our days. And out of that comes this request: satisfy us in the morning with your steadfast love. Early, before the day makes its case. The logic is that a day is coloured by what filled the first hour of it, and a household that starts on anything else spends the rest of the day catching up.",
     talk: "What are the first minutes of your day like now?",
-    pray: "Satisfy us in the morning with your steadfast love.",
+    pray: "Satisfy us in the morning with your steadfast love, before the day tells us anything else. Let the first thing we take in be you, so we have something to go on.",
   },
   {
     read: { text: "For the LORD is good. His loving kindness endures forever, his faithfulness to all generations.", ref: "Psalm 100:5" },
     reflection:
-      "For the LORD is good. His loving kindness endures forever, his faithfulness to all generations. Three facts to stand on when feelings will not hold.",
+      "The psalm has been all imperatives — shout, serve with gladness, come with singing, enter with thanksgiving — and then it gives the reason, and the reason is three plain facts. The LORD is good. His steadfast love endures for ever. His faithfulness to all generations. Worship here is not built on how anybody feels; it is built on what is true about God, which is why it can be commanded at all.",
     talk: "Which of the three is hardest to feel today? Say it anyway.",
-    pray: "Lord, you are good. Your love endures. Your faithfulness reaches every generation.",
+    pray: "Lord, you are good, your love endures for ever and your faithfulness reaches every generation. We will stand on those three facts today, because our feelings are not load-bearing.",
   },
   {
     read: { text: "Light dawns in the darkness for the upright, gracious, merciful, and righteous.", ref: "Psalm 112:4" },
     reflection:
-      "Light dawns in the darkness for the upright, gracious, merciful, and righteous. Dawn happens in the dark, not after it.",
+      "Light dawns in the darkness — not after it. The psalm is describing the household of someone who fears the LORD, and it does not promise that the dark will be avoided. It promises a dawn inside it. A few verses on the same person is described as not afraid of bad news, his heart firm, trusting in the LORD. The light is not the end of the trouble; it is something given in the middle of it.",
     talk: "Where do you need dawn without the dark ending yet?",
-    pray: "Lord, let light rise in our darkness.",
+    pray: "Lord, let light rise in our darkness rather than only after it. We are not asking you to remove this yet. Give us enough to see by while it lasts.",
   },
   {
     read: { text: "This is the day that the LORD has made. We will rejoice and be glad in it!", ref: "Psalm 118:24" },
     reflection:
-      "This is the day that the LORD has made. We will rejoice and be glad in it. Not a good day, or an easy one. This day, the actual one.",
+      "This line is usually said about a good day. In the psalm it is said about the day the rejected stone became the cornerstone — the psalm the crowds sang on Palm Sunday and that Jesus applied to himself days before his execution. So the day the LORD has made, in context, is the day of a terrible reversal that turned out to be salvation. Which means this verse is not about the weather. It is about whose day today is.",
     talk: "What is today actually like? Can you rejoice in this one?",
-    pray: "Lord, you made this day. We will rejoice and be glad in it.",
+    pray: "Lord, you made this day — not the one we wanted, this one. We will rejoice and be glad in it, because it is yours and you are doing something in it we cannot see yet.",
   },
   {
     read: { text: "Your word is a lamp to my feet, and a light for my path.", ref: "Psalm 119:105" },
     reflection:
-      "Your word is a lamp to my feet, and a light for my path. A lamp shows the next step only. That is usually all God gives, and it is enough.",
+      "The lamp in question was a small oil lamp tied near the foot, throwing light about a pace ahead. It was never a floodlight over the whole route. That is the honest picture of guidance in Scripture: enough to take the next step, and no more, which is exactly the amount that keeps a person walking close to the one holding it. Most of our frustration is that we wanted a map and were given a lamp.",
     talk: "Are you refusing to move because you cannot see the whole path?",
-    pray: "Lord, your word is a lamp to our feet. Let us walk by the light we have.",
+    pray: "Lord, your word is a lamp to our feet and we keep asking for a searchlight. Let us walk by the light we have been given, one step, and trust you for the one after that.",
   },
   {
     read: { text: "I will lift up my eyes to the hills. Where does my help come from? My help comes from the LORD, who made heaven and earth.", ref: "Psalm 121:1-2" },
     reflection:
-      "I will lift up my eyes to the hills. Where does my help come from? My help comes from the LORD, who made heaven and earth. A question, then an answer.",
+      "The hills are probably not a comfort here. Pilgrims going up to Jerusalem watched the high places where the shrines were, and the bandits, and the psalm asks the question straight: where does my help come from? The answer deliberately goes past all of it — from the LORD, who made heaven and earth. Then the psalm says six times that he keeps you, and twice that he does not sleep. A road song for people who were genuinely exposed.",
     talk: "Where do you look for help first? What would looking up sooner change?",
-    pray: "Maker of heaven and earth, our help comes from you.",
+    pray: "Maker of heaven and earth, our help comes from you and not from the things we keep looking at. Keep us on the road. You do not slumber, and we do, so watch while we cannot.",
   },
   {
     read: { text: "Those who sow in tears will reap in joy.", ref: "Psalm 126:5" },
     reflection:
-      "Those who sow in tears will reap in joy. Sowing in tears is still sowing. Faithfulness that feels fruitless is still faithfulness.",
+      "The picture is a farmer sowing his last grain in a famine year, weeping because he is putting food into the ground instead of on the table. The psalm does not pretend the tears are irrational — that is a genuinely costly act — and it says the harvest comes anyway. Sowing in tears is still sowing. Faithfulness that feels fruitless is still faithfulness, and the seed does not know how anyone felt when it went in.",
     talk: "What are you sowing in tears right now?",
-    pray: "Lord, we sow in tears. Bring us home with joy in your time.",
+    pray: "Lord, we are sowing in tears and we cannot see any of it coming up. Bring us home with joy in your time. Until then, let us keep putting seed in the ground.",
   },
   {
     read: { text: "I wait for the LORD. My soul waits. I hope in his word.", ref: "Psalm 130:5" },
     reflection:
-      "I wait for the LORD. My soul waits. In his word I hope. Waiting stated three ways in one verse, because it takes that much to hold on.",
+      "The next line gives the picture: more than watchmen wait for the morning — men on a wall at three in the morning, who know the sun is coming and cannot make it come faster. And what he waits on is not a feeling but a word: in his word I hope. That is the only thing that makes waiting different from drifting. The psalm began out of the depths and it ends in abundant redemption, and the whole distance is covered by waiting.",
     talk: "What are you waiting for? Where is your hope actually placed?",
-    pray: "Lord, our souls wait for you. In your word we hope.",
+    pray: "Lord, our souls wait for you like men watching for the morning. We hope in your word, because we have nothing else to time it by. Let the morning come.",
   },
   {
     read: { text: "Give thanks to the LORD, for he is good; for his loving kindness endures forever.", ref: "Psalm 136:1" },
     reflection:
-      "Give thanks to the LORD, for he is good, for his loving kindness endures forever. The refrain repeats twenty-six times. Repetition is the point.",
+      "Twenty-six verses, and every single one ends the same way: for his steadfast love endures for ever. It is a psalm designed to be sung antiphonally — a leader names an act of God, the whole congregation answers with the refrain. The repetition is not padding, it is the method. Some things do not become part of you by being understood once. They get in by being said, out loud, by the same people, until the household no longer has to think about it.",
     talk: "Say the refrain together after each thing you are thankful for tonight.",
-    pray: "Give thanks to the Lord, for he is good; his love endures forever.",
+    pray: "Give thanks to the Lord, for he is good and his love endures for ever. Make this the line our children hear so often that they cannot get it out of their heads.",
   },
   {
     read: { text: "the LORD, you have searched me, and you know me. You know my sitting down and my rising up. You perceive my thoughts from afar.", ref: "Psalm 139:1-2" },
     reflection:
-      "LORD, you have searched me, and you know me. You know my sitting down and my rising up. You perceive my thoughts from afar. Fully known, and not left.",
+      "Searched is an excavation word — dug into, examined thoroughly. And what David lists is entirely unremarkable: when I sit down and when I rise up, my path and my lying down, a word before it is on my tongue. He is describing total exposure, and the psalm's astonishment is that nothing found there made God leave. Being fully known is only terrifying if you are not also fully loved.",
     talk: "What do you hide that God already knows?",
-    pray: "Lord, you have searched us and know us. Thank you for staying.",
+    pray: "Lord, you have searched us and you know us — including the parts we have not shown anyone. Thank you for staying. Let us stop performing for the one who already sees.",
   },
   {
     read: { text: "the LORD upholds all who fall, and raises up all those who are bowed down.", ref: "Psalm 145:14" },
     reflection:
-      "The LORD upholds all who fall, and raises up all those who are bowed down. Two conditions, and God acts on both.",
+      "Two different conditions and two different verbs. Those who are falling — mid-fall, not yet down — he upholds, which is the hand under an elbow. Those already bowed down, folded over by whatever it was, he raises up. The psalm is the great alphabet psalm of God's kingship, full of majesty and greatness, and it lands here, on people on their way to the floor. That is what his greatness is for.",
     talk: "Are you falling or bowed down? What is promised?",
-    pray: "Lord, uphold us as we fall. Raise us as we bow down.",
+    pray: "Lord, uphold us while we are falling and raise us when we are already down. We are somewhere between the two. You do both, and we need whichever applies today.",
   },
   {
     read: { text: "He heals the broken in heart, and binds up their wounds.", ref: "Psalm 147:3" },
     reflection:
-      "He heals the broken in heart, and binds up their wounds. Set beside a line about counting the stars. Scale does not reduce his attention.",
+      "The verse either side of this one is about God counting the stars and calling them all by name. The psalmist puts the two side by side deliberately: the one who numbers the galaxies is the one binding up wounds. Scale does not dilute attention in God the way it does in us. A person with many responsibilities has less for each; he does not work like that, and the psalm expects that to be the surprising part.",
     talk: "What wound has never been bound up? Have you brought it to him?",
-    pray: "Lord, heal the broken-hearted here and bind up our wounds.",
+    pray: "Lord, you count the stars and you bind up wounds, and neither crowds out the other. Heal what is broken here. We are small, and you have never found anyone too small.",
   },
   {
     read: { text: "A gentle answer turns away wrath, but a harsh word stirs up anger.", ref: "Proverbs 15:1" },
     reflection:
-      "A gentle answer turns away wrath, but a harsh word stirs up anger. Tired people say harsh things. A gentle answer is a discipline, not a temperament.",
+      "Proverbs is describing a mechanism, not a mood. A soft answer turns wrath away — it actually does something to the other person — and a harsh word stirs anger up, which is a different kind of causation from what most of us assume when we are being honest and blunt. Tired people say harsh things and call it candour. Gentleness at two in the morning is not a temperament some people are lucky enough to have. It is a decision, made in advance.",
     talk: "What harsh word have you spoken this week? Would you take it back?",
-    pray: "Lord, give us gentle answers when we are most tired.",
+    pray: "Lord, give us gentle answers when we are most tired and least able. Let us decide now, while we are calm, what we will say at three in the morning.",
   },
   {
     read: { text: "A cheerful heart makes good medicine, but a crushed spirit dries up the bones.", ref: "Proverbs 17:22" },
     reflection:
-      "A cheerful heart makes good medicine, but a crushed spirit dries up the bones. Emotional and physical health linked, without embarrassment.",
+      "Proverbs makes the link without embarrassment: a joyful heart is good medicine, and a crushed spirit dries up the bones. The body and the inner life are not separate departments, and Scripture never treated them as such. That cuts both ways in this season. What is happening in a mind will show up in a body, and what is happening to a body — broken sleep, pain, hormones — will show up in a spirit, and neither is a failure of faith.",
     talk: "What is drying up your bones? Have you told anyone?",
-    pray: "Lord, give us cheerful hearts and heal our crushed spirits.",
+    pray: "Lord, give us cheerful hearts, and heal what has been crushed. Where our bodies are wearing our spirits down, help us treat that as real rather than as weakness.",
   },
   {
     read: { text: "for a righteous man falls seven times and rises up again; but the wicked are overthrown by calamity.", ref: "Proverbs 24:16" },
     reflection:
-      "For a righteous man falls seven times and rises up again. The righteous are not those who never fall. They are those who get up.",
+      "Seven times is the Bible's number for completeness, so this is not a quota with an eighth fall waiting to disqualify anyone. The point is the definition: the righteous are not people who do not fall. They are people who get up. And the contrast in the second half is not that the wicked fall more often but that they are overthrown — they do not rise. Perseverance, not performance, is what marks out the righteous here.",
     talk: "Where have you stopped getting up?",
-    pray: "Lord, when we fall, raise us again. Seven times if needed.",
+    pray: "Lord, when we fall, raise us — again, and again after that. Keep us from thinking that falling proves we were never yours. Make us the kind of people who get up.",
   },
   {
     read: { text: "Don’t boast about tomorrow; for you don’t know what a day may bring.", ref: "Proverbs 27:1" },
     reflection:
-      "Don't boast about tomorrow; for you don't know what a day may bring. Every plan for this child is provisional. Holding them loosely is realism.",
+      "Do not boast about tomorrow, for you do not know what a day may bring forth. James takes this and sharpens it: you do not know what tomorrow will bring, you are a mist; instead say, if the Lord wills, we will live and do this. He is not against planning — he is against planning as though the outcome were ours. Every plan you make for this child is provisional, and holding it loosely is not pessimism. It is accuracy.",
     talk: "What plan are you holding too tightly?",
-    pray: "Lord, we do not know what a day will bring. Hold our plans.",
+    pray: "Lord, we do not know what tomorrow holds and we plan as though we did. Hold our plans. If you will, we will do these things — and if not, keep us from calling that a disaster.",
   },
   {
     read: { text: "Better is a handful, with quietness, than two handfuls with labor and chasing after wind.", ref: "Ecclesiastes 4:6" },
     reflection:
-      "Better is a handful, with quietness, than two handfuls with labour and chasing after wind. Less with peace ranked above more with exhaustion.",
+      "The Preacher has just described a man driven by rivalry, working endlessly because of envy of his neighbour, and this is the alternative he proposes: better a handful with quietness than two handfuls with toil and chasing after wind. It is a deliberate ranking. He is not saying less is easier. He is saying less, held quietly, is better — and the two-handfuls life is not merely tiring, it is a pursuit of something that cannot be caught.",
     talk: "What are you chasing with two hands? What would one handful cost?",
-    pray: "Lord, teach us that enough with quietness is better.",
+    pray: "Lord, teach us that enough with quietness is better than more with exhaustion. Show us which handful we are reaching for out of fear, and give us the nerve to put it down.",
   },
   {
     read: { text: "I heard the Lord’s voice, saying, “Whom shall I send, and who will go for us?” Then I said, “Here I am. Send me!”", ref: "Isaiah 6:8" },
     reflection:
-      "Whom shall I send, and who will go for us? Then I said, 'Here I am. Send me!' Note the order: his guilt was taken away first. Cleansing precedes commissioning.",
+      "Get the order right. Isaiah sees the Lord, cries out that he is undone and a man of unclean lips, and a coal from the altar is put to his mouth — your guilt is taken away, your sin atoned for. Only then does the question come, and only then can he answer it. Cleansing precedes commissioning, every time. People who volunteer without the coal burn out fast, and people who wait to be good enough never go at all.",
     talk: "Are you trying to serve God before letting him deal with you?",
-    pray: "Lord, cleanse us and then send us. Here we are.",
+    pray: "Lord, cleanse us first — we are not fit to be sent and we know it. And then send us. Here we are, on the strength of what your Son has already done about our unclean lips.",
   },
   {
     read: { text: "and when you turn to the right hand, and when you turn to the left, your ears will hear a voice behind you, saying, “This is the way. Walk in it.”", ref: "Isaiah 30:21" },
     reflection:
-      "Your ears will hear a word behind you, saying, 'This is the way. Walk in it.' Guidance comes as we move, and often from behind.",
+      "Look at who this is said to. Judah had just gone down to Egypt for help without consulting God — Isaiah calls them rebellious children. And the promise is that when they wander, they will hear a voice behind them putting them back on the road. Behind, not in front: guidance given to people already moving, and often already moving wrongly. Waiting motionless until you are certain is not what is on offer here.",
     talk: "Have you been waiting for direction before moving?",
-    pray: "Lord, let us hear the word behind us: this is the way.",
+    pray: "Lord, we have been waiting for certainty before we move, and you have promised to speak to people already walking. Let us hear the voice behind us, and turn when we do.",
   },
   {
     read: { text: "He gives power to the weak. He increases the strength of him who has no might.", ref: "Isaiah 40:29" },
     reflection:
-      "He gives power to the weak. He increases the strength of him who has no might. Offered to the exhausted, not held over them.",
+      "The verse before establishes that God does not faint or grow weary and his understanding is unsearchable — and then, immediately, he gives power to the faint. The inexhaustibility is not held over the exhausted as a rebuke; it is handed to them. And this same God later slept in a boat out of tiredness and said I thirst on a cross. He took weariness on, so that the weary would have somewhere to get strength.",
     talk: "When you are empty, what do you usually reach for?",
-    pray: "Lord, give power to the faint. We have no might of our own.",
+    pray: "Lord, you never grow tired and we are past ours. Give power to the faint. We have no might of our own left and we are not going to pretend we do.",
   },
   {
     read: { text: "but those who wait for the LORD will renew their strength. They will mount up with wings like eagles. They will run, and not be weary. They will walk, and not faint.", ref: "Isaiah 40:31" },
     reflection:
-      "They who wait for the LORD will renew their strength. Waiting comes first. This is not a promise that you will never be exhausted.",
+      "Isaiah has just said that even youths shall faint and be weary, and young men shall fall exhausted — so the chapter rules out the obvious answer of trying harder. What renews strength is waiting on the LORD, and the Hebrew carries the sense of binding yourself to him rather than merely letting time pass. Note the order of the images too: mount up, run, walk. It ends with walking, which is what most of life actually requires.",
     talk: "What does waiting on God look like on an ordinary Tuesday?",
-    pray: "Lord, we are tired. Renew our strength as we wait.",
+    pray: "Lord, we are tired in a way sleep does not touch. Renew our strength as we wait on you — and if it is walking rather than flying, that will do. Just keep us going.",
   },
   {
     read: { text: "Behold, I will do a new thing. It springs out now. Don’t you know it? I will even make a way in the wilderness, and rivers in the desert.", ref: "Isaiah 43:19" },
     reflection:
-      "Behold, I will do a new thing. It springs out now. Don't you know it? I will even make a way in the wilderness. Said to a people whose past was a catalogue of failure.",
+      "Read who this is said to. God has just rehearsed Israel's entire record and it is a catalogue of failure — you have burdened me with your sins, you have wearied me with your iniquities. Then: remember not the former things. Behold, I am doing a new thing, now it springs forth. The new thing is announced to people whose past gives them no reason to expect it. That is the only kind of person it is ever announced to.",
     talk: "What old thing are you still rehearsing? What might God be doing?",
-    pray: "Lord, do a new thing. Make a way in this wilderness.",
+    pray: "Lord, do a new thing. Make a way through the wilderness we are in and put rivers in the desert. Our record is not good and you have never made that the deciding factor.",
   },
   {
     read: { text: "“For my thoughts are not your thoughts, and your ways are not my ways,” says the LORD. “For as the heavens are higher than the earth, so are my ways higher than your ways, and my thoughts than your thoughts.”", ref: "Isaiah 55:8-9" },
     reflection:
-      "For my thoughts are not your thoughts, neither are your ways my ways. Sometimes the answer is that God is doing something we cannot see from here.",
+      "This gets quoted to close conversations, and in Isaiah it does the opposite. The verse before it is about the wicked forsaking his way and returning to the LORD, for he will abundantly pardon. Then — my thoughts are not your thoughts. The specific way God's ways are higher, here, is that he forgives far more readily than we would. So when you cannot see what God is doing, the safest guess is that it is more merciful than your version.",
     talk: "What do you not understand about God's dealings with you?",
-    pray: "Lord, your ways are higher. Give us trust where we lack understanding.",
+    pray: "Lord, your ways are higher than ours, and the passage says the difference is how freely you pardon. Give us trust where we lack understanding — and make us more like you in that.",
   },
   {
     read: { text: "The Lord the LORD’s Spirit is on me, because the LORD has anointed me to preach good news to the humble. He has sent me to bind up the broken hearted, to proclaim liberty to the captives and release to those who are bound,", ref: "Isaiah 61:1" },
     reflection:
-      "He has sent me... to bind up the broken-hearted, to proclaim liberty to the captives. Jesus read this aloud and said it was about him.",
+      "Jesus stood up in the synagogue at Nazareth, read this passage aloud, rolled up the scroll, sat down, and said: today this Scripture has been fulfilled in your hearing. So the binding up of the broken-hearted and the liberty for captives is not a general hope. It is a job description he claimed as his own in front of people who had watched him grow up, and which he then spent three years doing.",
     talk: "Which part of that job description do you need from him now?",
-    pray: "Lord Jesus, you came to bind up the broken-hearted. Do it here.",
+    pray: "Lord Jesus, you read this over yourself and then went and did it. Bind up what is broken-hearted in this house. Set free what has been bound here for longer than we admit.",
   },
   {
     read: { text: "Blessed is the man who trusts in the LORD, and whose confidence is in the LORD. For he will be as a tree planted by the waters, who spreads out its roots by the river, and will not fear when heat comes, but its leaf will be green, and will not be concerned in the year of drought. It won’t cease from yielding fruit.", ref: "Jeremiah 17:7-8" },
     reflection:
-      "Blessed is the man who trusts in the LORD... he will be like a tree planted by the waters... and will not be anxious in the year of drought. The drought still comes.",
+      "Jeremiah is contrasting two people, and the contrast is not about whether the drought comes. It comes for both. The tree planted by water does not escape the heat; it does not fear when heat comes, its leaves stay green, and it does not cease to bear fruit. Everything depends on where the roots went in the years before. That is why the ordinary habits of a household matter — they are root work, done long before the dry year arrives.",
     talk: "Where are your roots? What is your water source?",
-    pray: "Lord, plant us by your streams. Let us not fear the drought.",
+    pray: "Lord, plant us by your streams. Send our roots deep now, while things are manageable, so that when the drought comes our leaves stay green and we are not anxious.",
   },
   {
     read: { text: "Call to me, and I will answer you, and will show you great and difficult things, which you don’t know.", ref: "Jeremiah 33:3" },
     reflection:
-      "Call to me, and I will answer you, and will show you great and difficult things, which you don't know. Spoken to a man in prison, about a city about to fall.",
+      "Look where Jeremiah is standing. He is under arrest in the court of the guard, the Babylonian siege ramps are against the walls, and the city is going to fall. There is no good version of the next few years. Into that, God says call to me and I will answer, and show you great and hidden things you have not known. It is not a promise to change the circumstances. It is a promise that more is going on than you can currently see.",
     talk: "What have you not called to God about because you assumed the answer?",
-    pray: "Lord, we call to you. Show us what we do not know.",
+    pray: "Lord, we call to you. Show us great and hidden things we do not know — especially about the situation we have already decided is settled. Answer us here, not somewhere easier.",
   },
   {
     read: { text: "I will also give you a new heart, and I will put a new spirit within you. I will take away the stony heart out of your flesh, and I will give you a heart of flesh.", ref: "Ezekiel 36:26" },
     reflection:
-      "I will give you a new heart, and I will put a new spirit within you. Heart surgery promised as God's own work — for you, and one day for this child.",
+      "Every verb belongs to God: I will give, I will put, I will remove. These are people who had proved that law, warning and catastrophe could not change them, so what God promises is replacement rather than repair. A heart of stone cannot resolve to become flesh. And the next line adds the Spirit within them — which Jesus called being born again to a man who could not follow the argument either.",
     talk: "Where has your heart gone hard? Have you asked for the surgery?",
-    pray: "Lord, take out our hearts of stone. Give us hearts of flesh.",
+    pray: "Lord, take out our hearts of stone and give us hearts of flesh, because we cannot soften ourselves. Do it in us first, and then do it in this child, in your own time.",
   },
   {
     read: { text: "When Daniel knew that the writing was signed, he went into his house (now his windows were open in his room toward Jerusalem) and he kneeled on his knees three times a day, and prayed, and gave thanks before his God, as he did before.", ref: "Daniel 6:10" },
     reflection:
-      "He kneeled on his knees three times a day, and prayed... as he did before. Nothing changed except the risk. His routine was built long before it became dangerous.",
+      "The detail sits in the last three words: as he had done previously. The decree changed; Daniel did not. He did not pray more loudly to make a point, or more quietly to stay safe. He went home and did what he had been doing for decades, at the same windows, at the same hours. A routine built in ordinary times is what remains standing when the law changes. Nobody rises to an occasion. They fall back on what they already had.",
     talk: "What habit are you building now that will hold when it costs?",
-    pray: "Lord, build habits in us that will hold under pressure.",
+    pray: "Lord, build habits in us now, while nothing is at stake — the prayers, the open Bible, the table. Let them be so ordinary that they are still standing on the day they cost something.",
   },
   {
     read: { text: "Let’s acknowledge the LORD. Let’s press on to know the LORD. As surely as the sun rises, the LORD will appear. He will come to us like the rain, like the spring rain that waters the earth.", ref: "Hosea 6:3" },
     reflection:
-      "Let's acknowledge the LORD. Let's press on to know the LORD. As surely as the sun rises, the LORD will appear. He will come to us like the rain.",
+      "Hosea's people are saying this, and God's reply two verses later is that their love is like a morning cloud, gone by noon — so it is a good thing said by people who did not mean it. But the promise inside it stands: he will come to us as surely as the dawn, like the spring rains that water the earth. Press on to know him. Knowing God is described as something pursued over time, not acquired in a moment.",
     talk: "What would 'pressing on to know God' involve this month?",
-    pray: "Lord, let us press on to know you. Come to us like the rain.",
+    pray: "Lord, let us press on to know you rather than settle for what we learned years ago. Come to us like rain on dry ground — and let our returning be real and not a morning cloud.",
   },
   {
     read: { text: "Tear your heart, and not your garments, and turn to the LORD, your God; for he is gracious and merciful, slow to anger, and abundant in loving kindness, and relents from sending calamity.", ref: "Joel 2:13" },
     reflection:
-      "Tear your heart and not your garments. Return to the LORD, your God, for he is gracious and merciful, slow to anger, and abundant in loving kindness. The reason to return is his character.",
+      "Tearing your clothes was the standard public sign of grief, and Joel says do not bother — tear your heart instead. Then he gives the reason to return, and it is not fear of the coming day. It is the character of God, in the words Israel had known since Sinai: gracious and merciful, slow to anger, abounding in steadfast love. People come back to a God like that. Nobody ever came back out of terror and stayed.",
     talk: "When did you last perform repentance rather than practise it?",
-    pray: "Lord, tear our hearts. Return us to you.",
+    pray: "Lord, tear our hearts rather than let us settle for the appearance of sorrow. Return us to you — and let it be your kindness that draws us, because that is the only thing that lasts.",
   },
   {
     read: { text: "But as for me, I will look to the LORD. I will wait for the God of my salvation. My God will hear me.", ref: "Micah 7:7" },
     reflection:
-      "But as for me, I will look to the LORD. I will wait for the God of my salvation. My God will hear me. Said where family relationships had broken down completely.",
+      "The verses just before are bleak: the son treats the father with contempt, the daughter rises against her mother, a man's enemies are his own household. Jesus later quoted that passage about himself. And out of that wreckage comes but as for me. Micah does not claim the family is fine. He says where he will look while it is not, and adds the thing he is most sure of: my God will hear me.",
     talk: "If everything else fell apart, could you still say this?",
-    pray: "Lord, we look to you and wait. You will hear us.",
+    pray: "Lord, we look to you and wait for you. Whatever is unresolved between the people in this family, you will hear us. Let that be where each of us turns first rather than last.",
   },
   {
     read: { text: "For though the fig tree doesn’t flourish, nor fruit be in the vines; the labor of the olive fails, the fields yield no food; the flocks are cut off from the fold, and there is no herd in the stalls: yet I will rejoice in the LORD. I will be joyful in the God of my salvation!", ref: "Habakkuk 3:17-18" },
     reflection:
-      "Though the fig tree doesn't flourish... yet I will rejoice in the LORD. Joy chosen when the outcome is a disaster, not because it is good.",
+      "Habakkuk lists total agricultural collapse — no figs, no grapes, no olives, no crops, no flock, no herd — which in that economy is not hardship but starvation. And then yet. He is not rejoicing because things are secretly fine; he is rejoicing in the LORD, who is a different subject from the harvest. The book began with him shouting at God about violence. It ends with him choosing joy in the dark, and the last line says God makes him walk on high places.",
     talk: "What have you quietly made the condition of your joy?",
-    pray: "Lord, though everything fails, we will rejoice in you.",
+    pray: "Lord, even if everything we are counting on fails, we will rejoice in you. Not in the situation — in you. Be the God of our salvation when there is nothing in the stalls.",
   },
   {
     read: { text: "Then he answered and spoke to me, saying, “This is the LORD’s word to Zerubbabel, saying, ‘Not by might, nor by power, but by my Spirit,’ says the LORD of Armies.”", ref: "Zechariah 4:6" },
     reflection:
-      "Not by might, nor by power, but by my Spirit, says the LORD of Armies. Said to a discouraged builder facing a job too big.",
+      "Zerubbabel is trying to rebuild the temple with a small, discouraged workforce and a mountain of opposition, and the vision he is given is of a lampstand fed by two olive trees — oil arriving without anyone carrying it. Not by might, nor by power, but by my Spirit. Might is armies, power is personal strength, and neither of them is what will finish this. The verse after promises that the great mountain in front of him will become a plain.",
     talk: "What are you trying to do by sheer effort?",
-    pray: "Lord, not by our might but by your Spirit. Do what we cannot.",
+    pray: "Lord, not by our might and not by our power. Do what we cannot. Give us oil we did not carry, because we have been trying to finish this on our own supply.",
   },
   {
     read: { text: "Then those who feared the LORD spoke one with another; and the LORD listened, and heard, and a book of memory was written before him, for those who feared the LORD, and who honored his name.", ref: "Malachi 3:16" },
     reflection:
-      "Those who feared the LORD spoke one with another; and the LORD listened, and a book of memory was written before him. He was listening the whole time.",
+      "The people speaking have just been complaining that serving God is pointless and the arrogant get away with everything. Then those who feared the LORD spoke with one another — and the LORD paid attention and heard, and a book of remembrance was written before him. They did not know he was listening. Ordinary conversation between believers, and heaven was taking minutes. That is either alarming or wonderful depending on what your house sounds like.",
     talk: "What would be written from this week's conversations here?",
-    pray: "Lord, you listen and remember. Give us something worth writing down.",
+    pray: "Lord, you listen to what we say to each other and you write it down. Give us something worth recording. Let our ordinary conversation be the kind you would want in a book.",
   },
   {
     read: { text: "Blessed are those who mourn, for they shall be comforted.", ref: "Matthew 5:4" },
     reflection:
-      "Blessed are those who mourn, for they shall be comforted. Mourning is blessed, not merely permitted. Comfort is promised to those who let themselves grieve.",
+      "It is worth pausing on how strange this is as a public statement. Not blessed are those who recover quickly, or who keep perspective. Blessed are those who mourn — the grieving are called fortunate, because they are the ones in a position to be comforted. Comfort cannot be given to a person still insisting they are fine. Jesus was described by Isaiah as a man of sorrows, and he wept at a grave he was about to open.",
     talk: "What have you not let yourself mourn?",
-    pray: "Lord, blessed are those who mourn. Comfort us.",
+    pray: "Lord, blessed are those who mourn, and we have been trying to get past it rather than through it. Let us grieve honestly. Comfort us — we cannot be comforted while we are pretending.",
   },
   {
     read: { text: "Pray like this: ‘Our Father in heaven, may your name be kept holy. Let your Kingdom come. Let your will be done on earth as it is in heaven.", ref: "Matthew 6:9-10" },
     reflection:
-      "Our Father in heaven, may your name be kept holy. May your Kingdom come. May your will be done. The prayer starts with him, not with our needs.",
+      "Notice the order. Before a single request for anything we need, three petitions about God: your name, your kingdom, your will. Jesus is teaching that prayer begins by putting yourself in the right place rather than by getting to the point. And the first word is Father — our Father, plural, which means even praying alone you are praying as part of a family. The needs come next, and they come easier once the first three are said.",
     talk: "How much of your praying starts with God rather than with your requests?",
-    pray: "Our Father in heaven, hallowed be your name. Your kingdom come.",
+    pray: "Our Father in heaven, hallowed be your name. Your kingdom come, your will be done in this house as it is in heaven. Teach us to start here before we start asking.",
   },
   {
     read: { text: "Ask, and it will be given you. Seek, and you will find. Knock, and it will be opened for you. For everyone who asks receives. He who seeks finds. To him who knocks it will be opened.", ref: "Matthew 7:7-8" },
     reflection:
-      "Ask, and it will be given you. Seek, and you will find. Knock, and it will be opened for you. Three verbs, all persistent, all commanded.",
+      "All three verbs in the Greek are continuous: keep asking, keep seeking, keep knocking. It is not a formula for a single successful request but a description of a life spent at the door. And Jesus immediately explains the confidence behind it with the picture of a father and a hungry child — you would not give a stone, and neither will he. Persistence here is not wearing God down. It is behaving like someone who believes the door opens.",
     talk: "What have you stopped asking for? Would you start again?",
-    pray: "Lord, we ask, seek and knock. Teach us to keep going.",
+    pray: "Lord, we ask and seek and knock and then stop when nothing happens. Teach us to keep going. Give us the persistence of people who actually expect the door to open.",
   },
   {
     read: { text: "At that time, Jesus answered, “I thank you, Father, Lord of heaven and earth, that you hid these things from the wise and understanding, and revealed them to infants.”", ref: "Matthew 11:25" },
     reflection:
-      "You hid these things from the wise and understanding, and revealed them to infants. Jesus thanks the Father for a pattern that would offend most academies.",
+      "The cities where Jesus had done most of his miracles had just refused to repent — and this is his response. Not a complaint, but thanks to the Father for a pattern that would offend any university: hidden from the wise and understanding, revealed to little children. Not because God despises intelligence, but because knowledge makes it easy to approach him as an equal, and nobody is. The invitation to come to him, all who labour, follows immediately.",
     talk: "Where does your knowledge get in the way of receiving like a child?",
-    pray: "Father, you reveal these things to little children. Make us small.",
+    pray: "Father, you reveal yourself to little children and hide yourself from the clever. Make us small enough to receive. Let this child's simple trust teach us something rather than the reverse.",
   },
   {
     read: { text: "But when he saw that the wind was strong, he was afraid, and beginning to sink, he cried out, saying, “Lord, save me!” Immediately Jesus stretched out his hand, took hold of him, and said to him, “You of little faith, why did you doubt?”", ref: "Matthew 14:30-31" },
     reflection:
-      "Beginning to sink, he cried out, saying, 'Lord, save me!' Immediately Jesus stretched out his hand. Peter's faith failed; the hand did not.",
+      "Peter had walked on water — briefly, genuinely. Then he saw the wind, was afraid, and started to go down. And Matthew's detail is that Jesus reached out his hand immediately: no lecture first, no waiting to see if Peter could recover himself. The rebuke comes after he is already held. Peter's faith failed in about thirty seconds; the hand did not. That is the right way round, and it is the only reason any of us are still upright.",
     talk: "Where are you sinking? Have you called out?",
-    pray: "Lord, save us. Take hold of us before we go under.",
+    pray: "Lord, save us. Take hold of us before we go under — you have never waited for anyone to steady themselves first. Our faith is small and your hand is not.",
   },
   {
     read: { text: "and said, “Most certainly I tell you, unless you turn, and become as little children, you will in no way enter into the Kingdom of Heaven.”", ref: "Matthew 18:3" },
     reflection:
-      "Unless you turn and become as little children, you will in no way enter into the Kingdom of Heaven. Not childish, but dependent — nothing to bring, nothing to protect.",
+      "The disciples have just asked who is greatest in the kingdom, and Jesus stands a child in front of them. Unless you turn and become like children — and the point is not innocence, which children do not have, but position. A child in that world owned nothing, could claim nothing, and had no standing to argue from. They received, or they went without. That is the only posture in which anyone has ever entered.",
     talk: "What do you bring to God that a child could not? Is it helping?",
-    pray: "Lord, make us like children — dependent, and glad to be.",
+    pray: "Lord, make us like children — with nothing to bring and nothing to protect. Take away the standing we keep trying to claim, and let us simply receive what you are giving.",
   },
   {
     read: { text: "“teaching them to observe all things that I commanded you. Behold, I am with you always, even to the end of the age.” Amen.", ref: "Matthew 28:20" },
     reflection:
-      "Behold, I am with you always, even to the end of the age. The last words of the gospel are a promise of presence.",
+      "The last sentence of Matthew's gospel. Everything before it is a command — go, make disciples, baptise, teach — and it ends not with a warning about failure but with a promise about presence: I am with you always, to the end of the age. Matthew opened his gospel with a name, Immanuel, God with us. He closes it with the same claim out of Jesus' own mouth. The whole book is bracketed by it.",
     talk: "Where has God sent you? Does his promise of presence reach there?",
-    pray: "Lord Jesus, you are with us always. Thank you.",
+    pray: "Lord Jesus, you are with us always, to the very end. Thank you. Let us live this week as though that were a fact rather than a phrase we have heard too often.",
   },
   {
     read: { text: "Early in the morning, while it was still dark, he rose up and went out, and departed into a deserted place, and prayed there.", ref: "Mark 1:35" },
     reflection:
-      "Early in the morning, while it was still dark, he rose up and went out... and prayed there. Jesus made time by losing sleep. That may not be your season — and he understands.",
+      "Mark says it plainly: very early, while it was still dark, he went out to a desolate place and prayed there. He had been healing until late the night before and the crowds would be back at dawn. So he lost sleep to make the time. That is worth saying honestly — this is a hard verse in a season where sleep is not yours to spend. He knows. He was tired too, and he is not standing over you with a stopwatch.",
     talk: "When could you meet God in this season? Be realistic.",
-    pray: "Lord Jesus, you rose early to pray. Make room for us to meet you.",
+    pray: "Lord Jesus, you made time to pray by going without sleep, and we do not have that to give at the moment. Make room some other way. Meet us in whatever minutes we have.",
   },
   {
     read: { text: "He himself was in the stern, asleep on the cushion, and they woke him up, and told him, “Teacher, don’t you care that we are dying?” He awoke, and rebuked the wind, and said to the sea, “Peace! Be still!” The wind ceased, and there was a great calm.", ref: "Mark 4:38-39" },
     reflection:
-      "Teacher, don't you care that we are dying? The question underneath most panic is not 'can God' but 'does God care'.",
+      "Their question is not do you have the power. It is do you not care that we are perishing — and that is almost always the real question underneath panic. Ability is rarely what we doubt. And Jesus does two things: he stills the storm, and then he asks why they were afraid. He had said at the start that they were going across to the other side. His care was never actually in question; it just looked like it while he was asleep.",
     talk: "When you panic, which do you doubt: his power or his care?",
-    pray: "Lord Jesus, you care and you are able. Still the storm in us.",
+    pray: "Lord Jesus, we half believe you can and we are less sure you care, and that is the honest state of us. Still the storm in us. You said we were going to the other side.",
   },
   {
     read: { text: "He said to them, “You come apart into a deserted place, and rest awhile.” For there were many coming and going, and they had no leisure so much as to eat.", ref: "Mark 6:31" },
     reflection:
-      "Come away into a deserted place, and rest awhile. Jesus says this in the middle of genuinely urgent, good work.",
+      "Consider the timing. John the Baptist has just been executed, the disciples have returned from a preaching tour, and so many people are coming and going that they have not had a chance to eat. The work is urgent, real and good — and Jesus tells them to come away to a desolate place and rest a while. Rest is not what you do when the work runs out. He prescribed it in the middle of genuine need, which is the only time it is ever difficult.",
     talk: "What good work are you using as a reason not to rest?",
-    pray: "Lord Jesus, you call us aside to rest. Give us permission to obey.",
+    pray: "Lord Jesus, you told tired people to come away and rest while the crowds were still waiting. Give us permission to obey. Take the guilt out of stopping.",
   },
   {
     read: { text: "Immediately the father of the child cried out with tears, “I believe. Help my unbelief!”", ref: "Mark 9:24" },
     reflection:
-      "I believe. Help my unbelief! A father asks for help with faith he does not fully have, and Jesus acts anyway.",
+      "The father has just said if you can do anything, have compassion on us — and Jesus turns the if back on him. Then this, shouted immediately and with tears: I believe; help my unbelief. It is not an elegant statement of faith. It is a man admitting his faith is partial while asking for help with the part that is missing. Jesus heals the boy. That is the amount of faith the gospel actually requires.",
     talk: "Where do you believe and doubt at once? Have you told God?",
-    pray: "Lord, we believe. Help our unbelief.",
+    pray: "Lord, we believe — and large parts of us do not. Help our unbelief. Do not wait until we have got this right before you act, because we may never get it right.",
   },
   {
     read: { text: "Jesus, looking at them, said, “With men it is impossible, but not with God, for all things are possible with God.”", ref: "Mark 10:27" },
     reflection:
-      "With men it is impossible, but not with God, for all things are possible with God. Said about salvation, in context — the impossible thing is a person being saved.",
+      "This verse gets attached to ambitions it was never about. Look at the question it answers: a rich man has just walked away, Jesus has said it is easier for a camel to go through the eye of a needle, and the disciples ask in astonishment then who can be saved? That is the impossible thing. Not a career or a healing — a human being getting into the kingdom at all. With men it cannot be done. With God it can.",
     talk: "Whose salvation feels impossible to you?",
-    pray: "Lord, with you all things are possible. Save those we love.",
+    pray: "Lord, the impossible thing you were talking about was saving people, and we are asking for exactly that. Save those we love — the ones we have almost stopped praying for.",
   },
   {
     read: { text: "Mary said, “My soul magnifies the Lord. My spirit has rejoiced in God my Savior,”", ref: "Luke 1:46-47" },
     reflection:
-      "My soul magnifies the Lord. My spirit has rejoiced in God my Saviour. A pregnant teenager's song is about God, not about her circumstances.",
+      "Mary is young, unmarried, pregnant, and about to face a village that will draw its own conclusions. And her song is almost entirely about God — what he has done, what he is like, what he has promised to Abraham's offspring for ever. Her own circumstances appear briefly and only as evidence of his character. Magnify means to make large; she is not enlarging God, she is making him look the size he actually is.",
     talk: "Can you magnify God about this pregnancy rather than only worry about it?",
-    pray: "Lord, our souls magnify you. Our spirits rejoice in God our Saviour.",
+    pray: "Lord, our souls magnify you and our spirits rejoice in God our Saviour. Turn our attention off our circumstances and onto you, the way Mary's went, and let the song be about you.",
   },
   {
     read: { text: "The angel said to them, “Don’t be afraid, for behold, I bring you good news of great joy which will be to all the people.”", ref: "Luke 2:10" },
     reflection:
-      "Don't be afraid, for behold, I bring you good news of great joy which will be to all the people. Announced to shepherds working nights, of no social standing.",
+      "Of everyone in the empire, the announcement goes to shepherds — men working a night shift, whose testimony was not accepted in court, living outside the town because the job required it. Not to the temple, not to Herod, not to Rome. And the news is for all the people, which is the opposite of how it was delivered. God's habit of telling the least significant people first is not an accident of the story; it is the story.",
     talk: "Why do you think God chose shepherds as the first congregation?",
-    pray: "Lord, you bring good news of great joy for all people. Thank you for including us.",
+    pray: "Lord, you sent the best news in history to men on a night shift. Thank you for including people like us. Let this house never be too respectable to hear it.",
   },
   {
     read: { text: "But he withdrew himself into the desert, and prayed.", ref: "Luke 5:16" },
     reflection:
-      "But he withdrew himself into the desert, and prayed. The verb form suggests he did it habitually. At peak demand, he repeatedly disappeared.",
+      "Luke's grammar carries the weight: the verb form means he kept withdrawing, habitually. And the verse before says why it was hard — crowds were gathering in great numbers to hear him and be healed. At the exact point where demand was highest and the work going best, he repeatedly disappeared into empty places. Not when things went badly. When they went well, which is the harder discipline and the one nobody arrives at by accident.",
     talk: "What is your version of withdrawing? When did you last manage it?",
-    pray: "Lord Jesus, you withdrew to pray. Teach us that rhythm.",
+    pray: "Lord Jesus, you withdrew most when you were most in demand, and we do the opposite. Teach us that rhythm. Give this house times when it stops on purpose rather than from collapse.",
   },
   {
     read: { text: "I tell you, keep asking, and it will be given you. Keep seeking, and you will find. Keep knocking, and it will be opened to you.", ref: "Luke 11:9" },
     reflection:
-      "Ask, and you will receive. Seek, and you will find. Knock, and it will be opened to you. The context is a friend banging on a door at midnight.",
+      "The parable immediately before is a man banging on a friend's door at midnight because unexpected guests have arrived and he has no bread. The friend is in bed with his children and does not want to get up — and gets up anyway, because of the man's shameless persistence. That is the setting for ask, seek, knock. All three verbs are continuous in the Greek: keep asking. This is not a formula. It is a description of someone who will not go away.",
     talk: "What would persistent, almost rude prayer look like for you?",
-    pray: "Lord, we ask, we seek, we knock. Keep us at the door.",
+    pray: "Lord, we ask and seek and knock and then give up quietly when nothing happens. Keep us at the door. Give us the shamelessness of a man with nothing to offer his guests.",
   },
   {
     read: { text: "But the very hairs of your head are all counted. Therefore don’t be afraid. You are of more value than many sparrows.", ref: "Luke 12:7" },
     reflection:
-      "But the very hairs of your head are all numbered. Therefore don't be afraid. You are of more value than many sparrows. Attention at the level of hair count.",
+      "Look at who Jesus is talking to. He has just warned them about being dragged before synagogues and authorities, and told them not to fear those who kill the body. Then: the hairs of your head are all numbered. This is not comfort for an easy day. It is given to people about to be in real trouble, and it works by scale — if his attention runs to hair count, nothing happening to you is beneath his notice.",
     talk: "What makes you feel forgettable?",
-    pray: "Lord, even our hairs are numbered. Do not let us fear.",
+    pray: "Lord, you count what nobody would bother counting. Do not let us be afraid. Steady us, and let this child grow up unable to imagine themselves overlooked by you.",
   },
   {
     read: { text: "But he said, “The things which are impossible with men are possible with God.”", ref: "Luke 18:27" },
     reflection:
-      "The things which are impossible with men are possible with God. Said in a conversation about who can be saved. The impossible thing is salvation.",
+      "The context decides the meaning. A rich ruler has walked away sorrowful, Jesus has said how hard it is for the wealthy to enter the kingdom, and the listeners ask then who can be saved? That is the impossible thing being discussed. Not a plan or an outcome — a human being entering the kingdom at all, which nobody can arrange for themselves or for anyone else. With God it is possible, and that is the only reason any of us are here.",
     talk: "What have you decided is beyond God?",
-    pray: "Lord, what is impossible with us is possible with you.",
+    pray: "Lord, what is impossible with us is possible with you, and the impossible thing is a person being saved. Do it in this house — in us, and in the child we are about to raise.",
   },
   {
     read: { text: "saying, “Father, if you are willing, remove this cup from me. Nevertheless, not my will, but yours, be done.”", ref: "Luke 22:42" },
     reflection:
-      "Not my will, but yours, be done. Jesus asks for a different outcome, genuinely, and then submits. Wanting something else is not unbelief.",
+      "Both halves matter, and we usually only quote the second. He asks — genuinely, in agony, sweating, with the request repeated — that the cup be taken away. Wanting a different outcome is not unbelief; the Son of God did it out loud. And then nevertheless, not my will but yours. Submission here is not the absence of a preference. It is a real preference, stated honestly, and then laid down.",
     talk: "What are you asking God to change? Can you pray this alongside it?",
-    pray: "Father, take this cup if you will. Nevertheless, not our will but yours.",
+    pray: "Father, take this cup if you are willing — we are asking plainly and we are not ashamed of asking. Nevertheless, not our will but yours. Hold us to that when the answer comes.",
   },
   {
     read: { text: "For God so loved the world, that he gave his one and only Son, that whoever believes in him should not perish, but have eternal life.", ref: "John 3:16" },
     reflection:
-      "For God so loved the world, that he gave his one and only Son. Love measured by what was given up. That is the standard for how you will love this child.",
+      "The famous word is so, and it does not mean so much — it means in this way. God loved the world in this manner: he gave his only Son. Love is defined by what it hands over, not by what it feels. And Jesus says it to Nicodemus in the context of the bronze serpent lifted in the wilderness, which means the giving he has in mind ends at a cross. That is the standard you have just signed up to imitate.",
     talk: "What are you already willing to give up for this child?",
-    pray: "Lord, you gave your only Son. Teach us love that gives.",
+    pray: "Lord, you loved by giving up your only Son, and that is the pattern we have been handed. Teach us love that gives rather than love that feels. Start with the next unglamorous thing.",
   },
   {
     read: { text: "Jesus said to them, “I am the bread of life. Whoever comes to me will not be hungry, and whoever believes in me will never be thirsty.”", ref: "John 6:35" },
     reflection:
-      "I am the bread of life. He who comes to me will not be hungry, and he who believes in me will never be thirsty. He offers himself, not a technique.",
+      "The crowd had just asked for a sign and reminded him that Moses gave their fathers manna. Jesus does not offer a better system or a practice. He offers himself: I am the bread of life. And bread is a daily, unremarkable food, not a delicacy — the thing you eat every day without noticing, and die without. Whoever comes will not hunger, he says. The condition is coming, repeatedly, the way you come to a table.",
     talk: "What hunger have you tried to satisfy elsewhere?",
-    pray: "Lord Jesus, you are the bread of life. Feed us.",
+    pray: "Lord Jesus, you are the bread of life and we keep looking for a method instead. Feed us — today, and then again tomorrow, because that is how bread works.",
   },
   {
     read: { text: "The thief only comes to steal, kill, and destroy. I came that they may have life, and may have it abundantly.", ref: "John 10:10" },
     reflection:
-      "I came that they may have life, and may have it abundantly. The contrast in context is a thief who kills. Abundant life is life under the good shepherd.",
+      "This verse has been sold as a promise of prosperity, and the context makes that impossible. Jesus is contrasting himself with thieves and hired hands who run when the wolf comes, and the very next sentence is that the good shepherd lays down his life for the sheep. Abundant life here means life under a shepherd who dies for you rather than one who is using you. It is a promise about who is in charge of you, not about what you will own.",
     talk: "How has this verse been sold to you? What does the context change?",
-    pray: "Lord Jesus, you came that we might have life. Be our shepherd.",
+    pray: "Lord Jesus, you came that we might have life in full, and you defined it by laying yours down. Be our shepherd. Keep us from wanting the abundance without the shepherd.",
   },
   {
     read: { text: "Jesus wept.", ref: "John 11:35" },
     reflection:
-      "Jesus wept. Minutes from raising Lazarus, he still weeps. Grief is not a failure of faith; the Lord himself does it.",
+      "He is four days late and entirely in control. He has already said Lazarus will rise, and he knows exactly how this ends — and standing at the grave of someone he loved, he weeps anyway. The word John uses just before is closer to anger than sadness: he snorted in his spirit. God in the flesh looked at death and hated it. He did not explain it or ask anyone to take the long view. He cried, and then he acted.",
     talk: "Do you allow yourself to grieve, or rush to be fine?",
-    pray: "Lord Jesus, you wept at a grave. Weep with us.",
+    pray: "Lord Jesus, you wept at a grave you were about to open. Weep with us. Let nobody in this house be told their tears are a failure of faith, because yours were not.",
   },
   {
     read: { text: "But you will receive power when the Holy Spirit has come upon you. You will be witnesses to me in Jerusalem, in all Judea and Samaria, and to the uttermost parts of the earth.", ref: "Acts 1:8" },
     reflection:
-      "You will receive power when the Holy Spirit has come upon you. Power given for witness, not for display. Even at home, even now.",
+      "The disciples have just asked whether he will restore the kingdom to Israel now, and Jesus declines to answer the timetable question and gives them this instead. Power — dunamis — for one stated purpose: you will be my witnesses. Not for display and not for personal benefit. And the geography starts at home: Jerusalem first, where they lived and where everybody knew them, then outward. Witness begins where you already are.",
     talk: "Where has God placed you to be a witness?",
-    pray: "Lord, give us your Spirit's power to be witnesses where we are.",
+    pray: "Lord, give us your Spirit's power for the one thing you gave it for. Make us witnesses here — in this house, to the people who already know us — before anywhere else.",
   },
   {
     read: { text: "But about midnight Paul and Silas were praying and singing hymns to God, and the prisoners were listening to them.", ref: "Acts 16:25" },
     reflection:
-      "About midnight Paul and Silas were praying and singing hymns to God, and the prisoners were listening. Beaten, chained, and singing — and others heard.",
+      "They have been stripped, beaten with rods, thrown into an inner cell and put in the stocks. At midnight they are praying and singing hymns, and Luke adds the detail that matters: the prisoners were listening to them. Nobody sings in a place like that, so the other men had nothing to compare it to. What a household does at its worst hour is heard by people who never listen to it at its best.",
     talk: "What do people hear from you when things are hardest?",
-    pray: "Lord, give us songs at midnight, and let others hear them.",
+    pray: "Lord, give us songs at midnight — and let others hear them. Let what we do in the hard hours preach something truer than what we say in the easy ones.",
   },
   {
     read: { text: "But these things don’t count; nor do I hold my life dear to myself, so that I may finish my race with joy, and the ministry which I received from the Lord Jesus, to fully testify to the Good News of the grace of God.", ref: "Acts 20:24" },
     reflection:
-      "I don't hold my life dear to myself, so that I may finish my race with joy. Finishing valued over surviving.",
+      "Paul says this on a beach, saying goodbye to the Ephesian elders and heading for a city where he has been told imprisonment and affliction await him. I do not account my life of any value nor as precious to myself, if only I may finish my course and the ministry I received. Finishing is what he wants, not surviving. And notice the two words attached: with joy. He is not bracing himself grimly. He wants to enjoy the end of it.",
     talk: "What are you holding dear that is slowing the race?",
-    pray: "Lord, let us finish our course with joy.",
+    pray: "Lord, let us finish the course you have given us, and finish it with joy. Keep us from spending our lives merely trying to survive them.",
   },
   {
     read: { text: "There is therefore now no condemnation to those who are in Christ Jesus, who don’t walk according to the flesh, but according to the Spirit.", ref: "Romans 8:1" },
     reflection:
-      "There is therefore now no condemnation to those who are in Christ Jesus. Whatever guilt you carry into parenting, this verse stands over it.",
+      "Therefore now — the therefore reaches back over seven chapters of argument, and the now means the verdict is already in. Not there will be no condemnation if you manage well; there is none, presently, for those in Christ Jesus. Paul writes it immediately after the honest chapter about doing the thing he hates. You are about to accumulate a great deal of guilt about your parenting, some of it deserved. This verse stands over all of it.",
     talk: "What do you condemn yourself for? What does this verse say?",
-    pray: "Lord, there is no condemnation in Christ. Let us live in that.",
+    pray: "Lord, there is no condemnation for us in Christ, and we keep living as though the verdict were still pending. Let us actually believe it — today, and on the day we get it badly wrong.",
   },
   {
     read: { text: "In the same way, the Spirit also helps our weaknesses, for we don’t know how to pray as we ought. But the Spirit himself makes intercession for us with groanings which can’t be uttered.", ref: "Romans 8:26" },
     reflection:
-      "The Spirit also helps our weaknesses, for we don't know how to pray as we ought. When you are too tired for words, prayer does not stop.",
+      "Paul admits something few of us will: we do not know what to pray for as we ought. Not that we word it badly — we do not know. And the answer is not a technique. The Spirit himself intercedes with groanings too deep for words, and the Father, who searches hearts, knows exactly what the Spirit means. So a person too tired to form a sentence has not stopped praying. Someone else is carrying it in the same room.",
     talk: "Sit in silence together for two minutes and let the Spirit pray.",
-    pray: "Spirit of God, pray in us what we cannot say.",
+    pray: "Spirit of God, pray in us what we cannot say. We do not know what to ask for any more. Carry it to the Father, who knows your mind even when we have lost ours.",
   },
   {
     read: { text: "He who didn’t spare his own Son, but delivered him up for us all, how would he not also with him freely give us all things?", ref: "Romans 8:32" },
     reflection:
-      "He who didn't spare his own Son... how would he not also with him freely give us all things? An argument from the greater to the lesser.",
+      "Paul argues from the largest thing to everything else. God did not spare his own Son — the phrase deliberately echoes Abraham on the mountain, except this time there was no ram. If the greater gift has already been given, at that price, then withholding the lesser ones makes no sense. It is not a promise that you will get what you ask for. It is a promise about the disposition of the one you are asking.",
     talk: "What are you afraid God will withhold?",
-    pray: "Father, you did not spare your Son. We trust you with everything else.",
+    pray: "Father, you did not spare your own Son, and there was no ram in the thicket. We trust you with everything smaller than that — including the things we are most afraid of losing.",
   },
   {
     read: { text: "Don’t be conformed to this world, but be transformed by the renewing of your mind, so that you may prove what is the good, well-pleasing, and perfect will of God.", ref: "Romans 12:2" },
     reflection:
-      "Don't be conformed to this world, but be transformed by the renewing of your mind. Conforming happens by default. Transformation begins with what fills your mind.",
+      "Two verbs, and they work differently. Conformed is passive — it is what happens by default, the way water takes the shape of whatever holds it. Nobody decides to be pressed into the world's mould. Transformed is the word behind metamorphosis, and it comes by the renewing of the mind, which means it starts with what you let in. The result Paul names is discernment: you begin to be able to tell what God's will actually is.",
     talk: "What is forming your ideas about parenting more than Scripture is?",
-    pray: "Lord, transform us by renewing our minds.",
+    pray: "Lord, we are being shaped by things we never chose — by what we watch, by what everyone around us assumes. Transform us by renewing our minds, and give us discernment with it.",
   },
   {
     read: { text: "Now may the God of hope fill you with all joy and peace in believing, that you may abound in hope, in the power of the Holy Spirit.", ref: "Romans 15:13" },
     reflection:
-      "May the God of hope fill you with all joy and peace in believing, that you may abound in hope. Hope is a gift given, not a mood generated.",
+      "Notice the title: the God of hope. Hope is not something the Romans are told to generate; it is something he fills them with, and the last phrase names the means — by the power of the Holy Spirit. So hope that has quietly drained out of a household is not a personality failure to be talked out of. It is something to ask God for, specifically, in the places where you have stopped expecting anything.",
     talk: "What are you hoping in that could fail?",
-    pray: "God of hope, fill us with joy and peace in believing.",
+    pray: "God of hope, we have stopped hoping for certain things and never said so out loud. Fill us with joy and peace in believing. Give the hope back, by the power of your Spirit.",
   },
   {
     read: { text: "Love is patient and is kind. Love doesn’t envy. Love doesn’t brag, is not proud, doesn’t behave itself inappropriately, doesn’t seek its own way, is not provoked, takes no account of evil; doesn’t rejoice in unrighteousness, but rejoices with the truth; bears all things, believes all things, hopes all things, and endures all things.", ref: "1 Corinthians 13:4-7" },
     reflection:
-      "Love is patient and is kind... bears all things, believes all things, hopes all things, endures all things. Written to a fractious church, not for a wedding.",
+      "This was not written for a wedding. Paul is correcting a church that was suing each other, getting drunk at the Lord's table, and ranking themselves by spiritual gifts — and the list is aimed at them. Every line is a rebuke of something they were doing. Which makes it far more useful than a poem: patient, kind, not irritable, not resentful, keeping no record of wrongs. It is a description of the last hour of a very long day.",
     talk: "Which line will be hardest at 3am?",
-    pray: "Lord, make our love patient and kind, bearing and enduring all things.",
+    pray: "Lord, make our love patient and kind in the hours when we are least able. Take away the record of wrongs each of us is keeping. Let it bear and believe and hope and endure.",
   },
   {
     read: { text: "But the fruit of the Spirit is love, joy, peace, patience, kindness, goodness, faith, gentleness, and self-control. Against such things there is no law.", ref: "Galatians 5:22-23" },
     reflection:
-      "The fruit of the Spirit is love, joy, peace, patience, kindness, goodness, faith, gentleness, and self-control. Nine things new parents run out of.",
+      "Fruit, singular — nine facets of one thing, not a menu to pick from. And fruit is not manufactured; it grows, slowly, on something connected to a root, which is why Paul contrasts it with the works of the flesh a few lines earlier. Every item on this list is one that exhausted people run out of first. You cannot generate any of them by effort at four in the morning. You can stay connected to the vine.",
     talk: "Which of the nine is most missing? Ask for that one.",
-    pray: "Spirit of God, grow your fruit in us. We are running low.",
+    pray: "Spirit of God, grow your fruit in us, because we cannot manufacture a single item on that list. We are running low on all nine. Keep us attached to the vine.",
   },
   {
     read: { text: "Now to him who is able to do exceedingly abundantly above all that we ask or think, according to the power that works in us, to him be the glory in the assembly and in Christ Jesus to all generations forever and ever. Amen.", ref: "Ephesians 3:20-21" },
     reflection:
-      "To him who is able to do exceedingly abundantly above all that we ask or think, according to the power that works in us. Ability exceeding imagination.",
+      "This closes a prayer that had already asked outrageous things — that they would know a love surpassing knowledge, and be filled with all the fullness of God. And Paul ends by saying God can do more than that: more than we ask, and more than we can imagine asking. Then he grounds it somewhere unexpected — according to the power at work within us, which he has already identified as the power that raised Christ from the dead.",
     talk: "What are you afraid to ask for?",
-    pray: "Lord, you can do more than we ask or imagine. We ask again.",
+    pray: "Lord, you can do more than we know how to ask for, and we have been asking small because we were afraid of disappointment. We ask again. Do whatever is beyond it.",
   },
   {
     read: { text: "And be kind to one another, tender hearted, forgiving each other, just as God also in Christ forgave you.", ref: "Ephesians 4:32" },
     reflection:
-      "And be kind to one another, tender hearted, forgiving each other, just as God also in Christ forgave you. The standard is how you have been forgiven.",
+      "The command is ordinary; the standard is not. Be kind, tender-hearted, forgiving one another — as God in Christ forgave you. That last clause sets the measure, and it is not proportional to the offence. The parable Jesus told makes the same point with numbers: a debt of ten thousand talents cancelled, and a hundred denarii demanded back. The forgiveness in a household is meant to run at the rate we received, not the rate we think is fair.",
     talk: "What needs forgiving between you tonight?",
-    pray: "Lord, make us kind and tender-hearted, forgiving as we were forgiven.",
+    pray: "Lord, make us kind and tender-hearted, and let us forgive at the rate you forgave us rather than the rate that feels reasonable. We know what we were let off.",
   },
   {
     read: { text: "with all prayer and requests, praying at all times in the Spirit, and being watchful to this end in all perseverance and requests for all the saints:", ref: "Ephesians 6:18" },
     reflection:
-      "With all prayer and requests, praying at all times in the Spirit, and being watchful to this end in all perseverance. Prayer as the thing that holds the armour on.",
+      "This comes at the end of the armour passage, and it is not a seventh piece. It is the sentence that holds the other six on — praying at all times in the Spirit, with all prayer and supplication, keeping alert with all perseverance. Armour on a man who never prays is decorative. And note who the praying is for: all the saints. The last instruction in the passage points away from yourself.",
     talk: "Do you pray for each other by name daily? Start tonight if not.",
-    pray: "Lord, keep us praying at all times, watchful for each other.",
+    pray: "Lord, keep us praying at all times rather than only when something is wrong. Make us watchful for each other — and for people beyond this house who need it more.",
   },
   {
     read: { text: "bearing with one another, and forgiving each other, if any man has a complaint against any; even as Christ forgave you, so you also do.", ref: "Colossians 3:13" },
     reflection:
-      "Bearing with one another, and forgiving each other, if any man has a complaint against any; even as Christ forgave you, so you also do. Bearing with assumes something to bear.",
+      "Bearing with one another assumes there is something to bear. Paul is not describing people who happen to get along; he is describing a church where somebody has a complaint against somebody, and telling them what to do about it. And then the same measure again: as the Lord has forgiven you, so you also must forgive. A household will always have things to bear. The question is whether they are borne or catalogued.",
     talk: "What do you each have to bear with in the other right now?",
-    pray: "Lord, help us bear with and forgive one another as you forgave us.",
+    pray: "Lord, help us bear with each other — which means there will be things to bear, and we accept that. Let us forgive as you forgave us, rather than keep an account.",
   },
   {
     read: { text: "Now may the Lord of peace himself give you peace at all times in all ways. The Lord be with you all.", ref: "2 Thessalonians 3:16" },
     reflection:
-      "Now may the Lord of peace himself give you peace at all times in all ways. The Lord be with you all. Peace at all times in all ways — that is the scope of the prayer.",
+      "Paul has just been writing about people who will not work and about not growing weary in doing good, and he ends with this. The title is deliberate: the Lord of peace himself. Not may you find peace, but may he give it, himself. And the scope is total — at all times, in every way. He does not attach a condition or a season. It is the widest peace prayer in the letters, and it is asked for rather than achieved.",
     talk: "Where do you most lack peace? Ask for it there.",
-    pray: "Lord of peace, give us peace at all times in every way.",
+    pray: "Lord of peace, give us peace at all times and in every way — not only when things are settled. And be with us, which is the other half of the prayer and the better half.",
   },
   {
     read: { text: "For every creature of God is good, and nothing is to be rejected, if it is received with thanksgiving.", ref: "1 Timothy 4:4" },
     reflection:
-      "For every creature of God is good, and nothing is to be rejected if it is received with thanksgiving. Sleep, food, help, medicine — received with thanks, not refused out of misplaced piety.",
+      "Paul is writing against people who were forbidding marriage and certain foods, treating renunciation as holiness. His answer is creation theology: everything God made is good, and nothing is to be rejected if it is received with thanksgiving. That matters in this season, because there is a false piety that treats sleep, help, medicine and decent food as luxuries a serious Christian should manage without. Thanksgiving is the test, not refusal.",
     talk: "What help have you refused that you should receive?",
-    pray: "Lord, everything you made is good. Teach us to receive with thanks.",
+    pray: "Lord, everything you made is good and we have been refusing things out of a piety you never asked for. Teach us to receive with thanks — the sleep, the help, the medicine.",
   },
   {
     read: { text: "not by works of righteousness which we did ourselves, but according to his mercy, he saved us through the washing of regeneration and renewing by the Holy Spirit,", ref: "Titus 3:5" },
     reflection:
-      "He saved us, not by works of righteousness which we did ourselves, but according to his mercy. Nothing you do as a parent will save you or this child. Mercy will.",
+      "Paul stacks the negatives to leave no room: not because of works done by us in righteousness, but according to his own mercy. And the verse before describes what we were — foolish, disobedient, led astray, hating one another. So the saving happened to people in that condition, on the basis of mercy alone. Nothing you do in the next twenty years will save you or this child. You will still do it, and it will still matter, and it will not save anyone.",
     talk: "Where are you trying to earn what has been given?",
-    pray: "Lord, you saved us by mercy, not by our works. Thank you.",
+    pray: "Lord, you saved us by mercy and not by anything we managed. Thank you. Let us raise this child out of that freedom rather than trying to earn something already given.",
   },
   {
     read: { text: "For in that he himself has suffered being tempted, he is able to help those who are tempted.", ref: "Hebrews 2:18" },
     reflection:
-      "In that he himself has suffered being tempted, he is able to help those who are tempted. Christ is not sympathetic from a distance.",
+      "The logic of the sentence is that the suffering qualifies him. Because he himself has suffered when tempted, he is able to help those who are being tempted. Not sympathetic from a distance — able, because he has been in it. The chapter has just said he shared in flesh and blood and was made like his brothers in every respect. Help here comes from someone who knows the pull from the inside and did not give in.",
     talk: "What are you tempted by in this season? Does it help that he understands?",
-    pray: "Lord Jesus, you have been tempted. Help us who are being tempted.",
+    pray: "Lord Jesus, you were tempted and you know exactly how it feels from the inside. Help us who are being tempted — in the specific thing we have not named out loud.",
   },
   {
     read: { text: "For we don’t have a high priest who can’t be touched with the feeling of our infirmities, but one who has been in all points tempted like we are, yet without sin.", ref: "Hebrews 4:15" },
     reflection:
-      "We don't have a high priest who can't be touched with the feeling of our infirmities. He knows what a tired human body feels like.",
+      "A double negative, which in Greek is emphasis: we do not have a high priest who is unable to sympathise with our weaknesses. He knows what a body feels like at the end of its strength — he slept through a storm from exhaustion, he was hungry in the desert, he thirsted on a cross. The next verse is the conclusion: therefore draw near with confidence. The sympathy is not the end of it; it is the reason you can come.",
     talk: "What would you want Christ to understand about today? He already does.",
-    pray: "Lord Jesus, you know our weakness. Thank you for understanding.",
+    pray: "Lord Jesus, you know what a tired human body feels like because you had one. Thank you for understanding. Let us come to you without apologising for being weak.",
   },
   {
     read: { text: "Now faith is assurance of things hoped for, proof of things not seen.", ref: "Hebrews 11:1" },
     reflection:
-      "Now faith is assurance of things hoped for, proof of things not seen. Faith is not certainty about outcomes. It is confidence about someone.",
+      "Assurance and conviction are both courtroom words — substance, evidence. And notice what faith is aimed at: things hoped for and things not seen, which is not the same as certainty about outcomes. The chapter that follows proves the point: it lists people who conquered kingdoms and people who were sawn in two, and says all of them died without receiving what was promised. Faith is confidence about a person, not a prediction about events.",
     talk: "What are you sure of that you cannot see?",
-    pray: "Lord, give us assurance of what we hope for and conviction of what we cannot see.",
+    pray: "Lord, give us assurance of what we hope for and conviction of what we cannot see. Keep us from mistaking faith for certainty about how things will turn out.",
   },
   {
     read: { text: "All chastening seems for the present to be not joyous but grievous; yet afterward it yields the peaceful fruit of righteousness to those who have been trained by it.", ref: "Hebrews 12:11" },
     reflection:
-      "All chastening seems for the present to be not joyous but grievous; yet afterward it yields the peaceful fruit of righteousness. Painful, admitted. Fruit later.",
+      "The writer does not pretend. All discipline seems painful rather than pleasant at the time — no qualification, no suggestion that mature people find it easier. What he adds is later: afterwards it yields the peaceful fruit of righteousness, and only to those trained by it. So the fruit is not automatic; it comes to people who let the thing do its work rather than merely enduring it. And the context is a Father disciplining sons he owns, not a judge punishing.",
     talk: "What has God been disciplining? Are you being trained by it or resisting?",
-    pray: "Lord, let your discipline yield the peaceful fruit of righteousness.",
+    pray: "Lord, this is painful and we are not going to call it anything else. Let your discipline yield the peaceful fruit of righteousness in us. Train us rather than just tire us.",
   },
   {
     read: { text: "Count it all joy, my brothers, when you fall into various temptations, knowing that the testing of your faith produces endurance.", ref: "James 1:2-3" },
     reflection:
-      "Count it all joy when you fall into various temptations, knowing that the testing of your faith produces endurance. Not 'feel joy' — count it, a deliberate reckoning.",
+      "Count is an accountant's word — reckon, calculate, enter in the ledger. James does not say feel joyful about trials, which would be absurd and dishonest. He says work out what they are producing and enter that in the book: the testing of your faith produces steadfastness. It is a deliberate act of reckoning done with a clear head, usually afterwards, and it is entirely compatible with hating the thing while it happens.",
     talk: "What is the current trial producing? Can you see it yet?",
-    pray: "Lord, let endurance have its full effect in us.",
+    pray: "Lord, we cannot feel joy about this and you did not ask us to. Help us count it — to see what you are producing. Let endurance have its full effect in us.",
   },
   {
     read: { text: "Come now, you who say, “Today or tomorrow let’s go into this city, and spend a year there, trade, and make a profit.” Whereas you don’t know what your life will be like tomorrow. For what is your life? For you are a vapor that appears for a little time, and then vanishes away. For you ought to say, “If the Lord wills, we will both live, and do this or that.”", ref: "James 4:13-15" },
     reflection:
-      "You ought to say, 'If the Lord wills, we will both live, and do this or that.' Every plan for this child is provisional on his will.",
+      "James is not against planning; he quotes a perfectly sensible business plan and then puts a hole in it. You do not know what tomorrow will bring — you are a mist that appears and vanishes. What he wants instead is not paralysis but a phrase: if the Lord wills, we will live and do this or that. Said honestly, it changes the grip rather than the plan. Every arrangement you are making for this child is provisional, and always was.",
     talk: "What are you planning as though your life were guaranteed?",
-    pray: "Lord, if you will, we will live and do this. All our plans are yours.",
+    pray: "Lord, if you will, we will live and do these things. All our plans are yours. Hold them loosely for us, since we cannot seem to.",
   },
   {
     read: { text: "If we confess our sins, he is faithful and righteous to forgive us the sins, and to cleanse us from all unrighteousness.", ref: "1 John 1:9" },
     reflection:
-      "If we confess our sins, he is faithful and righteous to forgive us the sins, and to cleanse us from all unrighteousness. Forgiveness tied to his character, not his mood.",
+      "Look at the two words holding up the promise: faithful and just. Not merciful and kind, which is what we expect. He forgives because he is faithful to his word and because the debt has been justly settled — John says in the next breath that Jesus Christ the righteous is our advocate and the propitiation for our sins. Forgiveness here does not depend on God being in a good mood. It rests on a transaction already completed.",
     talk: "What have you not confessed because you doubt he would forgive it?",
-    pray: "Lord, we confess. You are faithful and just to forgive and cleanse.",
+    pray: "Lord, we confess — plainly, without softening it. You are faithful and just to forgive and to cleanse, because it has already been paid for. Thank you that it does not rest on your mood or ours.",
   },
   {
     read: { text: "We love him, because he first loved us.", ref: "1 John 4:19" },
     reflection:
-      "We love him, because he first loved us. Every love in this house is a response to a prior love. Including the love you will feel for this child.",
+      "Four words carry it: because he first loved us. Every love in this house is a second thing, a response to something that started elsewhere. John has just said that in this is love, not that we loved God, but that he loved us and sent his Son. Which is worth remembering when the love you feel for this child arrives and seems to come from nowhere. It did not. You are passing on something you were given.",
     talk: "Where did your capacity to love come from?",
-    pray: "Lord, we love because you first loved us.",
+    pray: "Lord, we love because you loved us first, and every bit of affection in this house is borrowed from you. Thank you. Keep us from taking credit for it.",
   },
   {
     read: { text: "I set my rainbow in the cloud, and it will be a sign of a covenant between me and the earth.", ref: "Genesis 9:13" },
     reflection:
-      "I set my rainbow in the cloud, and it will be a sign of a covenant. A weapon hung up in the sky. God signs his promise with a picture of war laid down.",
+      "The Hebrew word is simply bow — a war bow, and God says he is setting his in the cloud. The picture is a weapon hung up, pointed away from the earth. It is not decoration; it is a disarmament, signed. And God says the sign is for himself: when I see it, I will remember. He did not need a reminder. He gave one anyway, because people do, and because a promise you can see is easier to hold.",
     talk: "What promise of God do you need a visible sign of?",
-    pray: "Lord, you set your bow in the clouds. Thank you for keeping promises.",
+    pray: "Lord, you hung up your bow and signed a promise you did not need reminding of. Thank you for keeping promises. Give us eyes for the signs you have already put in front of us.",
   },
   {
     read: { text: "Sarah said, “God has made me laugh. Everyone who hears will laugh with me.”", ref: "Genesis 21:6" },
     reflection:
-      "God has made me laugh. Everyone who hears will laugh with me. Sarah, who laughed bitterly, laughs differently. God can change the meaning of a laugh.",
+      "Sarah laughed once before, behind the tent flap, and then denied it. Now she laughs again and the sound means something different: God has made laughter for me, and everyone who hears will laugh with me. Same woman, same laugh, entirely new meaning — and the child is named Isaac, which means he laughs, so the joke is permanent. God did not scold the first laugh out of her. He outlasted it.",
     talk: "What have you laughed at bitterly? Could that change?",
-    pray: "Lord, you turn bitter laughter to joy. Do it in your own time.",
+    pray: "Lord, some of our laughter has gone bitter and we cannot change it ourselves. Turn it, in your own time, the way you turned Sarah's. We will wait for that.",
   },
   {
     read: { text: "Elkanah her husband said to her, “Hannah, why do you weep? Why don’t you eat? Why is your heart grieved? Am I not better to you than ten sons?”", ref: "1 Samuel 1:8" },
     reflection:
-      "Am I not better to you than ten sons? A husband means well and misses her completely. Loving someone includes not requiring them to be comforted on your terms.",
+      "Elkanah loves her and he is completely wrong. Three questions in a row, all reasonable, and then am I not more to you than ten sons — which asks her to be comforted on his terms and to stop grieving because it distresses him. Hannah does not answer. She goes to the temple and pours it out to God instead. Loving someone in grief includes not requiring them to feel better in order to make you comfortable.",
     talk: "When have you tried to fix rather than sit with the other's grief?",
-    pray: "Lord, teach us to grieve with each other rather than talking each other out of it.",
+    pray: "Lord, teach us to sit with each other's grief rather than talk each other out of it. Keep us from asking the other to be comforted for our own sake.",
   },
   {
     read: { text: "I had heard of you by the hearing of the ear, but now my eye sees you.", ref: "Job 42:5" },
     reflection:
-      "I had heard of you by the hearing of the ear, but now my eye sees you. God never explained the suffering. He gave Job himself.",
+      "Thirty-eight chapters of argument, and God's answer is four chapters of questions about wild goats and ostriches and the foundations of the earth. He never tells Job why any of it happened — the reader knows, and Job never does. What Job gets instead is God himself, and he says it is enough: I had heard of you by the hearing of the ear, but now my eye sees you. The explanation was withheld. The presence was not.",
     talk: "Would you rather have an explanation from God, or God?",
-    pray: "Lord, we want answers. Give us yourself, which is better.",
+    pray: "Lord, we want an explanation and you have not given one. Give us yourself instead, which Job said was better. Let us see you, and stop requiring you to justify yourself first.",
   },
   {
     read: { text: "Jesus answered, “This man didn’t sin, nor did his parents; but, that the works of God might be revealed in him.”", ref: "John 9:3" },
     reflection:
-      "Neither did this man sin, nor his parents; but, that the works of God might be revealed in him. Jesus refuses the whole question of blame.",
+      "The disciples ask the question every sufferer has been asked: who sinned, this man or his parents? It assumes the whole framework — somebody is at fault, and the job is to identify them. Jesus refuses the framework entirely: neither. Then he redirects it forwards rather than backwards — that the works of God might be displayed. He does not explain the blindness. He declines to let it be turned into a charge against anybody.",
     talk: "Have you searched for what you did wrong when something went wrong?",
-    pray: "Lord Jesus, free us from hunting for our own guilt in every hard thing.",
+    pray: "Lord Jesus, we go looking for our own guilt in every hard thing and call it humility. Free us from that. Show us what you are doing instead of who is to blame.",
   },
   {
     read: { text: "Blessed is the man who doesn’t walk in the counsel of the wicked, nor stand on the path of sinners, nor sit in the seat of scoffers; but his delight is in the LORD’s law. On his law he meditates day and night.", ref: "Psalm 1:1-2" },
     reflection:
-      "Blessed is the man who doesn't walk in the counsel of the wicked... but his delight is in the LORD's law. Delight, not duty. What you feed on shapes what grows in you.",
+      "Watch the verbs slow down: walks, stands, sits. Drift has stages, and nobody sits down in the seat of scoffers on the first day. Against that the psalm sets not discipline but delight — his delight is in the law of the LORD. Then the tree by streams of water, bearing fruit in season, leaves that do not wither. The whole first psalm, which is the doorway into the book, is about what a person feeds on and what grows out of it.",
     talk: "What are you feeding on in this season — advice, forums, fear, or Scripture?",
-    pray: "Lord, let our delight be in your word, day and night.",
+    pray: "Lord, let our delight be in your word rather than our duty toward it. Plant us by your streams now, so that there is fruit in season and leaves that hold in a dry year.",
   },
   {
     read: { text: "Ask of me, and I will give the nations for your inheritance, the uttermost parts of the earth for your possession.", ref: "Psalm 2:8" },
     reflection:
-      "Ask of me, and I will give the nations for your inheritance. The Father's word to the Son. This child's future is bound up with a King who already owns everything.",
+      "This is the Father speaking to the Son in a psalm about kings raging against the LORD and his anointed. Ask of me, and I will make the nations your heritage. The New Testament quotes this psalm more than almost any other and applies it directly to Jesus — at his baptism, at the resurrection, in Hebrews. Whatever this child's life amounts to, it will be lived inside a kingdom whose King has already been given everything.",
     talk: "What inheritance do you want for this child? What is already secured?",
-    pray: "Lord Jesus, all things are yours. Give this child a place in your kingdom.",
+    pray: "Lord Jesus, the nations were given to you and the ends of the earth are yours. Give this child a place in that kingdom, and let their small life be spent inside your large one.",
   },
   {
     read: { text: "Have mercy on me, the LORD, for I am faint. the LORD, heal me, for my bones are troubled.", ref: "Psalm 6:2" },
     reflection:
-      "Have mercy on me, LORD, for I am faint. Heal me, LORD, for my bones are troubled. Physical exhaustion brought to God as prayer, without apology.",
+      "The psalm begins with sin and judgement and then, without apology, turns to a body: I am languishing, my bones are troubled, and a few lines later, I am weary with my moaning, my bed is drenched with weeping. Nothing here is treated as beneath God's notice or as a failure of faith. Exhaustion is brought straight to him as prayer, in the plainest physical terms available, and it is in the Bible for that reason.",
     talk: "How is your body? Have you told God plainly?",
-    pray: "Lord, we are languishing. Heal us; our bones are troubled.",
+    pray: "Lord, have mercy on us, for we are worn out. Heal us — our bodies as well as our spirits. We are not going to dress this up as something more spiritual than it is.",
   },
   {
     read: { text: "My shield is with God, who saves the upright in heart.", ref: "Psalm 7:10" },
     reflection:
-      "My shield is with God, who saves the upright in heart. A shield held by someone else. You are not required to defend yourself in this season.",
+      "The Hebrew is odd and better for it: my shield is upon God — the shield is not in David's hand at all, it is with someone else. He has just asked God to judge his case, and then stops arguing and hands the defence over. That is a rarer thing than it sounds. Most of us will let God fight for us in principle while continuing to make our own case to everyone who will listen.",
     talk: "What are you defending that God could hold instead?",
-    pray: "Lord, our shield is with you. Save the upright in heart.",
+    pray: "Lord, our shield is with you and not in our hands. We keep picking up our own defence. Save the upright in heart, and let us stop arguing our case.",
   },
   {
     read: { text: "But you do see trouble and grief. You consider it to take it into your hand. You help the victim and the fatherless.", ref: "Psalm 10:14" },
     reflection:
-      "But you do see trouble and grief. You consider it to take it into your hand. You are the helper of the fatherless. God sees, considers, and takes it in hand.",
+      "The psalm has just quoted the wicked saying God has forgotten, he has hidden his face, he will never see it. And the answer is three verbs: you do see, you note it, you take it into your hand. Not merely observing — taking hold of it, as a judge takes a case. And the psalm names who benefits: the helpless, the fatherless. God's attention runs first to the people whose situation nobody else is handling.",
     talk: "What trouble do you think God has not noticed?",
-    pray: "Lord, you see trouble and grief. Take ours into your hand.",
+    pray: "Lord, you see trouble and grief and you take it into your hand. Take ours. And take up the cause of the children nobody is speaking for tonight.",
   },
   {
     read: { text: "the LORD is in his holy temple. the LORD is on his throne in heaven. His eyes observe. His eyes examine the children of men.", ref: "Psalm 11:4" },
     reflection:
-      "The LORD is in his holy temple. The LORD is on his throne in heaven. When the foundations shake, the throne does not.",
+      "Verse three has just asked the question: if the foundations are destroyed, what can the righteous do? And the answer is not a strategy. It is a location: the LORD is in his holy temple, the LORD's throne is in heaven. The thing that shakes and the thing that does not are named in the same breath. His eyes see, his eyelids test the children of man — he is not merely seated, he is watching closely.",
     talk: "What foundation of yours has moved? Where is the throne in that?",
-    pray: "Lord, you are on your throne. The foundations shake and you do not.",
+    pray: "Lord, you are on your throne, and the foundations under us are moving. Hold still while we do not. Keep this house steady by being what you are rather than what we manage.",
   },
   {
     read: { text: "“Because of the oppression of the weak and because of the groaning of the needy, I will now arise,” says the LORD; “I will set him in safety from those who malign him.”", ref: "Psalm 12:5" },
     reflection:
-      "Because of the oppression of the weak and because of the groaning of the needy, I will now arise, says the LORD. Groaning is what moves God to act.",
+      "God is quoted directly, which is rare in the psalms, and the trigger is named precisely: because the poor are plundered, because the needy groan, I will now arise. Groaning — not eloquence, not a well-formed petition. It is the same word used of Israel in Egypt, whose groaning God heard and remembered his covenant. Inarticulate misery is a language heaven reads fluently, and it moves him to get up.",
     talk: "Who is groaning near you? What might God be about to do?",
-    pray: "Lord, arise for the groaning of the needy.",
+    pray: "Lord, arise for the groaning of the needy — the ones with no words and no advocate. And where we are among them tonight, count our groaning as prayer.",
   },
   {
     read: { text: "the LORD looked down from heaven on the children of men, to see if there were any who understood, who sought after God.", ref: "Psalm 14:2" },
     reflection:
-      "The LORD looked down from heaven on the children of men, to see if there were any who understood, who sought after God. God searching for anyone who is looking for him.",
+      "The picture is God leaning over the edge of heaven, looking for one person who understands and seeks him — and the verdict of the next verse is that there is none, not one. Paul quotes exactly this in Romans to close down any idea that anybody started the search. Which means that anyone who is seeking God at all is doing so because he came looking first. The search was never ours.",
     talk: "Are you seeking God in this season, or only asking him for things?",
-    pray: "Lord, you look for those who seek you. Find us seeking.",
+    pray: "Lord, you look down for anyone who is seeking you, and we are only seeking because you started it. Find us seeking. Keep this house among those who are still looking up.",
   },
   {
     read: { text: "the LORD, who shall dwell in your sanctuary? Who shall live on your holy hill? He who walks blamelessly and does what is right, and speaks truth in his heart;", ref: "Psalm 15:1-2" },
     reflection:
-      "LORD, who shall dwell in your sanctuary? He who walks blamelessly. The entry requirements are impossible, which is why we come through Christ.",
+      "The psalm asks who may dwell on your holy hill and then lists the qualifications: blameless walk, righteous deeds, truth spoken in the heart, no slander, keeps an oath even when it hurts. Read honestly, nobody clears the bar, and the psalm is not being unrealistic — it is describing what would actually be required. Hebrews answers it: we enter the holy places by the blood of Jesus, by a new and living way.",
     talk: "Read the whole psalm. Where do you fail? What do you do with that?",
-    pray: "Lord, none of us qualifies. Thank you for Christ, who does.",
+    pray: "Lord, we read the list and none of us qualifies. Thank you for Christ, who does, and who opened the way. Let us live like people let in rather than people who earned it.",
   },
   {
     read: { text: "The heavens declare the glory of God. The expanse shows his handiwork.", ref: "Psalm 19:1" },
     reflection:
-      "The heavens declare the glory of God. The expanse shows his handiwork. This child will grow up under a sky that preaches.",
+      "David says the heavens are speaking — pouring out speech day after day — and then adds that there is no speech and no words, their voice is not heard. A sermon without language, preached everywhere, every night, to everyone. Paul says in Romans that this leaves people without excuse. This child will grow up under a sky that is already testifying, before anyone in this house explains a single thing.",
     talk: "When did you last look up on purpose?",
-    pray: "Lord, the heavens declare your glory. Open our eyes to it.",
+    pray: "Lord, the heavens are preaching every night and we have stopped listening. Open our eyes to it — and let us be the kind of parents who take a child outside and point upwards.",
   },
   {
     read: { text: "Let the words of my mouth and the meditation of my heart be acceptable in your sight, the LORD, my rock, and my redeemer.", ref: "Psalm 19:14" },
     reflection:
-      "Let the words of my mouth and the meditation of my heart be acceptable in your sight. Words come out of what has been rehearsed inside.",
+      "It is the last verse of the psalm about the heavens and the law, and it narrows from the cosmos to a mouth. The words and the meditation are put together deliberately: speech is what leaks out of what has been rehearsed inside. Nobody says at three in the morning something they have not been quietly practising for weeks. And he addresses God as rock and redeemer — the one who is stable, and the one who buys back what has been lost.",
     talk: "What have you been rehearsing in your heart lately?",
-    pray: "Lord, let our words and our thoughts be acceptable to you.",
+    pray: "Lord, let the words of our mouths and the meditation of our hearts be acceptable to you. Deal with what is rehearsing inside us, because that is where the words come from.",
   },
   {
     read: { text: "For you make him most blessed forever. You make him glad with joy in your presence.", ref: "Psalm 21:6" },
     reflection:
-      "For you make him most blessed forever. You make him glad with joy in your presence. Joy located in his presence, not in circumstances.",
+      "The psalm is about a king given what he asked for — length of days, glory, splendour — and this is where it lands: you make him glad with the joy of your presence. Not with the gifts, with the presence. The distinction runs through the whole Bible; Moses would not move an inch without it, and Psalm 16 calls God's presence fullness of joy. Everything else in this list can be given and taken. That cannot.",
     talk: "Where do you look for joy first? Is it there?",
-    pray: "Lord, make us glad with the joy of your presence.",
+    pray: "Lord, make us glad with the joy of your presence rather than with our circumstances. Blessings come and go in this house. Be the gladness that does not depend on them.",
   },
   {
     read: { text: "The earth is the LORD’s, with its fullness; the world, and those who dwell in it.", ref: "Psalm 24:1" },
     reflection:
-      "The earth is the LORD's, with its fullness; the world, and those who dwell in it. Including this child. You are stewards, not owners.",
+      "Paul quotes this verse twice in one letter to settle arguments about food, and its force is total: the earth and everything in it, the world and everyone who lives there, belongs to God. That includes the child you are about to hold. You are not being given a possession; you are being handed something that stays his, to look after for a while. Every parent eventually finds out the difference, usually the hard way.",
     talk: "What do you treat as yours that is held in trust?",
-    pray: "Lord, the earth is yours and all who live in it. Make us faithful stewards.",
+    pray: "Lord, the earth is yours and everyone in it, and so is this child. Make us faithful stewards rather than anxious owners. Remind us who they actually belong to.",
   },
   {
     read: { text: "Examine me, the LORD, and prove me. Try my heart and my mind.", ref: "Psalm 26:2" },
     reflection:
-      "Examine me, LORD, and prove me. Try my heart and my mind. A dangerous prayer prayed by someone who wants to be right more than to feel right.",
+      "It is a dangerous prayer and David knows it: examine me, test me, try my heart and my mind. Psalm 139 ends with the same request — search me, O God, and know my heart, see if there be any grievous way in me. Nobody prays this who mostly wants to feel all right. It is the prayer of someone who would rather be put straight than left comfortable, and it is usually answered.",
     talk: "Would you dare pray this? What are you afraid he would find?",
-    pray: "Examine us, Lord. Test our hearts and minds.",
+    pray: "Examine us, Lord. Test our hearts and minds and show us what you find, even the part we would rather not see. We would rather be right with you than comfortable.",
   },
   {
     read: { text: "the LORD is my strength and my shield. My heart has trusted in him, and I am helped. Therefore my heart greatly rejoices. With my song I will thank him.", ref: "Psalm 28:7" },
     reflection:
-      "The LORD is my strength and my shield. My heart has trusted in him, and I am helped. Therefore my heart greatly rejoices. Trust, help, then joy — in that order.",
+      "Follow the order, because it is not the one we want. The LORD is my strength and my shield; in him my heart trusts, and I am helped — and therefore my heart exults. Trust comes before help, and help comes before joy. David is not waiting to feel joyful in order to trust. He trusts first, in the dark, and the singing arrives afterwards, which is the only order that has ever worked.",
     talk: "Where in that sequence are you today?",
-    pray: "Lord, be our strength and shield. We trust you and are helped.",
+    pray: "Lord, be our strength and our shield. We are trusting you before we feel any different, because that is the order. Help us — and give us back the song in your time.",
   },
   {
     read: { text: "My soul shall be joyful in the LORD. It shall rejoice in his salvation.", ref: "Psalm 35:9" },
     reflection:
-      "My soul shall be joyful in the LORD. It shall rejoice in his salvation. Joy located in what God has done, not in what is currently happening.",
+      "Read the psalm and this line is startling. David is surrounded by people who repay evil for good, who gather against him and mock, and he is asking God to contend with them. Nothing has been resolved. And in the middle of it: my soul shall rejoice in the LORD, exulting in his salvation. The joy is fastened to something already done rather than to anything currently happening, which is why it can be said at all.",
     talk: "What has God already done that you can rejoice in tonight?",
-    pray: "Lord, our souls rejoice in you and in your salvation.",
+    pray: "Lord, our souls rejoice in you and in your salvation — not in how things are going, because that is not going well. Fasten our gladness to what you have already done.",
   },
   {
     read: { text: "How precious is your loving kindness, God! The children of men take refuge under the shadow of your wings.", ref: "Psalm 36:7" },
     reflection:
-      "How precious is your loving kindness, God! The children of men take refuge under the shadow of your wings. Shelter offered to anyone who comes.",
+      "The psalm has just described God's steadfast love extending to the heavens and his faithfulness to the clouds — cosmic scale — and then narrows to a bird sheltering something small underneath. The children of mankind take refuge in the shadow of your wings, which is the same image Jesus used weeping over Jerusalem. It is offered to anyone; the psalm does not restrict it. The only qualification is coming in under it.",
     talk: "Where do you shelter when you are frightened?",
-    pray: "Lord, we take refuge under the shadow of your wings.",
+    pray: "Lord, how precious is your steadfast love. We take refuge under the shadow of your wings — this house, and the people in it who do not know how to ask for shelter.",
   },
   {
     read: { text: "Lord, all my desire is before you. My groaning is not hidden from you.", ref: "Psalm 38:9" },
     reflection:
-      "Lord, all my desire is before you. My groaning is not hidden from you. Even inarticulate longing is fully known.",
+      "The psalm around this is one long description of a body and a conscience in trouble: no soundness in my flesh, wounds that stink, a heart that throbs, strength that fails. And into that he says the one thing that helps — all my longing is before you, my sighing is not hidden from you. He cannot articulate it, and he does not have to. Sighing counts. It is already filed.",
     talk: "What do you long for that you cannot put into words?",
-    pray: "Lord, all our longing is before you. Our sighing is not hidden.",
+    pray: "Lord, all our longing is before you and our sighing is not hidden. We cannot put most of it into words. Take the sighing as prayer, because that is all we have tonight.",
   },
   {
     read: { text: "Now, Lord, what do I wait for? My hope is in you.", ref: "Psalm 39:7" },
     reflection:
-      "Now, Lord, what do I wait for? My hope is in you. A question and its own answer, in one breath.",
+      "David has just said that a man heaps up wealth and does not know who will gather it, and that everyone is a mere breath. The question comes out of genuine disillusionment: and now, O Lord, for what do I wait? He asks it and answers it in the same breath, because there is nothing else left standing: my hope is in you. That is not a comfortable arrival. It is what remains after everything else has been priced honestly.",
     talk: "What are you waiting for? Where is your hope actually placed?",
-    pray: "Lord, what do we wait for? Our hope is in you.",
+    pray: "Lord, what are we waiting for? Our hope is in you, and by now we know there is not much else. Let that be enough, because we have tested the alternatives.",
   },
   {
     read: { text: "the LORD will sustain him on his sickbed, and restore him from his bed of illness.", ref: "Psalm 41:3" },
     reflection:
-      "The LORD will sustain him on his sickbed, and restore him from his bed of illness. God named as present at a sickbed. He is not only the God of good days.",
+      "The psalm begins by blessing the person who considers the poor, and this is one of the promises attached: the LORD sustains him on his sickbed, and in his illness you restore him to full health. The Hebrew for that first verb is the word for supporting or propping up. God is described as present at a bedside, doing something ordinary and unglamorous. He is not only the God of the days when people are well.",
     talk: "Who is ill near you? Have you prayed this verse over them?",
-    pray: "Lord, sustain those on their sickbeds. Restore them.",
+    pray: "Lord, sustain those who are ill tonight — in this family and in the houses we know about. Be at the bedside. And make us the kind of people who consider the weak.",
   },
   {
     read: { text: "Why are you in despair, my soul? Why are you disturbed within me? Hope in God! For I shall still praise him: my Savior, my helper, and my God.", ref: "Psalm 43:5" },
     reflection:
-      "Why are you in despair, my soul? Hope in God! For I shall still praise him: my Saviour, my helper, and my God. Talking to yourself, and preaching truth back.",
+      "This is the third time in two psalms the same refrain appears, which means the psalmist had to say it repeatedly and it did not work the first time. He is talking to himself: why are you cast down, my soul? Hope in God. And the grounds he gives are not circumstantial — my salvation and my God. Feelings are addressed, not obeyed. Half the Christian life is learning you are allowed to answer your own soul back.",
     talk: "What would you say to your own soul tonight?",
-    pray: "Lord, we hope in you. We shall again praise you, our salvation and our God.",
+    pray: "Lord, our souls are cast down and we have been listening to them rather than arguing. We hope in you. We shall again praise you, our salvation and our God.",
   },
   {
     read: { text: "Rise up to help us. Redeem us for your loving kindness’ sake.", ref: "Psalm 44:26" },
     reflection:
-      "Rise up to help us. Redeem us for your loving kindness' sake. A demand made on the ground of God's own character, not the people's worth.",
+      "This is the last line of a psalm that spends most of its length complaining. The sons of Korah have just insisted they have not forgotten God or been false to his covenant, and yet they are crushed, scattered, a byword. They even accuse God of sleeping. And the final appeal is not to their record — it is to his: redeem us for the sake of your steadfast love. Paul quotes this psalm in Romans 8 and answers it with Christ.",
     talk: "On what grounds do you ask God for things?",
-    pray: "Rise up and help us, Lord. Redeem us for the sake of your steadfast love.",
+    pray: "Rise up and help us, Lord. We are not asking on the strength of how we have done. Redeem us for the sake of your own steadfast love, which is the only ground we have.",
   },
   {
     read: { text: "My heart overflows with a noble theme. I recite my verses for the king. My tongue is like the pen of a skillful writer.", ref: "Psalm 45:1" },
     reflection:
-      "My heart overflows with a noble theme. I recite my verses for the king. Praise described as overflow. It has to fill before it spills.",
+      "The word for overflows is used of water boiling up — something that has filled to the point where it cannot stay in. Praise here is not squeezed out of an empty vessel; it is the overspill of a heart that has been filled with a good theme first. That is worth knowing on days when worship feels forced. The problem is usually not the tongue but the filling, and Hebrews later applies this psalm directly to the Son.",
     talk: "What is your heart full of right now? What overflows?",
-    pray: "Lord, fill our hearts with a good theme, and let it overflow.",
+    pray: "Lord, fill our hearts with a good theme — with yourself — until it spills. We have been trying to produce praise from an empty vessel. Fill first, and let the words follow.",
   },
   {
     read: { text: "Oh clap your hands, all you nations. Shout to God with the voice of triumph!", ref: "Psalm 47:1" },
     reflection:
-      "Oh clap your hands, all you nations. Shout to God with the voice of triumph! Worship in Scripture is physical and loud, not only quiet and internal.",
+      "Clap, shout, sing praises — the psalm is unembarrassed and physical, and it is addressed to all peoples, not just Israel. Worship in Scripture is regularly loud and involves bodies, which sits awkwardly with a culture that treats reverence as quietness. Both are in the Bible: this psalm, and be still and know. A household that only ever does one of them has half a vocabulary, and children learn the range from what they see.",
     talk: "Is worship in this house ever loud or physical? Should it be?",
-    pray: "Lord, we clap and shout. You are King over all the earth.",
+    pray: "Lord, you are King over all the earth, and we are quieter about it than your people have ever been. Let there be some noise in this house — clapping, singing, gladness that is visible.",
   },
   {
     read: { text: "For this God is our God forever and ever. He will be our guide even to death.", ref: "Psalm 48:14" },
     reflection:
-      "For this God is our God forever and ever. He will be our guide even to death. A guide who does not stop at the hard part.",
+      "The psalm has been a tour of Jerusalem's walls and towers — count them, walk round them, tell the next generation. And it ends by moving from the city to the person: this God is our God for ever and ever, he will guide us for ever. The old translations read even unto death, and either way the point stands. A guide who goes as far as the wall is no use. This one does not stop at the hard part.",
     talk: "How far does your trust in God's guidance reach?",
-    pray: "Lord, you are our God forever. Guide us even to the end.",
+    pray: "Lord, you are our God for ever and you will guide us to the end. Do not stop at the edge of what we can see. Walk us through the last part too.",
   },
   {
     read: { text: "Call on me in the day of trouble. I will deliver you, and you will honor me.", ref: "Psalm 50:15" },
     reflection:
-      "Call on me in the day of trouble. I will deliver you, and you will honour me. Trouble as an occasion for calling; deliverance as an occasion for glory.",
+      "The context is God telling Israel he does not need their sacrifices — if I were hungry I would not tell you, for the world and its fullness are mine. What he actually wants is thanksgiving and this: call upon me in the day of trouble. Trouble is not an interruption to the relationship, it is an occasion for it. And the outcome is two-sided — I will deliver you, and you shall glorify me. He gets something out of it too.",
     talk: "What trouble have you handled without calling on him?",
-    pray: "Lord, we call on you in the day of trouble. Deliver us.",
+    pray: "Lord, we call on you in the day of trouble because you asked us to. Deliver us. And when you do, let us be the kind of people who say so out loud.",
   },
   {
     read: { text: "But as for me, I am like a green olive tree in God’s house. I trust in God’s loving kindness forever and ever.", ref: "Psalm 52:8" },
     reflection:
-      "But as for me, I am like a green olive tree in God's house. I trust in God's loving kindness forever and ever. Planted in his house, alive because of where it stands.",
+      "David writes this about a man who informed on him and got a town of priests massacred — the psalm is savage about him. And the contrast he draws for himself is a tree: but I am like a green olive tree in the house of God. Olives live for centuries, and this one is green because of where it is planted, not because of anything it is doing. The house is why it is alive.",
     talk: "Where are you planted? Is it somewhere that keeps you green?",
-    pray: "Lord, let us be like green olive trees in your house.",
+    pray: "Lord, let us be like green olive trees in your house — alive because of where we are planted rather than because of anything we are managing. Keep us in your courts.",
   },
   {
     read: { text: "Behold, God is my helper. The Lord is the one who sustains my soul.", ref: "Psalm 54:4" },
     reflection:
-      "Behold, God is my helper. The Lord is the one who sustains my soul. Two roles: helping with the situation, sustaining the soul inside it.",
+      "Two distinct things in one verse, and it helps enormously to notice the difference. God is my helper — that is about the situation, the practical trouble, the Ziphites who have just betrayed David's hiding place. And the Lord is the upholder of my life — that is about the man himself, held up from underneath while the situation is unresolved. You can have the second long before you get the first.",
     talk: "Which do you need more — help, or sustaining?",
-    pray: "Lord, be our helper and the upholder of our lives.",
+    pray: "Lord, be our helper in the situation, and be the one who upholds us inside it. If the circumstances stay as they are, hold us up anyway.",
   },
   {
     read: { text: "Be merciful to me, God, be merciful to me, for my soul takes refuge in you. Yes, in the shadow of your wings, I will take refuge, until disaster has passed.", ref: "Psalm 57:1" },
     reflection:
-      "Be merciful to me, God, be merciful to me... until disaster has passed. Written in a cave. Refuge until it passes, not instead of it.",
+      "The heading says David wrote it in a cave, fleeing Saul, and the doubled plea — be merciful to me, be merciful to me — is the sound of a man who has run out of other things to say. Then the telling phrase: I will take refuge in the shadow of your wings until the storms of destruction pass by. Until, not instead of. The wings are not a way round the storm; they are cover while it goes over.",
     talk: "Are you asking God to remove the storm or to shelter you through it?",
-    pray: "Be merciful to us, God. We take refuge until the storms pass by.",
+    pray: "Be merciful to us, God, be merciful to us. We take refuge in the shadow of your wings until this passes — we are not asking to be spared it, only to be covered.",
   },
   {
     read: { text: "But I will sing of your strength. Yes, I will sing aloud of your loving kindness in the morning. For you have been my high tower, a refuge in the day of my distress.", ref: "Psalm 59:16" },
     reflection:
-      "But I will sing of your strength. Yes, I will sing aloud of your loving kindness in the morning. For you have been my high tower.",
+      "But I will sing — the but is doing all the work. The psalm has been about men lying in wait, prowling round the city like dogs, and nothing about that has been resolved when he says this. He fixes on a time, in the morning, which means deciding the night before what tomorrow will begin with. And he names God a fortress and a refuge in the day of my distress, in the past tense. He has tested it before.",
     talk: "What could you sing about tomorrow morning?",
-    pray: "Lord, we will sing of your strength and your love in the morning.",
+    pray: "Lord, we will sing of your strength in the morning, and we are deciding that tonight while nothing has changed. You have been our fortress before. Be it again.",
   },
   {
     read: { text: "Through God we will do valiantly, for it is he who will tread down our adversaries.", ref: "Psalm 60:12" },
     reflection:
-      "Through God we will do valiantly, for it is he who will tread down our adversaries. Valour is borrowed. Nobody here has to be brave on their own supply.",
+      "The psalm has just said that salvation by man is vain — the verse immediately before is bleak about human help. And then: with God we shall do valiantly, for it is he who will tread down our foes. Both halves belong together. The valour is real and it is borrowed; nobody in this house has to be brave out of their own supply, and nobody gets to take credit for the bravery either.",
     talk: "What are you facing that requires borrowed courage?",
-    pray: "Lord, through you we shall do valiantly.",
+    pray: "Lord, through you we shall do valiantly, because on our own we will not. Give us borrowed courage for the thing we are avoiding, and tread down what is against us.",
   },
   {
     read: { text: "The righteous shall be glad in the LORD, and shall take refuge in him. All the upright in heart shall praise him!", ref: "Psalm 64:10" },
     reflection:
-      "The righteous shall be glad in the LORD, and shall take refuge in him. All the upright in heart shall praise him! Gladness and refuge in the same person.",
+      "The psalm has been about people who sharpen their tongues like swords and shoot from ambush, and it ends here. Let the righteous one rejoice in the LORD and take refuge in him. Notice the two held together: gladness and shelter, in the same person. Refuge on its own is survival; gladness on its own is denial. What the psalm describes is someone sheltering and glad at the same time, which is only possible if the shelter is a person.",
     talk: "Is God a refuge to you, or mostly a standard?",
-    pray: "Lord, we take refuge in you and are glad.",
+    pray: "Lord, we take refuge in you and we are glad in you, and we would like both at once. Be our shelter — and let there be joy in this house while we are sheltering.",
   },
   {
     read: { text: "You crown the year with your bounty. Your carts overflow with abundance.", ref: "Psalm 65:11" },
     reflection:
-      "You crown the year with your bounty. Your carts overflow with abundance. God's provision described as a crown on a whole year.",
+      "The image is harvest: you crown the year with your bounty, and your wagon tracks overflow with abundance — the picture of carts so loaded that grain spills on the road behind them. And the psalm attributes all of it to God, down to the softening of the furrows with showers. A crown sits on top of something already there. He is not merely supplying the year; he is finishing it with more than was required.",
     talk: "What has this year held that you could call bounty?",
-    pray: "Lord, you crown the year with your goodness. Thank you.",
+    pray: "Lord, you crown the year with your goodness and the carts overflow. Thank you for what we have not counted. Let this house notice abundance rather than only shortage.",
   },
   {
     read: { text: "May God be merciful to us, bless us, and cause his face to shine on us. That your way may be known on earth, and your salvation among all nations,", ref: "Psalm 67:1-2" },
     reflection:
-      "May God be merciful to us, bless us, and cause his face to shine on us... that your way may be known on earth. Blessing asked for, so that others may know him.",
+      "The psalm begins by borrowing Aaron's blessing — be gracious to us and bless us and make his face to shine upon us — and then does something the original did not. It gives a reason: that your way may be known on earth, your saving power among all nations. The blessing is asked for in order to be passed on. A household that is blessed and keeps it has misunderstood what it was given.",
     talk: "Why do you want God's blessing? For yourselves, or for what it enables?",
-    pray: "Lord, bless us, that your way may be known on earth.",
+    pray: "Lord, be gracious to us and make your face shine on us — so that your way is known beyond this house. Bless us for somebody else's sake as well as our own.",
   },
   {
     read: { text: "Save me, God, for the waters have come up to my neck! I sink in deep mire, where there is no foothold. I have come into deep waters, where the floods overflow me. I am weary with my crying. My throat is dry. My eyes fail looking for my God.", ref: "Psalm 69:1-3" },
     reflection:
-      "Save me, God, for the waters have come up to my neck... I am weary with my crying. Exhaustion, not triumph, and it is in the songbook.",
+      "This is one of the most quoted psalms in the New Testament, and Jesus is repeatedly seen in it — zeal for your house has consumed me, they gave me vinegar to drink. But the opening is simply a man drowning: water to the neck, no foothold, worn out with crying, eyes failing from looking for God. Exhaustion, not triumph. God put this in the songbook, and then his own Son lived it.",
     talk: "Are you weary with crying out? Would you keep going anyway?",
-    pray: "Save us, God. The waters are up to our necks and we are tired.",
+    pray: "Save us, God. The water is up to our necks and we are tired of crying and looking. Our eyes are failing from waiting for you. Come before we go under.",
   },
   {
     read: { text: "But I am poor and needy. Come to me quickly, God. You are my help and my deliverer. the LORD, don’t delay.", ref: "Psalm 70:5" },
     reflection:
-      "But I am poor and needy. Come to me quickly, God. You are my help and my deliverer. Hurry — an urgent, undignified prayer, and God preserved it.",
+      "Four verses long, and it is almost entirely a demand to hurry: make haste, O God, to deliver me; hasten to me; do not delay. There is nothing dignified about it. And the ground he gives is his own condition — I am poor and needy — rather than any claim on God's obligation. This is what prayer sounds like when someone has stopped composing it, and God kept it in the book.",
     talk: "What would an urgent, undignified prayer sound like from you?",
-    pray: "Lord, we are poor and needy. Hasten to us.",
+    pray: "Lord, we are poor and needy and we are past being dignified about it. Hasten to us. You are our help and our deliverer — do not delay.",
   },
   {
     read: { text: "For he will deliver the needy when he cries; the poor, who has no helper.", ref: "Psalm 72:12" },
     reflection:
-      "For he will deliver the needy when he cries; the poor, who has no helper. The King's job description begins with those who have nobody.",
+      "This is a psalm about a king, and the job description it gives him is worth reading against every other king in history: he delivers the needy when he calls, the poor and him who has no helper. Not the powerful, not those who can return the favour. Him who has no helper — the one whose situation nobody is handling. Christians have always read this psalm as being finally about Christ, and it is what he did.",
     talk: "Who near you has no helper?",
-    pray: "Lord, deliver the needy who cry, and the poor who have no helper.",
+    pray: "Lord, deliver the needy who cry out and the poor who have nobody. And where we could be the helper somebody lacks, make us willing rather than merely sympathetic.",
   },
   {
     read: { text: "The day is yours, the night is also yours. You have prepared the light and the sun. You have set all the boundaries of the earth. You have made summer and winter.", ref: "Psalm 74:16-17" },
     reflection:
-      "The day is yours, the night is also yours. You have prepared the light and the sun. Both halves of a twenty-four hour cycle belong to him. Including the small hours.",
+      "Asaph is in the middle of a psalm about the sanctuary in ruins and God apparently absent, and he steadies himself on creation: yours is the day, yours also the night. Both halves. That matters in a season where the night is the hard part — the hours when everything is worse and nobody else is awake. The small hours are not a gap in God's jurisdiction. He made them, and he is there.",
     talk: "What are your nights like? Who owns them?",
-    pray: "Lord, the day is yours and the night is yours. Keep us in both.",
+    pray: "Lord, the day is yours and the night is yours. Keep us in both. Be with whichever of us is awake at three in the morning, because that hour belongs to you too.",
   },
   {
     read: { text: "For neither from the east, nor from the west, nor yet from the south, comes exaltation. But God is the judge. He puts down one, and lifts up another.", ref: "Psalm 75:6-7" },
     reflection:
-      "For neither from the east, nor from the west, nor yet from the south, comes exaltation. But God is the judge. He puts down one, and lifts up another. Position is his to give.",
+      "Three directions are ruled out — not from the east or the west, not from the wilderness — and the list conspicuously misses one. The fourth direction is up. Lifting up comes from God alone, who is the judge, putting down one and lifting up another. That is a relief and a warning at once: nobody has to claw their way into a position, and nobody holds one he has not been given.",
     talk: "What position are you striving for? Who gives it?",
-    pray: "Lord, you put down and you lift up. We leave our place with you.",
+    pray: "Lord, you put down and you lift up, and nothing comes from the directions we keep looking in. We leave our place with you. Take the scrambling out of us.",
   },
   {
     read: { text: "You pronounced judgment from heaven. The earth feared, and was silent, when God arose to judgment, to save all the afflicted ones of the earth.", ref: "Psalm 76:8-9" },
     reflection:
-      "You caused sentence to be heard from heaven. The earth feared, and was silent, when God arose to judgement, to save all the afflicted ones of the earth. His judgement saves the afflicted.",
+      "The earth fears and is still when God rises to judgement — and then the purpose clause, which is not what anyone expects: to save all the humble of the earth. His judgement is aimed at rescue. That is the shape of it throughout Scripture; the flood saves Noah, the plagues free slaves, and the final judgement is good news to everyone who has been on the wrong end of power. Judgement and salvation are the same act seen from two sides.",
     talk: "Why is God's judgement good news to those being crushed?",
-    pray: "Lord, arise to save all the humble of the earth.",
+    pray: "Lord, arise to save all the humble of the earth — the ones with no recourse, in this country and elsewhere. And when you judge, count us among the humble rather than the secure.",
   },
   {
     read: { text: "Help us, God of our salvation, for the glory of your name. Deliver us, and forgive our sins, for your name’s sake.", ref: "Psalm 79:9" },
     reflection:
-      "Help us, God of our salvation, for the glory of your name. Deliver us, and forgive our sins, for your name's sake. Asking on the ground of his reputation.",
+      "Asaph is standing in a devastated Jerusalem with bodies unburied, and he asks for help — but notice the ground he asks on. For the glory of your name. Deliver us and atone for our sins for your name's sake. Not because we deserve it, not because the situation is unfair. Because your reputation is bound up with us. It is the boldest argument in prayer and the most secure, because God's name does not fluctuate.",
     talk: "How does praying 'for your name's sake' change what you ask for?",
-    pray: "Help us, God of our salvation, for the glory of your name.",
+    pray: "Help us, God of our salvation, for the glory of your name. We are not asking on the strength of our record. Your name is attached to this house — act for its sake.",
   },
   {
     read: { text: "Turn us again, the LORD God of Armies. Cause your face to shine, and we will be saved.", ref: "Psalm 80:19" },
     reflection:
-      "Turn us again, LORD God of Armies. Cause your face to shine, and we will be saved. We cannot even turn ourselves. The prayer is to be turned.",
+      "Three times in this psalm the same refrain: restore us, let your face shine, that we may be saved. And the verb is the one for turning — turn us back. They cannot even manage the turning; that is what they are asking for. Jeremiah prays the same way: turn me, and I shall be turned. Repentance, in the Bible's own account of it, is something asked for rather than achieved.",
     talk: "What do you need God to turn in you?",
-    pray: "Restore us, Lord God of hosts. Let your face shine, that we may be saved.",
+    pray: "Restore us, Lord God of hosts. We cannot even turn ourselves around — turn us. Let your face shine on this house, and we shall be saved.",
   },
   {
     read: { text: "I am the LORD, your God, who brought you up out of the land of Egypt. Open your mouth wide, and I will fill it.", ref: "Psalm 81:10" },
     reflection:
-      "Open your mouth wide, and I will fill it. An invitation to ask largely. Most of us ask small and blame God for small answers.",
+      "The picture is a bird in a nest, and the invitation is faintly comic: open wide, and I will fill it. It comes with a credential attached — I am the LORD your God who brought you up out of the land of Egypt, which is to say, consider what I have already done before you decide how much to ask for. And the psalm's grief a few verses later is that they would not listen. The narrow asking was their own doing.",
     talk: "What would asking largely look like for this family?",
-    pray: "Lord, we open our mouths wide. Fill them.",
+    pray: "Lord, we ask small and then explain to ourselves why the answers are small. We open our mouths wide. Fill them — you brought your people out of Egypt, and we keep forgetting that.",
   },
   {
     read: { text: "Defend the weak, the poor, and the fatherless. Maintain the rights of the poor and oppressed. Rescue the weak and needy. Deliver them out of the hand of the wicked.", ref: "Psalm 82:3-4" },
     reflection:
-      "Defend the weak, the poor, and the fatherless. Maintain the rights of the poor and oppressed. Rescue the weak and needy. Four commands about the powerless.",
+      "God is pictured standing in the divine council rebuking the rulers of the earth, and these are the charges: you have not defended the weak, the fatherless, the afflicted, the destitute. Four commands, all about people with no power to return a favour. Justice in the Bible is not an abstraction about fairness; it is measured by what happens to specific people who cannot protect themselves. James says the same when he defines pure religion.",
     talk: "Who is powerless in your world? What could this house do?",
-    pray: "Lord, make us defenders of the weak and the fatherless.",
+    pray: "Lord, make us defenders of the weak and the fatherless rather than people who only feel sorry for them. Show us one person this house could actually stand up for.",
   },
   {
     read: { text: "God, don’t keep silent. Don’t keep silent, and don’t be still, God.", ref: "Psalm 83:1" },
     reflection:
-      "God, don't keep silent. Don't keep silent, and don't be still, God. God's silence complained about, twice in one verse. That is allowed.",
+      "It is the first line of the psalm and it is an accusation: do not keep silence, do not hold your peace or be still. Asaph says it twice in one breath, which is the sound of someone who has been waiting a long time. God let it into the songbook without correction. Complaining about God's silence, to God, is not a failure of reverence — it is one of the most common things his people do in Scripture.",
     talk: "Where has God been silent? Have you said so to him?",
-    pray: "God, do not keep silence. Do not hold your peace.",
+    pray: "God, do not keep silence and do not hold your peace. We have been waiting and hearing nothing, and we are telling you so rather than pretending otherwise.",
   },
   {
     read: { text: "I will hear what God, the LORD, will speak, for he will speak peace to his people, his saints; but let them not turn again to folly.", ref: "Psalm 85:8" },
     reflection:
-      "I will hear what God, the LORD, will speak, for he will speak peace to his people, his saints. Listening posture, expecting peace.",
+      "Let me hear what God the LORD will speak — it is a deliberate stopping, a decision to listen rather than continue talking. And the psalmist is confident about what will come: he will speak peace to his people. Then the warning in the same sentence, which we usually leave off: but let them not turn back to folly. Peace is spoken to people who are also being kept from wandering, and both belong to the same kindness.",
     talk: "When did you last stop to listen rather than to ask?",
-    pray: "Lord, we will listen. Speak peace to your people.",
+    pray: "Lord, we will stop and listen. Speak peace to us. And keep us from turning back to the things we have already been rescued from once.",
   },
   {
     read: { text: "Yes, of Zion it will be said, “This one and that one was born in her;” the Most High himself will establish her. the LORD will count, when he writes up the peoples, “This one was born there.”", ref: "Psalm 87:5-6" },
     reflection:
-      "Yes, of Zion it will be said, 'This one and that one was born in her.' The LORD will count, when he writes up the peoples, 'This one was born there.' God keeps a birth register.",
+      "The psalm is doing something startling: it lists Israel's enemies — Rahab, Babylon, Philistia, Tyre, Cush — and says of each, this one was born there. Foreigners registered as native-born citizens of Zion. The LORD records as he registers the peoples: this one was born there. It is a picture of God keeping a birth register that includes people nobody expected, and Paul builds the whole doctrine of the church on exactly this.",
     talk: "What would it mean for this child's name to be written in God's register?",
-    pray: "Lord, you record where each person was born. Write this child's name in your book.",
+    pray: "Lord, you keep a register and you write in names nobody expected. Write this child's name in your book. Let them be counted as born in your city, whatever else is true of them.",
   },
   {
     read: { text: "the LORD, the God of my salvation, I have cried day and night before you. Let my prayer enter into your presence. Turn your ear to my cry.", ref: "Psalm 88:1-2" },
     reflection:
-      "LORD, the God of my salvation, I have cried day and night before you. Let my prayer enter into your presence. The one psalm that ends without hope begins by still addressing him.",
+      "This is the one psalm that does not resolve. It ends with the word darkness and no turn, no comfort, no but. And yet look at how it begins: O LORD, God of my salvation. He is still addressing him, still calling him his salvation, while saying everything else has gone. God put a psalm with no happy ending in the book on purpose, for the people whose season does not have one yet.",
     talk: "Can you keep praying when nothing improves? What would that look like?",
-    pray: "Lord, we cry day and night before you. Let our prayer come to you.",
+    pray: "Lord, God of our salvation, we cry day and night and nothing has changed. Let our prayer come before you. We are still speaking to you, which is most of what we have.",
   },
   {
     read: { text: "Above the voices of many waters, the mighty breakers of the sea, the LORD on high is mighty.", ref: "Psalm 93:4" },
     reflection:
-      "Above the voices of many waters, the mighty breakers of the sea, the LORD on high is mighty. Louder than the noise. That is the claim.",
+      "The psalm builds it deliberately: the floods have lifted up their voice, the floods lift up their roaring — and then, mightier than the thunders of many waters, the LORD on high is mighty. It is a comparison of volume. Whatever is currently the loudest thing in your life, the psalm does not deny that it is loud. It says there is something louder, and that his throne is established from everlasting.",
     talk: "What noise is loudest in your life right now?",
-    pray: "Lord, you are mightier than the thunder of the waters.",
+    pray: "Lord, you are mightier than the thunder of the waters. The noise in this house is real and you are louder. Let us hear you over it.",
   },
   {
     read: { text: "Oh come, let’s worship and bow down. Let’s kneel before the LORD, our Maker,", ref: "Psalm 95:6" },
     reflection:
-      "Oh come, let's worship and bow down. Let's kneel before the LORD our Maker. Worship described physically and corporately — come, bow, kneel.",
+      "Three verbs, all physical and all plural: come, let us worship and bow down, let us kneel before the LORD our Maker. The psalm has just been shouting joyfully to the rock of our salvation, so this is not a tonal instruction — it is the same gathering moving from noise to the floor. Worship in Scripture involves bodies and other people. Both the shout and the kneeling, and neither on its own.",
     talk: "Try kneeling together for a moment before you pray tonight.",
-    pray: "Lord our Maker, we bow before you.",
+    pray: "Lord our Maker, we bow before you. Teach this house to worship with its whole self — the singing and the kneeling — rather than only in its head.",
   },
   {
     read: { text: "Sing to the LORD a new song! Sing to the LORD, all the earth.", ref: "Psalm 96:1" },
     reflection:
-      "Sing to the LORD a new song! Sing to the LORD, all the earth. New songs for new mercies. This season deserves its own.",
+      "A new song, because there is new mercy to sing about — the phrase turns up whenever God has done something fresh, right through to the song in Revelation. It does not mean the old ones are worn out; it means the material keeps arriving. And the command goes to all the earth, which is a very large choir for a very small psalm. Whatever God does in this house this year is worth a song nobody has written yet.",
     talk: "What new thing has God done that deserves a new song?",
-    pray: "Lord, we sing a new song to you.",
+    pray: "Lord, we sing a new song to you, because you have done new things in this house that the old songs do not cover. Give us words for what you are doing now.",
   },
   {
     read: { text: "Light is sown for the righteous, and gladness for the upright in heart.", ref: "Psalm 97:11" },
     reflection:
-      "Light is sown for the righteous, and gladness for the upright in heart. Sown — planted now, harvested later. Light can be underground for a while.",
+      "Sown, not given — planted in the ground, out of sight, on a timescale the farmer does not control. Light is sown for the righteous and joy for the upright in heart. That explains a great deal about seasons where nothing seems to be happening: seed underground looks identical to no seed at all. The psalm is not promising immediate brightness. It is promising that something is already in the soil.",
     talk: "What has been sown in you that has not yet come up?",
-    pray: "Lord, light is sown for the righteous. Let it break through.",
+    pray: "Lord, light is sown for the righteous and we cannot see any of it. Let it break through. Until it does, help us believe there is something in the ground.",
   },
   {
     read: { text: "Sing to the LORD a new song, for he has done marvelous things! His right hand and his holy arm have worked salvation for him.", ref: "Psalm 98:1" },
     reflection:
-      "Sing to the LORD a new song, for he has done marvellous things! His right hand and his holy arm have worked salvation for him. Praise grounded in what he has done.",
+      "The reason is given before the command has finished landing: sing, for he has done marvellous things. And then the psalm points at the means — his right hand and his holy arm have worked salvation, which is to say he did it himself, without help. This is the psalm Isaac Watts turned into Joy to the World, written about the Lord coming to judge the earth with righteousness. Praise here is grounded in an act, not a mood.",
     talk: "What marvellous thing has God done for you? Say it aloud.",
-    pray: "Lord, you have done marvellous things. We sing a new song.",
+    pray: "Lord, you have done marvellous things and your own arm accomplished it. We sing a new song. Let our praise rest on what you have done rather than on how we feel.",
   },
   {
     read: { text: "You answered them, the LORD our God. You are a God who forgave them, although you took vengeance for their doings.", ref: "Psalm 99:8" },
     reflection:
-      "You answered them, LORD our God. You were a God who forgave them, although you took vengeance for their doings. Forgiveness and consequences, held together.",
+      "The sentence is uncomfortable and honest: you were a forgiving God to them, but an avenger of their wrongdoings. Both, of the same people, in the same breath. Moses was forgiven and did not enter the land. David was forgiven and the child died. Forgiveness in Scripture is real and it does not always cancel consequences, and a faith that promises otherwise will break the first time it is tested.",
     talk: "Have you experienced forgiveness alongside consequences? How did you hold both?",
-    pray: "Lord, you forgive, and you deal with what we have done. We trust both.",
+    pray: "Lord, you forgive completely and you do not always undo what we have caused. We trust both. Give us the honesty to live with consequences without doubting the pardon.",
   },
   {
     read: { text: "I will be careful to live a blameless life. When will you come to me? I will walk within my house with a blameless heart.", ref: "Psalm 101:2" },
     reflection:
-      "I will walk within my house with a perfect heart. A king's resolution about how he behaves at home. Home conduct is a spiritual matter.",
+      "It is a king's manifesto, and the striking thing is where he locates the test: I will walk with integrity of heart within my house. Not in the court, not in public policy — at home, where nobody is watching and where a king has the most power and the least accountability. The psalm then lists what he will not tolerate in his own household. Home conduct is treated here as the real measure of a life.",
     talk: "Are you the same person at home as elsewhere? Where is the gap?",
-    pray: "Lord, let us walk with integrity inside our own house.",
+    pray: "Lord, let us walk with integrity inside our own house — where nobody sees, where we are tired, and where we have the most power over the smallest people.",
   },
   {
     read: { text: "He causes the grass to grow for the livestock, and plants for man to cultivate, that he may produce food out of the earth: wine that makes the heart of man glad, oil to make his face to shine, and bread that strengthens man’s heart.", ref: "Psalm 104:14-15" },
     reflection:
-      "He causes the grass to grow for the livestock, and plants for man to cultivate... wine that makes the heart of man glad, oil to make his face to shine, and bread that strengthens.",
+      "The psalm is a tour of creation, and when it reaches food it does not stop at necessity. Wine to gladden the heart of man, oil to make his face shine, bread to strengthen his heart. God supplies more than the minimum, and the extra is named specifically as being for gladness. Christians who are suspicious of enjoyment have not read this psalm. He could have made calories. He made flavour.",
     talk: "What ordinary good has God given today that you have not noticed?",
-    pray: "Lord, you give bread and gladness. Thank you for ordinary good things.",
+    pray: "Lord, you give bread to strengthen and wine to gladden, and you did not have to. Thank you for ordinary good things. Let this house enjoy them without guilt.",
   },
   {
     read: { text: "Seek the LORD and his strength. Seek his face forever more.", ref: "Psalm 105:4" },
     reflection:
-      "Seek the LORD and his strength. Seek his face forever more. Seeking described as permanent, not occasional.",
+      "David gives this to Asaph on the day the ark comes into Jerusalem — the highest point of his reign, everything going well. And what he tells the nation at that moment is to seek the LORD and his strength, seek his presence continually. Not in the next crisis. Continually, which makes it a posture rather than an emergency measure. People who only seek God in trouble are always out of practice when it arrives.",
     talk: "What would seeking God look like this week, practically?",
-    pray: "Lord, we seek your face. Keep us seeking.",
+    pray: "Lord, we seek your face — and mostly only when something has gone wrong. Keep us seeking on the ordinary days, so the road is familiar when we need it in a hurry.",
   },
   {
     read: { text: "Praise the LORD! Give thanks to the LORD, for he is good, for his loving kindness endures forever.", ref: "Psalm 106:1" },
     reflection:
-      "Praise the LORD! Give thanks to the LORD, for he is good, for his loving kindness endures forever. A psalm cataloguing Israel's failures opens with praise.",
+      "Read what follows this opening line. The psalm is a long, unflinching catalogue of Israel's failures — they forgot, they rebelled, they made a calf, they grumbled, they sacrificed their children. And it begins with praise and thanksgiving anyway, because God's goodness is not a verdict on their record. That is how it is possible to be honest about a family's history and still start the prayer with thanks.",
     talk: "Can you praise God at the start of a list of your own failures?",
-    pray: "Give thanks to the Lord, for he is good; his love endures forever.",
+    pray: "Give thanks to the Lord, for he is good and his love endures for ever. Our record is not good and yours has never depended on ours. We start here anyway.",
   },
   {
     read: { text: "For your loving kindness is great above the heavens. Your faithfulness reaches to the skies.", ref: "Psalm 108:4" },
     reflection:
-      "For your loving kindness is great above the heavens. Your faithfulness reaches to the skies. Scale used to describe love, not power.",
+      "Notice what gets the cosmic measurement. Not his power, which would be the obvious thing, but his steadfast love — great above the heavens — and his faithfulness, reaching to the clouds. When David wants to describe something too large to take in, he reaches for the two qualities most of us quietly assume are limited. Power we expect to be infinite. Love and reliability we tend to budget for.",
     talk: "How big is God's love to you? Bigger than your worst fear?",
-    pray: "Lord, your steadfast love is higher than the heavens.",
+    pray: "Lord, your steadfast love is higher than the heavens and your faithfulness reaches the clouds. We have been rationing our expectations of both. Enlarge them.",
   },
   {
     read: { text: "for I am poor and needy. My heart is wounded within me.", ref: "Psalm 109:22" },
     reflection:
-      "For I am poor and needy. My heart is wounded within me. A wounded heart brought to God in plain words.",
+      "David has spent twenty verses asking God to deal with a man who repaid his love with accusation, and then the register changes completely: for I am poor and needy, and my heart is stricken within me. The Hebrew says pierced. No argument, no case, just the plain condition of a man who is hurt. Prayer is allowed to stop making a case and simply report the damage.",
     talk: "What has wounded you? Can you say it as simply as this?",
-    pray: "Lord, we are poor and needy, and our hearts are wounded within us.",
+    pray: "Lord, we are poor and needy and our hearts are wounded inside us. We have no case to make tonight. That is the whole prayer.",
   },
   {
     read: { text: "the LORD says to my Lord, “Sit at my right hand, until I make your enemies your footstool for your feet.”", ref: "Psalm 110:1" },
     reflection:
-      "The LORD says to my Lord, 'Sit at my right hand, until I make your enemies your footstool.' The most quoted Old Testament verse in the New Testament.",
+      "This is the verse the New Testament quotes more than any other, and Jesus used it himself to silence the Pharisees: if David calls him Lord, how is he his son? Hebrews returns to it again and again to make one point — every other priest stood, because the work was never finished. This one sat down. The sitting is the proof that the thing is done, and he is seated there now while the rest is being brought under his feet.",
     talk: "Where is Jesus now? What difference does that make to today?",
-    pray: "Lord Jesus, you are seated at the right hand. Reign over this house.",
+    pray: "Lord Jesus, you are seated at the right hand because the work is finished. Reign over this house. We are not waiting for you to win; we are living under a victory already had.",
   },
   {
     read: { text: "He has caused his wonderful works to be remembered. the LORD is gracious and merciful.", ref: "Psalm 111:4" },
     reflection:
-      "He has caused his wonderful works to be remembered. The LORD is gracious and merciful. He builds memory in on purpose, because we forget.",
+      "He has caused his wondrous works to be remembered — God builds the remembering in on purpose, because he knows what we are. The whole Old Testament is full of the machinery: festivals, stones, songs, a Passover meal eaten annually with a script for children's questions. Jesus did the same on his last night: do this in remembrance of me. Memory is not assumed. It is constructed, deliberately, by people who know they forget.",
     talk: "How does this house remember what God has done?",
-    pray: "Lord, you cause your works to be remembered. Do not let us forget.",
+    pray: "Lord, you cause your works to be remembered because you know we forget by Tuesday. Do not let us. Give this house things we keep and repeat until the children know them.",
   },
   {
     read: { text: "Tremble, you earth, at the presence of the Lord, at the presence of the God of Jacob,", ref: "Psalm 114:7" },
     reflection:
-      "Tremble, you earth, at the presence of the Lord, at the presence of the God of Jacob. The one who is gentle with a nursing mother is also the one before whom the earth trembles.",
+      "The psalm has been almost playful — the sea looked and fled, the mountains skipped like rams — and then it turns and addresses the earth directly: tremble at the presence of the Lord. It is the same God described elsewhere as gathering lambs in his arms and comforting like a mother. Both are true at once, and a household that has only one of them has either a tyrant or a mascot, and neither is him.",
     talk: "Do you hold both God's tenderness and his greatness? Which do you forget?",
-    pray: "Lord, the earth trembles before you. Be great and gentle with us.",
+    pray: "Lord, the earth trembles before you and you carry lambs in your arms. Be both to us. Let this house never shrink you down to something manageable.",
   },
   {
     read: { text: "Not to us, the LORD, not to us, but to your name give glory, for your loving kindness, and for your truth’s sake.", ref: "Psalm 115:1" },
     reflection:
-      "Not to us, LORD, not to us, but to your name give glory. Repeated for emphasis, because the instinct to take credit is strong.",
+      "Said twice in one breath, which is what people do when the instinct being resisted is strong. And the psalm goes straight on to mock idols — mouths that do not speak, eyes that do not see — before the warning that those who make them become like them. Refusing the credit is not modesty here; it is the difference between worshipping God and worshipping something you had a hand in making, including your own competence.",
     talk: "Where have you quietly taken glory that belongs to God?",
-    pray: "Not to us, Lord, not to us, but to your name give glory.",
+    pray: "Not to us, Lord, not to us, but to your name give glory. Where this house has been quietly taking credit for what you did, take it back.",
   },
   {
     read: { text: "Praise the LORD, all you nations! Extol him, all you peoples! For his loving kindness is great toward us. the LORD’s faithfulness endures forever. Praise Yah!", ref: "Psalm 117:1-2" },
     reflection:
-      "Praise the LORD, all you nations! ... For his loving kindness is great toward us. The shortest psalm, and it is about God's love toward us and every nation.",
+      "Two verses, the shortest chapter in the Bible, and Paul quotes it in Romans to prove that the Gentiles were always meant to be in. Praise the LORD, all nations — and then the reason: great is his steadfast love toward us. The us is Israel; the invitation is to everyone. God's particular kindness to one people was never meant to stay there, and the psalm is the smallest and clearest statement of it.",
     talk: "What would you say about God in two lines?",
-    pray: "Praise the Lord, all nations. His steadfast love toward us is great.",
+    pray: "Praise the Lord, all nations. His steadfast love toward us is great and it was never meant to stop with us. Let this house be glad that the door is wide.",
   },
   {
     read: { text: "In my distress, I cried to the LORD. He answered me.", ref: "Psalm 120:1" },
     reflection:
-      "In my distress, I cried to the LORD. He answered me. Two sentences: distress, and answer. Nothing between them but crying out.",
+      "It is the first of the songs of ascents, sung on the road up to Jerusalem, and it opens with the whole story in one line: in my distress I called to the LORD, and he answered me. Nothing between the two clauses except the calling. Then the psalm goes on to describe lying tongues and living among people who hate peace — the trouble is not over. The answer came; the situation continued. Both are in the same psalm.",
     talk: "What distress has gone uncried-about?",
-    pray: "Lord, in our distress we cry to you. Answer us.",
+    pray: "Lord, in our distress we call to you, because there is nothing between the trouble and you except the calling. Answer us — and be with us if the trouble stays.",
   },
   {
     read: { text: "I was glad when they said to me, “Let’s go to the LORD’s house!”", ref: "Psalm 122:1" },
     reflection:
-      "I was glad when they said to me, 'Let's go to the LORD's house!' Gladness at gathering with God's people. That instinct is worth cultivating in a child from the start.",
+      "I was glad when they said to me — the gladness is at the invitation, before the journey has even started. And it is plural: let us go. This is a pilgrim's song, sung by people walking together to worship, and the pleasure in it is social as much as spiritual. That instinct is learned young. A child who grows up watching their parents look forward to gathering with God's people has been given something no argument supplies.",
     talk: "Is going to church a gladness or a duty for you? What would move it?",
-    pray: "Lord, make us glad to go to your house.",
+    pray: "Lord, make us glad to go to your house — and let that gladness be visible, so that this child learns it by watching rather than by being made to go.",
   },
   {
     read: { text: "Behold, as the eyes of servants look to the hand of their master, as the eyes of a maid to the hand of her mistress; so our eyes look to the LORD, our God, until he has mercy on us.", ref: "Psalm 123:2" },
     reflection:
-      "As the eyes of servants look to the hand of their master... so our eyes look to the LORD our God. Watching a hand for the smallest signal.",
+      "The image is a servant watching a hand, not a face — because instructions came by gesture, and a servant who looked away missed it. It is a picture of attention that costs something, sustained over time. And the psalm adds the honest ending: until he has mercy on us. They are still waiting. This is watching in the gap, which is where almost all of the Christian life is actually spent.",
     talk: "How attentive are you to God through an ordinary day?",
-    pray: "Lord, our eyes look to you until you have mercy on us.",
+    pray: "Lord, our eyes look to you the way a servant watches a hand, and we keep looking away. Hold our attention until you have mercy on us.",
   },
   {
     read: { text: "Our help is in the LORD’s name, who made heaven and earth.", ref: "Psalm 124:8" },
     reflection:
-      "Our help is in the LORD's name, who made heaven and earth. The name of the maker of everything is where help is located.",
+      "The psalm has just described near-disaster — if the LORD had not been on our side, the flood would have swept us away, the waters would have gone over us. And it ends on this, which the church has used as a call to worship for centuries. Our help is in the name of the LORD, who made heaven and earth. The maker of everything is where help is located, and the psalm arrives at it by looking back at what nearly happened.",
     talk: "Where do you look for help first?",
-    pray: "Our help is in the name of the Lord, who made heaven and earth.",
+    pray: "Our help is in the name of the Lord, who made heaven and earth. Looking back, we can see what nearly took us under. Thank you. Be our help again.",
   },
   {
     read: { text: "As the mountains surround Jerusalem, so the LORD surrounds his people from this time forward and forever more.", ref: "Psalm 125:2" },
     reflection:
-      "As the mountains surround Jerusalem, so the LORD surrounds his people from this time forward and forever more. Surrounded, permanently.",
+      "Anyone who has stood in Jerusalem knows the geography is exact — the city sits in a bowl with hills on every side. The psalm takes something the pilgrims could see and makes it a statement about God: as the mountains surround Jerusalem, so the LORD surrounds his people, from this time forth and for evermore. Not a wall they built. A landscape they arrived into, already in place.",
     talk: "What are you afraid is unprotected?",
-    pray: "Lord, surround this house as the mountains surround the city.",
+    pray: "Lord, surround this house as the mountains surround the city — on every side, and already there before we noticed. From this time forth and for evermore.",
   },
   {
     read: { text: "Blessed is everyone who fears the LORD, who walks in his ways.", ref: "Psalm 128:1" },
     reflection:
-      "Blessed is everyone who fears the LORD, who walks in his ways. A picture of ordinary blessing, not a guarantee. Godly people have gone hungry.",
+      "The psalm goes on to a table, a wife like a fruitful vine, children like olive shoots — and it is a picture of ordinary blessing rather than a contract. Read it as a guarantee and it will eventually wound somebody godly and childless or godly and hungry. Read it as what God delights to give, and it becomes what it is: a household looking around at ordinary mercies and recognising where they came from.",
     talk: "What ordinary blessings are here today that you have stopped noticing?",
-    pray: "Lord, thank you for the ordinary mercies of this house.",
+    pray: "Lord, thank you for the ordinary mercies of this house — the table, the work, the people at it. We hold them as gifts rather than as terms we have met.",
   },
   {
     read: { text: "many times they have afflicted me from my youth up, yet they have not prevailed against me.", ref: "Psalm 129:2" },
     reflection:
-      "Many times they have afflicted me from my youth up, yet they have not prevailed against me. Long affliction, and survival. Not victory — survival, which is enough.",
+      "Greatly have they afflicted me from my youth — and then, twice, the same verb: yet they have not prevailed against me. Not defeated them. Not been vindicated. Survived. The psalm's whole claim is that the affliction was long, real, and did not win. For a household in a stretch that has gone on for years, that is a truer comfort than a promise of victory, and the Bible offers it without embarrassment.",
     talk: "What have you survived? Is survival a form of faithfulness?",
-    pray: "Lord, they have not prevailed against us. Keep us standing.",
+    pray: "Lord, this has gone on a long time and it has not finished us. They have not prevailed against us. Keep us standing — that will be enough for today.",
   },
   {
     read: { text: "I will abundantly bless her provision. I will satisfy her poor with bread.", ref: "Psalm 132:15" },
     reflection:
-      "I will abundantly bless her provision. I will satisfy her poor with bread. God's attention to a city's food supply. Provision is not beneath him.",
+      "God is speaking about Zion, and among the promises about priests and a horn for David there is this: I will abundantly bless her provisions, I will satisfy her poor with bread. The supply of food is named alongside the great covenant promises, as though it belonged there. It does. Jesus taught his disciples to ask for daily bread in the same prayer as the coming of the kingdom.",
     talk: "What provision do you need? Have you asked plainly?",
-    pray: "Lord, bless our provisions. Satisfy the poor with bread.",
+    pray: "Lord, bless the provisions of this house, and satisfy the poor with bread — here, and in the streets around us where we know people are going without.",
   },
   {
     read: { text: "See how good and how pleasant it is for brothers to live together in unity!", ref: "Psalm 133:1" },
     reflection:
-      "Behold, how good and how pleasant it is for brothers to live together in unity! Unity described as good and pleasant — worth working for.",
+      "Good and pleasant — two different words, and both are needed. Unity is right, and it is also enjoyable, which is a claim worth making because most people experience keeping the peace as neither. The images that follow are extravagant: oil running down Aaron's beard onto his collar, dew on Hermon. Excessive, deliberately. The psalm thinks people living together well is worth that much poetry.",
     talk: "What is costing this house its unity right now?",
-    pray: "Lord, make this house dwell together in unity.",
+    pray: "Lord, make this house dwell together in unity — and let it be pleasant and not merely correct. Give us peace that is enjoyed rather than maintained.",
   },
   {
     read: { text: "Look! Praise the LORD, all you servants of the LORD, who stand by night in the LORD’s house! Lift up your hands in the sanctuary. Praise the LORD!", ref: "Psalm 134:1-2" },
     reflection:
-      "Behold, bless the LORD, all you servants of the LORD, who stand by night in the LORD's house! Lift up your hands. A psalm for those on the night watch.",
+      "The last of the songs of ascents, and it is addressed to the men on the night shift in the temple — you who stand by night in the house of the LORD. The pilgrims have gone home; these are the ones left awake while everyone else sleeps, and the psalm turns to them and tells them to bless the LORD and lift their hands. Somebody is always on the night watch. This one is for them.",
     talk: "Who is on the night watch in this house? Could that become worship?",
-    pray: "Lord, we who stand by night bless you. Lift our hands.",
+    pray: "Lord, whoever in this house is awake tonight, let them bless you rather than only endure it. Lift our hands in the small hours. Bless us from Zion while we watch.",
   },
   {
     read: { text: "Whatever the LORD pleased, that he has done, in heaven and in earth, in the seas and in all deeps.", ref: "Psalm 135:6" },
     reflection:
-      "Whatever the LORD pleased, that he has done, in heaven and in earth, in the seas and in all deeps. Nothing happens outside his pleasure and permission.",
+      "Whatever the LORD pleases, he does — in heaven and on earth, in the seas and all deeps. The psalm sets it directly against the idols of the nations, which have mouths and do not speak. The claim is total and it is meant to be a comfort rather than a threat: nothing that has happened to this family arrived outside his knowledge or his permission, and that is the only alternative to a universe running itself.",
     talk: "Is that a comfort or a difficulty to you? Why?",
-    pray: "Lord, you do whatever pleases you. We rest under your rule.",
+    pray: "Lord, you do whatever pleases you in heaven and earth, and nothing has reached us that did not come past you. We rest under your rule, including the parts we do not understand.",
   },
   {
     read: { text: "By the rivers of Babylon, there we sat down. Yes, we wept, when we remembered Zion.", ref: "Psalm 137:1" },
     reflection:
-      "By the rivers of Babylon, there we sat down. Yes, we wept, when we remembered Zion. Grief in a foreign place, remembered honestly. God preserved the lament.",
+      "By the waters of Babylon, there we sat down and wept. It is a psalm of raw dislocation — their captors asking for one of the songs of Zion as entertainment, and the refusal: how shall we sing the LORD's song in a foreign land. The psalm ends somewhere genuinely shocking, and God kept it anyway. He did not require his people to tidy their grief or their rage before putting it in the book.",
     talk: "What have you lost that you still weep for?",
-    pray: "Lord, we sit and weep. You have kept our lament in your book.",
+    pray: "Lord, we sit and weep and we do not feel like singing. You kept the laments in your book without correcting them. Take ours the same way.",
   },
   {
     read: { text: "I know that the LORD will maintain the cause of the afflicted, and justice for the needy.", ref: "Psalm 140:12" },
     reflection:
-      "I know that the LORD will maintain the cause of the afflicted, and justice for the needy. A settled certainty about God's bias toward the afflicted.",
+      "I know — a settled certainty, stated after a psalm full of evildoers who plan trouble and sharpen their tongues like serpents. He does not say he can see it happening. He says he knows the LORD will maintain the cause of the afflicted and execute justice for the needy. This is one of the oldest and most consistent claims in Scripture, and it is the ground under every unanswered injustice.",
     talk: "Do you believe God takes the side of the afflicted? What follows from that?",
-    pray: "Lord, maintain the cause of the afflicted. Do justice for the needy.",
+    pray: "Lord, maintain the cause of the afflicted and do justice for the needy, because nobody else is going to. Where we have given up expecting it, restore our certainty.",
   },
   {
     read: { text: "Set a watch, the LORD, before my mouth. Keep the door of my lips.", ref: "Psalm 141:3" },
     reflection:
-      "Set a watch, LORD, before my mouth. Keep the door of my lips. He asks God to guard his speech, which suggests he could not manage it alone.",
+      "David asks God to do it, which is the interesting part — set a guard over my mouth, keep watch over the door of my lips. Not I will be careful. He has evidently tried that. And the next verse asks that his heart not be drawn to evil, which is the source the mouth draws from. James says nobody can tame the tongue, and David seems to have worked that out a thousand years earlier.",
     talk: "What did you say this week that you would take back?",
-    pray: "Lord, set a guard over our mouths.",
+    pray: "Lord, set a guard over our mouths, because we cannot manage them ourselves. Watch the door of our lips — especially in this house, at the end of a long day.",
   },
   {
     read: { text: "the LORD, what is man, that you care for him? Or the son of man, that you think of him? Man is like a breath. His days are like a shadow that passes away.", ref: "Psalm 144:3-4" },
     reflection:
-      "LORD, what is man, that you care for him?... Man is like a breath. His days are like a shadow that passes away. Brief, and cared for.",
+      "David is a king with armies, and he describes a human being as a breath, a passing shadow. It ought to be bleak and it is not, because the question in front of it is the real subject: what is man that you regard him? The brevity is not the point. The astonishment is that something this brief is attended to at all, and the New Testament answers the question by pointing at a manger and a cross.",
     talk: "How does the brevity of life change how you spend today?",
-    pray: "Lord, we are a breath. Thank you that you care for us.",
+    pray: "Lord, we are a breath and a shadow that passes, and you care for us. We do not understand it. Thank you. Let us hold our few days lightly and gratefully.",
   },
   {
     read: { text: "Happy is he who has the God of Jacob for his help, whose hope is in the LORD, his God:", ref: "Psalm 146:5" },
     reflection:
-      "Happy is he who has the God of Jacob for his help, whose hope is in the LORD, his God. Happiness located in whose help you have.",
+      "The psalm has just said do not put your trust in princes, in a son of man in whom there is no salvation — his plans perish the day he dies. Then the contrast: blessed is he whose help is the God of Jacob, whose hope is in the LORD his God. Happiness is located in whose help you are relying on, not in how well things are going. The rest of the psalm lists what that God actually does.",
     talk: "Whose help are you relying on? Is it enough?",
-    pray: "Lord, blessed are those whose help is the God of Jacob.",
+    pray: "Lord, blessed are those whose help is the God of Jacob. Take our trust off the things that die with the people holding them. Our hope is in you.",
   },
   {
     read: { text: "both young men and maidens; old men and children: let them praise the LORD’s name, for his name alone is exalted. His glory is above the earth and the heavens.", ref: "Psalm 148:12-13" },
     reflection:
-      "Both young men and maidens; old men and children: let them praise the LORD's name. Every age named. This child is already on the list.",
+      "The psalm has called on sun, moon, stars, sea creatures, fire, hail, mountains, trees and beasts, and then it reaches people — kings and princes, young men and maidens, old men and children. Every age is named, deliberately, with children last on the list and fully on it. The smallest person in your house is already enlisted in this. Nobody has to reach a certain age before their praise counts.",
     talk: "How will this child learn to praise? Who will show them?",
-    pray: "Lord, let every age in this house praise your name.",
+    pray: "Lord, let every age in this house praise your name — the oldest and the one not yet born. Your name alone is exalted, and none of us is too small to say so.",
   },
   {
     read: { text: "For the LORD takes pleasure in his people. He crowns the humble with salvation.", ref: "Psalm 149:4" },
     reflection:
-      "For the LORD takes pleasure in his people. He crowns the humble with salvation. Pleasure — not tolerance. That is hard to receive.",
+      "The LORD takes pleasure in his people. Not tolerates, not permits — takes pleasure, the same word used of God delighting in his own creation. Zephaniah says he exults over them with loud singing. It is one of the hardest things in Scripture to actually receive, because most of us can believe we are forgiven long before we can believe we are enjoyed. And then: he adorns the humble with salvation.",
     talk: "Do you believe God takes pleasure in you? What blocks it?",
-    pray: "Lord, you take pleasure in your people. Teach us to believe it.",
+    pray: "Lord, you take pleasure in your people and we can barely credit it about ourselves. Teach us to believe it. Adorn the humble in this house with salvation.",
   },
   {
     read: { text: "Let everything that has breath praise Yah! Praise Yah!", ref: "Psalm 150:6" },
     reflection:
-      "Let everything that has breath praise the LORD! The Psalter ends here. This child's first breath is already recruited.",
+      "The last line of the Psalter, after a hundred and fifty psalms that have included rage, despair, revenge and a psalm that ends in darkness. All of it lands here: let everything that has breath praise the LORD. Breath is the only qualification — not maturity, not understanding, not having sorted anything out. The child about to take a first breath in this house is already included in the final sentence of the book.",
     talk: "What will you teach this child to praise God for first?",
-    pray: "Let everything that has breath praise the Lord.",
+    pray: "Let everything that has breath praise the Lord. That is the only entry requirement, and it includes the smallest person here. Put praise in this house from the first breath.",
   },
   {
     read: { text: "This book of the law shall not depart from your mouth, but you shall meditate on it day and night, that you may observe to do according to all that is written in it; for then you shall make your way prosperous, and then you shall have good success.", ref: "Joshua 1:8" },
     reflection:
-      "This book of the law shall not depart out of your mouth, but you shall meditate on it day and night. Not to earn favour but so the word is in you when you need it.",
+      "Joshua has just taken over from Moses and is about to lead a nation into a war. What God gives him is not a battle plan but a book, and the word for meditate means to mutter — to say it under your breath, repeatedly, until it is in the mouth without effort. The point is not to earn favour. It is so that the word is already in you on the day there is no time to go and look it up.",
     talk: "What do you think about when your mind is free?",
-    pray: "Lord, put your word in our mouths and our minds, day and night.",
+    pray: "Lord, put your word in our mouths and our minds, day and night, until we are saying it without noticing. Let it be there before the day we need it.",
   },
   {
     read: { text: "Then Gideon built an altar there to the LORD, and called it “the LORD is Peace.” To this day it is still in Ophrah of the Abiezrites.", ref: "Judges 6:24" },
     reflection:
-      "Then Gideon built an altar there to the LORD, and called it 'The LORD is Peace.' He named God after what he most needed.",
+      "Gideon has just realised he has seen the angel of the LORD face to face and is convinced he is about to die. God says to him, peace be to you, do not fear. So he builds an altar and names it after the thing he had just been given: The LORD is Peace. The names people give God in Scripture are usually what they most needed from him and received. His was not courage. It was permission to stop being afraid.",
     talk: "What would you name God, out of this season?",
-    pray: "Lord, you are our peace. Be that to this house.",
+    pray: "Lord, you are our peace — you said it to a frightened man before he had done anything brave. Be that to this house. Take the fear down to something we can live with.",
   },
   {
     read: { text: "May the LORD repay your work, and a full reward be given to you from the LORD, the God of Israel, under whose wings you have come to take refuge.", ref: "Ruth 2:12" },
     reflection:
-      "May the LORD repay your work, and a full reward be given you from the LORD, under whose wings you have come to take refuge. A blessing spoken over a foreign widow.",
+      "Boaz says this to a Moabite widow gleaning in his field, and he uses the language of a bird sheltering its young — under whose wings you have come to take refuge. She is a foreigner from a people Israel was told to keep away from, and he blesses her as one who has come in under the God of Israel. Then he becomes the answer to his own prayer. That happens more often than we notice.",
     talk: "Who has taken refuge with you? Have you blessed them?",
-    pray: "Lord, we take refuge under your wings. Make us shelter for others.",
+    pray: "Lord, we take refuge under your wings, and we were outsiders too. Make this house shelter for someone else — and let us not be surprised if you answer through us.",
   },
   {
     read: { text: "Moreover as for me, far be it from me that I should sin against the LORD in ceasing to pray for you: but I will instruct you in the good and the right way.", ref: "1 Samuel 12:23" },
     reflection:
-      "Far be it from me that I should sin against the LORD in ceasing to pray for you. Not praying for people is called a sin.",
+      "Samuel is being retired. The people have rejected him and asked for a king, and he has every reason to wash his hands of them. Instead he says that ceasing to pray for them would be a sin against the LORD. Not unkind, not disappointing — sin. That reframes every relationship we have quietly let lapse. Praying for people is not a favour we extend to those who deserve it.",
     talk: "Who have you stopped praying for? Why did you stop?",
-    pray: "Lord, forgive our abandoned prayers. Make us faithful in interceding.",
+    pray: "Lord, forgive the prayers we have abandoned — for people who disappointed us, and for people we simply forgot. Make us faithful in interceding, especially where it is costly.",
   },
   {
     read: { text: "David was greatly distressed; for the people spoke of stoning him, because the souls of all the people were grieved, every man for his sons and for his daughters; but David strengthened himself in the LORD his God.", ref: "1 Samuel 30:6" },
     reflection:
-      "But David strengthened himself in the LORD his God. Nobody encouraged him. He had to do it himself, from God.",
+      "Ziklag is burned, the families are taken, and David's own men are talking about stoning him. There is nobody left to encourage him — the text is specific about that. And then: but David strengthened himself in the LORD his God. It is a reflexive verb; he had to do it to himself, from a source outside himself. That is a skill worth having before the day arrives when nobody is available to do it for you.",
     talk: "When no one encourages you, how do you strengthen yourself in the Lord?",
-    pray: "Lord, when there is no one, let us strengthen ourselves in you.",
+    pray: "Lord, when there is no one to encourage us, teach us to strengthen ourselves in you. Give us that habit now, before the day we cannot borrow it from anyone.",
   },
   {
     read: { text: "Then David the king went in, and sat before the LORD; and he said, “Who am I, Lord the LORD, and what is my house, that you have brought me this far?”", ref: "2 Samuel 7:18" },
     reflection:
-      "Who am I, Lord the LORD, and what is my house, that you have brought me this far? Grace received rightly makes us smaller, not bigger.",
+      "God has just promised David a house and a throne for ever, and David's response is to go in and sit down — an odd posture for prayer, the posture of a man too overwhelmed to stand. Who am I, and what is my house, that you have brought me thus far? Grace received properly always has this effect. It makes a person smaller in their own eyes, not larger, and David's greatest moment produces his humblest sentence.",
     talk: "How do you respond to God's kindness — entitlement or astonishment?",
-    pray: "Who are we, Lord, that you have brought us this far?",
+    pray: "Who are we, Lord, and what is this house, that you have brought us this far? We did not arrange any of it. Keep what you give us from making us think better of ourselves.",
   },
   {
     read: { text: "For you are my lamp, the LORD. the LORD will light up my darkness.", ref: "2 Samuel 22:29" },
     reflection:
-      "For you are my lamp, LORD. The LORD will light up my darkness. Not that the dark ended, but that God lit it.",
+      "David's last song, looking back over a life of caves and betrayals and war. You are my lamp, O LORD; the LORD lightens my darkness. Not removes it — lightens it, gives light in it. That is a more modest claim than we usually want and a more honest one. The darkness was real and lasted years. What he testifies to is that there was light in it, and where the light came from.",
     talk: "Do you expect God to remove the dark, or to be light in it?",
-    pray: "Lord, you are our lamp. Light up our darkness.",
+    pray: "Lord, you are our lamp. Light up our darkness — we are not asking you to end it tonight, only to give us enough to see by while it lasts.",
   },
   {
     read: { text: "Give your servant therefore an understanding heart to judge your people, that I may discern between good and evil; for who is able to judge this great people of yours?", ref: "1 Kings 3:9" },
     reflection:
-      "Give your servant therefore an understanding heart. Solomon could have asked for anything and asked to do the job well.",
+      "God offers a young king anything, and Solomon asks for a listening heart — the Hebrew is literally a hearing heart — to discern between good and evil, because who is able to govern this great people of yours? He asks for competence at the job he has been given rather than escape from it, or wealth, or a longer life. And God is pleased, and gives him the rest as well.",
     talk: "If you could ask God one thing for this season, what would it be?",
-    pray: "Lord, give us understanding hearts for what you have given us to do.",
+    pray: "Lord, give us listening hearts for what you have actually given us to do. We keep asking for different circumstances. Make us able for these ones.",
   },
   {
     read: { text: "But will God in very deed dwell on the earth? Behold, heaven and the heaven of heavens can’t contain you; how much less this house that I have built!", ref: "1 Kings 8:27" },
     reflection:
-      "Heaven and the heaven of heavens can't contain you; how much less this house that I have built! Solomon dedicates the temple by admitting God will not fit in it.",
+      "It is the strangest dedication speech in Scripture. Solomon has just finished seven years of building the most magnificent structure in Israel's history, and he stands up in front of it and says God will not fit. Heaven and the highest heaven cannot contain you; how much less this house that I have built. The right response to having built something for God is to admit its inadequacy out loud.",
     talk: "What small container have you tried to keep God in?",
-    pray: "Lord, the highest heaven cannot contain you. Forgive our small ideas.",
+    pray: "Lord, the highest heaven cannot contain you and our ideas of you are smaller than that. Forgive them. Do not let us shrink you to the size of what we can manage.",
   },
   {
     read: { text: "He said, “Go out, and stand on the mountain before the LORD.” Behold, the LORD passed by, and a great and strong wind tore the mountains, and broke in pieces the rocks before the LORD; but the LORD was not in the wind. After the wind there was an earthquake; but the LORD was not in the earthquake. After the earthquake a fire passed; but the LORD was not in the fire. After the fire, there was a still small voice.", ref: "1 Kings 19:11-12" },
     reflection:
-      "After the fire a still small voice. Elijah expected spectacle and God came in a whisper.",
+      "Elijah has just called down fire from heaven on Carmel. If anyone had grounds to expect God in the spectacular, it was him — and the wind, the earthquake and the fire all pass by and God is in none of them. Then a sound of a low whisper, and he covers his face. Having seen God do the dramatic thing, he meets him in the quiet one, at the point of complete exhaustion.",
     talk: "Do you only expect God in dramatic moments?",
-    pray: "Lord, you come in the whisper. Give us ears quiet enough.",
+    pray: "Lord, you came to Elijah in a whisper after the fire. Give us ears quiet enough. We have been listening for something loud and missing what you are actually saying.",
   },
   {
     read: { text: "Elisha said to her, “What should I do for you? Tell me: what do you have in the house?” She said, “Your servant has nothing in the house, except a pot of oil.”", ref: "2 Kings 4:2" },
     reflection:
-      "What do you have in the house? A widow with nothing is asked what she has. The miracle starts with an almost-empty jar.",
+      "She has nothing. Her husband is dead, the creditor is coming for her two sons, and Elisha's question sounds almost cruel: what do you have in the house? Nothing, she says, except a jar of oil — the except is where the miracle starts. God repeatedly begins with the thing someone has already dismissed as not worth mentioning. Five loaves. Two fish. A jar of oil that barely counts.",
     talk: "What little thing have you dismissed as too small?",
-    pray: "Lord, what we have is small. Take it and multiply it.",
+    pray: "Lord, what we have is small and we have been apologising for it. Take it. Do with it what you did with the oil, and let us stop waiting until we have something impressive.",
   },
   {
     read: { text: "Hezekiah received the letter from the hand of the messengers and read it. Then Hezekiah went up to the LORD’s house, and spread it before the LORD.", ref: "2 Kings 19:14" },
     reflection:
-      "Hezekiah received the letter... and spread it before the LORD. He does not answer the threat; he lays it out before God.",
+      "The Assyrian letter is designed to break morale, and it is effective — it mocks God by name. Hezekiah does not draft a reply, call a council, or negotiate. He carries the letter up to the temple and spreads it out in front of the LORD, which is a wonderfully physical act of prayer. Here it is. You read it. Then he prays, and the answer comes through Isaiah that night.",
     talk: "What would it mean to literally spread today's bad news before God?",
-    pray: "Lord, we spread it before you. We have no other answer.",
+    pray: "Lord, we spread it out in front of you, because we have no answer of our own. Read it. Deal with it as you see fit — we are not able to.",
   },
   {
     read: { text: "Jabez called on the God of Israel, saying, “Oh that you would bless me indeed, and enlarge my border! May your hand be with me, and may you keep me from evil, that I may not cause pain!” God granted him that which he requested.", ref: "1 Chronicles 4:10" },
     reflection:
-      "Jabez called on the God of Israel... and God granted him. One honest request, in a chapter of names. Not a formula.",
+      "Nine chapters of genealogy, and then two verses about a man whose name means pain, whose mother gave it to him because she bore him in sorrow. He asks God for blessing, for enlarged borders, for God's hand with him, and to be kept from harm — and God granted what he asked. It is not a formula, whatever has been made of it. It is a note that God hears ordinary people with painful names.",
     talk: "Does it comfort you that God hears ordinary people in long lists?",
-    pray: "Lord, you hear ordinary people. Hear us.",
+    pray: "Lord, you heard one man in the middle of a list of names, and you granted what he asked. Hear us. We are nobody in particular and that has never stopped you.",
   },
   {
     read: { text: "But who am I, and what is my people, that we should be able to offer so willingly as this? For all things come from you, and we have given you of your own.", ref: "1 Chronicles 29:14" },
     reflection:
-      "Who am I, and what is my people, that we should be able to offer so willingly? All things come from you, and of your own we have given you.",
+      "David has just led the largest offering in Israel's history for the temple, and the people have given willingly — and what he says is that none of it was theirs. All things come from you, and of your own have we given you. It is the clearest statement in Scripture about what giving actually is: handing back a portion of what was already on loan. There is nothing to be proud of in generosity, which is why generous people are rarely smug.",
     talk: "Do you feel generous when you give, or grateful?",
-    pray: "Lord, all things come from you. Keep us from pride in our giving.",
+    pray: "Lord, everything we gave was already yours and we were only passing it back. Keep pride out of our giving. Let us hold what you have entrusted with open hands.",
   },
   {
     read: { text: "if my people, who are called by my name, will humble themselves, pray, seek my face, and turn from their wicked ways; then I will hear from heaven, will forgive their sin, and will heal their land.", ref: "2 Chronicles 7:14" },
     reflection:
-      "If my people... humble themselves, pray, seek my face, and turn from their wicked ways, then I will hear from heaven. Spoken to Israel about their land. Read it carefully; its heart is timeless.",
+      "Read it in context before applying it. God is answering Solomon about the temple, about this land, to this covenant nation, with drought and locusts and plague in view. It is not a formula for any modern country. But the heart of it is as old as God himself and never expires: humble yourselves, pray, seek my face, turn. And the promise attached is his own character — I will hear, I will forgive, I will heal.",
     talk: "Why does context matter when reading a promise?",
-    pray: "Lord, humble us and turn us back to you. Hear us for Christ's sake.",
+    pray: "Lord, humble us, and turn us from what we have been excusing. Hear us for Christ's sake rather than for our own. Heal what has gone wrong in this house.",
   },
   {
     read: { text: "Our God, will you not judge them? For we have no might against this great company that comes against us. We don’t know what to do, but our eyes are on you.", ref: "2 Chronicles 20:12" },
     reflection:
-      "We have no might against this great company... neither know we what to do, but our eyes are on you. Total helplessness and total attention. Both are faith.",
+      "Three armies are coming and Jehoshaphat prays in front of the whole nation, ending with the most honest sentence any leader has spoken: we do not know what to do, but our eyes are on you. Not a plan disguised as a prayer. Total helplessness and total attention in one breath — and both of those are faith. The answer comes back that the battle is not theirs but God's.",
     talk: "Can you pray 'we don't know what to do' without treating it as failure?",
-    pray: "Lord, we do not know what to do, but our eyes are on you.",
+    pray: "Lord, we do not know what to do, and we are not going to pretend we have a plan. Our eyes are on you. The battle is not ours.",
   },
   {
     read: { text: "They sang to one another in praising and giving thanks to the LORD, “For he is good, for his loving kindness endures forever toward Israel.” All the people shouted with a great shout, when they praised the LORD, because the foundation of the LORD’s house had been laid.", ref: "Ezra 3:11" },
     reflection:
-      "They sang one to another in praising and giving thanks to the LORD, 'For he is good, for his loving kindness endures forever toward Israel.' Praise at a smaller temple's foundation.",
+      "They lay the foundation of the second temple and sing the old refrain — he is good, his steadfast love endures for ever — and shout. And Ezra adds that the old men who had seen the first temple wept aloud, so that nobody could tell the shouting from the weeping. Both at once, at the same foundation. Praise for what is, offered by people who remember something bigger, is a hard and honest thing.",
     talk: "Can you praise for something smaller than you hoped for?",
-    pray: "Lord, you are good and your love endures. We praise you for what is.",
+    pray: "Lord, you are good and your love endures for ever. We praise you for what we actually have rather than for what we hoped for. Take the shouting and the weeping together.",
   },
   {
     read: { text: "When I heard these words, I sat down and wept, and mourned several days; and I fasted and prayed before the God of heaven,", ref: "Nehemiah 1:4" },
     reflection:
-      "When I heard these words, I sat down and wept, and mourned several days; and I fasted and prayed. Before any plan, grief and prayer.",
+      "Nehemiah is a competent man — cupbearer to a king, later a project manager of extraordinary ability. And when he hears that the walls are broken down, his first act is not a plan. He sits down and weeps, and mourns for days, and fasts and prays. The building comes later and it comes well. But the order matters, and it is the order most capable people get wrong.",
     talk: "What do you do first with bad news?",
-    pray: "Lord, let our first response to trouble be prayer.",
+    pray: "Lord, let our first response to trouble be grief and prayer rather than a plan. Give us time to feel it properly before we start fixing it.",
   },
   {
     read: { text: "Go, gather together all the Jews who are present in Susa, and fast for me, and neither eat nor drink three days, night or day. I and my maidens will also fast the same way. Then I will go in to the king, which is against the law; and if I perish, I perish.", ref: "Esther 4:16" },
     reflection:
-      "If I perish, I perish. Courage without confidence about the outcome. Willingness to lose.",
+      "If I perish, I perish. It is not confidence about the outcome — she has no assurance she will survive going to the king uninvited, and says so. What she has is a decision made without one. That is the difference between courage and optimism, and Scripture consistently commends the first. The three young men said something structurally identical in front of a furnace: our God is able, and if not, we still will not bow.",
     talk: "What would you do if you were willing to lose?",
-    pray: "Lord, make us willing to obey without knowing how it ends.",
+    pray: "Lord, make us willing to obey without knowing how it ends. Give us Esther's kind of nerve — not certainty about the result, just a decision made anyway.",
   },
   {
     read: { text: "who does great things that can’t be fathomed, marvelous things without number;", ref: "Job 5:9" },
     reflection:
-      "He does great things that can't be fathomed; marvellous things without number. Some of what God does will never be explained to us.",
+      "Eliphaz says this, and one of the uncomfortable things about the book of Job is that his friends say true things and apply them badly. The sentence itself stands: God does great things beyond searching out, marvellous things without number. Job ends with God saying exactly that at enormous length and never explaining anything. Some of what he does will not be explained to us, and the book does not treat that as a problem to be solved.",
     talk: "What do you want explained? Can you live without the explanation?",
-    pray: "Lord, you do great things beyond searching out. We trust you.",
+    pray: "Lord, you do great things beyond our searching out, and we will not get most of the explanations. We trust you. Let us stop requiring you to make sense to us first.",
   },
   {
     read: { text: "Behold, he will kill me. I have no hope. Nevertheless, I will maintain my ways before him.", ref: "Job 13:15" },
     reflection:
-      "Behold, he will kill me. I have no hope. Nevertheless, I will maintain my ways before him. Faith that is not cheerful, and is still faith.",
+      "The Hebrew here is difficult and the older translation is famous: though he slay me, yet will I trust him. Either reading lands in the same place — a man with no expectation of rescue, who is still going to hold his position before God rather than curse him and be done. It is faith with nothing cheerful in it, and it is the kind the book of Job commends and the friends never manage.",
     talk: "Is faith without hopefulness still faith? What does Job suggest?",
-    pray: "Lord, even if you slay us, we will hold to you.",
+    pray: "Lord, even if this does not end the way we are asking, we will hold to you. We have nowhere else to go. Let that be counted as faith, because it is all we have.",
   },
   {
     read: { text: "But as for me, I know that my Redeemer lives. In the end, he will stand upon the earth.", ref: "Job 19:25" },
