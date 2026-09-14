@@ -7,6 +7,7 @@ import { Verse } from "@/components/ui/Verse";
 import { Icon, type IconName } from "@/components/ui/Icon";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { InstallButton } from "@/components/InstallButton";
+import { Screens } from "@/components/marketing/Screens";
 
 export const metadata: Metadata = {
   title: "Christian Pregnancy App & Devotional for Couples",
@@ -104,7 +105,7 @@ export default function Landing() {
       />
       <ThemeToggle className="fixed right-5 top-5 z-30" />
       {/* Hero */}
-      <section className="flex min-h-[88dvh] flex-col justify-center py-20">
+      <section className="flex min-h-[76dvh] flex-col justify-center py-16">
         <div className="animate-fade-up">
           <div className="mb-10 flex items-center gap-4">
             <OyunMark size={64} className="animate-breathe text-ink" />
@@ -132,8 +133,20 @@ export default function Landing() {
             </Button>
             <InstallButton />
           </div>
+
+          {/* The two questions a stranger actually has, answered before they
+              have to go looking. */}
+          <p className="prose-serif-xs mt-6 max-w-prose text-muted">
+            Free, with no plans to charge — no ads, no subscription, nothing
+            sold on.{" "}
+            <span className="text-ink">Your journey is yours.</span> Nothing you
+            write is public, there is no feed of strangers, and the circle you
+            invite only ever sees what you choose to share with them.
+          </p>
         </div>
       </section>
+
+      <Screens />
 
       {/* Verse rest */}
       <section className="border-t border-border py-20">
