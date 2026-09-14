@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { FirstStep, FirstStepFocus } from "@/components/ui/FirstStep";
+import { DraftTextarea } from "@/components/ui/DraftTextarea";
 import { useFormStatus } from "react-dom";
 import {
   addCoupleLetter,
@@ -86,7 +87,8 @@ export function CoupleLetters({
         }}
         className="space-y-3"
       >
-        <textarea
+        <DraftTextarea
+          draftKey="letter:couple"
           id="couple-letter-box"
           name="body"
           rows={3}

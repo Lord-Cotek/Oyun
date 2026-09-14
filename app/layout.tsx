@@ -4,6 +4,7 @@ import "./globals.css";
 import { AssistantChat } from "@/components/AssistantChat";
 import { Disclaimer } from "@/components/Disclaimer";
 import { PwaRegister } from "@/components/PwaRegister";
+import { OfflineBanner } from "@/components/OfflineBanner";
 import { NativePush } from "@/components/NativePush";
 
 const playfair = Playfair_Display({
@@ -117,6 +118,7 @@ export default function RootLayout({
       </head>
       <body className="grain">
         <div className="tabbar-pad relative z-10 flex min-h-dvh flex-col">
+          <OfflineBanner />
           <div className="flex-1">{children}</div>
           <Disclaimer />
         </div>
