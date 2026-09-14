@@ -515,11 +515,9 @@ function PostItem({
           <span aria-hidden>·</span>
           <span>{post.when}</span>
           <span
-            className="rounded-full border px-2 py-0.5 text-[0.56rem]"
-            style={{
-              color: `var(--tone-${tone})`,
-              borderColor: `color-mix(in srgb, var(--tone-${tone}) 40%, transparent)`,
-            }}
+            className="rounded-full border border-border px-2 py-0.5 text-[0.56rem] text-muted"
+            // The chip says "Praise" or "Prayer"; the word is the marker.
+            // A hue per kind meant four colours in one row of metadata.
           >
             {KIND_LABEL[post.kind] ?? "Update"}
           </span>

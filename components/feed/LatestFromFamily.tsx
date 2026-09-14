@@ -55,7 +55,10 @@ export function LatestFromFamily({
                   <span className="text-ink/80">{p.author}</span>
                   <span aria-hidden>·</span>
                   <span>{p.when}</span>
-                  <span className="text-accent">{KIND_LABEL[p.kind] ?? ""}</span>
+                  {/* The word already says which kind this is. Accent here put a
+                      third colour in a line of metadata that is meant to be
+                      skimmed past, not read. */}
+                  <span className="text-ink/70">{KIND_LABEL[p.kind] ?? ""}</span>
                 </div>
                 <div className="flex items-start gap-3">
                   <p className="line-clamp-2 flex-1 prose-serif-sm text-ink/90">

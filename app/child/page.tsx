@@ -68,13 +68,13 @@ export default async function ChildPage() {
         {children.length > 0 && (
           <div className="mt-6 grid grid-cols-3 gap-3">
             <Reveal>
-              <StatPill label="Little ones" value={children.length} hint="in the nursery" tone="amber" />
+              <StatPill label="Little ones" value={children.length} hint="in the nursery" />
             </Reveal>
             <Reveal delay={70}>
-              <StatPill label="Firsts kept" value={firstsKept} hint="across them all" tone="gold" />
+              <StatPill label="Firsts kept" value={firstsKept} hint="across them all" />
             </Reveal>
             <Reveal delay={140}>
-              <StatPill label="Expecting" value={expecting} hint="on your journey" tone="rose" />
+              <StatPill label="Expecting" value={expecting} hint="on your journey" />
             </Reveal>
           </div>
         )}

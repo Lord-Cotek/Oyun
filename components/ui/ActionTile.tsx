@@ -1,50 +1,47 @@
 import Link from "next/link";
-import { type CSSProperties } from "react";
 import { Icon, type IconName } from "@/components/ui/Icon";
 
-/** The category launcher palette. Each maps to a --tone-* token in globals.css,
- *  so the whole colourful system re-themes from one place. */
-export type Tone = "amber" | "rose" | "gold" | "plum" | "sky" | "green";
-
 /**
- * A colourful, tappable launcher tile — the home screen's app grid. The `tone`
- * washes the whole card (background, border, icon chip) from a single token,
- * and the tile presses in when tapped. Warm and maternal, but still on-brand.
+ * A tappable launcher tile — the home screen's app grid.
+ *
+ * These used to come in six colours. The file above this one said "one accent
+ * that earns it" and then declared six category tones directly underneath, and
+ * of those six, `sky` was used nowhere at all and `plum` once. It was not a
+ * system, it was a leftover — and six mid-saturation hues at small sizes on
+ * tinted washes is exactly where contrast quietly fails.
+ *
+ * A tile is told apart by its icon and its label, which is how a person finds
+ * "Worship" — not by remembering that worship is the amber one. So every tile
+ * is the same surface now, and the one accent does the work of marking the
+ * icon. The press stays: a control that answers the thumb is worth more than a
+ * control that is a different colour.
  */
 export function ActionTile({
   href,
   label,
   hint,
   icon,
-  tone,
   className = "",
 }: {
   href: string;
   label: string;
   hint?: string;
   icon: IconName;
-  tone: Tone;
   className?: string;
 }) {
   return (
     <Link
       href={href}
-      style={{ ["--tone" as string]: `var(--tone-${tone})` } as CSSProperties}
-      className={`group relative flex flex-col overflow-hidden rounded-2xl border p-4 transition-all duration-300 border-[color-mix(in_srgb,var(--tone)_28%,transparent)] bg-[color-mix(in_srgb,var(--tone)_13%,var(--surface))] hover:-translate-y-0.5 hover:border-[color-mix(in_srgb,var(--tone)_50%,transparent)] hover:shadow-lg hover:shadow-black/10 active:translate-y-0 active:scale-[0.97] ${className}`}
+      className={`surface-premium group relative flex flex-col rounded-2xl border border-border p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-accent/50 active:translate-y-0 active:scale-[0.97] ${className}`}
     >
-      {/* soft corner glow */}
-      <span
-        aria-hidden
-        className="pointer-events-none absolute -right-6 -top-8 h-20 w-20 rounded-full bg-[color-mix(in_srgb,var(--tone)_45%,transparent)] blur-2xl opacity-60 transition-opacity duration-300 group-hover:opacity-90"
-      />
-      <span className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-[color-mix(in_srgb,var(--tone)_22%,transparent)] text-[var(--tone)]">
+      <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent/[0.12] text-accent transition-colors duration-300 group-hover:bg-accent/20">
         <Icon name={icon} size={20} />
       </span>
-      <span className="relative mt-3 font-serif text-lg leading-none text-ink">
+      <span className="mt-3 font-serif text-lg leading-none text-ink">
         {label}
       </span>
       {hint && (
-        <span className="relative mt-1.5 font-mono text-[0.64rem] leading-tight text-muted">
+        <span className="mt-1.5 font-mono text-[0.64rem] leading-tight text-muted">
           {hint}
         </span>
       )}

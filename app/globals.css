@@ -24,15 +24,6 @@
   --negative: #e07d74;
   --accent2: #e79b95; /* soft rose — maternal / care states (brightened) */
 
-  /* Category tones — a warm, maternal launcher palette. Used by ActionTile /
-     StatPill; each tile sets --tone to one of these and the wash + border are
-     mixed from it, so the whole colorful system re-themes from here. */
-  --tone-amber: #edb45e;
-  --tone-rose: #e89a94;
-  --tone-gold: #e6c15a;
-  --tone-plum: #b79ae6;
-  --tone-sky: #6fb8d6;
-  --tone-green: #7fc490;
 
   --grain-blend: overlay;
   --grain-opacity: 0.035;
@@ -78,14 +69,6 @@
   --negative: #b23b32;
   --accent2: #a8504a; /* deeper rose so it reads on ivory */
 
-  /* Category tones — deepened for legibility as icon/text on the ivory washes
-     (all clear AA as small text on their own tint). */
-  --tone-amber: #8f5410;
-  --tone-rose: #b25a54;
-  --tone-gold: #806113;
-  --tone-plum: #6b52a8;
-  --tone-sky: #2f6f8a;
-  --tone-green: #3f7d51;
 
   --grain-blend: multiply;
   --grain-opacity: 0.03;
@@ -328,13 +311,26 @@
   }
 
   /* The signature COTEK section marker */
+  /*
+    A section marker, and only that.
+   
+    It used to be accent-coloured — the same colour as every link and every
+    button in the app. With a hundred of them on the page the accent stopped
+    meaning "you can tap this" and started meaning "here is some text", which
+    is the one job colour was doing that nothing else could do. Now the accent
+    belongs to things a person can act on, and a section marker is quiet.
+   
+    The tracking came down from 0.22em too. That is a poster value; at 11px on
+    a phone it pushes a three-word label onto its own line and makes every
+    heading shout at the same volume as the one above it.
+  */
   .eyebrow {
     font-family: var(--font-dm-mono), "DM Mono", ui-monospace, monospace;
     text-transform: uppercase;
-    letter-spacing: 0.22em;
-    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    font-size: 0.7rem;
     line-height: 1.2;
-    color: var(--accent);
+    color: var(--muted);
   }
 
   /*

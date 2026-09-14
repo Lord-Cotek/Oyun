@@ -70,13 +70,13 @@ export default async function FirstsPage() {
 
         <div className="mt-6 grid grid-cols-3 gap-3">
           <Reveal>
-            <StatPill label="Firsts" value={milestones.length} hint="moments kept" tone="gold" />
+            <StatPill label="Firsts" value={milestones.length} hint="moments kept" />
           </Reveal>
           <Reveal delay={70}>
-            <StatPill label="With photos" value={withPhotos} hint="have a picture" tone="rose" />
+            <StatPill label="With photos" value={withPhotos} hint="have a picture" />
           </Reveal>
           <Reveal delay={140}>
-            <StatPill label="Photos" value={photoCount} hint="tap to view" tone="plum" />
+            <StatPill label="Photos" value={photoCount} hint="tap to view" />
           </Reveal>
         </div>
 

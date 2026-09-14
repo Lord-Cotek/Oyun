@@ -1,8 +1,8 @@
 import { type ReactNode } from "react";
 
 /**
- * A soft radial progress ring with a warm amber→rose gradient stroke and a
- * serif value at its centre. The visual anchor for the journey hero — "week 24
+ * A soft radial progress ring with a single-accent stroke and a serif value at
+ * its centre. The visual anchor for the journey hero — "week 24
  * of 40", "5 months old". Pure SVG, theme-aware (track uses --border).
  */
 export function ProgressRing({
@@ -28,8 +28,12 @@ export function ProgressRing({
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
         <defs>
           <linearGradient id="oyun-ring" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="var(--accent)" />
-            <stop offset="100%" stopColor="var(--accent2)" />
+            {/* One colour. A two-accent sweep made the arc read as a scale —
+                as though olive meant one thing and clay another — when it is
+                a single count of days. It was also the loudest object on the
+                home page, for a number nobody is being scored on. */}
+            <stop offset="0%" stopColor="var(--accent)" stopOpacity="0.55" />
+            <stop offset="100%" stopColor="var(--accent)" />
           </linearGradient>
         </defs>
         <g transform={`rotate(-90 ${size / 2} ${size / 2})`}>

@@ -253,13 +253,13 @@ export default async function JourneyPage() {
           {/* Colorful launcher — the journey's app grid */}
           <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
             <Reveal>
-              <ActionTile href="/worship" label="Worship" hint="Daily altar" icon="flame" tone="amber" />
+              <ActionTile href="/worship" label="Worship" hint="Daily altar" icon="flame" />
             </Reveal>
             <Reveal delay={60}>
-              <ActionTile href="/prayer" label="Prayer" hint="Requests" icon="hands" tone="sky" />
+              <ActionTile href="/prayer" label="Prayer" hint="Requests" icon="hands" />
             </Reveal>
             <Reveal delay={120}>
-              <ActionTile href="/care" label="Care" hint="Your heart" icon="heart" tone="rose" />
+              <ActionTile href="/care" label="Care" hint="Your heart" icon="heart" />
             </Reveal>
             <Reveal delay={180}>
               <ActionTile
@@ -267,14 +267,13 @@ export default async function JourneyPage() {
                 label="Nursery"
                 hint={journey.babyCount > 1 ? `${journey.babyCount} profiles` : "Profile"}
                 icon="star"
-                tone="gold"
               />
             </Reveal>
             <Reveal delay={240}>
-              <ActionTile href="/firsts" label="Firsts" hint={`${milestoneCount} kept`} icon="sparkles" tone="green" />
+              <ActionTile href="/firsts" label="Firsts" hint={`${milestoneCount} kept`} icon="sparkles" />
             </Reveal>
             <Reveal delay={300}>
-              <ActionTile href="/circle" label="Circle" hint="Who’s praying" icon="users" tone="plum" />
+              <ActionTile href="/circle" label="Circle" hint="Who’s praying" icon="users" />
             </Reveal>
           </div>
 
