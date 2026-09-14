@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
+import { CATEGORIES } from "@/lib/notify-prefs";
 import { uploadToBlob, filesFromForm } from "@/lib/blob-client";
 import { Avatar } from "@/components/ui/Avatar";
 import {
@@ -155,28 +156,65 @@ export function PasswordForm() {
   );
 }
 
+/**
+ * What may interrupt this family.
+ *
+ * This used to be two switches — email me when something happens, and a weekly
+ * summary — which is all or nothing across eleven different kinds of thing.
+ * Somebody who wanted to know when a scan was coming up also got a buzz for
+ * every reaction to a photograph, and their only remedy was to switch the lot
+ * off, which is what people do.
+ *
+ * Five rows now, one per thing a family recognises, plus the two delivery
+ * switches underneath. The rows and their wording live in lib/notify-prefs.ts
+ * beside the map that assigns every notification type to one.
+ */
 export function NotificationForm({
   notifyByEmail,
   weeklyDigest,
+  categories,
 }: {
   notifyByEmail: boolean;
   weeklyDigest: boolean;
+  categories: Record<string, boolean>;
 }) {
   const { busy, result, run } = useAction(updateNotifications);
   return (
-    <form action={run} className="space-y-4">
-      <Toggle
-        name="notifyByEmail"
-        defaultChecked={notifyByEmail}
-        title="Email me when something happens"
-        hint="A prayer, an encouragement, or a new member joining your circle."
-      />
-      <Toggle
-        name="weeklyDigest"
-        defaultChecked={weeklyDigest}
-        title="Weekly email"
-        hint="A gentle summary each week: this stage, a verse, and how your circle prayed."
-      />
+    <form action={run} className="space-y-5">
+      <div className="space-y-4">
+        {CATEGORIES.map((c) => (
+          <Toggle
+            key={c.field}
+            name={c.field}
+            defaultChecked={categories[c.field] !== false}
+            title={c.label}
+            hint={c.hint}
+          />
+        ))}
+      </div>
+
+      <p className="prose-serif-xs max-w-prose text-muted">
+        These decide what taps you on the shoulder. Everything is still written
+        down and still appears in the bell either way — switching a row off
+        never loses anything, it only stops the interruption.
+      </p>
+
+      <div className="space-y-4 border-t border-border pt-5">
+        <p className="eyebrow text-muted">How it reaches you</p>
+        <Toggle
+          name="notifyByEmail"
+          defaultChecked={notifyByEmail}
+          title="Email as well as the phone"
+          hint="For the rows you have left on above."
+        />
+        <Toggle
+          name="weeklyDigest"
+          defaultChecked={weeklyDigest}
+          title="One quiet summary each week"
+          hint="This stage, a verse, and how your circle prayed. Sent whatever the rows above say — it is a look back, not an interruption."
+        />
+      </div>
+
       <div className="flex items-center gap-4">
         <SubmitBtn busy={busy} label="Save preferences" />
         <Status result={result} />

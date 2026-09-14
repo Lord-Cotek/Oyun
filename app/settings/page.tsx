@@ -103,6 +103,13 @@ export default async function SettingsPage() {
             <NotificationForm
               notifyByEmail={user.notifyByEmail}
               weeklyDigest={user.weeklyDigest}
+              categories={{
+                notifyCircle: user.notifyCircle,
+                notifyHer: user.notifyHer,
+                notifyDates: user.notifyDates,
+                notifyDiary: user.notifyDiary,
+                notifyHouse: user.notifyHouse,
+              }}
             />
             <div className="mt-6 border-t border-border pt-6">
               <PushToggle />
