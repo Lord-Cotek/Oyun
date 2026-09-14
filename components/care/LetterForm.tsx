@@ -18,6 +18,7 @@ export function LetterForm({ placeholder }: { placeholder?: string }) {
     >
       <input type="hidden" name="toBaby" value="true" />
       <textarea
+        id="letter-box"
         name="body"
         rows={4}
         required

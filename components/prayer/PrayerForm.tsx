@@ -16,6 +16,7 @@ export function PrayerForm() {
       className="space-y-3"
     >
       <input
+        id="prayer-title"
         name="title"
         required
         maxLength={200}

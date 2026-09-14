@@ -12,6 +12,7 @@ import {
 import type { FeedPost, MediaItem } from "@/lib/feed-query";
 import { Lightbox } from "@/components/media/Lightbox";
 import { mediaAlt } from "@/lib/alt";
+import { FirstStep, FirstStepFocus } from "@/components/ui/FirstStep";
 import { Avatar } from "@/components/ui/Avatar";
 import { isIosNativeShell } from "@/lib/shell";
 
@@ -41,17 +42,30 @@ interface Actions {
 export function Feed({
   posts,
   composerPlaceholder = "Share something with the family…",
+  // A blank diary is the first thing a new house sees, so it gets one
+  // particular thing to write rather than four categories to choose between.
+  emptyLine = "Nothing here yet. The entries worth having in ten years are the ordinary ones — what somebody said, what you ate, who came round.",
+  emptyAction = "Write down one thing that happened today",
   ...actions
-}: { posts: FeedPost[]; composerPlaceholder?: string } & Actions) {
+}: {
+  posts: FeedPost[];
+  composerPlaceholder?: string;
+  emptyLine?: string;
+  emptyAction?: string;
+} & Actions) {
   return (
     <div className="space-y-6">
       <Composer onCreate={actions.onCreate} placeholder={composerPlaceholder} />
       {posts.length === 0 ? (
-        <div className="surface-premium rounded-2xl border border-border p-8 text-center">
-          <p className="prose-serif-sm text-muted">
-            Nothing shared yet. Be the first — a word, a praise, a prayer, a
-            small moment worth keeping.
-          </p>
+        <div className="surface-premium rounded-2xl border border-border p-8">
+          <FirstStep
+            className="text-center [&>div]:flex [&>div]:justify-center"
+            action={
+              <FirstStepFocus htmlFor="composer-box">{emptyAction}</FirstStepFocus>
+            }
+          >
+            {emptyLine}
+          </FirstStep>
         </div>
       ) : (
         <ul className="space-y-4">
@@ -320,6 +334,7 @@ function Composer({
         ))}
       </div>
       <textarea
+        id="composer-box"
         value={body}
         onChange={(e) => setBody(e.target.value)}
         rows={3}

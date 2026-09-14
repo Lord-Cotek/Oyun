@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { FirstStep, FirstStepButton } from "@/components/ui/FirstStep";
 import { type AppointmentKind } from "@prisma/client";
 import {
   kindVoice,
@@ -67,6 +68,8 @@ export function AppointmentBook({
   past: Appt[];
 }) {
   const [adding, setAdding] = useState(false);
+  /** Pre-chosen kind when the blank book opened the form for her. */
+  const [seedKind, setSeedKind] = useState<AppointmentKind | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [, start] = useTransition();
 
@@ -86,8 +89,12 @@ export function AppointmentBook({
       <div>
         {adding ? (
           <Form
+            seedKind={seedKind ?? undefined}
             onSubmit={(fd) => run(() => addAppointment(fd))}
-            onCancel={() => setAdding(false)}
+            onCancel={() => {
+              setAdding(false);
+              setSeedKind(null);
+            }}
             submitLabel="Keep this date"
           />
         ) : (
@@ -106,11 +113,22 @@ export function AppointmentBook({
           Coming up
         </p>
         {upcoming.length === 0 ? (
-          <p className="max-w-prose prose-serif-xs text-muted">
-            Nothing in the book. Put the next one in as soon as the letter
-            arrives — you will be reminded the day before, and on the morning
-            itself if there is a time on it.
-          </p>
+          <FirstStep
+            action={
+              <FirstStepButton
+                onClick={() => {
+                  setSeedKind("SCAN");
+                  setAdding(true);
+                }}
+              >
+                Put the 20-week scan in
+              </FirstStepButton>
+            }
+          >
+            Nothing in the book yet. You will be reminded the day before, and
+            on the morning itself when there is a time on the letter — so the
+            sooner it goes in, the less there is to hold in your head.
+          </FirstStep>
         ) : (
           <ul className="space-y-3">
             {upcoming.map((a) => (
@@ -339,16 +357,21 @@ function Row({
 
 function Form({
   a,
+  seedKind,
   onSubmit,
   onCancel,
   submitLabel,
 }: {
   a?: Appt;
+  /** Chosen for her by the blank state, so only the date is left to fill in. */
+  seedKind?: AppointmentKind;
   onSubmit: (fd: FormData) => void;
   onCancel: () => void;
   submitLabel: string;
 }) {
-  const [kind, setKind] = useState<AppointmentKind>(a?.kind ?? "ANTENATAL");
+  const [kind, setKind] = useState<AppointmentKind>(
+    a?.kind ?? seedKind ?? "ANTENATAL",
+  );
 
   return (
     <form action={onSubmit} className="space-y-3">

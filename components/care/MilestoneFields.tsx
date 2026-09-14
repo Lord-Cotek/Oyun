@@ -49,6 +49,7 @@ export function MilestoneFields({
         <label className="block">
           <span className="eyebrow mb-1.5 block text-muted">The first</span>
           <select
+            id="first-kind"
             name="kind"
             value={kind}
             onChange={(e) => setKind(e.target.value)}

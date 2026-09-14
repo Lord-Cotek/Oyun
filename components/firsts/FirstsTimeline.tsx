@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { FirstStep, FirstStepFocus } from "@/components/ui/FirstStep";
 import { MilestoneItem, type MilestoneData } from "@/components/care/MilestoneItem";
 
 /**
@@ -38,11 +39,19 @@ export function FirstsTimeline({
       )}
 
       {filtered.length === 0 ? (
-        <p className="prose-serif-xs text-muted">
+        <FirstStep
+          action={
+            <FirstStepFocus htmlFor="first-kind">
+              {milestones.length === 0
+                ? "Start with the first kick"
+                : "Add a first for them"}
+            </FirstStepFocus>
+          }
+        >
           {milestones.length === 0
-            ? "Nothing logged yet. The firsts go by quickly — catch the next one here."
-            : "No firsts for this little one yet."}
-        </p>
+            ? "The firsts go by faster than anyone believes, and nobody remembers the date afterwards. Put one in — it can be one you have already missed."
+            : "Nothing kept for this little one yet. The others have theirs; this one can start today."}
+        </FirstStep>
       ) : (
         <ol className="relative space-y-5 border-l border-border pl-5">
           {filtered.map((m) => (

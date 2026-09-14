@@ -1,4 +1,5 @@
 import { LetterForm } from "@/components/care/LetterForm";
+import { FirstStep, FirstStepFocus } from "@/components/ui/FirstStep";
 import { Reactions } from "@/components/Reactions";
 import { type BabyLetter } from "@/lib/data";
 
@@ -24,9 +25,17 @@ export function BabyLetters({
       <LetterForm placeholder={placeholder} />
       <div className="mt-6 space-y-3 border-t border-border pt-5">
         {letters.length === 0 ? (
-          <p className="font-mono text-xs text-muted">
-            No letters yet. The first can be one line.
-          </p>
+          <FirstStep
+            action={
+              <FirstStepFocus htmlFor="letter-box">
+                Tell them what you hoped for them today
+              </FirstStepFocus>
+            }
+          >
+            One line is a letter. These are kept for the child to read years
+            from now, so write the thing you would want them to hear in your
+            own voice — not the tidy version.
+          </FirstStep>
         ) : (
           letters.map((l) => {
             const who =

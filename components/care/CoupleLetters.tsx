@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { FirstStep, FirstStepFocus } from "@/components/ui/FirstStep";
 import { useFormStatus } from "react-dom";
 import {
   addCoupleLetter,
@@ -86,6 +87,7 @@ export function CoupleLetters({
         className="space-y-3"
       >
         <textarea
+          id="couple-letter-box"
           name="body"
           rows={3}
           required
@@ -97,10 +99,16 @@ export function CoupleLetters({
 
       <div className="mt-6 space-y-3 border-t border-border pt-5">
         {combined.length === 0 ? (
-          <p className="font-mono text-xs text-muted">
-            No letters between you yet. A first one can be a single line — a
-            thanks, a hope, a Scripture.
-          </p>
+          <FirstStep
+            action={
+              <FirstStepFocus htmlFor="couple-letter-box">
+                Thank them for one thing they did this week
+              </FirstStepFocus>
+            }
+          >
+            A single line is a letter. These stay between the two of you, and
+            the small specific ones are the ones worth having in five years.
+          </FirstStep>
         ) : (
           <>
             {combined.map((l) => {
