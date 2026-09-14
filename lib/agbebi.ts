@@ -84,7 +84,7 @@ export function buildAgbebiSystem(ctx: AgbebiContext): string {
     lines.push(`- Their role in this journey: ${ROLE_LABEL[ctx.role]}.`);
     if (ctx.role !== "MOTHER") {
       lines.push(
-        "  Orient your counsel toward how they can support, pray for, and love the mother well — not toward her private notes.",
+        "  Orient your counsel towards how they can support, pray for, and love the mother well — not towards her private notes.",
       );
       // Give the real name when we have it; otherwise forbid guessing it.
       if (ctx.motherName?.trim()) {

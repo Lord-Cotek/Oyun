@@ -2,7 +2,7 @@ import { type ReactNode } from "react";
 
 /**
  * A soft radial progress ring with a warm amber→rose gradient stroke and a
- * serif value at its center. The visual anchor for the journey hero — "week 24
+ * serif value at its centre. The visual anchor for the journey hero — "week 24
  * of 40", "5 months old". Pure SVG, theme-aware (track uses --border).
  */
 export function ProgressRing({

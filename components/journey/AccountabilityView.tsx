@@ -293,7 +293,7 @@ export async function AccountabilityView({
             </div>
             <p className="prose-serif-xs text-muted">
               {born ? "This family" : "This couple"} was made for the church, not
-              just for you. Keep encouraging them toward their local congregation,
+              just for you. Keep encouraging them towards their local congregation,
               their pastor, and the ordinary means of grace.
             </p>
           </Card>

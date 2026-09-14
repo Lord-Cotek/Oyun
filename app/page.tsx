@@ -117,7 +117,7 @@ export default function Landing() {
 
           <Eyebrow className="mb-5">A COTEK companion</Eyebrow>
           <h1 className="max-w-3xl font-serif text-4xl leading-[1.08] text-ink sm:text-5xl md:text-6xl">
-            Walk the whole journey — together — with Scripture at the center.
+            Walk the whole journey — together — with Scripture at the centre.
           </h1>
           <p className="mt-6 max-w-prose prose-serif-sm text-muted">
             From the first quiet weeks of the womb through a child's earliest

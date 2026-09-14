@@ -3,11 +3,11 @@ import { type CSSProperties } from "react";
 import { Icon, type IconName } from "@/components/ui/Icon";
 
 /** The category launcher palette. Each maps to a --tone-* token in globals.css,
- *  so the whole colorful system re-themes from one place. */
+ *  so the whole colourful system re-themes from one place. */
 export type Tone = "amber" | "rose" | "gold" | "plum" | "sky" | "green";
 
 /**
- * A colorful, tappable launcher tile — the home screen's app grid. The `tone`
+ * A colourful, tappable launcher tile — the home screen's app grid. The `tone`
  * washes the whole card (background, border, icon chip) from a single token,
  * and the tile presses in when tapped. Warm and maternal, but still on-brand.
  */

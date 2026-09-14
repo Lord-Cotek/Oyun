@@ -3,7 +3,7 @@
  * theological reflection, a prayer, a question to talk through, a hymn to sing,
  * and — once the child has arrived — a catechism question.
  *
- * The passages deliberately center on the truth of God's Word and the
+ * The passages deliberately centre on the truth of God's Word and the
  * supremacy of Christ — not merely on children — so that parents' first love
  * stays fixed on the Lord and the gift of parenting is never made an idol.
  * Everything rotates by the calendar day.
@@ -40,7 +40,7 @@ export const LITURGIES: Liturgy[] = [
   {
     read: { text: "We know that all things work together for good for those who love God, for those who are called according to his purpose.", ref: "Romans 8:28" },
     reflection:
-      "Read the next verse before you claim this one: the good God works toward is being conformed to the image of his Son. This is not a promise that every outcome will be pleasant, or that a hard providence will be explained. It is a promise that nothing is wasted, and that God is bending even the worst of it toward Christ in us.",
+      "Read the next verse before you claim this one: the good God works towards is being conformed to the image of his Son. This is not a promise that every outcome will be pleasant, or that a hard providence will be explained. It is a promise that nothing is wasted, and that God is bending even the worst of it towards Christ in us.",
     talk: "Where are you tempted to read this verse as a guarantee that nothing hard will happen?",
     pray: "Father, we cannot see how you are working and some of this we would not have chosen. Make us like your Son through it. We are not asking for an explanation, only that nothing be wasted.",
   },
@@ -237,7 +237,7 @@ export const LITURGIES: Liturgy[] = [
     read: { text: "the LORD himself is who goes before you. He will be with you. He will not fail you nor forsake you. Don’t be afraid. Don’t be discouraged.", ref: "Deuteronomy 31:8" },
     reflection:
       "Moses says this to a people about to enter a land full of real dangers. The promise is not that there is nothing to fear but that the Lord goes before them and will not leave them. Courage in Scripture is almost always grounded in God's presence, never in a guaranteed outcome.",
-    talk: "What are you walking toward that you would like a guarantee about? What has God actually promised?",
+    talk: "What are you walking towards that you would like a guarantee about? What has God actually promised?",
     pray: "Lord, you go before us and you will not fail or forsake us. Give us courage that rests on your presence rather than on a guaranteed outcome. Do not let us be frightened or discouraged.",
   },
   {
@@ -411,9 +411,9 @@ export const LITURGIES: Liturgy[] = [
   {
     read: { text: "for by grace you have been saved through faith, and that not of yourselves; it is the gift of God, not of works, that no one would boast.", ref: "Ephesians 2:8-9" },
     reflection:
-      "Salvation is grace from first to last — not earned by our performance, and not by our parenting. This frees us: we are not saved by raising perfect children, nor are our children saved by our efforts. We labor in faith and rest in grace, boasting not in ourselves but in God.",
+      "Salvation is grace from first to last — not earned by our performance, and not by our parenting. This frees us: we are not saved by raising perfect children, nor are our children saved by our efforts. We labour in faith and rest in grace, boasting not in ourselves but in God.",
     pray: "God of grace, save us and our children by your mercy rather than our merit. We cannot parent anyone into your kingdom. Keep us from boasting in anything but you, especially about our own household.",
-    talk: "Where are you tempted to treat parenting as something that earns God's favor — for you or your child?",
+    talk: "Where are you tempted to treat parenting as something that earns God's favour — for you or your child?",
   },
   {
     read: { text: "But when Jesus saw it, he was moved with indignation, and said to them, “Allow the little children to come to me! Don’t forbid them, for God’s Kingdom belongs to such as these.”", ref: "Mark 10:14" },
@@ -425,9 +425,9 @@ export const LITURGIES: Liturgy[] = [
   {
     read: { text: "For I delivered to you first of all that which I also received: that Christ died for our sins according to the Scriptures, that he was buried, that he was raised on the third day according to the Scriptures,", ref: "1 Corinthians 15:3-4" },
     reflection:
-      "Here is the gospel of first importance — not advice for better families, but the death and resurrection of Christ for sinners. Everything in a Christian home stands on this. Before we are parents, we are sinners saved by a crucified and risen Savior. Keep this at the center, and parenting finds its right place.",
+      "Here is the gospel of first importance — not advice for better families, but the death and resurrection of Christ for sinners. Everything in a Christian home stands on this. Before we are parents, we are sinners saved by a crucified and risen Saviour. Keep this at the centre, and parenting finds its right place.",
     pray: "Thank you, Lord, for Christ crucified and risen for sinners, which is the ground everything else in this house stands on. Keep the gospel at the centre rather than our methods, and let our children hear it from us first.",
-    talk: "How can the gospel — Christ's death and resurrection — stay central in your home, not just good behavior?",
+    talk: "How can the gospel — Christ's death and resurrection — stay central in your home, not just good behaviour?",
   },
   {
     read: { text: "But the LORD’s loving kindness is from everlasting to everlasting with those who fear him, his righteousness to children’s children,", ref: "Psalm 103:17" },
@@ -474,9 +474,9 @@ export const LITURGIES: Liturgy[] = [
   {
     read: { text: "If it seems evil to you to serve the LORD, choose today whom you will serve; whether the gods which your fathers served that were beyond the River, or the gods of the Amorites, in whose land you dwell; but as for me and my house, we will serve the LORD.", ref: "Joshua 24:15" },
     reflection:
-      "Joshua's declaration is a settled decision made before the pressures come. A home is not neutral ground; it is always serving something. To say 'we will serve the LORD' is to choose, on ordinary days, a hundred small allegiances that add up to a household pointed toward God.",
+      "Joshua's declaration is a settled decision made before the pressures come. A home is not neutral ground; it is always serving something. To say 'we will serve the LORD' is to choose, on ordinary days, a hundred small allegiances that add up to a household pointed towards God.",
     pray: "Lord, make this the settled confession of our home: as for us and our house, we will serve the LORD. And let it be decided now, in the ordinary week, rather than in a crisis.",
-    talk: "What is one 'small allegiance' — a rhythm or habit — that would point your home more toward God?",
+    talk: "What is one 'small allegiance' — a rhythm or habit — that would point your home more towards God?",
   },
   {
     read: { text: "Every Scripture is God-breathed and profitable for teaching, for reproof, for correction, and for instruction in righteousness,", ref: "2 Timothy 3:16" },
@@ -532,7 +532,7 @@ export const LITURGIES: Liturgy[] = [
     reflection:
       "God's design is generational from the start — He gives His Word so that children 'yet unborn' would know Him. Your worship today is not only for you; it is an inheritance for a child who cannot yet speak, and perhaps for children not yet born. Small faithfulness now echoes forward.",
     pray: "Lord, let what we know of you not stop with us. Reach our children, and children yet unborn whom we will never meet. Make today's small faithfulness echo forward.",
-    talk: "What do you hope your family's faith looks like two generations from now? Pray toward it.",
+    talk: "What do you hope your family's faith looks like two generations from now? Pray towards it.",
   },
   {
     read: { text: "If then you were raised together with Christ, seek the things that are above, where Christ is, seated on the right hand of God. Set your mind on the things that are above, not on the things that are on the earth.", ref: "Colossians 3:1-2" },
@@ -578,7 +578,7 @@ export const LITURGIES: Liturgy[] = [
   },
   {
     read: { text: "Unless the LORD builds the house, they who build it labor in vain. Unless the LORD watches over the city, the watchman guards it in vain.", ref: "Psalm 127:1" },
-    reflection: "We can plan, discipline, and pray with all our strength, yet no parent has ever laid a single living stone in a child's heart. God builds, or nothing is built. This verse does not shame our diligence; it dethrones our self-reliance, so we labor as those who trust the Master Builder rather than our own hands.",
+    reflection: "We can plan, discipline, and pray with all our strength, yet no parent has ever laid a single living stone in a child's heart. God builds, or nothing is built. This verse does not shame our diligence; it dethrones our self-reliance, so we labour as those who trust the Master Builder rather than our own hands.",
     pray: "Sovereign LORD, build this household, because we have never once laid a living stone in anybody's heart. Dethrone our self-reliance without discouraging our diligence. We will labour; you build.",
     talk: "Where are we quietly trusting our parenting methods instead of the God who alone builds a family?",
   },
@@ -735,7 +735,7 @@ export const LITURGIES: Liturgy[] = [
   {
     read: { text: "A father of the fatherless, and a defender of the widows, is God in his holy habitation. God sets the lonely in families. He brings out the prisoners with singing, but the rebellious dwell in a sun-scorched land.", ref: "Psalm 68:5-6" },
     reflection:
-      "Father of the fatherless, protector of widows — and then, God settles the solitary in a home. It is a psalm about God's instincts, and they run consistently toward people with no support and no advocate. That is his particular concern, not an afterthought. If your circle is thin at the moment, this is a verse to hold him to; and if it is not, it is a job description for the house you are building.",
+      "Father of the fatherless, protector of widows — and then, God settles the solitary in a home. It is a psalm about God's instincts, and they run consistently towards people with no support and no advocate. That is his particular concern, not an afterthought. If your circle is thin at the moment, this is a verse to hold him to; and if it is not, it is a job description for the house you are building.",
     talk: "Who has God set around you? Who could you invite closer?",
     pray: "Lord, you set the lonely in families and you are father to the fatherless. Give us people — and make us people to somebody else whose circle is thinner than ours.",
   },
@@ -1372,9 +1372,9 @@ export const LITURGIES: Liturgy[] = [
   {
     read: { text: "Many, the LORD, my God, are the wonderful works which you have done, and your thoughts which are toward us. They can’t be declared back to you. If I would declare and speak of them, they are more than can be counted.", ref: "Psalm 40:5" },
     reflection:
-      "Many, O LORD my God, are the wondrous deeds you have done, and your thoughts toward us. None can compare with you; if I proclaimed and told of them they would be more than can be numbered. It is the thoughts that are the startling part. Not merely his acts — his thinking, directed toward us, in quantities beyond counting. God is not occasionally aware of this household. He is thinking about it continuously.",
+      "Many, O LORD my God, are the wondrous deeds you have done, and your thoughts towards us. None can compare with you; if I proclaimed and told of them they would be more than can be numbered. It is the thoughts that are the startling part. Not merely his acts — his thinking, directed towards us, in quantities beyond counting. God is not occasionally aware of this household. He is thinking about it continuously.",
     talk: "Do you imagine God thinking about you? What does this verse say?",
-    pray: "Lord, your thoughts toward us are more than can be numbered and we behave as though you had forgotten us. Thank you for thinking of this house constantly.",
+    pray: "Lord, your thoughts towards us are more than can be numbered and we behave as though you had forgotten us. Thank you for thinking of this house constantly.",
   },
   {
     read: { text: "God is within her. She shall not be moved. God will help her at dawn.", ref: "Psalm 46:5" },
@@ -2032,7 +2032,7 @@ export const LITURGIES: Liturgy[] = [
     reflection:
       "This sits in the middle of the love chapter, and Paul's point is about the age to come — now we see in a mirror dimly, then face to face. But he gets there by treating childhood as a stage, not a defect: the child spoke and thought and reasoned as a child, and there was nothing wrong with that. Each thing in its season. A great deal of the impatience that visits Christian homes comes from wanting a four-year-old to behave like a forty-year-old, and calling the wish discipleship.",
     talk: "How will you let this child be a child, without rushing them?",
-    pray: "Lord, Paul does not despise the child he was; he says there was a time to speak and think that way, and then it passed. Let this child be a child for the whole of childhood. Save us from hurrying them toward a maturity only you can give.",
+    pray: "Lord, Paul does not despise the child he was; he says there was a time to speak and think that way, and then it passed. Let this child be a child for the whole of childhood. Save us from hurrying them towards a maturity only you can give.",
   },
   {
     read: { text: "Yes, we ourselves have had the sentence of death within ourselves, that we should not trust in ourselves, but in God who raises the dead, who delivered us out of so great a death, and does deliver; on whom we have set our hope that he will also still deliver us;", ref: "2 Corinthians 1:9-10" },
@@ -2667,9 +2667,9 @@ export const LITURGIES: Liturgy[] = [
   {
     read: { text: "For the LORD’s eyes run back and forth throughout the whole earth, to show himself strong in the behalf of them whose heart is perfect toward him. You have done foolishly in this; for from now on you will have wars.", ref: "2 Chronicles 16:9" },
     reflection:
-      "This is said as a rebuke. Asa has just bought a foreign army instead of relying on God, and the seer tells him the eyes of the LORD run to and fro through the whole earth to show himself strong on behalf of those whose heart is whole toward him — and then, you have done foolishly. So the searching is real and so is the missed opportunity. God is actively looking for people to strengthen. The qualification is not competence. It is a heart that is not divided.",
-    talk: "Is your heart whole toward God right now? What divides it?",
-    pray: "Lord, your eyes are searching the earth for hearts to strengthen. Find ours whole toward you — and show us where we have been quietly arranging our own support instead of asking.",
+      "This is said as a rebuke. Asa has just bought a foreign army instead of relying on God, and the seer tells him the eyes of the LORD run to and fro through the whole earth to show himself strong on behalf of those whose heart is whole towards him — and then, you have done foolishly. So the searching is real and so is the missed opportunity. God is actively looking for people to strengthen. The qualification is not competence. It is a heart that is not divided.",
+    talk: "Is your heart whole towards God right now? What divides it?",
+    pray: "Lord, your eyes are searching the earth for hearts to strengthen. Find ours whole towards you — and show us where we have been quietly arranging our own support instead of asking.",
   },
   {
     read: { text: "Then I proclaimed a fast there, at the river Ahava, that we might humble ourselves before our God, to seek from him a straight way for us, and for our little ones, and for all our possessions.", ref: "Ezra 8:21" },
@@ -3460,7 +3460,7 @@ export const LITURGIES: Liturgy[] = [
     reflection:
       "Watch the verbs slow down: walks, stands, sits. Drift has stages, and nobody sits down in the seat of scoffers on the first day. Against that the psalm sets not discipline but delight — his delight is in the law of the LORD. Then the tree by streams of water, bearing fruit in season, leaves that do not wither. The whole first psalm, which is the doorway into the book, is about what a person feeds on and what grows out of it.",
     talk: "What are you feeding on in this season — advice, forums, fear, or Scripture?",
-    pray: "Lord, let our delight be in your word rather than our duty toward it. Plant us by your streams now, so that there is fruit in season and leaves that hold in a dry year.",
+    pray: "Lord, let our delight be in your word rather than our duty towards it. Plant us by your streams now, so that there is fruit in season and leaves that hold in a dry year.",
   },
   {
     read: { text: "Ask of me, and I will give the nations for your inheritance, the uttermost parts of the earth for your possession.", ref: "Psalm 2:8" },
@@ -3908,7 +3908,7 @@ export const LITURGIES: Liturgy[] = [
     reflection:
       "Two verses, the shortest chapter in the Bible, and Paul quotes it in Romans to prove that the Gentiles were always meant to be in. Praise the LORD, all nations — and then the reason: great is his steadfast love toward us. The us is Israel; the invitation is to everyone. God's particular kindness to one people was never meant to stay there, and the psalm is the smallest and clearest statement of it.",
     talk: "What would you say about God in two lines?",
-    pray: "Praise the Lord, all nations. His steadfast love toward us is great and it was never meant to stop with us. Let this house be glad that the door is wide.",
+    pray: "Praise the Lord, all nations. His steadfast love towards us is great and it was never meant to stop with us. Let this house be glad that the door is wide.",
   },
   {
     read: { text: "In my distress, I cried to the LORD. He answered me.", ref: "Psalm 120:1" },
@@ -4760,7 +4760,7 @@ export const LITURGIES: Liturgy[] = [
   {
     read: { text: "The Lord is not slow concerning his promise, as some count slowness; but he is patient with us, not wishing that anyone should perish, but that all should come to repentance.", ref: "2 Peter 3:9" },
     reflection:
-      "People were mocking: where is the promise of his coming? And Peter's answer reframes the delay entirely. The Lord is not slow as some count slowness, but patient toward you, not wishing that any should perish. What looks from below like an overdue promise is, from above, a door held open. Every day the world continues is a day somebody else gets time they would not have had.",
+      "People were mocking: where is the promise of his coming? And Peter's answer reframes the delay entirely. The Lord is not slow as some count slowness, but patient towards you, not wishing that any should perish. What looks from below like an overdue promise is, from above, a door held open. Every day the world continues is a day somebody else gets time they would not have had.",
     talk: "Whose salvation might God's delay be for?",
     pray: "Lord, you are patient rather than slow, and the waiting we resent is time you are giving somebody. Thank you for the time given to us. Use it for the people we love who are not ready.",
   },
@@ -4859,7 +4859,7 @@ export const LITURGIES: Liturgy[] = [
     read: { text: "Shouldn’t I be concerned for Nineveh, that great city, in which are more than one hundred twenty thousand persons who can’t discern between their right hand and their left hand; and also much livestock?", ref: "Jonah 4:11" },
     reflection:
       "The book ends on a question and never answers it. God is arguing with a prophet who is angry about a withered plant, and his closing point is a city of a hundred and twenty thousand people who do not know their right hand from their left — and also much cattle. The pity reaches the ignorant, and then, almost comically, the livestock. Nobody is too uninformed or too unimportant to be in God's field of concern.",
-    talk: "Where do you find it hard to believe God is tender toward those who understand nothing yet?",
+    talk: "Where do you find it hard to believe God is tender towards those who understand nothing yet?",
     pray: "God of Nineveh, you pity the ignorant and the small and even the animals. Pity us. And pity this child, who knows nothing yet and is already fully in your sight.",
   },
   {
@@ -4874,7 +4874,7 @@ export const LITURGIES: Liturgy[] = [
     reflection:
       "Twenty-one verses, the shortest book in the Old Testament, and the charge against Edom is not idolatry but how they treated their relatives. They stood by while Jacob's descendants were carried off, and gloated. As you have done, it shall be done to you. It is a family quarrel that lasted a thousand years, and children learn how to treat their own kin by listening to how their parents speak about theirs.",
     talk: "How do we speak about difficult family members when the child is in the room?",
-    pray: "Lord, guard our mouths about our own relatives, especially the difficult ones. Let this child learn mercy toward family by hearing it from us rather than the opposite.",
+    pray: "Lord, guard our mouths about our own relatives, especially the difficult ones. Let this child learn mercy towards family by hearing it from us rather than the opposite.",
   },
   {
     read: { text: "Now therefore this is what the LORD of Armies says: Consider your ways.", ref: "Haggai 1:5" },
@@ -5236,7 +5236,7 @@ export const LITURGIES: Liturgy[] = [
   {
     read: { text: "He took them in his arms, and blessed them, laying his hands on them.", ref: "Mark 10:16" },
     reflection:
-      "The disciples had been turning them away and Mark says Jesus was indignant about it. Then this: he took them in his arms, laid his hands on them, and blessed them. He did not merely permit the children; he picked them up. Mark is the only one who records the embrace, and he records it because it is the sort of detail an eyewitness remembers. Physical tenderness toward small children is something Christ did.",
+      "The disciples had been turning them away and Mark says Jesus was indignant about it. Then this: he took them in his arms, laid his hands on them, and blessed them. He did not merely permit the children; he picked them up. Mark is the only one who records the embrace, and he records it because it is the sort of detail an eyewitness remembers. Physical tenderness towards small children is something Christ did.",
     talk: "How much of your care for this child is physical tenderness rather than management?",
     pray: "Lord Jesus, you took children into your arms rather than simply allowing them near. Put that tenderness into our hands — especially when we are tired and handling is a chore.",
   },

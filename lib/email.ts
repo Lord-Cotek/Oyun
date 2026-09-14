@@ -78,7 +78,7 @@ export async function sendWelcomeEmail({
     <p style="font-size:14px;line-height:1.7;color:#ECE8DE;">
       Welcome to Oyun. We're glad you're here. Oyun walks with you through the
       whole journey — conception through your child's earliest years — with
-      Scripture at the center, one small faithful step at a time.
+      Scripture at the centre, one small faithful step at a time.
     </p>
     <p style="font-size:14px;line-height:1.7;color:#ECE8DE;">
       Whenever you're ready, sign in and set where you are. Agbebi will meet you there.
@@ -91,7 +91,7 @@ export async function sendWelcomeEmail({
     `Peace to you, ${greeting}.`,
     "",
     "Welcome to Oyun. Oyun walks with you through the whole journey — conception",
-    "through your child's earliest years — with Scripture at the center.",
+    "through your child's earliest years — with Scripture at the centre.",
     "",
     "Sign in whenever you're ready and set where you are. Agbebi will meet you there.",
     "",
