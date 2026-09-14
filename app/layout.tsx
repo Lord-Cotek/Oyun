@@ -137,7 +137,7 @@ export default function RootLayout({
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInit }} />
       </head>
-      <body className="grain">
+      <body>
         <div className="tabbar-pad relative z-10 flex min-h-dvh flex-col">
           <OfflineBanner />
           <div className="flex-1">{children}</div>

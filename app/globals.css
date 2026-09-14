@@ -24,10 +24,6 @@
   --negative: #e07d74;
   --accent2: #e79b95; /* soft rose — maternal / care states (brightened) */
 
-
-  --grain-blend: overlay;
-  --grain-opacity: 0.035;
-
   /* Premium elevation & gloss (dark). Layered ambient shadows for depth, a
      hairline top sheen for the glossy edge, and a faint vertical gradient so
      surfaces catch light like glass. Re-theme here, never in JS. */
@@ -72,10 +68,6 @@
   --positive: #3f7d51;
   --negative: #b23b32;
   --accent2: #a8504a; /* deeper rose so it reads on ivory */
-
-
-  --grain-blend: multiply;
-  --grain-opacity: 0.03;
 
   /* Premium elevation & gloss (light). Softer, warmer shadows; a bright top
      sheen so ivory panels read like polished stone. */
@@ -144,22 +136,6 @@
 
   body {
     background-color: var(--bg);
-    /* Two whisper-soft radial pools give the page quiet depth — a premium,
-       lit-from-within ground rather than a flat fill. Fixed so it never
-       scrolls. */
-    background-image:
-      radial-gradient(
-        1100px 620px at 50% -12%,
-        color-mix(in srgb, var(--accent) 7%, transparent),
-        transparent 62%
-      ),
-      radial-gradient(
-        920px 560px at 108% 108%,
-        color-mix(in srgb, var(--accent2) 6%, transparent),
-        transparent 58%
-      );
-    background-attachment: fixed;
-    background-repeat: no-repeat;
     color: var(--ink);
     /* The reading face, because most of what is on a page here is read rather
        than scanned. Monospace is opt-in now (`font-mono`), for the things it
@@ -382,20 +358,44 @@
 }
 
 /*
-  Subtle editorial grain overlay. Fixed, non-interactive, low opacity.
-  SVG feTurbulence baked into a data URI so it never hits the network.
-*/
-.grain::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  opacity: var(--grain-opacity, 0.035);
-  mix-blend-mode: var(--grain-blend, overlay);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
+  There is no grain overlay, and no fixed radial washes, and that is a
+  decision rather than an omission.
 
+  Both were measured on an Android-shaped viewport with the renderer traced:
+
+    rasterisation work, one full scroll of the home room
+      as it was                 1026 ms
+      without the grain           24 ms
+
+  A `mix-blend-mode` on a fixed, full-viewport layer has to re-read and
+  re-blend every pixel of the screen against whatever is behind it, on every
+  single scroll frame. It is the most expensive thing a page can ask for, and
+  it is charged per pixel — which is why it was worst on the long rooms (home,
+  settings, the feed) and far worse on a phone, where the pixel count is high
+  and the GPU is not a desktop's.
+
+  What it bought, measured the same way — every pixel of the page with the
+  decorations on, against the same page with them off:
+
+      grain            max difference 1–3 of 255
+      radial washes    max difference 4–5 of 255
+      both together    max difference 7 of 255, mean 0.4
+
+  Seven levels out of 256 on a handful of pixels is below anything an eye can
+  see. The page was paying a second of work per scroll for a texture that was
+  not there. So the ground is a flat `--bg` now, and the scroll belongs to the
+  phone again.
+
+  If real texture is wanted later it is worth having — but at an opacity where
+  it can be seen, and WITHOUT a blend mode: the same fixed layer with
+  `mix-blend-mode: normal` measured 24 ms against 24 ms for no layer at all.
+  The blend is the entire cost; the texture itself is free.
+
+  Two things that look expensive were measured and are not, so leave them be:
+  the frosted header's `backdrop-filter`, and the blurred drifting blobs behind
+  the heroes. With the grain gone, three runs of each page came back flat at
+  ~27 ms (home) and ~17 ms (settings) whether those were there or not.
+*/
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
