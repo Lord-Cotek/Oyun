@@ -52,8 +52,12 @@
   color-scheme: dark;
 }
 
-/* Light — warm ivory, matched to the light lockup. Contrast checked:
-   ink/bg, muted/bg, and accent/bg all clear WCAG AA for text. */
+/* Light — a cool blue-grey paper, kin to Oyun's own blue-black dark. It was
+   warm cream, the one that turns up on every second generated page; pushing
+   Oyun cool and Ìdílé green-grey also lets the two siblings tell themselves
+   apart at a glance. Contrast measured, not guessed: ink/bg, muted/bg and
+   accent/bg all clear WCAG AA for text, and surface now steps clear of bg so
+   a card is a card without being painted as one. */
 :root[data-theme="light"] {
   --bg: #e0e4ea;
   --surface: #f7f8fa;
@@ -278,18 +282,19 @@
     }
   }
 
-  /* Glossy accent button — a soft top highlight and ambient shadow give the
-     primary action a tactile, silky sheen. */
+  /* The primary action: one flat accent, one soft shadow, and a small lift on
+     hover.
+
+     It used to carry a white-to-black vertical gradient and two inset
+     highlight lines — the same 2013 gloss taken off the cards, kept here
+     because it lives in its own class and was missed. It mattered more here
+     than anywhere: this is the only filled accent element on most pages, so
+     it is the loudest thing on the screen and the first thing that dated the
+     whole app. A solid fill is also the honest one — the colour you see is
+     --accent, not --accent lit from above. */
   .btn-primary {
     background-color: var(--accent);
-    background-image: linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0.32),
-      rgba(255, 255, 255, 0.04) 44%,
-      rgba(0, 0, 0, 0.06) 100%
-    );
-    box-shadow: var(--shadow-1), inset 0 1px 0 rgba(255, 255, 255, 0.3),
-      inset 0 -1px 0 rgba(0, 0, 0, 0.12);
+    box-shadow: var(--shadow-1);
     transition:
       transform 0.18s ease,
       background-color 0.18s ease,
@@ -298,8 +303,7 @@
   .btn-primary:hover {
     background-color: var(--accent-deep);
     transform: translateY(-1px);
-    box-shadow: var(--shadow-2), inset 0 1px 0 rgba(255, 255, 255, 0.5),
-      inset 0 -1px 0 rgba(0, 0, 0, 0.12);
+    box-shadow: var(--shadow-2);
   }
   .btn-primary:active {
     transform: translateY(0);

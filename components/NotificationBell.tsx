@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { scrollToElement } from "@/lib/scroll";
 
 type Item = {
   id: string;
@@ -138,9 +139,7 @@ function Row({ item, onNavigate }: { item: Item; onNavigate: () => void }) {
         const hash = item.href?.includes("#") ? item.href.split("#")[1] : null;
         if (hash) {
           setTimeout(() => {
-            document
-              .getElementById(hash)
-              ?.scrollIntoView({ block: "center", behavior: "smooth" });
+            scrollToElement(document.getElementById(hash));
           }, 120);
         }
       }}

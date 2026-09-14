@@ -6,12 +6,12 @@ import { upload } from "@vercel/blob/client";
 import {
   POST_KINDS,
   KIND_LABEL,
-  KIND_TONE,
   REACTIONS,
   type PostKind,
 } from "@/lib/feed";
 import type { FeedPost, MediaItem } from "@/lib/feed-query";
 import { Lightbox } from "@/components/media/Lightbox";
+import { useAttempt } from "@/lib/use-attempt";
 import { mediaAlt } from "@/lib/alt";
 import { FirstStep, FirstStepFocus } from "@/components/ui/FirstStep";
 import { Avatar } from "@/components/ui/Avatar";
@@ -502,8 +502,37 @@ function PostItem({
   const [removeMedia, setRemoveMedia] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [comment, setComment] = useState("");
-  const tone = KIND_TONE[post.kind] ?? "sky";
   const hasMedia = post.media.length > 0;
+
+  /**
+   * Reactions, shown before the server has been told.
+   *
+   * `mine` is what this viewer has changed since the page was rendered, and it
+   * is layered over `post.reactions` rather than replacing it: when the server
+   * revalidates and new props arrive, the two agree and nothing moves. Keeping
+   * it as a delta rather than a copy is what stops a reaction somebody else
+   * added in the meantime from being wiped by our own stale snapshot.
+   */
+  const [mine, setMine] = useState<Record<string, boolean>>({});
+  const { attempt, slipped } = useAttempt();
+
+  function reactionFor(kind: string) {
+    const server = post.reactions.find((x) => x.kind === kind);
+    const serverMine = server?.mine ?? false;
+    const on = mine[kind] ?? serverMine;
+    const count = (server?.count ?? 0) + (on === serverMine ? 0 : on ? 1 : -1);
+    return { on, count: Math.max(0, count) };
+  }
+
+  function react(kind: string) {
+    const { on } = reactionFor(kind);
+    attempt(
+      () => setMine((m) => ({ ...m, [kind]: !on })),
+      () => onReact({ postId: post.id, kind }),
+      () => setMine((m) => ({ ...m, [kind]: on })),
+      "That didn’t reach the family. Tap again?",
+    );
+  }
 
   return (
     <div className="surface-premium rounded-2xl border border-border p-5 md:p-6">
@@ -594,20 +623,20 @@ function PostItem({
         </>
       )}
 
-      {/* reactions */}
+      {/* reactions — they move the moment you tap, and move back if the
+          server never heard about it */}
       <div className="mt-4 flex flex-wrap items-center gap-1.5">
         {REACTIONS.map((r) => {
-          const mine = post.reactions.find((x) => x.kind === r.kind)?.mine;
-          const count = post.reactions.find((x) => x.kind === r.kind)?.count ?? 0;
+          const { on, count } = reactionFor(r.kind);
           return (
             <button
               key={r.kind}
               type="button"
-              disabled={pending}
-              onClick={() => start(() => onReact({ postId: post.id, kind: r.kind }))}
+              onClick={() => react(r.kind)}
+              aria-pressed={on}
               aria-label={r.label}
-              className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 font-mono text-xs transition-colors disabled:opacity-50 ${
-                mine
+              className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 font-mono text-xs transition-colors ${
+                on
                   ? "border-accent/50 bg-accent/10 text-ink"
                   : "border-border text-muted hover:border-accent/40"
               }`}
@@ -618,6 +647,11 @@ function PostItem({
           );
         })}
       </div>
+      {slipped && (
+        <p role="status" className="mt-2 font-mono text-[0.68rem] text-muted">
+          {slipped}
+        </p>
+      )}
 
       {/* footer actions */}
       <div className="mt-3 flex flex-wrap items-center gap-3 font-mono text-[0.68rem] text-muted">

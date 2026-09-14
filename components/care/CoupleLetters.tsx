@@ -10,6 +10,7 @@ import {
 } from "@/app/journey/letter-actions";
 import { Reactions } from "@/components/Reactions";
 import { type CoupleLetter } from "@/lib/data";
+import { scrollToElement } from "@/lib/scroll";
 
 /**
  * The shared "to each other" letters between the mother and her husband — a
@@ -70,7 +71,7 @@ export function CoupleLetters({
     const el = document.getElementById(hash);
     if (el) {
       resolvedHash.current = hash;
-      el.scrollIntoView({ block: "center", behavior: "smooth" });
+      scrollToElement(el);
     } else if (more && !loading) {
       void loadEarlier();
     }

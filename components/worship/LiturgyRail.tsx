@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { Icon, type IconName } from "@/components/ui/Icon";
 import { Verse } from "@/components/ui/Verse";
 import { ShareButton } from "@/components/ShareButton";
+import { scrollToElement } from "@/lib/scroll";
 
 /**
  * The Liturgy Rail — family worship as a guided procession, not a wall of
@@ -67,9 +68,7 @@ export function LiturgyRail({
   function go(i: number) {
     setOpen(i);
     // bring the newly-opened station into a comfortable reading position
-    requestAnimationFrame(() => {
-      rowRefs.current[i]?.scrollIntoView({ behavior: "smooth", block: "center" });
-    });
+    requestAnimationFrame(() => scrollToElement(rowRefs.current[i]));
   }
 
   function seal() {

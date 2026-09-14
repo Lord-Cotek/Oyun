@@ -138,8 +138,10 @@
         ]
       ]
     },
+    "lib/scroll.ts",
     "lib/share.ts",
     "lib/shell.ts",
+    "lib/use-attempt.ts",
     {
       "path": "lib/use-draft.ts",
       "code": true
