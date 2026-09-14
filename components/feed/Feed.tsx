@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useTransition } from "react";
+import { randomId } from "@/lib/rand";
 import { upload } from "@vercel/blob/client";
 import {
   POST_KINDS,
@@ -249,7 +250,7 @@ function Composer({
         continue;
       }
       next.push({
-        id: `${file.name}-${file.size}-${crypto.randomUUID()}`,
+        id: `${file.name}-${file.size}-${randomId()}`,
         file,
         preview: URL.createObjectURL(file),
         isVideo,

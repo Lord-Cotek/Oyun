@@ -59,7 +59,14 @@
       color-mix(in srgb, var(--ink) 5%, var(--surface)) 0%,
       var(--surface) 52%
     );
+  /* A plain value first, then the mix. An engine without color-mix()
+     (Safari before 16.2, Firefox before 113) drops the second
+     declaration and keeps this one — without it the sticky header's
+     background resolves to nothing and the page scrolls under its own
+     navigation. Same colours, computed against --surface / --ink. */
+  --glass-tint: rgba(18, 21, 29, 0.72);
   --glass-tint: color-mix(in srgb, var(--surface) 72%, transparent);
+  --glass-hairline: rgba(236, 232, 222, 0.1);
   --glass-hairline: color-mix(in srgb, var(--ink) 10%, transparent);
   /* A glassy top-highlight wash for the frosted shell (header, tab bar). */
   --glass-grad: linear-gradient(
@@ -116,7 +123,9 @@
       transparent 46%
     ),
     linear-gradient(180deg, #ffffff 0%, var(--surface) 66%);
+  --glass-tint: rgba(251, 249, 243, 0.68);
   --glass-tint: color-mix(in srgb, var(--surface) 68%, transparent);
+  --glass-hairline: rgba(255, 255, 255, 0.7);
   --glass-hairline: color-mix(in srgb, #ffffff 70%, transparent);
   --glass-grad: linear-gradient(
     180deg,

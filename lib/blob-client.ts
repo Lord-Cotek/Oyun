@@ -1,4 +1,5 @@
 import { upload } from "@vercel/blob/client";
+import { randomId } from "./rand";
 
 /**
  * Upload images straight from the browser to Vercel Blob and return their public
@@ -15,7 +16,7 @@ export async function uploadToBlob(
   for (const f of real) {
     const ext = f.name.includes(".") ? f.name.slice(f.name.lastIndexOf(".")) : "";
     try {
-      const res = await upload(`${folder}/${crypto.randomUUID()}${ext}`, f, {
+      const res = await upload(`${folder}/${randomId()}${ext}`, f, {
         access: "public",
         handleUploadUrl: "/api/blob/upload",
         contentType: f.type || undefined,
