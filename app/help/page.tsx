@@ -45,7 +45,7 @@ function Room({
       >
         {name}
       </Link>
-      <p className="font-mono text-xs leading-relaxed text-muted">
+      <p className="prose-serif-xs text-muted">
         {aside && <span className="italic">{aside} </span>}
         {children}
       </p>
@@ -59,7 +59,7 @@ function Q({ q, children }: { q: string; children: React.ReactNode }) {
       <summary className="cursor-pointer font-mono text-sm text-ink marker:text-muted">
         {q}
       </summary>
-      <div className="mt-2.5 space-y-2.5 pl-1 font-mono text-xs leading-relaxed text-muted">
+      <div className="mt-2.5 space-y-2.5 pl-1 prose-serif-xs text-muted">
         {children}
       </div>
     </details>
@@ -89,7 +89,7 @@ export default async function HelpPage() {
         {/* ── Where things are ─────────────────────────────────────── */}
         <Card className="mt-8 p-8">
           <Eyebrow className="mb-2">The rooms</Eyebrow>
-          <p className="mb-5 max-w-prose font-mono text-xs leading-relaxed text-muted">
+          <p className="mb-5 max-w-prose prose-serif-xs text-muted">
             On a phone the four you use daily sit along the bottom; the rest are
             behind <span className="text-ink">More</span>. On a computer they
             run along the top, with the same <span className="text-ink">More</span>{" "}
@@ -165,7 +165,7 @@ export default async function HelpPage() {
         {/* ── Who sees what ────────────────────────────────────────── */}
         <Card className="mt-6 p-8">
           <Eyebrow className="mb-2">Who sees what</Eyebrow>
-          <p className="mb-5 max-w-prose font-mono text-xs leading-relaxed text-muted">
+          <p className="mb-5 max-w-prose prose-serif-xs text-muted">
             There are two circles, and the difference is the whole design.
           </p>
 
@@ -177,7 +177,7 @@ export default async function HelpPage() {
               <p className="mt-1.5 font-serif text-lg text-ink">
                 Her, and the one beside her
               </p>
-              <ul className="mt-3 space-y-1.5 font-mono text-xs leading-relaxed text-muted">
+              <ul className="mt-3 space-y-1.5 prose-serif-xs text-muted">
                 <li>The appointment book, and its reminders.</li>
                 <li>Letters, family worship, the nursery, the firsts.</li>
                 <li>
@@ -195,7 +195,7 @@ export default async function HelpPage() {
               <p className="mt-1.5 font-serif text-lg text-ink">
                 Accountability, family, friends
               </p>
-              <ul className="mt-3 space-y-1.5 font-mono text-xs leading-relaxed text-muted">
+              <ul className="mt-3 space-y-1.5 prose-serif-xs text-muted">
                 <li>
                   Life, the prayer wall, and a home page of their own about how
                   to stand with her.
@@ -216,13 +216,13 @@ export default async function HelpPage() {
         {/* ── Reminders ────────────────────────────────────────────── */}
         <Card className="mt-6 p-8">
           <Eyebrow className="mb-2">How you are reminded</Eyebrow>
-          <p className="mb-5 max-w-prose font-mono text-xs leading-relaxed text-muted">
+          <p className="mb-5 max-w-prose prose-serif-xs text-muted">
             The failure of a reminder system is not silence. It is pestering
             somebody until they turn it off — and then they get nothing at all,
             including the one that mattered. So there are three at most, and
             usually two.
           </p>
-          <ul className="space-y-2 font-mono text-xs leading-relaxed text-muted">
+          <ul className="space-y-2 prose-serif-xs text-muted">
             <li>
               <span className="text-ink">The day before</span>, for every
               appointment — the one that actually saves a morning. Notification
@@ -375,7 +375,7 @@ export default async function HelpPage() {
           />
         </div>
 
-        <p className="mt-8 text-center font-mono text-xs leading-relaxed text-muted">
+        <p className="mt-8 text-center prose-serif-xs text-muted">
           Something here not answered?{" "}
           <Link
             href="/contact"

@@ -64,7 +64,7 @@ export default async function SharedVerse({
           <Eyebrow className="mb-5">A verse to carry</Eyebrow>
           {verse.wholeChapter ? (
             <div className="surface-premium max-h-[52dvh] overflow-y-auto rounded-2xl border border-border p-6">
-              <p className="whitespace-pre-line font-mono text-sm leading-relaxed text-ink/90">
+              <p className="whitespace-pre-line prose-serif-sm text-ink/90">
                 {verse.text}
               </p>
             </div>
@@ -87,7 +87,7 @@ export default async function SharedVerse({
           <h2 className="font-serif text-2xl leading-snug text-ink">
             Family worship, every day.
           </h2>
-          <p className="mt-2 max-w-md font-mono text-sm leading-relaxed text-muted">
+          <p className="mt-2 max-w-md prose-serif-sm text-muted">
             Oyun walks a mother and the one beside her from conception through the
             early years — Scripture, prayer, a song, and reflections you keep.
             Read through the whole Bible together, one day at a time.

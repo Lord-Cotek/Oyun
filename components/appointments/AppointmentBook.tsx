@@ -106,7 +106,7 @@ export function AppointmentBook({
           Coming up
         </p>
         {upcoming.length === 0 ? (
-          <p className="max-w-prose font-mono text-xs leading-relaxed text-muted">
+          <p className="max-w-prose prose-serif-xs text-muted">
             Nothing in the book. Put the next one in as soon as the letter
             arrives — you will be reminded the day before, and on the morning
             itself if there is a time on it.
@@ -220,7 +220,7 @@ function Row({
       </div>
 
       {a.notes && (
-        <p className="mt-2 whitespace-pre-wrap font-mono text-xs leading-relaxed text-muted">
+        <p className="mt-2 whitespace-pre-wrap prose-serif-xs text-muted">
           {a.notes}
         </p>
       )}

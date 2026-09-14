@@ -54,10 +54,26 @@ export function ProgressRing({
           />
         </g>
       </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="font-serif text-5xl leading-none text-ink">{value}</span>
+      {/* The label scales with the ring. At the default size these were fixed
+          at text-5xl / 0.66rem, which overflowed the stroke as soon as a caller
+          asked for a smaller ring. Both now derive from `size`, and the unit is
+          held inside the inner circle so it can never cross the arc. */}
+      <div className="absolute inset-0 flex flex-col items-center justify-center px-2">
+        <span
+          className="font-serif leading-none text-ink"
+          style={{ fontSize: Math.round(size * 0.3) }}
+        >
+          {value}
+        </span>
         {unit && (
-          <span className="mt-1.5 font-mono text-[0.66rem] uppercase tracking-[0.2em] text-muted">
+          <span
+            className="mt-1.5 text-center font-mono uppercase text-muted"
+            style={{
+              fontSize: Math.max(9, Math.round(size * 0.058 * 10) / 10),
+              letterSpacing: size < 140 ? "0.14em" : "0.2em",
+              maxWidth: size - stroke * 2 - 12,
+            }}
+          >
             {unit}
           </span>
         )}

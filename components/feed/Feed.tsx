@@ -47,7 +47,7 @@ export function Feed({
       <Composer onCreate={actions.onCreate} placeholder={composerPlaceholder} />
       {posts.length === 0 ? (
         <div className="surface-premium rounded-2xl border border-border p-8 text-center">
-          <p className="font-mono text-sm leading-relaxed text-muted">
+          <p className="prose-serif-sm text-muted">
             Nothing shared yet. Be the first — a word, a praise, a prayer, a
             small moment worth keeping.
           </p>
@@ -323,7 +323,7 @@ function Composer({
         onChange={(e) => setBody(e.target.value)}
         rows={3}
         placeholder={placeholder}
-        className="w-full resize-y rounded-xl border border-border bg-bg px-4 py-3 font-mono text-sm leading-relaxed text-ink placeholder:text-muted focus:border-accent focus:outline-none"
+        className="w-full resize-y rounded-xl border border-border bg-bg px-4 py-3 prose-serif-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none"
       />
 
       {picked.length > 0 && (
@@ -515,7 +515,7 @@ function PostItem({
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             rows={3}
-            className="w-full resize-y rounded-lg border border-border bg-bg px-3 py-2 font-mono text-sm leading-relaxed text-ink focus:border-accent focus:outline-none"
+            className="w-full resize-y rounded-lg border border-border bg-bg px-3 py-2 prose-serif-sm text-ink focus:border-accent focus:outline-none"
           />
           {hasMedia && (
             <label className="mt-2 flex items-center gap-2 font-mono text-[0.68rem] text-muted">
@@ -563,7 +563,7 @@ function PostItem({
       ) : (
         <>
           {post.body && (
-            <p className="mt-3 whitespace-pre-line font-mono text-sm leading-relaxed text-ink/90">
+            <p className="mt-3 whitespace-pre-line prose-serif-sm text-ink/90">
               {post.body}
             </p>
           )}

@@ -106,7 +106,7 @@ export default async function Onboarding({
           <h1 className="max-w-md font-serif text-4xl leading-[1.1] text-ink md:text-5xl">
             Walk the whole journey — together.
           </h1>
-          <p className="mt-5 max-w-sm font-mono text-sm leading-relaxed text-muted">
+          <p className="mt-5 max-w-sm prose-serif-sm text-muted">
             From conception through your little one’s first two years — Scripture,
             prayer, and one thing to do each week, for a mother and the one
             walking beside her. Guided by Agbebi.
@@ -127,7 +127,7 @@ export default async function Onboarding({
             <h1 className="font-serif text-2xl leading-snug text-ink">
               This invitation was sent to {invite.email}.
             </h1>
-            <p className="mt-3 font-mono text-sm leading-relaxed text-muted">
+            <p className="mt-3 prose-serif-sm text-muted">
               You&rsquo;re signed in with a different account. Sign out and sign in
               (or create an account) using <span className="text-ink">{invite.email}</span>{" "}
               to accept this invitation.
@@ -141,7 +141,7 @@ export default async function Onboarding({
               Walk with{" "}
               {invite.journey.owner.name ?? invite.journey.owner.email ?? "her"}.
             </h1>
-            <p className="mt-3 font-mono text-sm leading-relaxed text-muted">
+            <p className="mt-3 prose-serif-sm text-muted">
               You&rsquo;re joining as{" "}
               <span className="text-accent">{ROLE_LABEL[invite.role]}</span>. Your
               part is to support and pray — Oyun will show you how, right where
@@ -179,7 +179,7 @@ export default async function Onboarding({
             <h1 className="font-serif text-2xl text-ink">
               We couldn&rsquo;t find that invite.
             </h1>
-            <p className="mt-3 font-mono text-sm leading-relaxed text-muted">
+            <p className="mt-3 prose-serif-sm text-muted">
               The link may be mistyped or expired. Ask whoever invited you to send
               a fresh one — or begin your own journey below.
             </p>
@@ -196,7 +196,7 @@ export default async function Onboarding({
             <h1 className="font-serif text-3xl leading-snug text-ink">
               Tell Agbebi where you are.
             </h1>
-            <p className="mt-3 font-mono text-sm leading-relaxed text-muted">
+            <p className="mt-3 prose-serif-sm text-muted">
               Set your due date — or, if your little one has already arrived,
               their birth date. Oyun will meet you at the right stage.
             </p>

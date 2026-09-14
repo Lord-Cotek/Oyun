@@ -154,7 +154,7 @@ export function LiturgyRail({
                       </p>
                     )}
                     {s.answer && (
-                      <p className="mt-2 font-mono text-sm leading-relaxed text-ink/90">
+                      <p className="prose-serif mt-2 text-ink/90">
                         <span
                           className={tone === "accent2" ? "text-accent2" : "text-accent"}
                         >
@@ -165,7 +165,7 @@ export function LiturgyRail({
                     )}
                     {s.body && (
                       <p
-                        className={`font-mono text-sm leading-relaxed text-ink/90 ${
+                        className={`prose-serif text-ink/90 ${
                           s.verse || s.title ? "mt-4 border-t border-border pt-4" : ""
                         }`}
                       >
@@ -268,7 +268,7 @@ export function LiturgyRail({
                   <p className="relative font-serif text-2xl leading-snug text-ink">
                     {sealed ? "Worship kept today." : "The altar is ready."}
                   </p>
-                  <p className="relative mx-auto mt-2 max-w-sm font-mono text-xs leading-relaxed text-muted">
+                  <p className="relative mx-auto mt-2 max-w-sm prose-serif-xs text-muted">
                     {sealed
                       ? "The household walked this together. Grace upon grace — come again tomorrow."
                       : sealPrompt}
@@ -302,7 +302,7 @@ export function LiturgyRail({
                     {blessingTitle}
                   </p>
                   {blessingBody && (
-                    <p className="mx-auto mt-2 max-w-sm font-mono text-xs leading-relaxed text-muted">
+                    <p className="mx-auto mt-2 max-w-sm prose-serif-xs text-muted">
                       {blessingBody}
                     </p>
                   )}

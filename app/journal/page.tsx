@@ -78,7 +78,7 @@ export default async function JournalPage() {
             />
           ) : (
             <div className="surface-premium rounded-2xl border border-border p-8 text-center">
-              <p className="font-mono text-sm leading-relaxed text-muted">
+              <p className="prose-serif-sm text-muted">
                 No reflections yet. Open{" "}
                 <Link
                   href="/worship"

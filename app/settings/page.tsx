@@ -143,7 +143,7 @@ export default async function SettingsPage() {
 
           <Card className="p-8">
             <Eyebrow className="mb-3">Take everything with you</Eyebrow>
-            <p className="mb-5 font-mono text-xs leading-relaxed text-muted">
+            <p className="mb-5 prose-serif-xs text-muted">
               These months are your family&rsquo;s, not ours. Download the lot —
               letters, prayers, firsts, the appointments and what came of them —
               as one file: a page you can read or print without any app, and the

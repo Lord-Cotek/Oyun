@@ -34,7 +34,7 @@ export function DeleteAccount({ email }: { email: string }) {
   return (
     <div>
       <Eyebrow className="mb-2 text-negative">Delete account</Eyebrow>
-      <p className="mb-4 max-w-prose font-mono text-xs leading-relaxed text-muted">
+      <p className="mb-4 max-w-prose prose-serif-xs text-muted">
         Permanently delete your account and everything tied to it — your profile,
         your journey, check-ins, letters, prayers, and photos. This can&rsquo;t be
         undone.

@@ -90,7 +90,7 @@ export function CoupleLetters({
           rows={3}
           required
           placeholder={placeholder}
-          className="w-full resize-none rounded-lg border border-border bg-bg px-3.5 py-2.5 font-mono text-sm leading-relaxed text-ink placeholder:text-muted focus:border-accent focus:outline-none"
+          className="w-full resize-none rounded-lg border border-border bg-bg px-3.5 py-2.5 prose-serif-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none"
         />
         <Submit />
       </form>

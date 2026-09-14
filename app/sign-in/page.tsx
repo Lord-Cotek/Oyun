@@ -61,7 +61,7 @@ export default async function SignInPage({
             <h1 className="font-serif text-3xl leading-snug text-ink">
               {invited ? "Sign in to join." : "Welcome back."}
             </h1>
-            <p className="mt-3 font-mono text-sm leading-relaxed text-muted">
+            <p className="mt-3 prose-serif-sm text-muted">
               {invited
                 ? "You already have an account with this email — sign in, and you'll accept the invitation next."
                 : "Sign in with your email and password to continue your journey."}

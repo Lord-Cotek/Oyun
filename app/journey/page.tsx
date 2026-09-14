@@ -202,21 +202,25 @@ export default async function JourneyPage() {
               <BirthMoment babyCount={journey.babyCount} overdue={position.born} />
             </div>
           )}
-          <section className="animate-fade-up overflow-hidden rounded-2xl border border-accent/25 bg-gradient-to-br from-accent/[0.10] via-surface to-accent2/[0.09] p-8 md:p-10">
-            <div className="flex flex-col-reverse items-start gap-8 md:flex-row md:items-center md:justify-between">
+          {/* Half-height on purpose. This is the room a mother opens several
+              times a day; at full size the band *was* the first screen on a
+              phone and pushed every action below the fold. The ring stays —
+              a week of forty is real news, not a score. */}
+          <section className="animate-fade-up overflow-hidden rounded-2xl border border-accent/25 bg-gradient-to-br from-accent/[0.10] via-surface to-accent2/[0.09] p-6 md:p-9">
+            <div className="flex flex-col-reverse items-start gap-5 md:flex-row md:items-center md:justify-between md:gap-8">
               <div className="min-w-0">
                 {motherName && (
-                  <p className="mb-3 font-serif text-lg italic text-muted">
+                  <p className="mb-2 font-serif text-lg italic text-muted">
                     Hello, {motherName}.
                   </p>
                 )}
-                <Eyebrow className="mb-3">
+                <Eyebrow className="mb-2">
                   {position.born ? "Infancy" : "Pregnancy"} · {stageLabel}
                 </Eyebrow>
-                <h1 className="max-w-2xl font-serif text-4xl leading-tight text-ink md:text-5xl">
+                <h1 className="max-w-2xl font-serif text-[1.75rem] leading-tight text-ink md:text-4xl">
                   {stage.title}
                 </h1>
-                <p className="mt-4 max-w-prose font-mono text-sm leading-relaxed text-muted">
+                <p className="mt-2 max-w-prose prose-serif-sm text-muted">
                   {heroSubtitle}
                 </p>
               </div>
@@ -309,7 +313,7 @@ export default async function JourneyPage() {
               </div>
               <div className="mt-5 border-t border-border pt-5">
                 <Eyebrow className="mb-2">Pray</Eyebrow>
-                <p className="font-mono text-sm leading-relaxed text-muted">
+                <p className="prose-serif-sm text-muted">
                   {stage.prayerPoint}
                 </p>
               </div>
@@ -335,7 +339,7 @@ export default async function JourneyPage() {
               {idileHandoff && (
                 <Card className="border-accent/30 bg-accent/[0.06]">
                   <Eyebrow className="mb-3">As they grow</Eyebrow>
-                  <p className="mb-4 font-mono text-xs leading-relaxed text-muted">
+                  <p className="mb-4 prose-serif-xs text-muted">
                     Ìdílé — Oyun&rsquo;s sibling — carries the family on through
                     childhood: family worship, catechism, Scripture memory, and
                     shepherding the heart. Bring{" "}
@@ -436,7 +440,7 @@ export default async function JourneyPage() {
                   <p className={`font-serif text-2xl ${MOOD_TONE_TEXT[mood.tone]}`}>
                     {mood.label}
                   </p>
-                  <p className="mt-2 font-mono text-xs leading-relaxed text-muted">
+                  <p className="mt-2 prose-serif-xs text-muted">
                     {latest?.note?.trim() ? `"${latest.note}"` : mood.blurb}
                   </p>
                   {latest && latestReactions && (
@@ -453,7 +457,7 @@ export default async function JourneyPage() {
                   )}
                 </>
               ) : (
-                <p className="font-mono text-xs leading-relaxed text-muted">
+                <p className="prose-serif-xs text-muted">
                   {motherName} hasn&rsquo;t shared a check-in yet. When she does,
                   you&rsquo;ll see how she&rsquo;s doing here — a cue to reach out.
                 </p>
@@ -508,7 +512,7 @@ export default async function JourneyPage() {
 
             <Card className="p-8">
               <Eyebrow className="mb-3">Send her a word</Eyebrow>
-              <p className="mb-4 font-mono text-xs leading-relaxed text-muted">
+              <p className="mb-4 prose-serif-xs text-muted">
                 A single sentence of Scripture or encouragement, sent straight to
                 her. She&rsquo;ll see it on her journey.
               </p>
@@ -541,7 +545,7 @@ export default async function JourneyPage() {
 
             <Card className="p-8">
               <Eyebrow className="mb-3">Pray for her</Eyebrow>
-              <p className="font-mono text-sm leading-relaxed text-muted">
+              <p className="prose-serif-sm text-muted">
                 {stage.prayerPoint}
               </p>
               <div className="mt-6 border-t border-border pt-5">
@@ -593,7 +597,7 @@ function Block({
   return (
     <div>
       <Eyebrow className="mb-2">{eyebrow}</Eyebrow>
-      <p className="font-mono text-sm leading-relaxed text-ink/90">{children}</p>
+      <p className="prose-serif-sm text-ink/90">{children}</p>
     </div>
   );
 }
@@ -608,7 +612,7 @@ function EmptyState() {
           <h1 className="font-serif text-4xl leading-tight text-ink">
             Let&rsquo;s begin where you are.
           </h1>
-          <p className="mt-4 font-mono text-sm leading-relaxed text-muted">
+          <p className="mt-4 prose-serif-sm text-muted">
             Set your due date — or your baby&rsquo;s birth date if they&rsquo;ve
             already arrived — and Oyun will meet you at the right stage, with
             Scripture, a reflection, and one thing to do.

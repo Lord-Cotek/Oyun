@@ -339,6 +339,52 @@
     line-height: 1.2;
     color: var(--accent);
   }
+
+  /*
+    Running prose.
+
+    Mono is this app's voice for labels, eyebrows, dates, counts and anything
+    tabular, and it reads well in short bursts. At paragraph length it slows
+    reading down, wraps awkwardly on a narrow phone, and makes warm copy feel
+    technical. So anything that is actually a paragraph — a page lede, a
+    reflection, a prayer, marketing copy, the body of an empty state — wears
+    this instead: the same serif as the headings, set at a comfortable reading
+    size with generous leading.
+
+    It sets family, size and leading together, so do NOT pair it with a
+    Tailwind `text-*` size utility (utilities are a later layer and would win).
+    Colour, margin and max-width stay at the call site.
+  */
+  .prose-serif {
+    font-family: var(--font-playfair), "Playfair Display", Georgia, serif;
+    font-weight: 400;
+    font-size: 1.0625rem;
+    line-height: 1.7;
+  }
+
+  @media (min-width: 768px) {
+    .prose-serif {
+      font-size: 1.125rem;
+    }
+  }
+
+  /* The same voice one step down — ledes under a hero, notes, captions that
+     still run to a sentence or two. */
+  .prose-serif-sm {
+    font-family: var(--font-playfair), "Playfair Display", Georgia, serif;
+    font-weight: 400;
+    font-size: 1rem;
+    line-height: 1.65;
+  }
+
+  /* One step down again — secondary notes, FAQ answers, fine print. Still
+     prose, still the serif, just quieter than the copy it sits under. */
+  .prose-serif-xs {
+    font-family: var(--font-playfair), "Playfair Display", Georgia, serif;
+    font-weight: 400;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+  }
 }
 
 /*

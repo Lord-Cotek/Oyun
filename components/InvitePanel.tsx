@@ -15,7 +15,7 @@ export function InvitePanel({ hasSupporter }: { hasSupporter: boolean }) {
       <Eyebrow className="mb-3">
         {hasSupporter ? "Invite another" : "Invite your partner"}
       </Eyebrow>
-      <p className="mb-4 font-mono text-xs leading-relaxed text-muted">
+      <p className="mb-4 prose-serif-xs text-muted">
         Bring your husband or an accountability partner alongside. They&rsquo;ll
         get their own view — how to support and pray for you, right where you are.
       </p>

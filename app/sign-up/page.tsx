@@ -62,7 +62,7 @@ export default async function SignUpPage({
             <h1 className="font-serif text-3xl leading-snug text-ink">
               {invited ? "Create your account to join." : "Create your account."}
             </h1>
-            <p className="mt-3 font-mono text-sm leading-relaxed text-muted">
+            <p className="mt-3 prose-serif-sm text-muted">
               {invited
                 ? "Set a name and password below. Once you're in, you'll accept the invitation and step into how to support and pray for her."
                 : "We'll send you a warm welcome, then set you where you are on the journey. No account is ever a promise of outcome — only a companion for the road."}

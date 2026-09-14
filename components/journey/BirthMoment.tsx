@@ -47,7 +47,7 @@ export function BirthMoment({
       <h2 className="font-serif text-3xl leading-snug text-ink">
         Welcome, little {babyCount > 1 ? "ones" : "one"}. 🌱
       </h2>
-      <p className="mt-3 max-w-prose font-mono text-sm leading-relaxed text-muted">
+      <p className="mt-3 max-w-prose prose-serif-sm text-muted">
         Tell us when they arrived and their name{babyCount > 1 ? "s" : ""}. We&rsquo;ll
         set your journey to the right day, begin their profile{babyCount > 1 ? "s" : ""},
         and remember this first of all firsts.

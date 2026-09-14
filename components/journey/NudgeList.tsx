@@ -55,7 +55,7 @@ export function NudgeList({
   return (
     <div>
       {nudges.length === 0 ? (
-        <p className="font-mono text-xs leading-relaxed text-muted">
+        <p className="prose-serif-xs text-muted">
           Nothing set for yourself yet. The simplest thing still holds: check in
           on {motherName} today.
         </p>

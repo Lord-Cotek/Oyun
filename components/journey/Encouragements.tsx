@@ -23,7 +23,7 @@ export function Encouragements({
     <div>
       <Eyebrow className="mb-3">Words for you</Eyebrow>
       {items.length === 0 ? (
-        <p className="font-mono text-xs leading-relaxed text-muted">{emptyHint}</p>
+        <p className="prose-serif-xs text-muted">{emptyHint}</p>
       ) : (
         <ul className="space-y-3">
           {items.map((e) => (

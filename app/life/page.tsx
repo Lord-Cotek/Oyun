@@ -33,7 +33,10 @@ export default async function LifePage() {
     <>
       <SiteHeader active="life" />
       <main className="mx-auto max-w-shell px-6 py-10">
+        {/* Compact: the diary is opened daily and the compose box is the
+            action — a full-height band put it below the fold on a phone. */}
         <PageHero
+          compact
           eyebrow="Life"
           title="Shared, as it happens."
           lede="A quiet place for the ones walking with you — how you are, a praise, a prayer to be carried, a small moment worth keeping."

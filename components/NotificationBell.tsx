@@ -90,7 +90,7 @@ export function NotificationBell({ initialUnread }: { initialUnread: number }) {
             {items === null ? (
               <p className="px-4 py-6 font-mono text-xs text-muted">Loading…</p>
             ) : items.length === 0 ? (
-              <p className="px-4 py-6 font-mono text-xs leading-relaxed text-muted">
+              <p className="px-4 py-6 prose-serif-xs text-muted">
                 Nothing yet. When someone prays for you or sends a word, it will
                 appear here.
               </p>

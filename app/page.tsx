@@ -118,7 +118,7 @@ export default function Landing() {
           <h1 className="max-w-3xl font-serif text-4xl leading-[1.08] text-ink sm:text-5xl md:text-6xl">
             Walk the whole journey — together — with Scripture at the center.
           </h1>
-          <p className="mt-6 max-w-prose font-mono text-sm leading-relaxed text-muted">
+          <p className="mt-6 max-w-prose prose-serif-sm text-muted">
             From the first quiet weeks of the womb through a child's earliest
             years, Oyun keeps you where you actually are: what's unfolding this
             stage, a word from Scripture, one thing to do, and a way for a
@@ -169,7 +169,7 @@ export default function Landing() {
                 {p.eyebrow}
               </Eyebrow>
               <h3 className="font-serif text-2xl leading-snug text-ink">{p.title}</h3>
-              <p className="mt-3 font-mono text-xs leading-relaxed text-muted">
+              <p className="mt-3 prose-serif-xs text-muted">
                 {p.body}
               </p>
             </Card>
@@ -186,7 +186,7 @@ export default function Landing() {
               Restraint is the point.
             </h2>
           </div>
-          <div className="space-y-4 font-mono text-sm leading-relaxed text-muted">
+          <div className="space-y-4 prose-serif-sm text-muted">
             <p>
               Most apps for this season are loud with charts, comparisons, and
               worry. Oyun is spare on purpose. It gives you a little, faithfully,

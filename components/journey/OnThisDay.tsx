@@ -42,7 +42,7 @@ export function OnThisDay({ items }: { items: MemoryItem[] }) {
                 {m.title}
               </p>
               {m.body && (
-                <p className="mt-1 line-clamp-3 font-mono text-xs leading-relaxed text-muted">
+                <p className="mt-1 line-clamp-3 prose-serif-xs text-muted">
                   {m.body}
                 </p>
               )}

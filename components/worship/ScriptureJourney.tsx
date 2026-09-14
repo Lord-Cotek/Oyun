@@ -100,7 +100,7 @@ export function ScriptureJourney({
         <h3 className="font-serif text-2xl leading-snug text-ink">
           {state ? "Choose a new journey." : "Read through the Scriptures."}
         </h3>
-        <p className="mt-2 max-w-xl font-mono text-sm leading-relaxed text-muted">
+        <p className="mt-2 max-w-xl prose-serif-sm text-muted">
           Pick a path through God&rsquo;s Word. It moves forward only when you
           read — miss a day and it simply waits. However long it takes, you
           finish the whole thing.
@@ -159,7 +159,7 @@ export function ScriptureJourney({
                       </span>
                     )}
                   </span>
-                  <span className="mt-1 block font-mono text-xs leading-relaxed text-muted">
+                  <span className="mt-1 block prose-serif-xs text-muted">
                     {p.blurb}
                   </span>
                   <span className="mt-2 block font-mono text-[0.65rem] uppercase tracking-widest text-muted/80">
@@ -198,7 +198,7 @@ export function ScriptureJourney({
         <h3 className="font-serif text-3xl leading-snug text-ink">
           You finished {state.title}.
         </h3>
-        <p className="mx-auto mt-3 max-w-md font-mono text-sm leading-relaxed text-muted">
+        <p className="mx-auto mt-3 max-w-md prose-serif-sm text-muted">
           All {state.total} readings, {state.scope} — every chapter, to the end.
           &ldquo;Your word is a lamp to my feet and a light to my path.&rdquo;
         </p>

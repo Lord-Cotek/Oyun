@@ -38,7 +38,7 @@ export function FirstsTimeline({
       )}
 
       {filtered.length === 0 ? (
-        <p className="font-mono text-xs leading-relaxed text-muted">
+        <p className="prose-serif-xs text-muted">
           {milestones.length === 0
             ? "Nothing logged yet. The firsts go by quickly — catch the next one here."
             : "No firsts for this little one yet."}

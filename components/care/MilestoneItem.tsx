@@ -80,7 +80,7 @@ export function MilestoneItem({
             )}
           </p>
           {m.note && (
-            <p className="mt-0.5 font-mono text-xs leading-relaxed text-muted">{m.note}</p>
+            <p className="mt-0.5 prose-serif-xs text-muted">{m.note}</p>
           )}
           <p className="mt-0.5 font-mono text-[0.68rem] uppercase tracking-widest text-muted">
             {occurred.toLocaleDateString(undefined, {

@@ -33,7 +33,7 @@ export function LatestFromFamily({
       </div>
 
       {posts.length === 0 ? (
-        <p className="font-mono text-sm leading-relaxed text-muted">
+        <p className="prose-serif-sm text-muted">
           Nothing shared yet.{" "}
           <Link
             href="/life"
@@ -57,7 +57,7 @@ export function LatestFromFamily({
                   <span className="text-accent">{KIND_LABEL[p.kind] ?? ""}</span>
                 </div>
                 <div className="flex items-start gap-3">
-                  <p className="line-clamp-2 flex-1 font-mono text-sm leading-relaxed text-ink/90">
+                  <p className="line-clamp-2 flex-1 prose-serif-sm text-ink/90">
                     {p.body ||
                       (p.media.length > 0
                         ? p.media[0].type === "video"

@@ -67,7 +67,7 @@ export function ReflectionJournal({
                 </span>
               )}
             </div>
-            <p className="whitespace-pre-line font-mono text-sm leading-relaxed text-ink/90">
+            <p className="whitespace-pre-line prose-serif-sm text-ink/90">
               {n.body}
             </p>
             {n.mine && (
@@ -118,7 +118,7 @@ function EditRow({
         value={text}
         onChange={(e) => setText(e.target.value)}
         rows={3}
-        className="w-full resize-y rounded-lg border border-border bg-bg px-3 py-2 font-mono text-sm leading-relaxed text-ink focus:border-accent focus:outline-none"
+        className="w-full resize-y rounded-lg border border-border bg-bg px-3 py-2 prose-serif-sm text-ink focus:border-accent focus:outline-none"
       />
       <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
         <label className="flex items-center gap-2 font-mono text-xs text-muted">
