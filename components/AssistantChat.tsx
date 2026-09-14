@@ -197,7 +197,7 @@ export function AssistantChat() {
                 }}
                 rows={1}
                 placeholder="Speak to Agbebi…"
-                className="max-h-28 flex-1 resize-none rounded-lg border border-border bg-bg px-3 py-2 font-mono text-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none"
+                className="prose-serif-sm max-h-28 flex-1 resize-none rounded-lg border border-border bg-bg px-3 py-2 text-ink placeholder:text-muted focus:border-accent focus:outline-none"
               />
               <button
                 type="submit"

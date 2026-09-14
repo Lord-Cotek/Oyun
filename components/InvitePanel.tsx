@@ -37,7 +37,7 @@ export function InvitePanel({ hasSupporter }: { hasSupporter: boolean }) {
           name="email"
           required
           placeholder="their@email.com"
-          className="w-full rounded-lg border border-border bg-bg px-3.5 py-2.5 font-mono text-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none"
+          className="prose-serif-sm w-full rounded-lg border border-border bg-bg px-3.5 py-2.5 text-ink placeholder:text-muted focus:border-accent focus:outline-none"
         />
         <select
           name="role"
@@ -62,7 +62,7 @@ export function InvitePanel({ hasSupporter }: { hasSupporter: boolean }) {
 
       {link && (
         <div className="mt-4 rounded-lg border border-accent/30 bg-accent/[0.06] p-3">
-          <p className="font-mono text-[0.68rem] text-muted">
+          <p className="prose-serif-xs text-muted">
             Invite ready. We&rsquo;ve emailed it — or share this link directly:
           </p>
           <div className="mt-2 flex items-center gap-2">

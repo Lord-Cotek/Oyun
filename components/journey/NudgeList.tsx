@@ -170,7 +170,7 @@ export function NudgeList({
               className={`${inputClass} [color-scheme:dark]`}
             />
           )}
-          <p className="font-mono text-[0.62rem] leading-relaxed text-muted">
+          <p className="text-[0.62rem] leading-relaxed text-muted">
             You&rsquo;ll be told once, that morning — a notification, and an
             email if you have those on. Nobody else sees it.
           </p>

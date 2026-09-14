@@ -15,7 +15,7 @@ export function BeginAgain() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="font-mono text-xs text-muted underline underline-offset-4 hover:text-ink"
+        className="prose-serif-xs text-muted underline underline-offset-4 hover:text-ink"
       >
         When you are ready — begin a new journey
       </button>

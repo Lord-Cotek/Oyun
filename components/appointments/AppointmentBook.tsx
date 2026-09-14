@@ -263,7 +263,7 @@ function Row({
 
       {closing ? (
         <div className="mt-3 rounded-lg border border-border bg-surface p-3">
-          <p className="mb-2 font-mono text-[0.66rem] leading-relaxed text-muted">
+          <p className="prose-serif-xs mb-2 text-muted">
             What came of it? Worth a line while it is fresh — a measurement, a
             word from the midwife, a relief.
           </p>
@@ -273,7 +273,7 @@ function Row({
             maxLength={TEXT_MAX}
             onChange={(e) => setOutcome(e.target.value)}
             placeholder="Optional"
-            className="w-full rounded-lg border border-border bg-bg px-3 py-2 font-mono text-xs text-ink placeholder:text-muted focus:border-accent focus:outline-none"
+            className="prose-serif-xs w-full rounded-lg border border-border bg-bg px-3 py-2 text-ink placeholder:text-muted focus:border-accent focus:outline-none"
           />
           <div className="mt-2 flex flex-wrap gap-2">
             <button
@@ -441,7 +441,7 @@ function Form({
         maxLength={TITLE_MAX}
         defaultValue={a?.title ?? ""}
         placeholder="A name of its own (optional) — “20-week anomaly scan”"
-        className="w-full rounded-lg border border-border bg-surface px-4 py-2.5 font-mono text-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none"
+        className="prose-serif-sm w-full rounded-lg border border-border bg-surface px-4 py-2.5 text-ink placeholder:text-muted focus:border-accent focus:outline-none"
       />
 
       <div className="flex flex-wrap gap-3">
@@ -451,7 +451,7 @@ function Form({
           maxLength={200}
           defaultValue={a?.where ?? ""}
           placeholder="Where — hospital, clinic, ward"
-          className="min-w-0 flex-1 rounded-lg border border-border bg-surface px-4 py-2.5 font-mono text-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none"
+          className="prose-serif-sm min-w-0 flex-1 rounded-lg border border-border bg-surface px-4 py-2.5 text-ink placeholder:text-muted focus:border-accent focus:outline-none"
         />
         <input
           type="text"
@@ -459,7 +459,7 @@ function Form({
           maxLength={200}
           defaultValue={a?.who ?? ""}
           placeholder="Who you're seeing"
-          className="min-w-0 flex-1 rounded-lg border border-border bg-surface px-4 py-2.5 font-mono text-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none"
+          className="prose-serif-sm min-w-0 flex-1 rounded-lg border border-border bg-surface px-4 py-2.5 text-ink placeholder:text-muted focus:border-accent focus:outline-none"
         />
       </div>
 
@@ -469,7 +469,7 @@ function Form({
         maxLength={TEXT_MAX}
         defaultValue={a?.notes ?? ""}
         placeholder="Anything to bring, or to remember (optional)"
-        className="w-full rounded-lg border border-border bg-surface px-4 py-2.5 font-mono text-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none"
+        className="prose-serif-sm w-full rounded-lg border border-border bg-surface px-4 py-2.5 text-ink placeholder:text-muted focus:border-accent focus:outline-none"
       />
 
       <div>
@@ -479,9 +479,9 @@ function Form({
           maxLength={TEXT_MAX}
           defaultValue={a?.questions ?? ""}
           placeholder="What you mean to ask — one per line"
-          className="w-full rounded-lg border border-accent/30 bg-surface px-4 py-2.5 font-mono text-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none"
+          className="prose-serif-sm w-full rounded-lg border border-accent/30 bg-surface px-4 py-2.5 text-ink placeholder:text-muted focus:border-accent focus:outline-none"
         />
-        <p className="mt-1 font-mono text-[0.62rem] leading-relaxed text-muted">
+        <p className="mt-1 text-[0.62rem] leading-relaxed text-muted">
           Write them down now. Everybody forgets once they are in the room, and
           this is shown to you on the appointment the moment you open it.
         </p>

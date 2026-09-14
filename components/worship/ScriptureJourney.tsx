@@ -130,7 +130,7 @@ export function ScriptureJourney({
             </p>
           </div>
         ) : (
-          <p className="mt-4 rounded-lg border border-border bg-bg/60 px-4 py-3 font-mono text-[0.72rem] leading-relaxed text-muted">
+          <p className="mt-4 rounded-lg border border-border bg-bg/60 px-4 py-3 text-[0.72rem] leading-relaxed text-muted">
             The shared journey is set by a parent or guardian — this begins{" "}
             <span className="text-ink">your own</span>.
           </p>
@@ -296,7 +296,7 @@ export function ScriptureJourney({
       {/* action */}
       <div className="mt-5 flex flex-wrap items-center gap-3">
         {!canAdvance ? (
-          <span className="font-mono text-xs text-muted">
+          <span className="prose-serif-xs text-muted">
             Read along; a parent or guardian keeps this journey moving — or start
             your own above.
           </span>

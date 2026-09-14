@@ -42,7 +42,7 @@ export default async function SignInPage({
             reference="Psalm 139:13"
           />
         </div>
-        <p className="max-w-xs font-mono text-[0.68rem] leading-relaxed text-muted">
+        <p className="prose-serif-xs max-w-xs text-muted">
           Oyun and Agbebi offer spiritual companionship — not medical advice.
           Always consult your doctor or midwife for health decisions.
         </p>
@@ -67,7 +67,7 @@ export default async function SignInPage({
                 : "Sign in with your email and password to continue your journey."}
             </p>
             {justReset && (
-              <p className="mt-4 rounded-lg border border-positive/40 bg-positive/10 px-3 py-2 font-mono text-xs text-positive">
+              <p className="prose-serif-xs mt-4 rounded-lg border border-positive/40 bg-positive/10 px-3 py-2 text-positive">
                 Your password has been reset. Sign in with your new password.
               </p>
             )}
@@ -77,7 +77,7 @@ export default async function SignInPage({
             />
           </div>
 
-          <p className="mt-6 font-mono text-[0.68rem] leading-relaxed text-muted md:hidden">
+          <p className="prose-serif-xs mt-6 text-muted md:hidden">
             Oyun and Agbebi offer spiritual companionship — not medical advice.
           </p>
         </div>

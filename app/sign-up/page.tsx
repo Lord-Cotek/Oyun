@@ -41,7 +41,7 @@ export default async function SignUpPage({
             reference="Psalm 139:13"
           />
         </div>
-        <p className="max-w-xs font-mono text-[0.68rem] leading-relaxed text-muted">
+        <p className="prose-serif-xs max-w-xs text-muted">
           Oyun and Agbebi offer spiritual companionship — not medical advice.
           Always consult your doctor or midwife for health decisions.
         </p>
@@ -73,7 +73,7 @@ export default async function SignUpPage({
             />
           </div>
 
-          <p className="mt-6 font-mono text-[0.68rem] leading-relaxed text-muted md:hidden">
+          <p className="prose-serif-xs mt-6 text-muted md:hidden">
             Oyun and Agbebi offer spiritual companionship — not medical advice.
           </p>
         </div>

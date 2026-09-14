@@ -43,7 +43,7 @@ export function FamilyWorship({
             <p className="mt-2 prose-serif-sm text-ink/90">
               <span className="text-accent">A.</span> {catechism.a}
             </p>
-            <p className="mt-4 font-mono text-[0.7rem] leading-relaxed text-muted">
+            <p className="prose-serif-xs mt-4 text-muted">
               A gentle rhythm for the household — learned by repetition, long
               before it&rsquo;s fully understood.
             </p>

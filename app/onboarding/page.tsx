@@ -169,7 +169,7 @@ export default async function Onboarding({
             <h1 className="font-serif text-2xl text-ink">
               This invite has already been used.
             </h1>
-            <p className="mt-3 font-mono text-sm text-muted">
+            <p className="prose-serif-sm mt-3 text-muted">
               If that was you, just sign in to reach the journey.
             </p>
           </div>
@@ -249,7 +249,7 @@ export default async function Onboarding({
                   required
                   className="mt-0.5 h-4 w-4 accent-[color:var(--accent)]"
                 />
-                <span className="font-mono text-[0.7rem] leading-relaxed text-muted">
+                <span className="prose-serif-xs text-muted">
                   I understand Oyun and Agbebi offer spiritual companionship and
                   encouragement — not medical advice — and I&rsquo;ll consult my
                   doctor or midwife for health decisions.
@@ -295,7 +295,7 @@ function Field({
         placeholder={placeholder}
         required={required}
         defaultValue={defaultValue}
-        className="w-full rounded-lg border border-border bg-bg px-4 py-3 font-mono text-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none"
+        className="prose-serif-sm w-full rounded-lg border border-border bg-bg px-4 py-3 text-ink placeholder:text-muted focus:border-accent focus:outline-none"
       />
     </label>
   );

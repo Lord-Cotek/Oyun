@@ -78,7 +78,7 @@ export async function LamentView({
             <RemembranceForm />
             <div className="mt-6 space-y-3 border-t border-border pt-5">
               {remembrances.length === 0 ? (
-                <p className="font-mono text-xs text-muted">
+                <p className="prose-serif-xs text-muted">
                   Nothing written yet. When you or your circle are ready, a first
                   word can be very small.
                 </p>

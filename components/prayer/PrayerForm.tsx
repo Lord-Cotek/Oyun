@@ -22,7 +22,7 @@ export function PrayerForm() {
         required
         maxLength={200}
         placeholder="What can your circle pray for?"
-        className="w-full rounded-lg border border-border bg-bg px-3.5 py-2.5 font-mono text-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none"
+        className="prose-serif-sm w-full rounded-lg border border-border bg-bg px-3.5 py-2.5 text-ink placeholder:text-muted focus:border-accent focus:outline-none"
       />
       <DraftTextarea
         draftKey="prayer:request"

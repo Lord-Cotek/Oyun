@@ -441,7 +441,7 @@ function Composer({
       />
 
       {iosApp && (
-        <p className="mt-3 rounded-lg border border-border bg-bg/50 px-3 py-2 font-mono text-[0.62rem] leading-relaxed text-muted">
+        <p className="mt-3 rounded-lg border border-border bg-bg/50 px-3 py-2 text-[0.62rem] leading-relaxed text-muted">
           In the app, choose{" "}
           <span className="text-ink">Photo Library</span>.{" "}
           <span className="text-ink">Take Photo</span> closes the app — a fault
@@ -679,7 +679,7 @@ function PostItem({
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               placeholder="Say something kind…"
-              className="w-full rounded-lg border border-border bg-bg px-3 py-2 font-mono text-xs text-ink placeholder:text-muted focus:border-accent focus:outline-none"
+              className="prose-serif-xs w-full rounded-lg border border-border bg-bg px-3 py-2 text-ink placeholder:text-muted focus:border-accent focus:outline-none"
               onKeyDown={(e) => {
                 if (e.key === "Enter" && comment.trim()) {
                   e.preventDefault();

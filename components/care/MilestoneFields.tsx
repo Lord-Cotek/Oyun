@@ -146,7 +146,7 @@ export function MilestoneFields({
           accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
           className="w-full font-mono text-xs text-muted file:mr-3 file:rounded-md file:border file:border-border file:bg-bg file:px-3 file:py-1.5 file:font-mono file:text-xs file:text-ink hover:file:border-accent hover:file:text-accent"
         />
-        <span className="mt-1 block font-mono text-[0.68rem] text-muted">
+        <span className="prose-serif-xs mt-1 block text-muted">
           You can select several at once (up to 8).
         </span>
       </label>

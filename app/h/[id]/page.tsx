@@ -112,7 +112,7 @@ export default function SharedHymn({ params }: { params: { id: string } }) {
           </div>
         </div>
 
-        <p className="mt-6 text-center font-mono text-[0.68rem] text-muted">
+        <p className="prose-serif-xs mt-6 text-center text-muted">
           Shared from Oyun · a COTEK app
         </p>
       </div>

@@ -201,7 +201,12 @@
     background-attachment: fixed;
     background-repeat: no-repeat;
     color: var(--ink);
-    font-family: var(--font-dm-mono), "DM Mono", ui-monospace, monospace;
+    /* The reading face, because most of what is on a page here is read rather
+       than scanned. Monospace is opt-in now (`font-mono`), for the things it
+       is actually good at: eyebrows, counts, timestamps, figures in a column.
+       It used to be the other way round, which is why every prose surface in
+       the app had to escape it. */
+    font-family: var(--font-literata), Literata, Georgia, serif;
     font-feature-settings: "kern";
     min-height: 100dvh;
     -webkit-font-smoothing: antialiased;
@@ -365,7 +370,6 @@
     Colour, margin and max-width stay at the call site.
   */
   .prose-serif {
-    font-family: var(--font-playfair), "Playfair Display", Georgia, serif;
     font-weight: 400;
     font-size: 1.0625rem;
     line-height: 1.7;
@@ -380,7 +384,6 @@
   /* The same voice one step down — ledes under a hero, notes, captions that
      still run to a sentence or two. */
   .prose-serif-sm {
-    font-family: var(--font-playfair), "Playfair Display", Georgia, serif;
     font-weight: 400;
     font-size: 1rem;
     line-height: 1.65;
@@ -389,7 +392,6 @@
   /* One step down again — secondary notes, FAQ answers, fine print. Still
      prose, still the serif, just quieter than the copy it sits under. */
   .prose-serif-xs {
-    font-family: var(--font-playfair), "Playfair Display", Georgia, serif;
     font-weight: 400;
     font-size: 0.9375rem;
     line-height: 1.6;

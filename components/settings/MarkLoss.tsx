@@ -53,7 +53,7 @@ export function MarkLoss() {
             defaultChecked
             className="mt-0.5 h-4 w-4 accent-[color:var(--accent)]"
           />
-          <span className="font-mono text-[0.7rem] leading-relaxed text-muted">
+          <span className="prose-serif-xs text-muted">
             Let my circle know, so they can come near. (You are not meant to
             carry this alone — but this is your choice.)
           </span>
