@@ -54,7 +54,7 @@ export function LettersPanel({
         <TabBtn id="baby" label="To your baby" />
       </div>
 
-      <p className="mb-5 font-mono text-xs leading-relaxed text-muted">
+      <p className="mb-5 prose-serif-xs text-muted">
         {tab === "baby" ? babyIntro : coupleIntro}
       </p>
 

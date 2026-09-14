@@ -23,6 +23,7 @@ import {
 import { PushToggle } from "@/components/PushToggle";
 import { MarkLoss } from "@/components/settings/MarkLoss";
 import { DeleteAccount } from "@/components/settings/DeleteAccount";
+import { ExportButton } from "@/components/settings/ExportButton";
 
 export const metadata: Metadata = {
   title: "Settings",
@@ -102,6 +103,13 @@ export default async function SettingsPage() {
             <NotificationForm
               notifyByEmail={user.notifyByEmail}
               weeklyDigest={user.weeklyDigest}
+              categories={{
+                notifyCircle: user.notifyCircle,
+                notifyHer: user.notifyHer,
+                notifyDates: user.notifyDates,
+                notifyDiary: user.notifyDiary,
+                notifyHouse: user.notifyHouse,
+              }}
             />
             <div className="mt-6 border-t border-border pt-6">
               <PushToggle />
@@ -139,6 +147,17 @@ export default async function SettingsPage() {
               <MarkLoss />
             </Card>
           )}
+
+          <Card className="p-8">
+            <Eyebrow className="mb-3">Take everything with you</Eyebrow>
+            <p className="mb-5 prose-serif-xs text-muted">
+              These months are your family&rsquo;s, not ours. Download the lot —
+              letters, prayers, firsts, the appointments and what came of them —
+              as one file: a page you can read or print without any app, and the
+              same records again as data. Photographs are linked, not packed in.
+            </p>
+            <ExportButton />
+          </Card>
 
           <Card className="flex items-center justify-between p-8">
             <div>

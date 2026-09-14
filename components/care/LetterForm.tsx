@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import { useFormStatus } from "react-dom";
 import { addLetter } from "@/app/care/actions";
+import { DraftTextarea } from "@/components/ui/DraftTextarea";
 
 export function LetterForm({ placeholder }: { placeholder?: string }) {
   const formRef = useRef<HTMLFormElement>(null);
@@ -17,12 +18,14 @@ export function LetterForm({ placeholder }: { placeholder?: string }) {
       className="space-y-3"
     >
       <input type="hidden" name="toBaby" value="true" />
-      <textarea
+      <DraftTextarea
+        draftKey="letter:baby"
+        id="letter-box"
         name="body"
         rows={4}
         required
         placeholder={placeholder ?? "Dear little one…"}
-        className="w-full resize-none rounded-lg border border-border bg-bg px-3.5 py-2.5 font-mono text-sm leading-relaxed text-ink placeholder:text-muted focus:border-accent focus:outline-none"
+        className="w-full resize-none rounded-lg border border-border bg-bg px-3.5 py-2.5 prose-serif-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none"
       />
       <Submit />
     </form>

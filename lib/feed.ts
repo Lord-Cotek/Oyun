@@ -19,14 +19,6 @@ export const KIND_LABEL: Record<string, string> = {
   MILESTONE: "Milestone",
 };
 
-/** The tone for a post kind's badge — tones shared by both apps' palettes. */
-export const KIND_TONE: Record<string, string> = {
-  UPDATE: "sky",
-  PRAISE: "gold",
-  PRAYER: "plum",
-  MILESTONE: "green",
-};
-
 export function isPostKind(v: string): v is PostKind {
   return POST_KINDS.some((k) => k.kind === v);
 }

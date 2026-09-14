@@ -30,7 +30,7 @@ export function PrayerCard({ item }: { item: PrayerItem }) {
           )}
           <p className="font-serif text-lg leading-snug text-ink">{item.title}</p>
           {item.body && (
-            <p className="mt-1.5 font-mono text-xs leading-relaxed text-muted">
+            <p className="mt-1.5 prose-serif-xs text-muted">
               {item.body}
             </p>
           )}

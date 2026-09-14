@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 export default function TermsPage() {
   return (
     <LegalShell title="Terms &amp; Conditions" updated="1 August 2026">
-      <p className="font-mono text-sm leading-relaxed text-muted">
+      <p className="prose-serif-sm text-muted">
         These terms govern your use of Oyun (the &ldquo;app&rdquo;), owned and
         operated by <span className="text-ink">cotek app FZ-LLC</span>{" "}
         (&ldquo;we&rdquo;, &ldquo;us&rdquo;). By creating an account or using the

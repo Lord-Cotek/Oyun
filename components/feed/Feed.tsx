@@ -1,16 +1,19 @@
 "use client";
 
 import { useEffect, useRef, useState, useTransition } from "react";
+import { randomId } from "@/lib/rand";
 import { upload } from "@vercel/blob/client";
 import {
   POST_KINDS,
   KIND_LABEL,
-  KIND_TONE,
   REACTIONS,
   type PostKind,
 } from "@/lib/feed";
 import type { FeedPost, MediaItem } from "@/lib/feed-query";
 import { Lightbox } from "@/components/media/Lightbox";
+import { useAttempt } from "@/lib/use-attempt";
+import { mediaAlt } from "@/lib/alt";
+import { FirstStep, FirstStepFocus } from "@/components/ui/FirstStep";
 import { Avatar } from "@/components/ui/Avatar";
 import { isIosNativeShell } from "@/lib/shell";
 
@@ -40,22 +43,35 @@ interface Actions {
 export function Feed({
   posts,
   composerPlaceholder = "Share something with the family…",
+  // A blank diary is the first thing a new house sees, so it gets one
+  // particular thing to write rather than four categories to choose between.
+  emptyLine = "Nothing here yet. The entries worth having in ten years are the ordinary ones — what somebody said, what you ate, who came round.",
+  emptyAction = "Write down one thing that happened today",
   ...actions
-}: { posts: FeedPost[]; composerPlaceholder?: string } & Actions) {
+}: {
+  posts: FeedPost[];
+  composerPlaceholder?: string;
+  emptyLine?: string;
+  emptyAction?: string;
+} & Actions) {
   return (
     <div className="space-y-6">
       <Composer onCreate={actions.onCreate} placeholder={composerPlaceholder} />
       {posts.length === 0 ? (
-        <div className="surface-premium rounded-2xl border border-border p-8 text-center">
-          <p className="font-mono text-sm leading-relaxed text-muted">
-            Nothing shared yet. Be the first — a word, a praise, a prayer, a
-            small moment worth keeping.
-          </p>
+        <div className="surface-premium rounded-2xl border border-border p-8">
+          <FirstStep
+            className="text-center [&>div]:flex [&>div]:justify-center"
+            action={
+              <FirstStepFocus htmlFor="composer-box">{emptyAction}</FirstStepFocus>
+            }
+          >
+            {emptyLine}
+          </FirstStep>
         </div>
       ) : (
         <ul className="space-y-4">
           {posts.map((p) => (
-            <li key={p.id}>
+            <li key={p.id} id={`post-${p.id}`} className="notif-target">
               <PostItem post={p} {...actions} />
             </li>
           ))}
@@ -234,7 +250,7 @@ function Composer({
         continue;
       }
       next.push({
-        id: `${file.name}-${file.size}-${crypto.randomUUID()}`,
+        id: `${file.name}-${file.size}-${randomId()}`,
         file,
         preview: URL.createObjectURL(file),
         isVideo,
@@ -319,16 +335,17 @@ function Composer({
         ))}
       </div>
       <textarea
+        id="composer-box"
         value={body}
         onChange={(e) => setBody(e.target.value)}
         rows={3}
         placeholder={placeholder}
-        className="w-full resize-y rounded-xl border border-border bg-bg px-4 py-3 font-mono text-sm leading-relaxed text-ink placeholder:text-muted focus:border-accent focus:outline-none"
+        className="w-full resize-y rounded-xl border border-border bg-bg px-4 py-3 prose-serif-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none"
       />
 
       {picked.length > 0 && (
         <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-4">
-          {picked.map((p) => (
+          {picked.map((p, i) => (
             <div
               key={p.id}
               className="relative aspect-square overflow-hidden rounded-lg border border-border"
@@ -336,6 +353,7 @@ function Composer({
               {p.isVideo ? (
                 <video
                   src={p.preview}
+                  aria-label={`Video ${i + 1} of ${picked.length}, ready to post`}
                   className="h-full w-full object-cover"
                   muted
                   playsInline
@@ -344,7 +362,7 @@ function Composer({
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={p.preview}
-                  alt="To share"
+                  alt={`Photo ${i + 1} of ${picked.length}, ready to post`}
                   className="h-full w-full object-cover"
                 />
               )}
@@ -423,7 +441,7 @@ function Composer({
       />
 
       {iosApp && (
-        <p className="mt-3 rounded-lg border border-border bg-bg/50 px-3 py-2 font-mono text-[0.62rem] leading-relaxed text-muted">
+        <p className="mt-3 rounded-lg border border-border bg-bg/50 px-3 py-2 text-[0.62rem] leading-relaxed text-muted">
           In the app, choose{" "}
           <span className="text-ink">Photo Library</span>.{" "}
           <span className="text-ink">Take Photo</span> closes the app — a fault
@@ -484,8 +502,37 @@ function PostItem({
   const [removeMedia, setRemoveMedia] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [comment, setComment] = useState("");
-  const tone = KIND_TONE[post.kind] ?? "sky";
   const hasMedia = post.media.length > 0;
+
+  /**
+   * Reactions, shown before the server has been told.
+   *
+   * `mine` is what this viewer has changed since the page was rendered, and it
+   * is layered over `post.reactions` rather than replacing it: when the server
+   * revalidates and new props arrive, the two agree and nothing moves. Keeping
+   * it as a delta rather than a copy is what stops a reaction somebody else
+   * added in the meantime from being wiped by our own stale snapshot.
+   */
+  const [mine, setMine] = useState<Record<string, boolean>>({});
+  const { attempt, slipped } = useAttempt();
+
+  function reactionFor(kind: string) {
+    const server = post.reactions.find((x) => x.kind === kind);
+    const serverMine = server?.mine ?? false;
+    const on = mine[kind] ?? serverMine;
+    const count = (server?.count ?? 0) + (on === serverMine ? 0 : on ? 1 : -1);
+    return { on, count: Math.max(0, count) };
+  }
+
+  function react(kind: string) {
+    const { on } = reactionFor(kind);
+    attempt(
+      () => setMine((m) => ({ ...m, [kind]: !on })),
+      () => onReact({ postId: post.id, kind }),
+      () => setMine((m) => ({ ...m, [kind]: on })),
+      "That didn’t reach the family. Tap again?",
+    );
+  }
 
   return (
     <div className="surface-premium rounded-2xl border border-border p-5 md:p-6">
@@ -497,11 +544,9 @@ function PostItem({
           <span aria-hidden>·</span>
           <span>{post.when}</span>
           <span
-            className="rounded-full border px-2 py-0.5 text-[0.56rem]"
-            style={{
-              color: `var(--tone-${tone})`,
-              borderColor: `color-mix(in srgb, var(--tone-${tone}) 40%, transparent)`,
-            }}
+            className="rounded-full border border-border px-2 py-0.5 text-[0.56rem] text-muted"
+            // The chip says "Praise" or "Prayer"; the word is the marker.
+            // A hue per kind meant four colours in one row of metadata.
           >
             {KIND_LABEL[post.kind] ?? "Update"}
           </span>
@@ -515,7 +560,7 @@ function PostItem({
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             rows={3}
-            className="w-full resize-y rounded-lg border border-border bg-bg px-3 py-2 font-mono text-sm leading-relaxed text-ink focus:border-accent focus:outline-none"
+            className="w-full resize-y rounded-lg border border-border bg-bg px-3 py-2 prose-serif-sm text-ink focus:border-accent focus:outline-none"
           />
           {hasMedia && (
             <label className="mt-2 flex items-center gap-2 font-mono text-[0.68rem] text-muted">
@@ -563,28 +608,35 @@ function PostItem({
       ) : (
         <>
           {post.body && (
-            <p className="mt-3 whitespace-pre-line font-mono text-sm leading-relaxed text-ink/90">
+            <p className="mt-3 whitespace-pre-line prose-serif-sm text-ink/90">
               {post.body}
             </p>
           )}
-          {hasMedia && <MediaGallery media={post.media} />}
+          {hasMedia && (
+            <MediaGallery
+              media={post.media}
+              said={post.body}
+              author={post.author}
+              when={post.when}
+            />
+          )}
         </>
       )}
 
-      {/* reactions */}
+      {/* reactions — they move the moment you tap, and move back if the
+          server never heard about it */}
       <div className="mt-4 flex flex-wrap items-center gap-1.5">
         {REACTIONS.map((r) => {
-          const mine = post.reactions.find((x) => x.kind === r.kind)?.mine;
-          const count = post.reactions.find((x) => x.kind === r.kind)?.count ?? 0;
+          const { on, count } = reactionFor(r.kind);
           return (
             <button
               key={r.kind}
               type="button"
-              disabled={pending}
-              onClick={() => start(() => onReact({ postId: post.id, kind: r.kind }))}
+              onClick={() => react(r.kind)}
+              aria-pressed={on}
               aria-label={r.label}
-              className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 font-mono text-xs transition-colors disabled:opacity-50 ${
-                mine
+              className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 font-mono text-xs transition-colors ${
+                on
                   ? "border-accent/50 bg-accent/10 text-ink"
                   : "border-border text-muted hover:border-accent/40"
               }`}
@@ -595,6 +647,11 @@ function PostItem({
           );
         })}
       </div>
+      {slipped && (
+        <p role="status" className="mt-2 font-mono text-[0.68rem] text-muted">
+          {slipped}
+        </p>
+      )}
 
       {/* footer actions */}
       <div className="mt-3 flex flex-wrap items-center gap-3 font-mono text-[0.68rem] text-muted">
@@ -654,7 +711,7 @@ function PostItem({
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               placeholder="Say something kind…"
-              className="w-full rounded-lg border border-border bg-bg px-3 py-2 font-mono text-xs text-ink placeholder:text-muted focus:border-accent focus:outline-none"
+              className="prose-serif-xs w-full rounded-lg border border-border bg-bg px-3 py-2 text-ink placeholder:text-muted focus:border-accent focus:outline-none"
               onKeyDown={(e) => {
                 if (e.key === "Enter" && comment.trim()) {
                   e.preventDefault();
@@ -687,9 +744,30 @@ function PostItem({
   );
 }
 
-function MediaGallery({ media }: { media: MediaItem[] }) {
+function MediaGallery({
+  media,
+  said,
+  author,
+  when,
+}: {
+  media: MediaItem[];
+  /** What was written alongside — the best description of these we will get. */
+  said?: string | null;
+  author?: string | null;
+  when?: string | null;
+}) {
   const [at, setAt] = useState<number | null>(null);
   const single = media.length === 1;
+  const alts = media.map((m, i) =>
+    mediaAlt({
+      said,
+      author,
+      when,
+      index: i + 1,
+      total: media.length,
+      isVideo: m.type === "video",
+    }),
+  );
 
   return (
     <>
@@ -701,9 +779,13 @@ function MediaGallery({ media }: { media: MediaItem[] }) {
             key={`${m.url}-${i}`}
             type="button"
             onClick={() => setAt(i)}
-            aria-label={
-              m.type === "video" ? "Play video" : `Open photo ${i + 1}`
-            }
+            // An aria-label on the button replaces everything inside it, so
+            // this — not the img alt below — is what a screen reader announces.
+            // The description starts a sentence of its own, so it is lowered
+            // when a verb is put in front of it.
+            aria-label={`${m.type === "video" ? "Play" : "Open"} ${
+              alts[i].charAt(0).toLowerCase() + alts[i].slice(1)
+            }`}
             className={`group relative block w-full overflow-hidden rounded-xl border border-border transition-colors hover:border-accent/50 ${
               single ? "" : "aspect-square"
             }`}
@@ -731,7 +813,7 @@ function MediaGallery({ media }: { media: MediaItem[] }) {
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={m.url}
-                alt=""
+                alt={alts[i]}
                 loading="lazy"
                 className={`transition-transform duration-500 ease-out group-hover:scale-[1.03] ${
                   single
@@ -747,6 +829,7 @@ function MediaGallery({ media }: { media: MediaItem[] }) {
       {at !== null && (
         <Lightbox
           items={media}
+          alts={alts}
           index={at}
           onIndex={setAt}
           onClose={() => setAt(null)}

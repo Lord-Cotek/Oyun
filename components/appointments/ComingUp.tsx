@@ -31,7 +31,7 @@ export function ComingUp({ appointments }: { appointments: Appt[] }) {
         <p className="font-mono text-[0.6rem] uppercase tracking-widest text-muted">
           Coming up
         </p>
-        <p className="mt-1.5 font-mono text-xs leading-relaxed text-muted">
+        <p className="mt-1.5 prose-serif-xs text-muted">
           No appointments in the book.{" "}
           <Link
             href="/appointments"

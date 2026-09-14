@@ -14,15 +14,23 @@ const EMOJI_WORD: Record<string, string> = {
   "🌱": "hope",
 };
 
-/** Toggle the viewer's emoji reaction on an encouragement or a check-in. */
+/**
+ * Toggle the viewer's emoji reaction on an encouragement or a check-in.
+ *
+ * Returns whether it took. The screen has already moved by the time this is
+ * called — see lib/use-attempt.ts — so a silent `return` would leave a
+ * reaction showing that was never recorded. Every refusal below is a real one
+ * a person can hit: the session ran out while the tab sat open, or they were
+ * taken out of the circle between the page rendering and the tap.
+ */
 export async function toggleReaction(
   targetType: ReactionTarget,
   targetId: string,
   emoji: string,
-) {
+): Promise<{ ok: boolean }> {
   const session = await auth();
-  if (!session?.user?.id) return;
-  if (!isReactionEmoji(emoji)) return;
+  if (!session?.user?.id) return { ok: false };
+  if (!isReactionEmoji(emoji)) return { ok: false };
   const userId = session.user.id;
 
   // Resolve the journey this target belongs to (and the author to notify).
@@ -33,7 +41,7 @@ export async function toggleReaction(
       where: { id: targetId },
       select: { journeyId: true, authorId: true },
     });
-    if (!e) return;
+    if (!e) return { ok: false };
     journeyId = e.journeyId;
     authorId = e.authorId;
   } else if (targetType === "LETTER") {
@@ -42,7 +50,7 @@ export async function toggleReaction(
       select: { journeyId: true, authorId: true, toBaby: true },
     });
     // Only the shared "to each other" letters carry reactions.
-    if (!l || l.toBaby) return;
+    if (!l || l.toBaby) return { ok: false };
     journeyId = l.journeyId;
     authorId = l.authorId;
   } else {
@@ -50,7 +58,7 @@ export async function toggleReaction(
       where: { id: targetId },
       select: { journeyId: true },
     });
-    if (!c) return;
+    if (!c) return { ok: false };
     journeyId = c.journeyId;
   }
 
@@ -59,10 +67,10 @@ export async function toggleReaction(
     where: { journeyId, userId },
     select: { role: true },
   });
-  if (!member) return;
+  if (!member) return { ok: false };
   // Letters between the couple are theirs alone — never an accountability partner.
   if (targetType === "LETTER" && member.role !== "MOTHER" && member.role !== "PARTNER") {
-    return;
+    return { ok: false };
   }
 
   const where = {
@@ -119,4 +127,5 @@ export async function toggleReaction(
 
   revalidatePath("/journey");
   revalidatePath("/care");
+  return { ok: true };
 }

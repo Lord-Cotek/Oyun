@@ -45,7 +45,7 @@ function Room({
       >
         {name}
       </Link>
-      <p className="font-mono text-xs leading-relaxed text-muted">
+      <p className="prose-serif-xs text-muted">
         {aside && <span className="italic">{aside} </span>}
         {children}
       </p>
@@ -59,7 +59,7 @@ function Q({ q, children }: { q: string; children: React.ReactNode }) {
       <summary className="cursor-pointer font-mono text-sm text-ink marker:text-muted">
         {q}
       </summary>
-      <div className="mt-2.5 space-y-2.5 pl-1 font-mono text-xs leading-relaxed text-muted">
+      <div className="mt-2.5 space-y-2.5 pl-1 prose-serif-xs text-muted">
         {children}
       </div>
     </details>
@@ -89,7 +89,7 @@ export default async function HelpPage() {
         {/* ── Where things are ─────────────────────────────────────── */}
         <Card className="mt-8 p-8">
           <Eyebrow className="mb-2">The rooms</Eyebrow>
-          <p className="mb-5 max-w-prose font-mono text-xs leading-relaxed text-muted">
+          <p className="mb-5 max-w-prose prose-serif-xs text-muted">
             On a phone the four you use daily sit along the bottom; the rest are
             behind <span className="text-ink">More</span>. On a computer they
             run along the top, with the same <span className="text-ink">More</span>{" "}
@@ -165,7 +165,7 @@ export default async function HelpPage() {
         {/* ── Who sees what ────────────────────────────────────────── */}
         <Card className="mt-6 p-8">
           <Eyebrow className="mb-2">Who sees what</Eyebrow>
-          <p className="mb-5 max-w-prose font-mono text-xs leading-relaxed text-muted">
+          <p className="mb-5 max-w-prose prose-serif-xs text-muted">
             There are two circles, and the difference is the whole design.
           </p>
 
@@ -177,7 +177,7 @@ export default async function HelpPage() {
               <p className="mt-1.5 font-serif text-lg text-ink">
                 Her, and the one beside her
               </p>
-              <ul className="mt-3 space-y-1.5 font-mono text-xs leading-relaxed text-muted">
+              <ul className="mt-3 space-y-1.5 prose-serif-xs text-muted">
                 <li>The appointment book, and its reminders.</li>
                 <li>Letters, family worship, the nursery, the firsts.</li>
                 <li>
@@ -195,7 +195,7 @@ export default async function HelpPage() {
               <p className="mt-1.5 font-serif text-lg text-ink">
                 Accountability, family, friends
               </p>
-              <ul className="mt-3 space-y-1.5 font-mono text-xs leading-relaxed text-muted">
+              <ul className="mt-3 space-y-1.5 prose-serif-xs text-muted">
                 <li>
                   Life, the prayer wall, and a home page of their own about how
                   to stand with her.
@@ -216,13 +216,13 @@ export default async function HelpPage() {
         {/* ── Reminders ────────────────────────────────────────────── */}
         <Card className="mt-6 p-8">
           <Eyebrow className="mb-2">How you are reminded</Eyebrow>
-          <p className="mb-5 max-w-prose font-mono text-xs leading-relaxed text-muted">
+          <p className="mb-5 max-w-prose prose-serif-xs text-muted">
             The failure of a reminder system is not silence. It is pestering
             somebody until they turn it off — and then they get nothing at all,
             including the one that mattered. So there are three at most, and
             usually two.
           </p>
-          <ul className="space-y-2 font-mono text-xs leading-relaxed text-muted">
+          <ul className="space-y-2 prose-serif-xs text-muted">
             <li>
               <span className="text-ink">The day before</span>, for every
               appointment — the one that actually saves a morning. Notification
@@ -342,6 +342,23 @@ export default async function HelpPage() {
             midwife.
           </Q>
 
+          <Q q="Can I take everything out?">
+            Yes, whenever you like, and without asking us.{" "}
+            <Link href="/settings" className="text-accent underline underline-offset-4">
+              Settings
+            </Link>{" "}
+            &rarr; <span className="text-ink">Take everything with you</span>{" "}
+            builds one file holding the lot: a page you can open, read and print
+            in any browser with no app at all, and the same records again as
+            data if you ever want them somewhere else. Photographs are linked
+            rather than packed in — a family&rsquo;s pictures run to hundreds of
+            megabytes — so save those down separately if you want them for good.
+            What comes out is exactly what you can see in the app: a husband or
+            partner gets the letters, the care journal and the appointments;
+            someone in the circle gets life and prayer and what they themselves
+            wrote, and none of the private rooms.
+          </Q>
+
           <Q q="Is this a social network?">
             No. There are no strangers, no followers, no public profiles, no
             algorithm, no advertising, and no endless scroll. There are also no
@@ -353,12 +370,12 @@ export default async function HelpPage() {
 
         <div className="mt-8">
           <Verse
-            text="For you formed my inward parts; you knitted me together in my mother's womb."
+            text="For you formed my inmost being. You knit me together in my mother’s womb."
             reference="Psalm 139:13"
           />
         </div>
 
-        <p className="mt-8 text-center font-mono text-xs leading-relaxed text-muted">
+        <p className="mt-8 text-center prose-serif-xs text-muted">
           Something here not answered?{" "}
           <Link
             href="/contact"

@@ -49,6 +49,7 @@ export function MilestoneFields({
         <label className="block">
           <span className="eyebrow mb-1.5 block text-muted">The first</span>
           <select
+            id="first-kind"
             name="kind"
             value={kind}
             onChange={(e) => setKind(e.target.value)}
@@ -111,10 +112,14 @@ export function MilestoneFields({
         <div>
           <span className="eyebrow mb-1.5 block text-muted">Photos</span>
           <div className="flex flex-wrap gap-3">
-            {existingPhotoUrls.map((url) => (
+            {existingPhotoUrls.map((url, i) => (
               <label key={url} className="flex cursor-pointer flex-col items-center gap-1">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={url} alt="Photo" className="h-16 w-16 rounded-lg border border-border object-cover" />
+                <img
+                  src={url}
+                  alt={`Photo ${i + 1} of ${existingPhotoUrls.length} already on this milestone`}
+                  className="h-16 w-16 rounded-lg border border-border object-cover"
+                />
                 <span className="flex items-center gap-1 font-mono text-[0.62rem] text-muted">
                   <input
                     type="checkbox"
@@ -141,7 +146,7 @@ export function MilestoneFields({
           accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
           className="w-full font-mono text-xs text-muted file:mr-3 file:rounded-md file:border file:border-border file:bg-bg file:px-3 file:py-1.5 file:font-mono file:text-xs file:text-ink hover:file:border-accent hover:file:text-accent"
         />
-        <span className="mt-1 block font-mono text-[0.68rem] text-muted">
+        <span className="prose-serif-xs mt-1 block text-muted">
           You can select several at once (up to 8).
         </span>
       </label>

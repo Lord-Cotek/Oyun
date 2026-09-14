@@ -78,20 +78,20 @@ export async function sendWelcomeEmail({
     <p style="font-size:14px;line-height:1.7;color:#ECE8DE;">
       Welcome to Oyun. We're glad you're here. Oyun walks with you through the
       whole journey — conception through your child's earliest years — with
-      Scripture at the center, one small faithful step at a time.
+      Scripture at the centre, one small faithful step at a time.
     </p>
     <p style="font-size:14px;line-height:1.7;color:#ECE8DE;">
       Whenever you're ready, sign in and set where you are. Agbebi will meet you there.
     </p>
     <p style="font-size:14px;line-height:1.7;color:#8A9099;margin-top:20px;">
-      "For you formed my inward parts; you knitted me together in my mother's womb." — Psalm 139:13
+      "For you formed my inmost being. You knit me together in my mother’s womb." — Psalm 139:13
     </p>
   `);
   const text = [
     `Peace to you, ${greeting}.`,
     "",
     "Welcome to Oyun. Oyun walks with you through the whole journey — conception",
-    "through your child's earliest years — with Scripture at the center.",
+    "through your child's earliest years — with Scripture at the centre.",
     "",
     "Sign in whenever you're ready and set where you are. Agbebi will meet you there.",
     "",

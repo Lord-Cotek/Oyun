@@ -69,7 +69,7 @@ export function LettersSummary({
         </Link>
       </div>
       {empty ? (
-        <p className="font-mono text-sm leading-relaxed text-muted">
+        <p className="prose-serif-sm text-muted">
           No letters yet.{" "}
           <Link
             href="/letters"

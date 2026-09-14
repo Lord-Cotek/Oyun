@@ -54,7 +54,7 @@ export default async function AppointmentsPage() {
           <p className="font-mono text-[0.6rem] uppercase tracking-widest text-muted">
             About the reminders
           </p>
-          <ul className="mt-2 space-y-1.5 font-mono text-xs leading-relaxed text-muted">
+          <ul className="mt-2 space-y-1.5 prose-serif-xs text-muted">
             <li>
               <span className="text-ink">The day before</span>, for everything —
               the one that actually saves a morning.
@@ -82,7 +82,7 @@ export default async function AppointmentsPage() {
 
         <div className="mt-8">
           <Verse
-            text="Commit your deeds to Yahweh, and your plans shall succeed."
+            text="Commit your deeds to the LORD, and your plans shall succeed."
             reference="Proverbs 16:3"
           />
         </div>

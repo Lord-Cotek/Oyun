@@ -23,7 +23,12 @@ const config: Config = {
         accent2: "var(--accent2)",
       },
       fontFamily: {
+        // `serif` is the DISPLAY face — headings, and the occasional short
+        // line that wants to be looked at rather than read. For anything a
+        // person reads a paragraph of, use `body` (or just leave it alone:
+        // it is the page default).
         serif: ["var(--font-playfair)", "Playfair Display", "Georgia", "serif"],
+        body: ["var(--font-literata)", "Literata", "Georgia", "serif"],
         mono: ["var(--font-dm-mono)", "DM Mono", "ui-monospace", "monospace"],
       },
       letterSpacing: {

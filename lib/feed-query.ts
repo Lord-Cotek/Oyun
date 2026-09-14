@@ -1,3 +1,4 @@
+import { yearBounds } from "./story";
 import { prisma } from "./prisma";
 
 export interface FeedComment {
@@ -57,11 +58,17 @@ export async function loadFeed(
   journeyId: string,
   viewerId: string,
   take = 40,
+  year?: number,
 ): Promise<FeedPost[]> {
   const posts = await prisma.post.findMany({
-    where: { journeyId },
+    where: {
+      journeyId,
+      ...(year ? { createdAt: yearBounds(year) } : {}),
+    },
     orderBy: { createdAt: "desc" },
-    take,
+    // A year is a bounded thing a family asked to see in full, so it is not
+    // cut short at the usual page size.
+    take: year ? 400 : take,
     include: {
       author: { select: { id: true, name: true, image: true } },
       reactions: { select: { kind: true, userId: true } },

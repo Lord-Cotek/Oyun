@@ -5,7 +5,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 /**
  * Scroll-triggered reveal — fades and rises its children into place the first
  * time they enter the viewport. Pass an incrementing `delay` to stagger a row
- * or list. Honors prefers-reduced-motion (globals.css neutralizes the
+ * or list. Honours prefers-reduced-motion (globals.css neutralises the
  * transition, so content simply appears).
  */
 export function Reveal({

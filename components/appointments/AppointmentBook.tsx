@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { FirstStep, FirstStepButton } from "@/components/ui/FirstStep";
 import { type AppointmentKind } from "@prisma/client";
 import {
   kindVoice,
@@ -67,6 +68,8 @@ export function AppointmentBook({
   past: Appt[];
 }) {
   const [adding, setAdding] = useState(false);
+  /** Pre-chosen kind when the blank book opened the form for her. */
+  const [seedKind, setSeedKind] = useState<AppointmentKind | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [, start] = useTransition();
 
@@ -86,8 +89,12 @@ export function AppointmentBook({
       <div>
         {adding ? (
           <Form
+            seedKind={seedKind ?? undefined}
             onSubmit={(fd) => run(() => addAppointment(fd))}
-            onCancel={() => setAdding(false)}
+            onCancel={() => {
+              setAdding(false);
+              setSeedKind(null);
+            }}
             submitLabel="Keep this date"
           />
         ) : (
@@ -106,11 +113,22 @@ export function AppointmentBook({
           Coming up
         </p>
         {upcoming.length === 0 ? (
-          <p className="max-w-prose font-mono text-xs leading-relaxed text-muted">
-            Nothing in the book. Put the next one in as soon as the letter
-            arrives — you will be reminded the day before, and on the morning
-            itself if there is a time on it.
-          </p>
+          <FirstStep
+            action={
+              <FirstStepButton
+                onClick={() => {
+                  setSeedKind("SCAN");
+                  setAdding(true);
+                }}
+              >
+                Put the 20-week scan in
+              </FirstStepButton>
+            }
+          >
+            Nothing in the book yet. You will be reminded the day before, and
+            on the morning itself when there is a time on the letter — so the
+            sooner it goes in, the less there is to hold in your head.
+          </FirstStep>
         ) : (
           <ul className="space-y-3">
             {upcoming.map((a) => (
@@ -220,7 +238,7 @@ function Row({
       </div>
 
       {a.notes && (
-        <p className="mt-2 whitespace-pre-wrap font-mono text-xs leading-relaxed text-muted">
+        <p className="mt-2 whitespace-pre-wrap prose-serif-xs text-muted">
           {a.notes}
         </p>
       )}
@@ -245,7 +263,7 @@ function Row({
 
       {closing ? (
         <div className="mt-3 rounded-lg border border-border bg-surface p-3">
-          <p className="mb-2 font-mono text-[0.66rem] leading-relaxed text-muted">
+          <p className="prose-serif-xs mb-2 text-muted">
             What came of it? Worth a line while it is fresh — a measurement, a
             word from the midwife, a relief.
           </p>
@@ -255,7 +273,7 @@ function Row({
             maxLength={TEXT_MAX}
             onChange={(e) => setOutcome(e.target.value)}
             placeholder="Optional"
-            className="w-full rounded-lg border border-border bg-bg px-3 py-2 font-mono text-xs text-ink placeholder:text-muted focus:border-accent focus:outline-none"
+            className="prose-serif-xs w-full rounded-lg border border-border bg-bg px-3 py-2 text-ink placeholder:text-muted focus:border-accent focus:outline-none"
           />
           <div className="mt-2 flex flex-wrap gap-2">
             <button
@@ -339,16 +357,21 @@ function Row({
 
 function Form({
   a,
+  seedKind,
   onSubmit,
   onCancel,
   submitLabel,
 }: {
   a?: Appt;
+  /** Chosen for her by the blank state, so only the date is left to fill in. */
+  seedKind?: AppointmentKind;
   onSubmit: (fd: FormData) => void;
   onCancel: () => void;
   submitLabel: string;
 }) {
-  const [kind, setKind] = useState<AppointmentKind>(a?.kind ?? "ANTENATAL");
+  const [kind, setKind] = useState<AppointmentKind>(
+    a?.kind ?? seedKind ?? "ANTENATAL",
+  );
 
   return (
     <form action={onSubmit} className="space-y-3">
@@ -418,7 +441,7 @@ function Form({
         maxLength={TITLE_MAX}
         defaultValue={a?.title ?? ""}
         placeholder="A name of its own (optional) — “20-week anomaly scan”"
-        className="w-full rounded-lg border border-border bg-surface px-4 py-2.5 font-mono text-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none"
+        className="prose-serif-sm w-full rounded-lg border border-border bg-surface px-4 py-2.5 text-ink placeholder:text-muted focus:border-accent focus:outline-none"
       />
 
       <div className="flex flex-wrap gap-3">
@@ -428,7 +451,7 @@ function Form({
           maxLength={200}
           defaultValue={a?.where ?? ""}
           placeholder="Where — hospital, clinic, ward"
-          className="min-w-0 flex-1 rounded-lg border border-border bg-surface px-4 py-2.5 font-mono text-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none"
+          className="prose-serif-sm min-w-0 flex-1 rounded-lg border border-border bg-surface px-4 py-2.5 text-ink placeholder:text-muted focus:border-accent focus:outline-none"
         />
         <input
           type="text"
@@ -436,7 +459,7 @@ function Form({
           maxLength={200}
           defaultValue={a?.who ?? ""}
           placeholder="Who you're seeing"
-          className="min-w-0 flex-1 rounded-lg border border-border bg-surface px-4 py-2.5 font-mono text-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none"
+          className="prose-serif-sm min-w-0 flex-1 rounded-lg border border-border bg-surface px-4 py-2.5 text-ink placeholder:text-muted focus:border-accent focus:outline-none"
         />
       </div>
 
@@ -446,7 +469,7 @@ function Form({
         maxLength={TEXT_MAX}
         defaultValue={a?.notes ?? ""}
         placeholder="Anything to bring, or to remember (optional)"
-        className="w-full rounded-lg border border-border bg-surface px-4 py-2.5 font-mono text-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none"
+        className="prose-serif-sm w-full rounded-lg border border-border bg-surface px-4 py-2.5 text-ink placeholder:text-muted focus:border-accent focus:outline-none"
       />
 
       <div>
@@ -456,9 +479,9 @@ function Form({
           maxLength={TEXT_MAX}
           defaultValue={a?.questions ?? ""}
           placeholder="What you mean to ask — one per line"
-          className="w-full rounded-lg border border-accent/30 bg-surface px-4 py-2.5 font-mono text-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none"
+          className="prose-serif-sm w-full rounded-lg border border-accent/30 bg-surface px-4 py-2.5 text-ink placeholder:text-muted focus:border-accent focus:outline-none"
         />
-        <p className="mt-1 font-mono text-[0.62rem] leading-relaxed text-muted">
+        <p className="mt-1 text-[0.62rem] leading-relaxed text-muted">
           Write them down now. Everybody forgets once they are in the room, and
           this is shown to you on the appointment the moment you open it.
         </p>

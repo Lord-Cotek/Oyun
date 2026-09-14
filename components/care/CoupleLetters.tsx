@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { FirstStep, FirstStepFocus } from "@/components/ui/FirstStep";
+import { DraftTextarea } from "@/components/ui/DraftTextarea";
 import { useFormStatus } from "react-dom";
 import {
   addCoupleLetter,
@@ -8,6 +10,7 @@ import {
 } from "@/app/journey/letter-actions";
 import { Reactions } from "@/components/Reactions";
 import { type CoupleLetter } from "@/lib/data";
+import { scrollToElement } from "@/lib/scroll";
 
 /**
  * The shared "to each other" letters between the mother and her husband — a
@@ -68,7 +71,7 @@ export function CoupleLetters({
     const el = document.getElementById(hash);
     if (el) {
       resolvedHash.current = hash;
-      el.scrollIntoView({ block: "center", behavior: "smooth" });
+      scrollToElement(el);
     } else if (more && !loading) {
       void loadEarlier();
     }
@@ -85,22 +88,30 @@ export function CoupleLetters({
         }}
         className="space-y-3"
       >
-        <textarea
+        <DraftTextarea
+          draftKey="letter:couple"
+          id="couple-letter-box"
           name="body"
           rows={3}
           required
           placeholder={placeholder}
-          className="w-full resize-none rounded-lg border border-border bg-bg px-3.5 py-2.5 font-mono text-sm leading-relaxed text-ink placeholder:text-muted focus:border-accent focus:outline-none"
+          className="w-full resize-none rounded-lg border border-border bg-bg px-3.5 py-2.5 prose-serif-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none"
         />
         <Submit />
       </form>
 
       <div className="mt-6 space-y-3 border-t border-border pt-5">
         {combined.length === 0 ? (
-          <p className="font-mono text-xs text-muted">
-            No letters between you yet. A first one can be a single line — a
-            thanks, a hope, a Scripture.
-          </p>
+          <FirstStep
+            action={
+              <FirstStepFocus htmlFor="couple-letter-box">
+                Thank them for one thing they did this week
+              </FirstStepFocus>
+            }
+          >
+            A single line is a letter. These stay between the two of you, and
+            the small specific ones are the ones worth having in five years.
+          </FirstStep>
         ) : (
           <>
             {combined.map((l) => {

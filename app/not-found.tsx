@@ -26,7 +26,7 @@ export default function NotFound() {
         <h1 className="font-serif text-3xl leading-snug text-ink">
           We couldn&rsquo;t find that page.
         </h1>
-        <p className="mx-auto mt-3 max-w-sm font-mono text-sm leading-relaxed text-muted">
+        <p className="mx-auto mt-3 max-w-sm prose-serif-sm text-muted">
           The link may be mistyped or the page may have moved. Let&rsquo;s get you
           back on the path.
         </p>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { mediaAlt } from "@/lib/alt";
 import { useFormStatus } from "react-dom";
 import { updateMilestone, deleteMilestone } from "@/app/care/actions";
 import { MilestoneFields, milestoneTitle } from "@/components/care/MilestoneFields";
@@ -30,7 +31,7 @@ export function MilestoneItem({
 
   if (editing) {
     return (
-      <li className="relative">
+      <li id={`milestone-${m.id}`} className="notif-target relative">
         <span className="absolute -left-[1.4rem] top-1.5 h-2 w-2 rounded-full bg-accent ring-4 ring-bg" />
         <form
           action={async (fd) => {
@@ -67,7 +68,7 @@ export function MilestoneItem({
   }
 
   return (
-    <li className="relative">
+    <li id={`milestone-${m.id}`} className="notif-target relative">
       <span className="absolute -left-[1.4rem] top-1.5 h-2 w-2 rounded-full bg-accent ring-4 ring-bg" />
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
@@ -80,7 +81,7 @@ export function MilestoneItem({
             )}
           </p>
           {m.note && (
-            <p className="mt-0.5 font-mono text-xs leading-relaxed text-muted">{m.note}</p>
+            <p className="mt-0.5 prose-serif-xs text-muted">{m.note}</p>
           )}
           <p className="mt-0.5 font-mono text-[0.68rem] uppercase tracking-widest text-muted">
             {occurred.toLocaleDateString(undefined, {
@@ -91,7 +92,10 @@ export function MilestoneItem({
           </p>
           <PhotoGallery
             urls={m.photoUrls}
-            alt={`${milestoneTitle(m.kind, m.title)} — photo`}
+            alt={mediaAlt({
+              said: m.note ?? milestoneTitle(m.kind, m.title),
+              kind: "milestone",
+            })}
           />
         </div>
         <div className="flex shrink-0 items-center gap-2">

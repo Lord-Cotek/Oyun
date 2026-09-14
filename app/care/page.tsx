@@ -120,7 +120,7 @@ export default async function CarePage() {
                 <p className="eyebrow mb-2 text-muted">
                   How your circle responded
                 </p>
-                <p className="mb-4 font-mono text-xs leading-relaxed text-muted">
+                <p className="mb-4 prose-serif-xs text-muted">
                   {reactionTotal > 0
                     ? "They saw how you're feeling and left you these — you're not carrying it alone."
                     : "When someone who's walking with you sees your latest check-in, their response will show here."}

@@ -18,6 +18,17 @@ model User {
   notifyByEmail Boolean   @default(true)
   weeklyDigest  Boolean   @default(true)
 
+  /// What may interrupt this person — see lib/notify-prefs.ts. Each governs a
+  /// group a family recognises rather than a notification type, and each
+  /// defaults to true so nobody who was already being told stops being told.
+  /// Switching one off silences the push and the email; the notification is
+  /// still written down and still appears in the bell.
+  notifyCircle Boolean @default(true)
+  notifyHer    Boolean @default(true)
+  notifyDates  Boolean @default(true)
+  notifyDiary  Boolean @default(true)
+  notifyHouse  Boolean @default(true)
+
   accounts          Account[]
   sessions          Session[]
   memberships       Membership[]

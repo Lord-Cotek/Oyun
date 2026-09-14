@@ -241,27 +241,49 @@ export default async function WorshipPage({
     <>
       <SiteHeader active="worship" />
       <main className="mx-auto max-w-shell px-6 py-10">
+        {/* Compact: this is the room a family opens every evening, and the full
+            band put the day's liturgy below the fold on a phone. */}
         <PageHero
+          compact
           eyebrow="Family worship"
           title="A daily altar in your home."
           lede="A few unhurried minutes, walked together — read a little, understand a little, pray a little, sing a little. Consistency matters more than length."
           aside={
-            <div className="flex flex-col items-center gap-2">
-              <ProgressRing
-                progress={Math.min(1, streak.last7 / 7)}
-                value={<AnimatedNumber value={streak.last7} />}
-                unit="of the last 7"
-                size={150}
-                stroke={11}
-              />
-              <p className="font-mono text-[0.68rem] uppercase tracking-widest text-muted">
-                {streak.last7 > 0 ? "days kept" : "begin again today"}
-              </p>
-            </div>
+            /* The record only appears once there is something to record. A
+               large "0 of the last 7" on the first screen is a reprimand, and
+               nothing else in this app reprimands anyone. Until a first day is
+               kept, the liturgy immediately below is the invitation. */
+            streak.last7 > 0 ? (
+              <div className="flex flex-col items-center gap-2">
+                <ProgressRing
+                  progress={Math.min(1, streak.last7 / 7)}
+                  value={<AnimatedNumber value={streak.last7} />}
+                  unit="of the last 7"
+                  size={124}
+                  stroke={10}
+                />
+                <p className="font-mono text-[0.68rem] uppercase tracking-widest text-muted">
+                  days kept
+                </p>
+              </div>
+            ) : undefined
           }
         />
 
+        {/* The day's actual action, first. Everything below it is for the
+            family that wants more than the evening rhythm. */}
         <section className="mt-8">
+          <div className="mb-5 flex items-center justify-between">
+            <Eyebrow>Today’s liturgy</Eyebrow>
+            <span className="font-mono text-[0.68rem] uppercase tracking-widest text-muted">
+              {stations.length} stations · Amen
+            </span>
+          </div>
+
+          <LiturgyRail stations={stations} doneToday={streak.doneToday} onSeal={markWorship} />
+        </section>
+
+        <section className="mt-10">
           <ScriptureJourney
             state={journeyState}
             chapter={chapterPayload}
@@ -313,17 +335,6 @@ export default async function WorshipPage({
             />
           </section>
         )}
-
-        <section className="mt-10">
-          <div className="mb-5 flex items-center justify-between">
-            <Eyebrow>Today’s liturgy</Eyebrow>
-            <span className="font-mono text-[0.68rem] uppercase tracking-widest text-muted">
-              {stations.length} stations · Amen
-            </span>
-          </div>
-
-          <LiturgyRail stations={stations} doneToday={streak.doneToday} onSeal={markWorship} />
-        </section>
 
         <div className="mt-10 border-t border-border pt-8">
           <Verse

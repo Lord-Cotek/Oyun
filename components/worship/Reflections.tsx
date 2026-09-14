@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useKeptDraft, RESTORED_NOTE } from "@/lib/use-draft";
 import Link from "next/link";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { ShareButton } from "@/components/ShareButton";
@@ -45,7 +46,15 @@ export function Reflections({
   }) => Promise<void>;
   onDelete: (id: string) => Promise<void>;
 }) {
-  const [body, setBody] = useState("");
+  // Not a <form>, so the hook goes in directly rather than through
+  // DraftTextarea. Keyed on the chapter: a reflection half-written on Psalm 23
+  // must not turn up under Psalm 24.
+  const {
+    value: body,
+    setValue: setBody,
+    clear: clearDraft,
+    restored,
+  } = useKeptDraft(`reflection:${bookSlug}:${chapter}`);
   const [isPrivate, setPrivate] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [pending, start] = useTransition();
@@ -55,7 +64,7 @@ export function Reflections({
     if (!text || pending) return;
     start(async () => {
       await onAdd({ bookSlug, chapter, body: text, isPrivate });
-      setBody("");
+      clearDraft();
       setPrivate(false);
     });
   }
@@ -76,7 +85,7 @@ export function Reflections({
           </Link>
         </div>
       </div>
-      <p className="mt-2 font-mono text-xs leading-relaxed text-muted">
+      <p className="mt-2 prose-serif-xs text-muted">
         What is God showing your family here? Notes are shared with your circle
         unless you keep them private.
       </p>
@@ -114,7 +123,7 @@ export function Reflections({
                     </span>
                   )}
                 </div>
-                <p className="whitespace-pre-line font-mono text-sm leading-relaxed text-ink/90">
+                <p className="whitespace-pre-line prose-serif-sm text-ink/90">
                   {n.body}
                 </p>
                 <div className="mt-2 flex items-center gap-3">
@@ -157,8 +166,13 @@ export function Reflections({
           onChange={(e) => setBody(e.target.value)}
           rows={3}
           placeholder="Write a reflection…"
-          className="w-full resize-y rounded-xl border border-border bg-bg px-4 py-3 font-mono text-sm leading-relaxed text-ink placeholder:text-muted focus:border-accent focus:outline-none"
+          className="w-full resize-y rounded-xl border border-border bg-bg px-4 py-3 prose-serif-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none"
         />
+        {restored && (
+          <p className="prose-serif-xs mt-2 text-muted" role="status">
+            {RESTORED_NOTE}
+          </p>
+        )}
         <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
           <label className="flex items-center gap-2 font-mono text-xs text-muted">
             <input
@@ -202,7 +216,7 @@ function EditRow({
         value={text}
         onChange={(e) => setText(e.target.value)}
         rows={3}
-        className="w-full resize-y rounded-lg border border-border bg-bg px-3 py-2 font-mono text-sm leading-relaxed text-ink focus:border-accent focus:outline-none"
+        className="w-full resize-y rounded-lg border border-border bg-bg px-3 py-2 prose-serif-sm text-ink focus:border-accent focus:outline-none"
       />
       <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
         <label className="flex items-center gap-2 font-mono text-xs text-muted">

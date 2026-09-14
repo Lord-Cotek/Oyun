@@ -8,6 +8,7 @@ import { Eyebrow } from "@/components/ui/Eyebrow";
 import { StatCard } from "@/components/ui/StatCard";
 import { PageHero } from "@/components/ui/PageHero";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { FirstStepFocus } from "@/components/ui/FirstStep";
 import { Icon } from "@/components/ui/Icon";
 import { PrayerForm } from "@/components/prayer/PrayerForm";
 import { PrayerCard, type PrayerItem } from "@/components/prayer/PrayerCard";
@@ -73,12 +74,17 @@ export default async function PrayerPage() {
                 icon={<Icon name="flame" size={40} />}
                 title="Nothing on the wall right now."
                 verse={{
-                  text: "Do not be anxious about anything, but in everything by prayer and petition, present your requests to God.",
+                  text: "In nothing be anxious, but in everything, by prayer and petition with thanksgiving, let your requests be made known to God.",
                   reference: "Philippians 4:6",
                 }}
+                action={
+                  <FirstStepFocus htmlFor="prayer-title">
+                    Ask them to pray about the next appointment
+                  </FirstStepFocus>
+                }
               >
-                When something is on your heart, ask — no need to carry it
-                silently. Your circle is ready to pray.
+                Nothing needs to be tidy before you ask. Name the thing that is
+                actually on your mind and your circle will carry it by name.
               </EmptyState>
             ) : (
               open.map((item) => <PrayerCard key={item.id} item={item} />)
