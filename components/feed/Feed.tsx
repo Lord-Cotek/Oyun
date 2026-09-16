@@ -12,6 +12,7 @@ import {
 import type { FeedPost, MediaItem } from "@/lib/feed-query";
 import { Lightbox } from "@/components/media/Lightbox";
 import { useAttempt } from "@/lib/use-attempt";
+import { shrinkImage } from "@/lib/shrink-image";
 import { mediaAlt } from "@/lib/alt";
 import { FirstStep, FirstStepFocus } from "@/components/ui/FirstStep";
 import { Avatar } from "@/components/ui/Avatar";
@@ -288,10 +289,14 @@ function Composer({
       try {
         urls = await Promise.all(
           picked.map(async (p) => {
-            const res = await upload(p.file.name, p.file, {
+            // Photographs shrink before they go; a video is left exactly as it
+            // is — re-encoding one in a browser is a different undertaking and
+            // this is not it.
+            const file = p.isVideo ? p.file : await shrinkImage(p.file);
+            const res = await upload(file.name, file, {
               access: "public",
               handleUploadUrl: "/api/blob/upload",
-              contentType: p.file.type || undefined,
+              contentType: file.type || undefined,
             });
             return res.url;
           }),

@@ -1,6 +1,7 @@
 import { upload } from "@vercel/blob/client";
 import { randomId } from "./rand";
 import { MAX_PHOTOS } from "./photos";
+import { shrinkImage } from "./shrink-image";
 
 /**
  * Photos straight from the browser to Blob storage.
@@ -64,9 +65,13 @@ export async function uploadToBlob(
     for (;;) {
       const i = next++;
       if (i >= real.length) return;
-      const f = real[i];
-      const ext = f.name.includes(".") ? f.name.slice(f.name.lastIndexOf(".")) : "";
+      const chosen = real[i];
       try {
+        // Shrink it here, inside the worker, so the big one is released as
+        // soon as its smaller copy is on the wire rather than sixty of them
+        // being held at once.
+        const f = await shrinkImage(chosen);
+        const ext = f.name.includes(".") ? f.name.slice(f.name.lastIndexOf(".")) : "";
         const res = await upload(`${folder}/${randomId()}${ext}`, f, {
           access: "public",
           handleUploadUrl: "/api/blob/upload",
@@ -75,7 +80,7 @@ export async function uploadToBlob(
         urls[i] = res.url;
       } catch {
         // One photograph, not the whole evening.
-        failed.push(f);
+        failed.push(chosen);
       }
       done += 1;
       opts.onProgress?.(done, real.length);

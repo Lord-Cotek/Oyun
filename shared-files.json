@@ -140,6 +140,7 @@
       ]
     },
     "lib/scroll.ts",
+    "lib/shrink-image.ts",
     "lib/share.ts",
     "lib/shell.ts",
     "lib/use-attempt.ts",
