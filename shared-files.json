@@ -110,6 +110,7 @@
     "lib/feed.ts",
     "lib/hymns.ts",
     "lib/password.ts",
+    "lib/photos.ts",
     "lib/prisma.ts",
     "lib/rand.ts",
     "lib/reaction-emojis.ts",

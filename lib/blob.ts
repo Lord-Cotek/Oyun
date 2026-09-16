@@ -31,12 +31,31 @@ export async function uploadImage(
 }
 
 /** Upload several images at once, keeping only the successful ones. Capped. */
+/**
+ * How many photographs one milestone will hold here.
+ *
+ * Lower than the sibling app's sixty, and for a reason worth writing down:
+ * these go up through a SERVER ACTION, so every byte crosses in the request
+ * body, and next.config caps that at 8 MB. Phone photographs are 3-5 MB each.
+ * Raising this number without first moving these uploads to the browser — the
+ * way the other app does it, straight to Blob storage — would just move the
+ * failure from "some were dropped" to "the whole thing was rejected".
+ */
+export const MAX_MILESTONE_PHOTOS = 8;
+
 export async function uploadImages(
   files: FormDataEntryValue[],
   folder: string,
-  max = 8,
+  max = MAX_MILESTONE_PHOTOS,
 ): Promise<string[]> {
-  const real = files.filter((f) => typeof f !== "string" && (f as File).size > 0).slice(0, max);
+  const real = files.filter((f) => typeof f !== "string" && (f as File).size > 0);
+  // Refused, not quietly trimmed. Keeping the first eight of twenty and saying
+  // nothing is how fifty-three photographs went missing in the sibling app.
+  if (real.length > max) {
+    throw new Error(
+      `That is ${real.length} photos, and ${max} is the most one of these can hold. Choose ${max} or fewer.`,
+    );
+  }
   const urls = await Promise.all(real.map((f) => uploadImage(f, folder)));
   return urls.filter((u): u is string => !!u);
 }

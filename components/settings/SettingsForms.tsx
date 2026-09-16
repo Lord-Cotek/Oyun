@@ -2,7 +2,7 @@
 
 import { useState, type ReactNode } from "react";
 import { CATEGORIES } from "@/lib/notify-prefs";
-import { uploadToBlob, filesFromForm } from "@/lib/blob-client";
+import { uploadOneToBlob, filesFromForm } from "@/lib/blob-client";
 import { Avatar } from "@/components/ui/Avatar";
 import {
   updateProfile,
@@ -90,7 +90,7 @@ export function ProfileForm({
     if (files.length) {
       setUploading(true);
       try {
-        const [url] = await uploadToBlob(files.slice(0, 1), "people");
+        const url = await uploadOneToBlob(files, "people");
         if (url) fd.set("photoUrl", url);
       } catch (err) {
         setUploading(false);
