@@ -29,8 +29,8 @@ export async function sendPhotos(
 
   onMessage({ ok: true, text: `Uploading ${files.length} photos…` });
   const { urls, failed } = await uploadToBlob(files, "milestones", {
-    onProgress: (done, total) =>
-      onMessage({ ok: true, text: `Uploading photo ${done} of ${total}…` }),
+    onProgress: (done, total, note) =>
+      onMessage({ ok: true, text: note ?? `Uploading photo ${done} of ${total}…` }),
   });
   for (const u of urls) fd.append("photoUrls", u);
   return failed.length;
