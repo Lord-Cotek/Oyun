@@ -7,6 +7,8 @@ export interface FeedComment {
   mine: boolean;
   body: string;
   when: string;
+  /** A reply can be answered the same way a post can. */
+  reactions: FeedReaction[];
 }
 
 export interface FeedReaction {
@@ -54,6 +56,21 @@ function relative(d: Date, now = new Date()): string {
 }
 
 /** Load the family feed for a journey, from one member's point of view. */
+/** Group reactions by kind, and note which are the viewer's own. */
+function tally(
+  rows: { kind: string; userId: string }[],
+  viewerId: string,
+): FeedReaction[] {
+  const byKind = new Map<string, FeedReaction>();
+  for (const r of rows) {
+    const cur = byKind.get(r.kind) ?? { kind: r.kind, count: 0, mine: false };
+    cur.count += 1;
+    if (r.userId === viewerId) cur.mine = true;
+    byKind.set(r.kind, cur);
+  }
+  return [...byKind.values()];
+}
+
 export async function loadFeed(
   journeyId: string,
   viewerId: string,
@@ -74,20 +91,16 @@ export async function loadFeed(
       reactions: { select: { kind: true, userId: true } },
       comments: {
         orderBy: { createdAt: "asc" },
-        include: { author: { select: { id: true, name: true } } },
+        include: {
+          author: { select: { id: true, name: true } },
+          reactions: { select: { kind: true, userId: true } },
+        },
       },
     },
   });
   const now = new Date();
 
   return posts.map((p) => {
-    const byKind = new Map<string, FeedReaction>();
-    for (const r of p.reactions) {
-      const cur = byKind.get(r.kind) ?? { kind: r.kind, count: 0, mine: false };
-      cur.count += 1;
-      if (r.userId === viewerId) cur.mine = true;
-      byKind.set(r.kind, cur);
-    }
     return {
       id: p.id,
       kind: p.kind,
@@ -103,13 +116,14 @@ export async function loadFeed(
       authorImage: p.author.image ?? null,
       mine: p.authorId === viewerId,
       when: relative(p.createdAt, now),
-      reactions: [...byKind.values()],
+      reactions: tally(p.reactions, viewerId),
       comments: p.comments.map((c) => ({
         id: c.id,
         author: c.author.name ?? "Someone",
         mine: c.authorId === viewerId,
         body: c.body,
         when: relative(c.createdAt, now),
+        reactions: tally(c.reactions, viewerId),
       })),
     };
   });

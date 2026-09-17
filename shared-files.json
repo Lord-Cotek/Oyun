@@ -71,6 +71,7 @@
       "code": true
     },
     "components/feed/Feed.tsx",
+    "components/feed/ReactionRow.tsx",
     {
       "path": "components/feed/YearStrip.tsx",
       "code": true

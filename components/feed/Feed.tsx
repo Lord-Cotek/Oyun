@@ -11,7 +11,7 @@ import {
 } from "@/lib/feed";
 import type { FeedPost, MediaItem } from "@/lib/feed-query";
 import { Lightbox } from "@/components/media/Lightbox";
-import { useAttempt } from "@/lib/use-attempt";
+import { ReactionRow } from "@/components/feed/ReactionRow";
 import { shrinkImage } from "@/lib/shrink-image";
 import { mediaAlt } from "@/lib/alt";
 import { FirstStep, FirstStepFocus } from "@/components/ui/FirstStep";
@@ -30,6 +30,10 @@ type EditFn = (input: {
 }) => Promise<void>;
 type CommentFn = (input: { postId: string; body: string }) => Promise<void>;
 type ReactFn = (input: { postId: string; kind: string }) => Promise<void>;
+type ReactCommentFn = (input: {
+  commentId: string;
+  kind: string;
+}) => Promise<void>;
 type IdFn = (id: string) => Promise<void>;
 
 interface Actions {
@@ -39,6 +43,7 @@ interface Actions {
   onComment: CommentFn;
   onDeleteComment: IdFn;
   onReact: ReactFn;
+  onReactToComment: ReactCommentFn;
 }
 
 export function Feed({
@@ -500,6 +505,7 @@ function PostItem({
   onComment,
   onDeleteComment,
   onReact,
+  onReactToComment,
 }: { post: FeedPost } & Actions) {
   const [pending, start] = useTransition();
   const [editing, setEditing] = useState(false);
@@ -509,35 +515,6 @@ function PostItem({
   const [comment, setComment] = useState("");
   const hasMedia = post.media.length > 0;
 
-  /**
-   * Reactions, shown before the server has been told.
-   *
-   * `mine` is what this viewer has changed since the page was rendered, and it
-   * is layered over `post.reactions` rather than replacing it: when the server
-   * revalidates and new props arrive, the two agree and nothing moves. Keeping
-   * it as a delta rather than a copy is what stops a reaction somebody else
-   * added in the meantime from being wiped by our own stale snapshot.
-   */
-  const [mine, setMine] = useState<Record<string, boolean>>({});
-  const { attempt, slipped } = useAttempt();
-
-  function reactionFor(kind: string) {
-    const server = post.reactions.find((x) => x.kind === kind);
-    const serverMine = server?.mine ?? false;
-    const on = mine[kind] ?? serverMine;
-    const count = (server?.count ?? 0) + (on === serverMine ? 0 : on ? 1 : -1);
-    return { on, count: Math.max(0, count) };
-  }
-
-  function react(kind: string) {
-    const { on } = reactionFor(kind);
-    attempt(
-      () => setMine((m) => ({ ...m, [kind]: !on })),
-      () => onReact({ postId: post.id, kind }),
-      () => setMine((m) => ({ ...m, [kind]: on })),
-      "That didn’t reach the family. Tap again?",
-    );
-  }
 
   return (
     <div className="surface-premium rounded-2xl border border-border p-5 md:p-6">
@@ -630,33 +607,10 @@ function PostItem({
 
       {/* reactions — they move the moment you tap, and move back if the
           server never heard about it */}
-      <div className="mt-4 flex flex-wrap items-center gap-1.5">
-        {REACTIONS.map((r) => {
-          const { on, count } = reactionFor(r.kind);
-          return (
-            <button
-              key={r.kind}
-              type="button"
-              onClick={() => react(r.kind)}
-              aria-pressed={on}
-              aria-label={r.label}
-              className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 font-mono text-xs transition-colors ${
-                on
-                  ? "border-accent/50 bg-accent/10 text-ink"
-                  : "border-border text-muted hover:border-accent/40"
-              }`}
-            >
-              <span aria-hidden>{r.glyph}</span>
-              {count > 0 && <span className="text-[0.68rem]">{count}</span>}
-            </button>
-          );
-        })}
-      </div>
-      {slipped && (
-        <p role="status" className="mt-2 font-mono text-[0.68rem] text-muted">
-          {slipped}
-        </p>
-      )}
+      <ReactionRow
+        reactions={post.reactions}
+        onToggle={(kind) => onReact({ postId: post.id, kind })}
+      />
 
       {/* footer actions */}
       <div className="mt-3 flex flex-wrap items-center gap-3 font-mono text-[0.68rem] text-muted">
@@ -694,20 +648,28 @@ function PostItem({
       {(showComments || post.comments.length > 0) && (
         <div className="mt-4 space-y-3 border-t border-border pt-4">
           {post.comments.map((c) => (
-            <div key={c.id} className="flex items-start justify-between gap-3">
-              <p className="font-mono text-xs leading-relaxed text-ink/85">
-                <span className="text-muted">{c.author}</span> · {c.body}
-              </p>
-              {c.mine && (
-                <button
-                  type="button"
-                  disabled={pending}
-                  onClick={() => start(() => onDeleteComment(c.id))}
-                  className="shrink-0 font-mono text-[0.62rem] text-muted underline underline-offset-4 hover:text-negative disabled:opacity-50"
-                >
-                  Remove
-                </button>
-              )}
+            <div key={c.id}>
+              <div className="flex items-start justify-between gap-3">
+                <p className="font-mono text-xs leading-relaxed text-ink/85">
+                  <span className="text-muted">{c.author}</span> · {c.body}
+                </p>
+                {c.mine && (
+                  <button
+                    type="button"
+                    disabled={pending}
+                    onClick={() => start(() => onDeleteComment(c.id))}
+                    className="shrink-0 font-mono text-[0.62rem] text-muted underline underline-offset-4 hover:text-negative disabled:opacity-50"
+                  >
+                    Remove
+                  </button>
+                )}
+              </div>
+              <ReactionRow
+                compact
+                label="them"
+                reactions={c.reactions}
+                onToggle={(kind) => onReactToComment({ commentId: c.id, kind })}
+              />
             </div>
           ))}
           <div className="flex items-center gap-2">

@@ -50,6 +50,7 @@ model User {
   posts             Post[]
   postComments      PostComment[]
   postReactions     PostReaction[]
+  commentReactions  PostCommentReaction[]
 
   createdAt DateTime @default(now())
 }
@@ -295,7 +296,28 @@ model PostComment {
   body      String
   createdAt DateTime @default(now())
 
+  reactions PostCommentReaction[]
+
   @@index([postId, createdAt])
+}
+
+/// A reaction to somebody's REPLY, not to the post itself.
+///
+/// Its own table rather than a nullable column on PostReaction: that one is
+/// unique on (postId, userId, kind) and making postId optional would weaken a
+/// constraint that is doing real work. Same shape, same `kind` strings from
+/// lib/feed.ts, so a reply answers the way a post does.
+model PostCommentReaction {
+  id        String      @id @default(cuid())
+  commentId String
+  comment   PostComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kind      String
+  createdAt DateTime    @default(now())
+
+  @@unique([commentId, userId, kind])
+  @@index([commentId])
 }
 
 model PostReaction {

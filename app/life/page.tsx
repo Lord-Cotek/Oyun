@@ -16,6 +16,7 @@ import {
   addComment,
   deleteComment,
   toggleReaction,
+  toggleCommentReaction,
 } from "./actions";
 
 export const metadata: Metadata = {
@@ -88,6 +89,7 @@ export default async function LifePage({
             onComment={addComment}
             onDeleteComment={deleteComment}
             onReact={toggleReaction}
+            onReactToComment={toggleCommentReaction}
             composerPlaceholder="Share something with your circle…"
           />
         </div>

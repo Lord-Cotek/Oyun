@@ -226,3 +226,60 @@ export async function toggleReaction(input: { postId: string; kind: string }) {
   }
   revalidatePath("/life");
 }
+
+/**
+ * React to somebody's REPLY, not to the post.
+ *
+ * Same kinds, same toggle, same silence when it is not allowed — a reply is
+ * answered the way a post is. The membership check goes through the comment's
+ * post, so a reply can only be reacted to by somebody who can see the post it
+ * belongs to.
+ */
+export async function toggleCommentReaction(input: {
+  commentId: string;
+  kind: string;
+}) {
+  const { userId, journeyId } = await member();
+  if (!isReactionKind(input.kind)) return;
+  const comment = await prisma.postComment.findFirst({
+    where: { id: input.commentId, post: { journeyId } },
+    select: { id: true, authorId: true },
+  });
+  if (!comment) return;
+
+  const existing = await prisma.postCommentReaction.findFirst({
+    where: { commentId: comment.id, userId, kind: input.kind },
+    select: { id: true },
+  });
+  if (existing) {
+    await prisma.postCommentReaction.delete({ where: { id: existing.id } });
+  } else {
+    try {
+      await prisma.postCommentReaction.create({
+        data: { commentId: comment.id, userId, kind: input.kind },
+      });
+    } catch {
+      // A double-tap race hit the unique index — it is already there.
+    }
+    if (comment.authorId !== userId) {
+      try {
+        const me = await prisma.user.findUnique({
+          where: { id: userId },
+          select: { name: true },
+        });
+        const who = me?.name?.trim() || "Someone";
+        const label =
+          REACTIONS.find((r) => r.kind === input.kind)?.label ?? "reacted";
+        await notify({
+          userId: comment.authorId,
+          type: "reaction",
+          title: `${who} reacted ${reactionGlyph(input.kind)} ${label.toLowerCase()} to your reply`,
+          href: "/life",
+        });
+      } catch {
+        // A missed notice must never fail the reaction.
+      }
+    }
+  }
+  revalidatePath("/life");
+}
