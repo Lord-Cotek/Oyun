@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { mediaAlt } from "@/lib/alt";
 import { useFormStatus } from "react-dom";
 import { updateMilestone, deleteMilestone } from "@/app/care/actions";
 import { MilestoneFields, milestoneTitle } from "@/components/care/MilestoneFields";
 import { PhotoGallery } from "@/components/ui/PhotoGallery";
+import { sendPhotos } from "@/components/care/send-photos";
 
 export type MilestoneData = {
   id: string;
@@ -26,6 +27,8 @@ export function MilestoneItem({
   children: { id: string; name: string }[];
 }) {
   const [editing, setEditing] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
+  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const occurred = new Date(m.occurredAt);
   const childId = m.childId ?? "";
 
@@ -34,9 +37,28 @@ export function MilestoneItem({
       <li id={`milestone-${m.id}`} className="notif-target relative">
         <span className="absolute -left-[1.4rem] top-1.5 h-2 w-2 rounded-full bg-accent ring-4 ring-bg" />
         <form
+          ref={formRef}
           action={async (fd) => {
-            await updateMilestone(fd);
-            setEditing(false);
+            setMsg(null);
+            try {
+              const lost = await sendPhotos(formRef.current, fd, setMsg);
+              await updateMilestone(fd);
+              if (lost === 0) {
+                setEditing(false);
+              } else {
+                // Kept open, because the ones that failed are still sitting in
+                // the picker and closing the form would take them with it.
+                setMsg({
+                  ok: false,
+                  text: `Saved, but ${lost} ${lost === 1 ? "photo" : "photos"} wouldn’t upload. Try ${lost === 1 ? "it" : "them"} again.`,
+                });
+              }
+            } catch (err) {
+              setMsg({
+                ok: false,
+                text: err instanceof Error ? err.message : "Couldn’t save.",
+              });
+            }
           }}
           className="space-y-3 rounded-lg border border-border bg-bg p-4"
         >
@@ -52,6 +74,14 @@ export function MilestoneItem({
               childId,
             }}
           />
+          {msg && (
+            <p
+              role="status"
+              className={`prose-serif-xs ${msg.ok ? "text-muted" : "text-negative"}`}
+            >
+              {msg.text}
+            </p>
+          )}
           <div className="flex items-center gap-3">
             <SaveBtn />
             <button

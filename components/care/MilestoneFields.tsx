@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { MAX_PHOTOS } from "@/lib/photos";
 
 export const MILESTONE_KINDS: { value: string; label: string }[] = [
   { value: "FIRST_KICK", label: "First kick" },
@@ -147,7 +148,8 @@ export function MilestoneFields({
           className="w-full font-mono text-xs text-muted file:mr-3 file:rounded-md file:border file:border-border file:bg-bg file:px-3 file:py-1.5 file:font-mono file:text-xs file:text-ink hover:file:border-accent hover:file:text-accent"
         />
         <span className="prose-serif-xs mt-1 block text-muted">
-          You can select several at once (up to 8).
+          You can select several at once — up to {MAX_PHOTOS}. They upload a few
+          at a time and are made smaller on the way, so a whole day out is fine.
         </span>
       </label>
     </div>

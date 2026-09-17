@@ -6,7 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { getActiveMembership } from "@/lib/data";
 import { notify } from "@/lib/notify";
-import { uploadImages } from "@/lib/blob";
+import { MAX_PHOTOS } from "@/lib/photos";
 import { Mood, MilestoneKind } from "@prisma/client";
 
 async function requireMother() {
@@ -90,6 +90,15 @@ async function resolveChildId(journeyId: string, raw: string): Promise<string | 
   return child?.id ?? null;
 }
 
+/** The URLs the browser uploaded, trusted only as far as their shape. */
+function photoUrlsFrom(formData: FormData): string[] {
+  return formData
+    .getAll("photoUrls")
+    .map((u) => String(u))
+    .filter((u) => u.startsWith("http"))
+    .slice(0, MAX_PHOTOS);
+}
+
 export async function addMilestone(formData: FormData) {
   const { journeyId } = await requireParent();
   const kindRaw = String(formData.get("kind") ?? "");
@@ -103,7 +112,11 @@ export async function addMilestone(formData: FormData) {
   const occurredAt = dateStr ? new Date(dateStr) : new Date();
   if (Number.isNaN(occurredAt.getTime())) throw new Error("That date isn't valid.");
 
-  const photoUrls = await uploadImages(formData.getAll("photo"), "milestones");
+  // The browser has already put these in Blob storage and is handing us the
+  // URLs. They used to arrive as FILES inside this server action's body, which
+  // next.config caps at 8 MB — three phone photographs and the whole request
+  // was rejected. See lib/photos.ts.
+  const photoUrls = photoUrlsFrom(formData);
   const childId = await resolveChildId(journeyId, String(formData.get("childId") ?? ""));
 
   await prisma.milestone.create({
@@ -136,8 +149,8 @@ export async function updateMilestone(formData: FormData) {
     formData.getAll("removePhoto").map((v) => String(v)),
   );
   const kept = (existing?.photoUrls ?? []).filter((u) => !removeUrls.has(u));
-  const added = await uploadImages(formData.getAll("photo"), "milestones");
-  const photoUrls = [...kept, ...added].slice(0, 8);
+  const added = photoUrlsFrom(formData);
+  const photoUrls = [...kept, ...added].slice(0, MAX_PHOTOS);
 
   await prisma.milestone.updateMany({
     where: { id, journeyId },

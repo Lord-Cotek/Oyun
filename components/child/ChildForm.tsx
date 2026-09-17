@@ -1,8 +1,9 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { addChild, updateChild } from "@/app/child/actions";
+import { filesFromForm, uploadOneToBlob } from "@/lib/blob-client";
 
 type Child = {
   id: string;
@@ -23,20 +24,41 @@ export function ChildForm({
   onDone?: () => void;
 }) {
   const formRef = useRef<HTMLFormElement>(null);
+  const [error, setError] = useState<string | null>(null);
   const editing = !!child;
 
   return (
     <form
       ref={formRef}
       action={async (fd) => {
-        if (editing) await updateChild(fd);
-        else await addChild(fd);
-        formRef.current?.reset();
-        onDone?.();
+        setError(null);
+        try {
+          // Straight to storage from here, shrunk on the way, so a five
+          // megabyte photograph never has to fit inside a server action.
+          const files = formRef.current
+            ? filesFromForm(formRef.current, "photo")
+            : [];
+          fd.delete("photo");
+          if (files.length) {
+            const url = await uploadOneToBlob(files, "children");
+            if (url) fd.set("photoUrl", url);
+          }
+          if (editing) await updateChild(fd);
+          else await addChild(fd);
+          formRef.current?.reset();
+          onDone?.();
+        } catch (err) {
+          setError(err instanceof Error ? err.message : "Couldn’t save.");
+        }
       }}
       className="space-y-3"
     >
       {editing && <input type="hidden" name="id" value={child.id} />}
+      {error && (
+        <p role="status" className="prose-serif-xs text-negative">
+          {error}
+        </p>
+      )}
       <div className="grid grid-cols-2 gap-3">
         <label className="block">
           <span className="eyebrow mb-1.5 block text-muted">Name</span>
