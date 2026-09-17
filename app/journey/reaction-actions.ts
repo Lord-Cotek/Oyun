@@ -11,11 +11,14 @@ const EMOJI_WORD: Record<string, string> = {
   "❤️": "a heart",
   "🙏": "a prayer",
   "🙌": "praise",
+  "😂": "laughter",
+  "🤗": "a hug",
   "🌱": "hope",
 };
 
 /**
- * Toggle the viewer's emoji reaction on an encouragement or a check-in.
+ * Toggle the viewer's emoji reaction on anything in the journey that carries
+ * one — an encouragement, a check-in, a letter, a prayer request.
  *
  * Returns whether it took. The screen has already moved by the time this is
  * called — see lib/use-attempt.ts — so a silent `return` would leave a
@@ -47,12 +50,19 @@ export async function toggleReaction(
   } else if (targetType === "LETTER") {
     const l = await prisma.letter.findUnique({
       where: { id: targetId },
-      select: { journeyId: true, authorId: true, toBaby: true },
+      select: { journeyId: true, authorId: true },
     });
-    // Only the shared "to each other" letters carry reactions.
-    if (!l || l.toBaby) return { ok: false };
+    if (!l) return { ok: false };
     journeyId = l.journeyId;
     authorId = l.authorId;
+  } else if (targetType === "PRAYER") {
+    const r = await prisma.prayerRequest.findUnique({
+      where: { id: targetId },
+      select: { journeyId: true, authorId: true },
+    });
+    if (!r) return { ok: false };
+    journeyId = r.journeyId;
+    authorId = r.authorId;
   } else {
     const c = await prisma.checkIn.findUnique({
       where: { id: targetId },
@@ -68,7 +78,18 @@ export async function toggleReaction(
     select: { role: true },
   });
   if (!member) return { ok: false };
-  // Letters between the couple are theirs alone — never an accountability partner.
+  /**
+   * Letters are the two of them — never an accountability partner or a friend.
+   * This is the same line /letters draws with `isHousehold`, kept here because
+   * a server action is reachable without the page that renders it.
+   *
+   * It used to draw a second line as well: letters `toBaby` were refused
+   * outright. But both of them see those letters, the page invites them to
+   * "write, read, and react", and BabyLetters has always rendered the row — so
+   * every heart put on a letter to the baby appeared, failed, rolled back, and
+   * said "That didn't reach them. Tap again?", which no amount of tapping could
+   * fix. Tested: it never once saved. The refusal was the bug, not the row.
+   */
   if (targetType === "LETTER" && member.role !== "MOTHER" && member.role !== "PARTNER") {
     return { ok: false };
   }
@@ -102,6 +123,13 @@ export async function toggleReaction(
         title: `${who} responded with ${word} ${emoji} to your letter.`,
         href: `${base}#letter-${targetId}`,
       });
+    } else if (targetType === "PRAYER" && authorId && authorId !== userId) {
+      await notify({
+        userId: authorId,
+        type: "prayer",
+        title: `${who} responded with ${word} ${emoji} to your prayer request.`,
+        href: `/prayer#prayer-${targetId}`,
+      });
     } else if (targetType === "ENCOURAGEMENT" && authorId && authorId !== userId) {
       await notify({
         userId: authorId,
@@ -127,5 +155,7 @@ export async function toggleReaction(
 
   revalidatePath("/journey");
   revalidatePath("/care");
+  revalidatePath("/letters");
+  revalidatePath("/prayer");
   return { ok: true };
 }

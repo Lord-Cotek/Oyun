@@ -3,6 +3,8 @@
 import { prayForRequest, markAnswered, deletePrayerRequest } from "@/app/prayer/actions";
 import { Card } from "@/components/ui/Card";
 import { HoldToPray } from "@/components/ui/HoldToPray";
+import { Reactions } from "@/components/Reactions";
+import { type ReactionData } from "@/lib/reaction-emojis";
 
 export type PrayerItem = {
   id: string;
@@ -15,6 +17,7 @@ export type PrayerItem = {
   prayerCount: number;
   didIPray: boolean;
   canManage: boolean;
+  reactions: ReactionData;
 };
 
 export function PrayerCard({ item }: { item: PrayerItem }) {
@@ -43,6 +46,13 @@ export function PrayerCard({ item }: { item: PrayerItem }) {
             {item.prayerCount > 0 && ` · ${item.prayerCount} praying`}
           </p>
         </div>
+      </div>
+
+      {/* Its own line, above the controls: this is a reply to what was
+          written, not another button to press. It stays on an answered
+          request too — a 🙌 on an answer is the point of keeping them. */}
+      <div className="mt-3">
+        <Reactions targetType="PRAYER" targetId={item.id} initial={item.reactions} />
       </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-3 border-t border-border pt-3">

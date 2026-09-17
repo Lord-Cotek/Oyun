@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { getActiveMembership, getPrayerRequests } from "@/lib/data";
+import { getReactionsFor } from "@/lib/reactions";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Card } from "@/components/ui/Card";
 import { Eyebrow } from "@/components/ui/Eyebrow";
@@ -29,6 +30,14 @@ export default async function PrayerPage() {
   const requests = await getPrayerRequests(active.journey.id, session.user.id);
   const isMother = active.role === "MOTHER";
 
+  // Praying for something and having a word about it are two different things.
+  // "Hold to pray" says I carried this; a reaction says I read it and I'm here.
+  const reactions = await getReactionsFor(
+    "PRAYER",
+    requests.map((r) => r.id),
+    session.user.id,
+  );
+
   const items: PrayerItem[] = requests.map((r) => ({
     id: r.id,
     title: r.title,
@@ -40,6 +49,7 @@ export default async function PrayerPage() {
     prayerCount: r.prayerCount,
     didIPray: r.didIPray,
     canManage: r.authorId === session.user.id || isMother,
+    reactions: reactions[r.id] ?? { counts: {}, mine: [] },
   }));
 
   const open = items.filter((i) => !i.answered);
