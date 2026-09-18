@@ -23,24 +23,9 @@ import {
   askCircleToPray,
 } from "@/app/appointments/actions";
 
-/** Mirrors AppointmentView in lib/appointments-db.ts, declared here so this
- *  client component never reaches into a module that opens the database. */
-type Appt = {
-  id: string;
-  kind: AppointmentKind;
-  title: string | null;
-  at: Date;
-  hasTime: boolean;
-  where: string | null;
-  who: string | null;
-  notes: string | null;
-  questions: string | null;
-  attendedAt: Date | null;
-  outcome: string | null;
-  cancelledAt: Date | null;
-  addedBy: string | null;
-  mine: boolean;
-};
+import { type Appt, dateValue, timeValue } from "@/components/appointments/shared";
+import { AppointmentForm } from "@/components/appointments/AppointmentForm";
+
 type Res = { ok: boolean; error?: string };
 
 const TONE: Record<string, string> = {
@@ -52,13 +37,6 @@ const TONE: Record<string, string> = {
   plum: "border-tone-plum/40 bg-tone-plum/[0.06] text-tone-plum",
 };
 
-/** yyyy-mm-dd / hh:mm from a stored instant, for putting back in the form. */
-function dateValue(d: Date): string {
-  return new Date(d).toISOString().slice(0, 10);
-}
-function timeValue(d: Date): string {
-  return new Date(d).toISOString().slice(11, 16);
-}
 
 export function AppointmentBook({
   upcoming,
@@ -88,7 +66,7 @@ export function AppointmentBook({
 
       <div>
         {adding ? (
-          <Form
+          <AppointmentForm
             seedKind={seedKind ?? undefined}
             onSubmit={(fd) => run(() => addAppointment(fd))}
             onCancel={() => {
@@ -175,7 +153,7 @@ function Row({
   if (editing) {
     return (
       <li id={`appt-${a.id}`} className="rounded-xl border border-border bg-bg p-4">
-        <Form
+        <AppointmentForm
           a={a}
           onSubmit={(fd) =>
             run(async () => {
@@ -355,153 +333,3 @@ function Row({
   );
 }
 
-function Form({
-  a,
-  seedKind,
-  onSubmit,
-  onCancel,
-  submitLabel,
-}: {
-  a?: Appt;
-  /** Chosen for her by the blank state, so only the date is left to fill in. */
-  seedKind?: AppointmentKind;
-  onSubmit: (fd: FormData) => void;
-  onCancel: () => void;
-  submitLabel: string;
-}) {
-  const [kind, setKind] = useState<AppointmentKind>(
-    a?.kind ?? seedKind ?? "ANTENATAL",
-  );
-
-  return (
-    <form action={onSubmit} className="space-y-3">
-      <fieldset>
-        <legend className="mb-2 font-mono text-[0.66rem] uppercase tracking-widest text-muted">
-          What kind
-        </legend>
-        <div className="flex flex-wrap gap-2">
-          {APPOINTMENT_KINDS.map((k) => (
-            <label
-              key={k}
-              className={`cursor-pointer rounded-lg border px-3 py-1.5 font-mono text-[0.68rem] transition-colors ${
-                kind === k
-                  ? "border-accent bg-accent/10 text-accent"
-                  : "border-border text-muted hover:text-ink"
-              }`}
-            >
-              <input
-                type="radio"
-                name="kind"
-                value={k}
-                checked={kind === k}
-                onChange={() => setKind(k)}
-                className="sr-only"
-              />
-              {kindVoice(k).label}
-            </label>
-          ))}
-        </div>
-        <p className="mt-2 font-mono text-[0.62rem] leading-relaxed text-muted">
-          {kindVoice(kind).hint}
-          {kindVoice(kind).weekAhead
-            ? " · you'll also be reminded a week ahead"
-            : ""}
-        </p>
-      </fieldset>
-
-      <div className="flex flex-wrap gap-3">
-        <label className="flex-1">
-          <span className="mb-1 block font-mono text-[0.66rem] uppercase tracking-widest text-muted">
-            Date
-          </span>
-          <input
-            type="date"
-            name="date"
-            required
-            defaultValue={a ? dateValue(a.at) : ""}
-            className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 font-mono text-sm text-ink focus:border-accent focus:outline-none"
-          />
-        </label>
-        <label className="flex-1">
-          <span className="mb-1 block font-mono text-[0.66rem] uppercase tracking-widest text-muted">
-            Time (if the letter says)
-          </span>
-          <input
-            type="time"
-            name="time"
-            defaultValue={a?.hasTime ? timeValue(a.at) : ""}
-            className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 font-mono text-sm text-ink focus:border-accent focus:outline-none"
-          />
-        </label>
-      </div>
-
-      <input
-        type="text"
-        name="title"
-        maxLength={TITLE_MAX}
-        defaultValue={a?.title ?? ""}
-        placeholder="A name of its own (optional) — “20-week anomaly scan”"
-        className="prose-serif-sm w-full rounded-lg border border-border bg-surface px-4 py-2.5 text-ink placeholder:text-muted focus:border-accent focus:outline-none"
-      />
-
-      <div className="flex flex-wrap gap-3">
-        <input
-          type="text"
-          name="where"
-          maxLength={200}
-          defaultValue={a?.where ?? ""}
-          placeholder="Where — hospital, clinic, ward"
-          className="prose-serif-sm min-w-0 flex-1 rounded-lg border border-border bg-surface px-4 py-2.5 text-ink placeholder:text-muted focus:border-accent focus:outline-none"
-        />
-        <input
-          type="text"
-          name="who"
-          maxLength={200}
-          defaultValue={a?.who ?? ""}
-          placeholder="Who you're seeing"
-          className="prose-serif-sm min-w-0 flex-1 rounded-lg border border-border bg-surface px-4 py-2.5 text-ink placeholder:text-muted focus:border-accent focus:outline-none"
-        />
-      </div>
-
-      <textarea
-        name="notes"
-        rows={2}
-        maxLength={TEXT_MAX}
-        defaultValue={a?.notes ?? ""}
-        placeholder="Anything to bring, or to remember (optional)"
-        className="prose-serif-sm w-full rounded-lg border border-border bg-surface px-4 py-2.5 text-ink placeholder:text-muted focus:border-accent focus:outline-none"
-      />
-
-      <div>
-        <textarea
-          name="questions"
-          rows={3}
-          maxLength={TEXT_MAX}
-          defaultValue={a?.questions ?? ""}
-          placeholder="What you mean to ask — one per line"
-          className="prose-serif-sm w-full rounded-lg border border-accent/30 bg-surface px-4 py-2.5 text-ink placeholder:text-muted focus:border-accent focus:outline-none"
-        />
-        <p className="mt-1 text-[0.62rem] leading-relaxed text-muted">
-          Write them down now. Everybody forgets once they are in the room, and
-          this is shown to you on the appointment the moment you open it.
-        </p>
-      </div>
-
-      <div className="flex flex-wrap gap-2">
-        <button
-          type="submit"
-          className="rounded-lg bg-accent px-4 py-2 font-mono text-xs font-medium text-on-accent hover:bg-accent-deep"
-        >
-          {submitLabel}
-        </button>
-        <button
-          type="button"
-          onClick={onCancel}
-          className="rounded-lg px-3 py-2 font-mono text-xs text-muted hover:text-ink"
-        >
-          Not now
-        </button>
-      </div>
-    </form>
-  );
-}

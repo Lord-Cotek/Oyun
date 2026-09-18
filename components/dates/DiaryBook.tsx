@@ -2,6 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { addEvent, editEvent, removeEvent } from "@/app/appointments/event-actions";
+import { addAppointment } from "@/app/appointments/actions";
+import { AppointmentForm } from "@/components/appointments/AppointmentForm";
 import { monthStart, ymd } from "@/lib/calendar";
 import { CalendarMonth, type Marked } from "@/components/dates/CalendarMonth";
 import { InvitePanel, type InviteRow } from "@/components/dates/InvitePanel";
@@ -113,8 +115,23 @@ function inviteSummary(i: InviteRow): string {
  * invitation. Nobody RSVPs to a growth scan.
  */
 export function DiaryBook({ rows: days, canEdit }: { rows: DayRow[]; canEdit: boolean }) {
-  const [adding, setAdding] = useState(false);
+  /**
+   * What the day panel is currently offering to add, if anything.
+   *
+   * ── Why this is a choice and not one button ──────────────────────────
+   * The calendar shows both kinds of day, and for a while tapping one only
+   * offered to add the social kind — so a woman tapping the 14th to write down
+   * her scan was shown "a class, a shower, people coming" and nothing else,
+   * with the appointment form sitting further down the page knowing nothing
+   * about the day she had just tapped. The page could see what she wanted and
+   * declined to help.
+   *
+   * Now the day asks which, and either answer opens the right form with that
+   * date already in it.
+   */
+  const [adding, setAdding] = useState<null | "event" | "appointment">(null);
   const [addDate, setAddDate] = useState<string | null>(null);
+  const [apptError, setApptError] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [invitingId, setInvitingId] = useState<string | null>(null);
   const [month, setMonth] = useState(() => monthStart(new Date()));
@@ -146,13 +163,13 @@ export function DiaryBook({ rows: days, canEdit }: { rows: DayRow[]; canEdit: bo
         month={month}
         onMonthChange={(next) => {
           setMonth(next);
-          setAdding(false);
+          setAdding(null);
         }}
         marks={marks}
         selected={picked}
         onSelect={(key) => {
           setPicked(key);
-          setAdding(false);
+          setAdding(null);
           setEditingId(null);
         }}
       />
@@ -195,155 +212,78 @@ export function DiaryBook({ rows: days, canEdit }: { rows: DayRow[]; canEdit: bo
           )}
 
           {canEdit && !adding && (
-            <button
-              type="button"
-              onClick={() => {
-                setAddDate(picked);
-                setAdding(true);
-                setEditingId(null);
-              }}
-              className="mt-3 font-mono text-[0.68rem] text-accent underline underline-offset-4"
-            >
-              + Put something on this day
-            </button>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setAddDate(picked);
+                  setAdding("appointment");
+                  setEditingId(null);
+                }}
+                className="rounded-lg border border-border px-3 py-2 font-mono text-[0.68rem] text-ink transition-colors hover:border-accent hover:text-accent"
+              >
+                + An appointment
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setAddDate(picked);
+                  setAdding("event");
+                  setEditingId(null);
+                }}
+                className="rounded-lg border border-border px-3 py-2 font-mono text-[0.68rem] text-ink transition-colors hover:border-accent hover:text-accent"
+              >
+                + A day of your own
+              </button>
+            </div>
+          )}
+
+          {canEdit && adding === "appointment" && (
+            <div className="mt-4 rounded-xl border border-accent/30 bg-accent/[0.05] p-4">
+              <p className="mb-3 font-mono text-[0.6rem] uppercase tracking-widest text-muted">
+                A scan, a check, a clinic
+              </p>
+              {apptError && (
+                <p className="mb-2 font-mono text-xs text-negative">{apptError}</p>
+              )}
+              <AppointmentForm
+                defaultDate={addDate}
+                onSubmit={async (fd) => {
+                  const res = await addAppointment(fd);
+                  if (res.ok) {
+                    setAdding(null);
+                    setApptError(null);
+                  } else {
+                    setApptError(res.error ?? "That didn't work.");
+                  }
+                }}
+                onCancel={() => {
+                  setAdding(null);
+                  setApptError(null);
+                }}
+                submitLabel="Keep this date"
+              />
+            </div>
+          )}
+
+          {canEdit && adding === "event" && (
+            <div className="mt-4 rounded-xl border border-accent/30 bg-accent/[0.05] p-4">
+              <p className="mb-3 font-mono text-[0.6rem] uppercase tracking-widest text-muted">
+                A class, a shower, people coming
+              </p>
+              <EventForm
+                onDone={() => setAdding(null)}
+                defaultDate={addDate}
+                submitLabel="Put it in the diary"
+              />
+            </div>
           )}
         </div>
-      )}
-
-      <div className="mt-10 flex items-center justify-between gap-4">
-        <h2 className="font-serif text-2xl text-ink">Days you have written down</h2>
-        {!adding && canEdit && (
-          <button
-            type="button"
-            onClick={() => {
-              setAddDate(null);
-              setAdding(true);
-              setEditingId(null);
-            }}
-            className="shrink-0 rounded-lg border border-border px-3 py-2 font-mono text-xs text-ink transition-colors hover:border-accent hover:text-accent"
-          >
-            Add a day
-          </button>
-        )}
-      </div>
-      <p className="prose-serif-xs mt-1.5 text-muted">
-        Classes, showers, friends coming round. Scans and checks are in the
-        appointment book below — they are on the calendar too, drawn hollow.
-      </p>
-
-      {adding && (
-        <div className="mt-5 rounded-xl border border-accent/30 bg-accent/[0.05] p-5">
-          <EventForm
-            onDone={() => setAdding(false)}
-            defaultDate={addDate}
-            submitLabel="Put it in the diary"
-          />
-        </div>
-      )}
-
-      {mine.length === 0 ? (
-        <p className="mt-5 prose-serif-sm text-muted">
-          Nothing yet. A class, a shower, a morning with the other mothers — put
-          it here and you can send a link to whoever you want at it.
-        </p>
-      ) : (
-        <ul className="mt-5 space-y-3">
-          {mine.map((d) => (
-            <li
-              key={d.key}
-              id={`day-${d.sourceId}`}
-              className="notif-target rounded-xl border border-border bg-bg/40 p-4"
-            >
-              {editingId === d.sourceId ? (
-                <EventForm
-                  day={d}
-                  onDone={() => setEditingId(null)}
-                  submitLabel="Save the change"
-                />
-              ) : (
-                <>
-                  <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-                    <p
-                      className={`font-mono text-xs ${d.daysAway <= 1 ? "text-accent" : "text-muted"}`}
-                    >
-                      {dayWords(d.daysAway)}
-                    </p>
-                    <p className="font-mono text-[0.66rem] text-muted">
-                      {longDate(d.atISO, d.hasTime, d.endsAtISO)}
-                    </p>
-                  </div>
-                  <p className="mt-1 font-serif text-xl leading-snug text-ink">
-                    {d.label}
-                  </p>
-                  {d.where && (
-                    <p className="mt-0.5 font-mono text-[0.7rem] text-muted">
-                      {d.where}
-                    </p>
-                  )}
-                  {d.note && (
-                    <p className="mt-2 whitespace-pre-wrap prose-serif-xs text-muted">
-                      {d.note}
-                    </p>
-                  )}
-
-                  {d.invite && !d.invite.revoked && (
-                    <p className="mt-1.5 font-mono text-[0.66rem] text-accent">
-                      {inviteSummary(d.invite)}
-                    </p>
-                  )}
-
-                  {canEdit && (
-                    <div className="mt-3 flex flex-wrap items-center gap-3">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setEditingId(d.sourceId);
-                          setAdding(false);
-                        }}
-                        className="font-mono text-[0.68rem] text-accent underline underline-offset-4"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setInvitingId(invitingId === d.sourceId ? null : d.sourceId)
-                        }
-                        aria-expanded={invitingId === d.sourceId}
-                        className="font-mono text-[0.68rem] text-accent underline underline-offset-4"
-                      >
-                        {d.invite ? "Invitation" : "Invite people"}
-                      </button>
-                      <form action={removeEvent}>
-                        <input type="hidden" name="id" value={d.sourceId} />
-                        <button
-                          type="submit"
-                          className="font-mono text-[0.68rem] text-muted underline underline-offset-4 hover:text-ink"
-                        >
-                          Remove
-                        </button>
-                      </form>
-                    </div>
-                  )}
-
-                  {invitingId === d.sourceId && canEdit && (
-                    <InvitePanel
-                      eventId={d.sourceId}
-                      title={d.label}
-                      when={whenWords(d.atISO, d.hasTime, d.endsAtISO)}
-                      where={d.where}
-                      invite={d.invite}
-                    />
-                  )}
-                </>
-              )}
-            </li>
-          ))}
-        </ul>
       )}
     </div>
   );
 }
+
 
 function EventForm({
   day,
@@ -481,5 +421,161 @@ function EventForm({
         </button>
       </div>
     </form>
+  );
+}
+
+/**
+ * The days she arranged herself, apart from the ones she was called to.
+ *
+ * On its own card, and named to match the button that makes one, because the
+ * two kinds of day really are different things and a page that mixed them into
+ * one list made people ask which was which. The calendar above still shows
+ * both — that is the whole point of a calendar — but here they are separated,
+ * and only these can carry an invitation.
+ */
+export function OwnDays({ days, canEdit }: { days: DayRow[]; canEdit: boolean }) {
+  const [adding, setAdding] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [invitingId, setInvitingId] = useState<string | null>(null);
+
+  const mine = useMemo(
+    () => days.filter((d) => d.source === "event" && d.daysAway >= 0),
+    [days],
+  );
+
+  return (
+    <div>
+      <div className="flex items-center justify-between gap-4">
+        <h2 className="font-serif text-2xl text-ink">Days of your own</h2>
+        {!adding && canEdit && (
+          <button
+            type="button"
+            onClick={() => {
+              setAdding(true);
+              setEditingId(null);
+            }}
+            className="shrink-0 rounded-lg border border-border px-3 py-2 font-mono text-xs text-ink transition-colors hover:border-accent hover:text-accent"
+          >
+            Add a day
+          </button>
+        )}
+      </div>
+      <p className="prose-serif-xs mt-1.5 text-muted">
+        A class, a shower, a morning with the other mothers — the days you
+        arrange rather than the ones you are called to. These are the ones you
+        can send a link to.
+      </p>
+
+      {adding && (
+        <div className="mt-5 rounded-xl border border-accent/30 bg-accent/[0.05] p-5">
+          <EventForm
+            onDone={() => setAdding(false)}
+            defaultDate={null}
+            submitLabel="Put it in the diary"
+          />
+        </div>
+      )}
+
+      {mine.length === 0 ? (
+        <p className="mt-5 prose-serif-sm text-muted">
+          Nothing yet. A class, a shower, a morning with the other mothers — put
+          it here and you can send a link to whoever you want at it.
+        </p>
+      ) : (
+        <ul className="mt-5 space-y-3">
+          {mine.map((d) => (
+            <li
+              key={d.key}
+              id={`day-${d.sourceId}`}
+              className="notif-target rounded-xl border border-border bg-bg/40 p-4"
+            >
+              {editingId === d.sourceId ? (
+                <EventForm
+                  day={d}
+                  onDone={() => setEditingId(null)}
+                  submitLabel="Save the change"
+                />
+              ) : (
+                <>
+                  <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+                    <p
+                      className={`font-mono text-xs ${d.daysAway <= 1 ? "text-accent" : "text-muted"}`}
+                    >
+                      {dayWords(d.daysAway)}
+                    </p>
+                    <p className="font-mono text-[0.66rem] text-muted">
+                      {longDate(d.atISO, d.hasTime, d.endsAtISO)}
+                    </p>
+                  </div>
+                  <p className="mt-1 font-serif text-xl leading-snug text-ink">
+                    {d.label}
+                  </p>
+                  {d.where && (
+                    <p className="mt-0.5 font-mono text-[0.7rem] text-muted">
+                      {d.where}
+                    </p>
+                  )}
+                  {d.note && (
+                    <p className="mt-2 whitespace-pre-wrap prose-serif-xs text-muted">
+                      {d.note}
+                    </p>
+                  )}
+
+                  {d.invite && !d.invite.revoked && (
+                    <p className="mt-1.5 font-mono text-[0.66rem] text-accent">
+                      {inviteSummary(d.invite)}
+                    </p>
+                  )}
+
+                  {canEdit && (
+                    <div className="mt-3 flex flex-wrap items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditingId(d.sourceId);
+                          setAdding(false);
+                        }}
+                        className="font-mono text-[0.68rem] text-accent underline underline-offset-4"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setInvitingId(invitingId === d.sourceId ? null : d.sourceId)
+                        }
+                        aria-expanded={invitingId === d.sourceId}
+                        className="font-mono text-[0.68rem] text-accent underline underline-offset-4"
+                      >
+                        {d.invite ? "Invitation" : "Invite people"}
+                      </button>
+                      <form action={removeEvent}>
+                        <input type="hidden" name="id" value={d.sourceId} />
+                        <button
+                          type="submit"
+                          className="font-mono text-[0.68rem] text-muted underline underline-offset-4 hover:text-ink"
+                        >
+                          Remove
+                        </button>
+                      </form>
+                    </div>
+                  )}
+
+                  {invitingId === d.sourceId && canEdit && (
+                    <InvitePanel
+                      eventId={d.sourceId}
+                      title={d.label}
+                      when={whenWords(d.atISO, d.hasTime, d.endsAtISO)}
+                      where={d.where}
+                      invite={d.invite}
+                    />
+                  )}
+                </>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   );
 }

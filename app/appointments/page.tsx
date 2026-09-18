@@ -11,7 +11,7 @@ import { PageHero } from "@/components/ui/PageHero";
 import { Card } from "@/components/ui/Card";
 import { Verse } from "@/components/ui/Verse";
 import { AppointmentBook } from "@/components/appointments/AppointmentBook";
-import { DiaryBook, type DayRow } from "@/components/dates/DiaryBook";
+import { DiaryBook, OwnDays, type DayRow } from "@/components/dates/DiaryBook";
 import { getDiary } from "@/lib/events-db";
 import { getHostInvitations, inviteUrl } from "@/lib/invitations-db";
 import { type InviteRow } from "@/components/dates/InvitePanel";
@@ -102,12 +102,27 @@ export default async function AppointmentsPage() {
           lede="Scans, checks and clinics — with the questions you mean to ask written down before you walk in. And the days you arrange yourself: a class, a shower, a morning with the other mothers, which you can send a link to. You will be reminded the day before, and on the morning itself when there is a time."
         />
 
+        {/* ── Three parts, in the order the questions get asked ──────────
+            The month first, because "what is that week like" is the question
+            a calendar exists to answer, and both kinds of day are on it.
+            Then the two kinds, each in its own place with its own name: the
+            ones she is called to, and the ones she arranges. Holding both in
+            one list was what made people ask which was which. */}
         <Card className="mt-8 p-8">
           <DiaryBook rows={rows} canEdit />
         </Card>
 
         <Card className="mt-6 p-8">
+          <h2 className="font-serif text-2xl text-ink">Appointments</h2>
+          <p className="prose-serif-xs mb-5 mt-1.5 text-muted">
+            Scans, checks, tests and clinics — the days somebody else set, with
+            the questions you mean to ask written down before you walk in.
+          </p>
           <AppointmentBook upcoming={upcoming} past={past} />
+        </Card>
+
+        <Card className="mt-6 p-8">
+          <OwnDays days={rows} canEdit />
         </Card>
 
         <div className="mt-6 rounded-2xl border border-border bg-surface/60 p-6">
