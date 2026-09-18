@@ -37,6 +37,7 @@ import { Reveal } from "@/components/ui/Reveal";
 import { CoverPicker } from "@/components/ui/CoverPicker";
 import { Arches, Rays } from "@/components/ui/Marks";
 import { JourneyProgress } from "@/components/JourneyProgress";
+import { WeekMark } from "@/components/journey/WeekMark";
 import { SupportActions } from "@/components/journey/SupportActions";
 import { NudgeList } from "@/components/journey/NudgeList";
 import { EncouragementBox } from "@/components/journey/EncouragementBox";
@@ -298,7 +299,19 @@ export default async function JourneyPage() {
               positioned one, so without it the hero's scrims paint over this
               card and slice it in half. */}
           <div className="relative z-10 -mt-9">
-            <div className="lift flex items-center gap-4 rounded-[1.4rem] bg-surface p-4">
+            {/* The week, drawn, above the words that say it. The band behind
+                this card keeps the family's own photograph — the mark lives
+                here so the two never fight over the same space. */}
+            <div className="lift overflow-hidden rounded-[1.4rem] bg-surface">
+              <WeekMark
+                stage={{
+                  born: position.born,
+                  week: position.week ?? 4,
+                  month: months,
+                }}
+                id="home"
+              />
+            <div className="flex items-center gap-4 p-4">
               <ProgressRing
                 progress={ringProgress}
                 value={position.born ? months : position.week ?? 0}
@@ -316,6 +329,7 @@ export default async function JourneyPage() {
                     : `${position.daysToGo} day${position.daysToGo === 1 ? "" : "s"} to go`}
                 </p>
               </div>
+            </div>
             </div>
           </div>
 
@@ -604,8 +618,18 @@ export default async function JourneyPage() {
           </div>
         </section>
 
-        <div className="mt-6">
-          <JourneyProgress progress={position.progress} label={stageLabel} />
+        <div className="mt-6 overflow-hidden rounded-2xl border border-border bg-surface">
+          <WeekMark
+            stage={{
+              born: position.born,
+              week: position.week ?? 4,
+              month: position.month ?? 0,
+            }}
+            id="partner"
+          />
+          <div className="p-5">
+            <JourneyProgress progress={position.progress} label={stageLabel} />
+          </div>
         </div>
 
         {/* The same book she keeps. He is not a visitor to these dates. */}
