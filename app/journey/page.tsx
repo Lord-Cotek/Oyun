@@ -39,6 +39,8 @@ import { Arches, Rays } from "@/components/ui/Marks";
 import { JourneyProgress } from "@/components/JourneyProgress";
 import { WeekMark } from "@/components/journey/WeekMark";
 import { babyWords } from "@/lib/babies";
+import { stageDiff } from "@/lib/stage-diff";
+import { WhatsNew } from "@/components/journey/WhatsNew";
 import { SupportActions } from "@/components/journey/SupportActions";
 import { NudgeList } from "@/components/journey/NudgeList";
 import { EncouragementBox } from "@/components/journey/EncouragementBox";
@@ -343,7 +345,17 @@ export default async function JourneyPage() {
           </div>
 
           <div className="mt-6">
-            <JourneyProgress progress={position.progress} label={stageLabel} />
+            <JourneyProgress
+              progress={position.progress}
+              label={stageLabel}
+              href="/journey/weeks"
+            />
+          </div>
+
+          {/* Where she is, the card above already says. This says what moved
+              since a month ago, which is the thing she would tell somebody. */}
+          <div className="mt-6">
+            <WhatsNew diff={stageDiff(position)} bw={bw} />
           </div>
 
           {/* Colorful launcher — the journey's app grid */}
@@ -638,8 +650,17 @@ export default async function JourneyPage() {
             id="partner"
           />
           <div className="p-5">
-            <JourneyProgress progress={position.progress} label={stageLabel} />
+            <JourneyProgress
+              progress={position.progress}
+              label={stageLabel}
+              href="/journey/weeks"
+            />
           </div>
+        </div>
+
+        {/* He gets the same answer she does — he is carrying this too. */}
+        <div className="mt-4">
+          <WhatsNew diff={stageDiff(position)} bw={bw} />
         </div>
 
         {/* The same book she keeps. He is not a visitor to these dates. */}

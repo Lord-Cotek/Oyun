@@ -20,8 +20,16 @@
  *     already carry that rhythm and two ring systems fought each other.
  *
  *   THE FORM — one growing shape at the centre, with the shape of a month
- *     ago behind it as a dashed hairline, so the growth is visible rather
- *     than asserted. A week of growth is a hairline on top of a hairline.
+ *     ago drawn over it as a dashed hairline, so the growth is visible
+ *     rather than asserted. A week of growth is a hairline on a hairline,
+ *     which is why the comparison is four weeks and not one.
+ *
+ *     While carrying, that shape is the curl from inside the Oyun mark —
+ *     a seed and a child drawn up, the same thing read two ways — opening
+ *     a little further every week. Once the child has arrived it becomes a
+ *     shoot out of the same ground, taller and leafier every month, because
+ *     carrying a womb shape through to two years old would say the opposite
+ *     of what those months are.
  *
  * ── Why nothing here is a baby ───────────────────────────────────────────
  * Every other pregnancy app draws a fetus, and each one is either a medical
@@ -98,12 +106,46 @@ export interface MarkForm {
   cy: number;
   /** This week's shape. */
   d: string;
-  /** A month ago, dashed, so the growth is the picture. */
+  /**
+   * A month ago, dashed, so the growth is the picture. Empty at thumbnail
+   * detail — see `MarkDetail`.
+   */
   ghost: string;
-  /** A hairline inside the edge, to stop the fill reading as a sticker. */
+  /**
+   * A hairline inside the edge, to stop the fill reading as a sticker. Empty
+   * at thumbnail detail.
+   */
   inner: string;
   ribs: string[];
 }
+
+/**
+ * How much of the picture to draw.
+ *
+ * `full` is the card at the top of the home screen: one mark, large, and worth
+ * every path in it.
+ *
+ * `thumb` is for the wall of weeks, where thirty of these are on one screen at
+ * once and thirty full marks would be most of a megabyte. Three things give
+ * almost all of it back, and each is a thing a thumbnail does not need:
+ *
+ *   — The threads are sampled every fourteen units instead of every six.
+ *     They are about 95% of the markup. Twenty was tried first and was
+ *     cheaper still, but on an 80px tile the straight runs between samples
+ *     became visible and the weave started to look faceted, like a mistake
+ *     rather than a texture. Fourteen is the coarsest that still reads as
+ *     cloth.
+ *   — A third as many threads, because at that size they read as texture
+ *     rather than as a count of anything.
+ *   — No ghost, no ribs, no inner hairline. The ghost exists to show growth
+ *     against a month ago; on a wall the month ago is the tile four along, so
+ *     drawing it inside each one is saying the same thing twice and muddying
+ *     a small shape to do it.
+ *
+ * The clearing, the halo and the form are untouched, so a thumbnail is the
+ * same picture at a glance — which is the only claim a thumbnail has to make.
+ */
+export type MarkDetail = "full" | "thumb";
 
 /**
  * A small, stable random source.
@@ -156,40 +198,147 @@ function clearing(p: number, mp: number, w: number, h: number) {
   };
 }
 
-/** One growing form. Irregular on purpose: nothing in a womb is a circle. */
-function pod(seed: number, size: number): string {
+type Pt = [number, number];
+
+/**
+ * The form, in the logo's own coordinates.
+ *
+ * ── Why these numbers and not a circle ───────────────────────────────────
+ * The amber shape inside the Oyun mark is a curl that reads two ways at
+ * once: a seed, and a child drawn up with their back round and their head
+ * tucked. That double reading is the whole idea of the app, and it was
+ * already sitting in the logo — so the picture on the home screen draws the
+ * same shape rather than an oval that means nothing in particular.
+ *
+ * `CURL` is lifted point for point from app/icon.tsx. If the mark is ever
+ * redrawn, these numbers come from there and nowhere else.
+ *
+ * `SEED` is the same curl wound tighter: the sweep pulled in, the tail
+ * tucked further towards the middle. Early weeks are drawn at `SEED`, the
+ * last weeks at `CURL`, and every week between is the two interpolated —
+ * which is why they share a structure exactly, four cubic segments and
+ * thirteen points, and must keep sharing it. Interpolating a shape against
+ * a shape of a different shape is not defined.
+ */
+const SEED: Pt[] = [
+  [0, -20],
+  [18, -19], [24, 2], [15, 21],
+  [9, 32], [-7, 34], [-15, 25],
+  [-22, 17], [-14, 2], [-2, 5],
+  [4, 7], [3, -8], [0, -20],
+];
+const CURL: Pt[] = [
+  [-3, -20],
+  [22, -18], [30, 8], [18, 28],
+  [11, 40], [-7, 43], [-17, 33],
+  [-26, 24], [-22, 10], [-10, 10],
+  [-3, 10], [-1, -4], [-3, -20],
+];
+/** The bounding box of those two, so both normalise to the same frame. */
+const FORM_CX = 2;
+const FORM_CY = 11.5;
+const FORM_R = 31.5;
+
+/**
+ * One growing form: the curl, at `open` (0 = seed, 1 = the logo's curl).
+ *
+ * The seeded wobble is small on purpose — enough that no two weeks are quite
+ * the same shape, not so much that the shape stops being the logo's.
+ */
+function curl(seed: number, size: number, open: number): string {
   const r = rng(seed);
-  const N = 40;
-  const pts: [number, number][] = [];
-  for (let i = 0; i < N; i++) {
-    const a = (i / N) * Math.PI * 2;
-    // Fuller at the base than the top, and a small seeded wobble so no two
-    // weeks are the same shape.
-    const stretch = 1 + 0.2 * Math.sin(a - Math.PI / 2);
-    const wob = 1 + (r() - 0.5) * 0.035;
-    const rad = size * stretch * wob;
-    pts.push([Math.cos(a) * rad, Math.sin(a) * rad * 1.1]);
-  }
+  const k = clamp(open, 0, 1);
+  const pts = SEED.map((s, i) => {
+    const c = CURL[i];
+    const wob = 1 + (r() - 0.5) * 0.05;
+    return [
+      ((s[0] + (c[0] - s[0]) * k - FORM_CX) / FORM_R) * size * 1.05 * wob,
+      ((s[1] + (c[1] - s[1]) * k - FORM_CY) / FORM_R) * size * 1.05 * wob,
+    ] as Pt;
+  });
   let d = `M${r1(pts[0][0])} ${r1(pts[0][1])}`;
-  for (let i = 1; i <= N; i++) {
-    const a = pts[i % N];
-    const b = pts[(i + 1) % N];
-    d += ` Q${r1(a[0])} ${r1(a[1])} ${r1((a[0] + b[0]) / 2)} ${r1((a[1] + b[1]) / 2)}`;
+  for (let i = 1; i < pts.length; i += 3) {
+    const [a, b, e] = [pts[i], pts[i + 1], pts[i + 2]];
+    d += ` C${r1(a[0])} ${r1(a[1])} ${r1(b[0])} ${r1(b[1])} ${r1(e[0])} ${r1(e[1])}`;
   }
   return `${d}Z`;
+}
+
+/**
+ * Once they have arrived: a sprout out of the same ground.
+ *
+ * The curl is a thing held; a child in the world is a thing growing, and
+ * carrying the womb shape through to two years old would say the opposite of
+ * what those months are. So at birth the form becomes a shoot rising out of
+ * the weave — one stem and a single pair of leaves in the newborn month,
+ * taller and leafier every month after, which is the only claim this picture
+ * needs to make about a toddler.
+ *
+ * Returned as one filled path (stem and leaves are separate subpaths of it)
+ * so the renderer draws a sprout exactly the way it draws a curl.
+ */
+function sprout(seed: number, size: number, grown: number): {
+  d: string;
+  veins: string[];
+} {
+  const r = rng(seed);
+  const g = clamp(grown, 0, 1);
+  const base = size * 1.0;
+  const height = size * (1.15 + g * 0.95);
+  const lean = (r() - 0.5) * size * 0.22;
+  const tipX = lean;
+  const tipY = base - height;
+
+  // A stem with a little thickness at the foot, tapering to nothing.
+  const foot = size * 0.075;
+  const midX = lean * 0.35;
+  const midY = base - height * 0.5;
+  let d =
+    `M${r1(-foot)} ${r1(base)}` +
+    ` Q${r1(midX - foot * 0.5)} ${r1(midY)} ${r1(tipX)} ${r1(tipY)}` +
+    ` Q${r1(midX + foot * 0.5)} ${r1(midY)} ${r1(foot)} ${r1(base)}Z`;
+
+  const veins: string[] = [];
+  const pairs = 1 + Math.round(g * 3);
+  for (let i = 0; i < pairs; i++) {
+    // Up the stem, alternating sides, shorter the higher they sit.
+    const at = 0.34 + (i / Math.max(1, pairs)) * 0.5;
+    const sx = lean * at * 0.35;
+    const sy = base - height * at;
+    const side = i % 2 === 0 ? 1 : -1;
+    const len = size * (0.62 - i * 0.09) * (0.75 + g * 0.35);
+    const rise = len * 0.45;
+    const tx = sx + side * len;
+    const ty = sy - rise;
+    const bulge = len * 0.36;
+    // A leaf as two arcs between the stem and the tip, bowed either way.
+    d +=
+      ` M${r1(sx)} ${r1(sy)}` +
+      ` Q${r1(sx + side * len * 0.45)} ${r1(sy - rise - bulge)} ${r1(tx)} ${r1(ty)}` +
+      ` Q${r1(sx + side * len * 0.55)} ${r1(sy - rise + bulge * 0.35)} ${r1(sx)} ${r1(sy)}Z`;
+    veins.push(`M${r1(sx)} ${r1(sy)} Q${r1(sx + side * len * 0.5)} ${r1(sy - rise * 0.8)} ${r1(tx)} ${r1(ty)}`);
+  }
+
+  return { d, veins };
 }
 
 export function weekMark(
   stage: MarkStage,
   width = 366,
   height = 128,
+  detail: MarkDetail = "full",
 ): WeekMark {
+  const thumb = detail === "thumb";
   const { p, mp, key } = progress(stage);
   const c = clearing(p, mp, width, height);
 
   // ── The ground ──────────────────────────────────────────────────────────
   const tr = rng(1000 + key * 977);
-  const threadCount = Math.round(8 + p * 30 + mp * 8);
+  const full = Math.round(8 + p * 30 + mp * 8);
+  // Halved for a thumbnail, but never below four: two threads is a diagram,
+  // not a ground.
+  const threadCount = thumb ? Math.max(4, Math.round(full / 3)) : full;
+  const step = thumb ? 14 : 6;
   const threads: MarkThread[] = [];
   for (let i = 0; i < threadCount; i++) {
     const baseY =
@@ -200,7 +349,7 @@ export function weekMark(
     const wave = width * 0.35 + tr() * width * 0.55;
     const phase = tr() * Math.PI * 2;
     let d = "";
-    for (let x = -12; x <= width + 12; x += 6) {
+    for (let x = -12; x <= width + 12; x += step) {
       let y = baseY + Math.sin((x / wave) * Math.PI * 2 + phase) * amp;
       const dx = (x - c.cx) / c.rx;
       const dy = (y - c.cy) / c.ry;
@@ -230,7 +379,9 @@ export function weekMark(
   const lr = rng(2000 + key * 613);
   const rays: MarkRay[] = [];
   // The senses wake around the middle of the journey, and the rays with them.
-  const rayCount = stage.born || stage.week >= 16 ? Math.round(5 + p * 11) : 0;
+  const rayFull = stage.born || stage.week >= 16 ? Math.round(5 + p * 11) : 0;
+  // Sixteen hairlines around a 96px tile is static, not light.
+  const rayCount = thumb ? Math.round(rayFull / 2) : rayFull;
   for (let i = 0; i < rayCount; i++) {
     const a = (i / rayCount) * Math.PI * 2 + lr() * 0.3;
     const near = 1.05 + lr() * 0.1;
@@ -261,13 +412,15 @@ export function weekMark(
   const backC = clearing(backP, backMp, width, height);
   const backSize = Math.min(backC.ry, backC.rx) * (0.44 + backP * 0.2) * shrink;
 
-  const ribCount = Math.round(p * 5);
-  const ribs: string[] = [];
-  for (let i = 1; i <= ribCount; i++) {
-    const x = (i / (ribCount + 1) - 0.5) * 2 * size * 0.8;
-    const h = Math.sqrt(Math.max(0, 1 - (x / (size * 1.02)) ** 2)) * size;
-    ribs.push(`M${r1(x)} ${r1(-h)} Q${r1(x * 1.12)} 0 ${r1(x)} ${r1(h)}`);
-  }
+  /**
+   * How far from seed to curl, and from shoot to plant.
+   *
+   * While carrying, the curl opens across the forty weeks. Once born, the
+   * curl is gone entirely and `mp` drives the sprout instead — which is why
+   * `open` runs on `p` and the sprout runs on `mp`, and neither reads the
+   * other's number.
+   */
+  const open = p;
 
   const fr = rng(4000 + key * 131 + babies * 7);
   const forms: MarkForm[] = [];
@@ -276,13 +429,43 @@ export function weekMark(
   const spread = babies === 1 ? 0 : size * (babies === 2 ? 1.02 : 1.18);
   for (let i = 0; i < babies; i++) {
     const at = babies === 1 ? 0 : i - (babies - 1) / 2;
+    // A seed per baby, so no two of them are the same shape.
+    const seed = 3000 + key * 31 + i * 617;
+    const backSeed = 3000 + back * 31 + i * 617;
+
+    let d: string;
+    let ghost: string;
+    let inner: string;
+    let ribs: string[];
+
+    if (stage.born) {
+      const now = sprout(seed, size, mp);
+      d = now.d;
+      // A month ago it was this tall — the same claim the curl's ghost makes.
+      // Not in the newborn month, where "a month ago" is before the birth and
+      // the dashed shape would land almost exactly on this one.
+      ghost = thumb || mp <= 0 ? "" : sprout(backSeed, backSize, backMp).d;
+      // A shoot has veins, not an inset outline — an outline just inside a
+      // stem two units wide is a smudge.
+      inner = "";
+      ribs = thumb ? [] : now.veins;
+    } else {
+      d = curl(seed, size, open);
+      ghost = thumb ? "" : curl(backSeed, backSize, backP);
+      inner = thumb ? "" : curl(seed, size * 0.94, open);
+      // The curl's own line, drawn once more further in, so the later weeks
+      // read as a shape with a turn inside it rather than a flat cut-out.
+      // One line, not a set: three concentric curls stop looking like a child
+      // curled up and start looking like a shell.
+      ribs = thumb || p < 0.4 ? [] : [curl(seed, size * 0.55, open)];
+    }
+
     forms.push({
       cx: r1(c.cx + at * spread),
       cy: r1(c.cy + (babies === 1 ? 0 : (fr() - 0.5) * size * 0.4)),
-      // A seed per baby, so no two of them are the same shape.
-      d: pod(3000 + key * 31 + i * 617, size),
-      ghost: pod(3000 + back * 31 + i * 617, backSize),
-      inner: pod(3000 + key * 31 + i * 617, size * 0.97),
+      d,
+      ghost,
+      inner,
       ribs,
     });
   }
