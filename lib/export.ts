@@ -24,6 +24,7 @@
 import { BOOKS } from "@/lib/bible";
 import { prisma } from "@/lib/prisma";
 import { isHousehold } from "@/lib/roles";
+import { postScope } from "@/lib/post-visibility";
 import { makeZip, type ZipEntry } from "@/lib/zip";
 
 /* ── gathering ───────────────────────────────────────────────────────────── */
@@ -102,7 +103,9 @@ async function gather({ userId, journeyId, role }: ExportScope) {
       orderBy: { createdAt: "asc" },
     }),
     prisma.post.findMany({
-      where: j,
+      // The diary somebody carries away is the diary they were shown. A post
+      // kept to the family does not travel out in a supporter's zip.
+      where: { ...j, ...postScope(role) },
       select: {
         kind: true,
         body: true,

@@ -91,7 +91,7 @@ export default async function JourneyPage() {
   const [familyPosts, memories, upcoming, nextAppointments, worship] =
     await Promise.all([
       // The family feed's newest few, surfaced on the home page.
-      loadFeed(journey.id, session.user.id, 3),
+      loadFeed(journey.id, session.user.id, role, 3),
       // Keepsakes from earlier years falling on today's date (usually empty).
       getOnThisDay(journey.id),
       // A gentle look-ahead — due date, next month, and (household only) the
@@ -140,10 +140,16 @@ export default async function JourneyPage() {
     familyPosts.flatMap((p) => p.media).find((m) => m.type === "image")?.url ??
     null;
   const heroPhoto = journey.coverUrl ?? autoPhoto;
-  /** What the picker offers — the photographs already on this journey. */
+  /**
+   * What the picker offers — the photographs already on this journey, minus
+   * the family-only ones. The cover is the first thing the circle sees when
+   * they open this journey, so a photograph deliberately kept from them has
+   * no business becoming it.
+   */
   const coverChoices = Array.from(
     new Set(
       familyPosts
+        .filter((p) => !p.familyOnly)
         .flatMap((p) => p.media)
         .filter((m) => m.type === "image")
         .map((m) => m.url),

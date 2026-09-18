@@ -280,17 +280,27 @@ model Journey {
 /// The family feed — an update, a praise, a prayer, or a milestone that the
 /// circle (mother, partner, and supporters) shares and carries together.
 model Post {
-  id        String    @id @default(cuid())
-  journeyId String
-  journey   Journey   @relation(fields: [journeyId], references: [id], onDelete: Cascade)
-  authorId  String
-  author    User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  kind      String    @default("UPDATE") // UPDATE | PRAISE | PRAYER | MILESTONE
-  body      String
-  imageUrl  String? // legacy single image; new posts use mediaUrls
-  mediaUrls String[]  @default([]) // images and videos, in order
-  createdAt DateTime  @default(now())
-  editedAt  DateTime?
+  id         String    @id @default(cuid())
+  journeyId  String
+  journey    Journey   @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  authorId   String
+  author     User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  kind       String    @default("UPDATE") // UPDATE | PRAISE | PRAYER | MILESTONE
+  body       String
+  imageUrl   String? // legacy single image; new posts use mediaUrls
+  mediaUrls  String[]  @default([]) // images and videos, in order
+  /// Kept to the family: the mother, the one beside her, and the relatives on
+  /// this journey. An accountability partner or a friend in the circle never
+  /// sees it, anywhere — not in the diary, not in search, not in the export,
+  /// and not as a notification.
+  ///
+  /// False by default, which is exactly what every post written before this
+  /// existed was. Nothing a family has already shared changes audience
+  /// underneath them. Who counts as family is decided in one place,
+  /// lib/post-visibility.ts, and every query that reads a post asks it.
+  familyOnly Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+  editedAt   DateTime?
 
   comments  PostComment[]
   reactions PostReaction[]

@@ -18,12 +18,18 @@ import { mediaAlt } from "@/lib/alt";
 import { FirstStep, FirstStepFocus } from "@/components/ui/FirstStep";
 import { Avatar } from "@/components/ui/Avatar";
 import { isIosNativeShell } from "@/lib/shell";
+import { FAMILY_ONLY } from "@/lib/post-visibility";
 
 type CreateFn = (input: {
   kind: string;
   body: string;
   mediaUrls?: string[];
+  familyOnly?: boolean;
 }) => Promise<void>;
+type AudienceFn = (input: {
+  id: string;
+  familyOnly: boolean;
+}) => Promise<{ ok: boolean }>;
 type EditFn = (input: {
   id: string;
   body: string;
@@ -45,10 +51,13 @@ interface Actions {
   onDeleteComment: IdFn;
   onReact: ReactFn;
   onReactToComment: ReactCommentFn;
+  /** Change who an existing post is for. See lib/post-visibility.ts. */
+  onSetAudience: AudienceFn;
 }
 
 export function Feed({
   posts,
+  canKeepToFamily,
   composerPlaceholder = "Share something with the family…",
   // A blank diary is the first thing a new house sees, so it gets one
   // particular thing to write rather than four categories to choose between.
@@ -57,13 +66,23 @@ export function Feed({
   ...actions
 }: {
   posts: FeedPost[];
+  /**
+   * Whether this viewer may keep a post to the family. Required rather than
+   * defaulted: somebody in the circle must not be shown a switch that decides
+   * who sees them, and a prop with a default is a prop somebody forgets.
+   */
+  canKeepToFamily: boolean;
   composerPlaceholder?: string;
   emptyLine?: string;
   emptyAction?: string;
 } & Actions) {
   return (
     <div className="space-y-6">
-      <Composer onCreate={actions.onCreate} placeholder={composerPlaceholder} />
+      <Composer
+        onCreate={actions.onCreate}
+        placeholder={composerPlaceholder}
+        canKeepToFamily={canKeepToFamily}
+      />
       {posts.length === 0 ? (
         <div className="surface-premium rounded-2xl border border-border p-8">
           <FirstStep
@@ -79,7 +98,7 @@ export function Feed({
         <ul className="space-y-4">
           {posts.map((p) => (
             <li key={p.id} id={`post-${p.id}`} className="notif-target">
-              <PostItem post={p} {...actions} />
+              <PostItem post={p} canKeepToFamily={canKeepToFamily} {...actions} />
             </li>
           ))}
         </ul>
@@ -145,11 +164,20 @@ interface Picked {
 function Composer({
   onCreate,
   placeholder,
+  canKeepToFamily,
 }: {
   onCreate: CreateFn;
   placeholder: string;
+  canKeepToFamily: boolean;
 }) {
   const [kind, setKind] = useState<PostKind>("UPDATE");
+  /**
+   * Who this one is for. It deliberately does NOT persist between posts: an
+   * audience that stays where you last left it is how somebody writes for
+   * everybody and quietly posts to half the house, or the reverse. Each post
+   * is its own decision, and the default is the one the diary has always had.
+   */
+  const [familyOnly, setFamilyOnly] = useState(false);
   const [body, setBody] = useState("");
   const [picked, setPicked] = useState<Picked[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -318,9 +346,10 @@ function Composer({
       setUploading(false);
     }
     start(async () => {
-      await onCreate({ kind, body: body.trim(), mediaUrls: urls });
+      await onCreate({ kind, body: body.trim(), mediaUrls: urls, familyOnly });
       setBody("");
       setKind("UPDATE");
+      setFamilyOnly(false);
       setRestored(null);
       forgetDraft();
       clearAll();
@@ -485,6 +514,34 @@ function Composer({
             </span>
             Video
           </button>
+          {canKeepToFamily && (
+            <button
+              type="button"
+              id="composer-audience"
+              onClick={() => setFamilyOnly((v) => !v)}
+              aria-pressed={familyOnly}
+              // The chip on an existing post below carries the same two words,
+              // meaning the same thing about a different post. They are far
+              // apart on the screen and read correctly there — but to anybody
+              // hearing the page rather than seeing it they were two identical
+              // buttons, so this one says which post it is deciding.
+              aria-label={
+                familyOnly
+                  ? "This post will be kept to the family. Share it with everyone here instead."
+                  : "This post will be shared with everyone here. Keep it to the family instead."
+              }
+              className={`inline-flex items-center gap-1.5 font-mono text-[0.68rem] transition-colors ${
+                familyOnly
+                  ? "text-accent"
+                  : "text-muted hover:text-accent"
+              }`}
+            >
+              <span aria-hidden className="text-sm leading-none">
+                {familyOnly ? "🔒" : "👪"}
+              </span>
+              {familyOnly ? FAMILY_ONLY.onLabel : FAMILY_ONLY.offLabel}
+            </button>
+          )}
         </div>
         <button
           type="button"
@@ -495,19 +552,69 @@ function Composer({
           {uploading ? "Uploading…" : pending ? "Sharing…" : "Share"}
         </button>
       </div>
+      {familyOnly && (
+        <p className="mt-2 font-mono text-[0.62rem] leading-relaxed text-muted">
+          {FAMILY_ONLY.hint}
+        </p>
+      )}
     </div>
+  );
+}
+
+/**
+ * Changing who a post is for, afterwards.
+ *
+ * It sits with Edit and Delete rather than up in the header, because it is a
+ * thing you do and those are the things you do. The header carries the state
+ * — a "Family only" marker, and nothing at all on an ordinary post, since the
+ * audience the diary has always had does not need announcing on every entry.
+ *
+ * Only ever on your own post, and only for somebody who has a family to
+ * narrow it to. Narrowing takes effect at once, and cannot unsend: a
+ * notification already read has been read. So the word is "keep", not "hide".
+ */
+function Audience({
+  post,
+  onSetAudience,
+  busy,
+}: {
+  post: FeedPost;
+  onSetAudience: AudienceFn;
+  busy: boolean;
+}) {
+  const [pending, start] = useTransition();
+  return (
+    <Pressable
+      press="none"
+      type="button"
+      disabled={pending || busy}
+      onClick={() =>
+        start(async () => {
+          await onSetAudience({ id: post.id, familyOnly: !post.familyOnly });
+        })
+      }
+      className="py-2.5 underline underline-offset-4 hover:text-accent disabled:opacity-50"
+    >
+      {pending
+        ? "…"
+        : post.familyOnly
+          ? "Open to everyone"
+          : "Keep to family"}
+    </Pressable>
   );
 }
 
 function PostItem({
   post,
+  canKeepToFamily,
   onEdit,
   onDelete,
   onComment,
   onDeleteComment,
   onReact,
   onReactToComment,
-}: { post: FeedPost } & Actions) {
+  onSetAudience,
+}: { post: FeedPost; canKeepToFamily: boolean } & Actions) {
   const [pending, start] = useTransition();
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(post.body);
@@ -535,6 +642,16 @@ function PostItem({
           >
             {KIND_LABEL[post.kind] ?? "Update"}
           </span>
+          {/* Who this one is for, said on the post itself rather than only in
+              the composer that is long since gone. Somebody who chose a
+              smaller audience three weeks ago should be able to see that it
+              took, and the family reading it should know the circle is not.
+              For whoever wrote it the marker is also the control. */}
+          {post.familyOnly && (
+            <span className="rounded-full border border-accent/40 bg-accent/[0.08] px-2 py-0.5 text-[0.56rem] text-accent">
+              {FAMILY_ONLY.badge}
+            </span>
+          )}
           </div>
         </div>
       </div>
@@ -653,6 +770,13 @@ function PostItem({
             >
               Delete
             </Pressable>
+            {canKeepToFamily && (
+              <Audience
+                post={post}
+                onSetAudience={onSetAudience}
+                busy={pending}
+              />
+            )}
           </>
         )}
       </div>

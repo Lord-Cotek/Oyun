@@ -1,5 +1,7 @@
 import { yearBounds } from "./story";
 import { prisma } from "./prisma";
+import { postScope } from "./post-visibility";
+import { type Role } from "@prisma/client";
 
 export interface FeedComment {
   id: string;
@@ -41,6 +43,12 @@ export interface FeedPost {
   when: string;
   reactions: FeedReaction[];
   comments: FeedComment[];
+  /**
+   * Kept to the family. Carried through to the screen so a post that the
+   * circle cannot see says so — somebody who chose a smaller audience should
+   * be able to tell at a glance that it took, rather than trusting it.
+   */
+  familyOnly: boolean;
 }
 
 function relative(d: Date, now = new Date()): string {
@@ -71,15 +79,23 @@ function tally(
   return [...byKind.values()];
 }
 
+/**
+ * `role` is required and sits before the optional arguments on purpose: it
+ * decides whether the family-only posts are in this list at all, and a
+ * parameter with a default is a parameter somebody forgets to pass. See
+ * lib/post-visibility.ts.
+ */
 export async function loadFeed(
   journeyId: string,
   viewerId: string,
+  role: Role | string,
   take = 40,
   year?: number,
 ): Promise<FeedPost[]> {
   const posts = await prisma.post.findMany({
     where: {
       journeyId,
+      ...postScope(role),
       ...(year ? { createdAt: yearBounds(year) } : {}),
     },
     orderBy: { createdAt: "desc" },
@@ -116,6 +132,7 @@ export async function loadFeed(
       authorImage: p.author.image ?? null,
       mine: p.authorId === viewerId,
       when: relative(p.createdAt, now),
+      familyOnly: p.familyOnly,
       reactions: tally(p.reactions, viewerId),
       comments: p.comments.map((c) => ({
         id: c.id,

@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { type Role } from "@prisma/client";
 import { isHousehold } from "@/lib/roles";
+import { postScope } from "@/lib/post-visibility";
 import { chapterRef } from "@/lib/bible";
 
 /**
@@ -127,12 +128,14 @@ const SOURCES: Source[] = [
   {
     kind: "post",
     room: "Life",
-    // The diary is the journey's shared room: everyone invited already sees
-    // every post.
+    // The diary is the journey's shared room, so everyone invited may search
+    // it — but a post kept to the family is not in the circle's copy of that
+    // room, and a search result is a way into a post. The gate is per row,
+    // not per room: see lib/post-visibility.ts.
     visible: () => true,
     run: async (q, c) => {
       const rows = await prisma.post.findMany({
-        where: { journeyId: c.journeyId, body: like(q) },
+        where: { journeyId: c.journeyId, ...postScope(c.role), body: like(q) },
         orderBy: { createdAt: "desc" },
         take: PER_SOURCE,
         select: {

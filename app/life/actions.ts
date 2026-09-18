@@ -8,6 +8,7 @@ import { getActiveMembership } from "@/lib/data";
 import { isPostKind, isReactionKind, reactionGlyph, REACTIONS } from "@/lib/feed";
 import { mediaTypeFromUrl } from "@/lib/feed-query";
 import { notify } from "@/lib/notify";
+import { postScope, seesFamilyOnly } from "@/lib/post-visibility";
 
 /** Keep only well-formed Vercel Blob URLs, in order, capped. */
 function cleanMediaUrls(urls: unknown): string[] {
@@ -27,7 +28,13 @@ async function member() {
   if (!session?.user?.id) redirect("/sign-in?callbackUrl=/life");
   const active = await getActiveMembership(session.user.id);
   if (!active) redirect("/onboarding");
-  return { userId: session.user.id, journeyId: active.journey.id };
+  // The role comes back with it because every one of these actions touches a
+  // post, and whether a post is even there to touch depends on who is asking.
+  return {
+    userId: session.user.id,
+    journeyId: active.journey.id,
+    role: active.role,
+  };
 }
 
 /** Share something with the circle — an update, praise, prayer, or milestone. */
@@ -35,13 +42,17 @@ export async function createPost(input: {
   kind: string;
   body: string;
   mediaUrls?: string[];
+  familyOnly?: boolean;
 }) {
-  const { userId, journeyId } = await member();
+  const { userId, journeyId, role } = await member();
   const body = (input.body ?? "").trim();
   const mediaUrls = cleanMediaUrls(input.mediaUrls);
   // Media on its own (no words) is a perfectly good moment to share.
   if (!body && mediaUrls.length === 0) return;
   const kind = isPostKind(input.kind) ? input.kind : "UPDATE";
+  // Only somebody who can read family-only posts can write one. A friend in
+  // the circle ticking the box would be posting into a room they cannot see.
+  const familyOnly = input.familyOnly === true && seesFamilyOnly(role);
   await prisma.post.create({
     data: {
       journeyId,
@@ -49,6 +60,7 @@ export async function createPost(input: {
       kind,
       body: body.slice(0, 4000),
       mediaUrls,
+      familyOnly,
     },
   });
 
@@ -58,10 +70,16 @@ export async function createPost(input: {
       prisma.user.findUnique({ where: { id: userId }, select: { name: true } }),
       prisma.membership.findMany({
         where: { journeyId, userId: { not: userId } },
-        select: { userId: true },
+        select: { userId: true, role: true },
       }),
     ]);
-    if (others.length) {
+    // A notification carries the opening words of the post in it. Telling the
+    // circle about a post they cannot open would be the leak the toggle
+    // exists to prevent, said out loud on their lock screen.
+    const told = familyOnly
+      ? others.filter((o) => seesFamilyOnly(o.role))
+      : others;
+    if (told.length) {
       const hasVideo = mediaUrls.some((u) => mediaTypeFromUrl(u) === "video");
       const mediaWord =
         mediaUrls.length === 0
@@ -77,7 +95,7 @@ export async function createPost(input: {
           : body
         : mediaWord || "Shared a moment";
       await Promise.all(
-        others.map((o) =>
+        told.map((o) =>
           notify({
             userId: o.userId,
             type: "post",
@@ -122,13 +140,46 @@ export async function deletePost(id: string) {
   revalidatePath("/journey");
 }
 
+/**
+ * Change who a post is for, after it is written.
+ *
+ * People post first and think afterwards — "I shouldn't have put that where
+ * the whole circle can read it" is a thought that arrives ten minutes later,
+ * and the only remedy without this is to delete the thing entirely. Whoever
+ * wrote it may narrow it or open it again.
+ *
+ * Narrowing works properly: the post leaves the circle's diary, their search
+ * and their export the moment this returns. What it cannot do is unsee — a
+ * notification already sent has been read, and somebody may have seen the
+ * post. The screen says so rather than promising otherwise.
+ */
+export async function setPostAudience(input: {
+  id: string;
+  familyOnly: boolean;
+}): Promise<{ ok: boolean }> {
+  const { userId, journeyId, role } = await member();
+  // Only somebody who can see family-only posts may put one out of reach —
+  // otherwise a friend could hide their own post from themselves.
+  if (input.familyOnly && !seesFamilyOnly(role)) return { ok: false };
+  const done = await prisma.post.updateMany({
+    where: { id: input.id, journeyId, authorId: userId, ...postScope(role) },
+    data: { familyOnly: input.familyOnly },
+  });
+  revalidatePath("/life");
+  revalidatePath("/journey");
+  return { ok: done.count > 0 };
+}
+
 export async function addComment(input: { postId: string; body: string }) {
-  const { userId, journeyId } = await member();
+  const { userId, journeyId, role } = await member();
   const body = input.body.trim();
   if (!body) return;
-  // Only comment on a post in your own circle.
+  // Only comment on a post in your own circle — and only one you can see. A
+  // server action is reachable without the page in front of it, so somebody
+  // holding a post id must be refused here as plainly as the diary refused to
+  // show it to them.
   const post = await prisma.post.findFirst({
-    where: { id: input.postId, journeyId },
+    where: { id: input.postId, journeyId, ...postScope(role) },
     select: { id: true, authorId: true },
   });
   if (!post) return;
@@ -182,10 +233,10 @@ export async function deleteComment(id: string) {
 
 /** Add or remove one reaction of a kind on a post. */
 export async function toggleReaction(input: { postId: string; kind: string }) {
-  const { userId, journeyId } = await member();
+  const { userId, journeyId, role } = await member();
   if (!isReactionKind(input.kind)) return;
   const post = await prisma.post.findFirst({
-    where: { id: input.postId, journeyId },
+    where: { id: input.postId, journeyId, ...postScope(role) },
     select: { id: true, authorId: true },
   });
   if (!post) return;
@@ -239,10 +290,10 @@ export async function toggleCommentReaction(input: {
   commentId: string;
   kind: string;
 }) {
-  const { userId, journeyId } = await member();
+  const { userId, journeyId, role } = await member();
   if (!isReactionKind(input.kind)) return;
   const comment = await prisma.postComment.findFirst({
-    where: { id: input.commentId, post: { journeyId } },
+    where: { id: input.commentId, post: { journeyId, ...postScope(role) } },
     select: { id: true, authorId: true },
   });
   if (!comment) return;

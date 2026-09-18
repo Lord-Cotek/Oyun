@@ -1,4 +1,6 @@
 import { prisma } from "@/lib/prisma";
+import { postScope, seesFamilyOnly } from "@/lib/post-visibility";
+import { type Role } from "@prisma/client";
 
 /**
  * Built for the third year, not the first week.
@@ -32,11 +34,19 @@ export interface DiaryYear {
  * Every year this house has written a diary entry in, newest first, with how
  * many entries are in each.
  */
-export async function diaryYears(journeyId: string): Promise<DiaryYear[]> {
+export async function diaryYears(
+  journeyId: string,
+  role: Role | string,
+): Promise<DiaryYear[]> {
+  // The strip is a promise about what a year holds, and the feed behind it is
+  // scoped to who is looking — so this has to be too, or somebody in the
+  // circle taps "2019 · 40" and is shown thirty-one.
+  const all = seesFamilyOnly(role);
   const rows = await prisma.$queryRaw<{ year: number; n: bigint }[]>`
     SELECT EXTRACT(YEAR FROM "createdAt")::int AS year, COUNT(*) AS n
     FROM "Post"
     WHERE "journeyId" = ${journeyId}
+      AND (${all} OR "familyOnly" = false)
     GROUP BY 1
     ORDER BY 1 DESC
   `;
@@ -74,11 +84,12 @@ export interface StorySoFar {
 export async function storySoFar(
   journeyId: string,
   createdAt: Date,
+  role: Role | string,
   now = new Date(),
 ): Promise<StorySoFar> {
   const [posts, worshipDays, prayersAnswered, letters, milestones, appointmentsKept] =
     await Promise.all([
-      prisma.post.count({ where: { journeyId } }),
+      prisma.post.count({ where: { journeyId, ...postScope(role) } }),
       prisma.worshipDay.count({ where: { journeyId } }),
       prisma.prayerRequest.count({
         where: { journeyId, answeredAt: { not: null } },

@@ -6,6 +6,7 @@ import { loadFeed } from "@/lib/feed-query";
 import { YearStrip } from "@/components/feed/YearStrip";
 import { StorySoFar } from "@/components/journey/StorySoFar";
 import { diaryYears, storySoFar } from "@/lib/story";
+import { seesFamilyOnly } from "@/lib/post-visibility";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Arches } from "@/components/ui/Marks";
 import { Feed } from "@/components/feed/Feed";
@@ -17,6 +18,7 @@ import {
   deleteComment,
   toggleReaction,
   toggleCommentReaction,
+  setPostAudience,
 } from "./actions";
 
 export const metadata: Metadata = {
@@ -42,9 +44,9 @@ export default async function LifePage({
     Number.isInteger(asked) && asked > 1900 && asked < 2200 ? asked : undefined;
 
   const [posts, years, story] = await Promise.all([
-    loadFeed(active.journey.id, session.user.id, 40, year),
-    diaryYears(active.journey.id),
-    storySoFar(active.journey.id, active.journey.createdAt),
+    loadFeed(active.journey.id, session.user.id, active.role, 40, year),
+    diaryYears(active.journey.id, active.role),
+    storySoFar(active.journey.id, active.journey.createdAt, active.role),
   ]);
 
   return (
@@ -104,6 +106,8 @@ export default async function LifePage({
             onDeleteComment={deleteComment}
             onReact={toggleReaction}
             onReactToComment={toggleCommentReaction}
+            onSetAudience={setPostAudience}
+            canKeepToFamily={seesFamilyOnly(active.role)}
             composerPlaceholder="Share something with your circle…"
           />
         </div>
