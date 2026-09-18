@@ -50,7 +50,7 @@ export default async function SearchPage({
   return (
     <>
       <SiteHeader />
-      <main className="mx-auto max-w-shell px-6 py-10">
+      <main className="mx-auto max-w-shell px-6 pb-10">
         <PageHero
           compact
           eyebrow="Search"

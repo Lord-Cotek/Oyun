@@ -58,7 +58,7 @@ export default async function JournalPage() {
   return (
     <>
       <SiteHeader active="worship" />
-      <main className="mx-auto max-w-shell px-6 py-10">
+      <main className="mx-auto max-w-shell px-6 pb-10">
         <PageHero
           eyebrow="Reflection journal"
           title="What God has shown you."

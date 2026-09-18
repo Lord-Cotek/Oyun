@@ -95,7 +95,7 @@ export default async function AppointmentsPage() {
   return (
     <>
       <SiteHeader active="appointments" />
-      <main className="mx-auto max-w-shell px-6 py-10">
+      <main className="mx-auto max-w-shell px-6 pb-10">
         <PageHero
           eyebrow="Your dates"
           title="Every day that is coming, and what to ask when you get there."

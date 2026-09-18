@@ -43,7 +43,7 @@ export default async function CirclePage() {
   return (
     <>
       <SiteHeader active="circle" />
-      <main className="mx-auto max-w-shell px-6 py-10">
+      <main className="mx-auto max-w-shell px-6 pb-10">
         <PageHero
           eyebrow="Your circle"
           title="The people walking with you."

@@ -34,7 +34,7 @@ export default async function LettersPage() {
   return (
     <>
       <SiteHeader active="letters" />
-      <main className="mx-auto max-w-3xl px-6 py-10">
+      <main className="mx-auto max-w-3xl px-6 pb-10">
         <PageHero
           eyebrow="Letters"
           title="Words kept."

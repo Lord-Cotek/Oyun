@@ -94,7 +94,7 @@ export async function AccountabilityView({
   const framing = supporterFraming(role, motherName);
 
   return (
-    <main className="mx-auto max-w-shell px-6 py-10">
+    <main className="mx-auto max-w-shell px-6 pb-10">
       <PageHero
         greeting={firstName ? `Hello, ${firstName}.` : undefined}
         eyebrow={`${framing.eyebrow} · ${stageLabel}`}

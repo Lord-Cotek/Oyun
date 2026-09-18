@@ -54,7 +54,7 @@ export default async function ChildPage() {
   return (
     <>
       <SiteHeader active="nursery" />
-      <main className="mx-auto max-w-shell px-6 py-10">
+      <main className="mx-auto max-w-shell px-6 pb-10">
         <PageHero
           eyebrow="The nursery"
           title={children.length > 0 ? "Your little ones." : "Meet your little one."}

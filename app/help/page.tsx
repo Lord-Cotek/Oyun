@@ -79,7 +79,7 @@ export default async function HelpPage() {
   return (
     <>
       <SiteHeader active="help" />
-      <main className="mx-auto max-w-shell px-6 py-10">
+      <main className="mx-auto max-w-shell px-6 pb-10">
         <PageHero
           eyebrow={`How this works · ${ROLE_LABEL[active.role] ?? "You"}`}
           title="Where everything lives."
