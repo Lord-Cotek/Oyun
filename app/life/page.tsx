@@ -7,7 +7,7 @@ import { YearStrip } from "@/components/feed/YearStrip";
 import { StorySoFar } from "@/components/journey/StorySoFar";
 import { diaryYears, storySoFar } from "@/lib/story";
 import { SiteHeader } from "@/components/SiteHeader";
-import { PageHero } from "@/components/ui/PageHero";
+import { Arches } from "@/components/ui/Marks";
 import { Feed } from "@/components/feed/Feed";
 import {
   createPost,
@@ -50,15 +50,29 @@ export default async function LifePage({
   return (
     <>
       <SiteHeader active="life" />
-      <main className="mx-auto max-w-shell px-6 py-10">
-        {/* Compact: the diary is opened daily and the compose box is the
-            action — a full-height band put it below the fold on a phone. */}
-        <PageHero
-          compact
-          eyebrow="Life"
-          title="Shared, as it happens."
-          lede="A quiet place for the ones walking with you — how you are, a praise, a prayer to be carried, a small moment worth keeping."
-        />
+      <main className="mx-auto max-w-shell px-6 pb-10">
+        {/* ── Life, on a band ───────────────────────────────────────────
+            Every room but home opens on a band; this one is the exception
+            that proves the rule. It is FULL of photographs already — they
+            are the content, a few inches below — so putting one more at the
+            top would be the app competing with the family for the same
+            screen. The band steps back and lets the pictures be the colour.
+
+            Kept short on purpose: the diary is opened daily and the compose
+            box is the action, and a tall hero pushes it off a phone. */}
+        <section className="band-1 relative -mx-6 animate-fade-up overflow-hidden px-6 py-7 md:mx-0 md:rounded-3xl">
+          <Arches className="on-band" />
+          <div className="relative">
+            <p className="font-serif text-lg italic opacity-75 on-band">Life</p>
+            <h1 className="mt-1 max-w-[15ch] font-serif text-[1.9rem] leading-[1.12] on-band md:max-w-xl md:text-4xl">
+              Shared, as it happens.
+            </h1>
+            <p className="mt-2.5 max-w-prose prose-serif-sm opacity-80 on-band">
+              A quiet place for the ones walking with you — how you are, a praise, a prayer to be carried, a small moment worth keeping.
+            </p>
+          </div>
+        </section>
+
         <YearStrip years={years} active={year} />
 
         {story.worthTelling && (

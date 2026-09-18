@@ -11,6 +11,7 @@ import {
 } from "@/lib/feed";
 import type { FeedPost, MediaItem } from "@/lib/feed-query";
 import { Lightbox } from "@/components/media/Lightbox";
+import { Pressable } from "@/components/ui/Pressable";
 import { ReactionRow } from "@/components/feed/ReactionRow";
 import { shrinkImage } from "@/lib/shrink-image";
 import { mediaAlt } from "@/lib/alt";
@@ -517,7 +518,9 @@ function PostItem({
 
 
   return (
-    <div className="surface-premium rounded-2xl border border-border p-5 md:p-6">
+    // `overflow-hidden` is what lets the photographs below reach the card's
+    // edges without their corners poking out past its radius.
+    <div className="surface-premium overflow-hidden rounded-2xl border border-border p-5 md:p-6">
       <div className="flex items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-2.5">
           <Avatar name={post.author} photoUrl={post.authorImage} size={34} />
@@ -596,6 +599,7 @@ function PostItem({
           )}
           {hasMedia && (
             <MediaGallery
+              bleed
               media={post.media}
               said={post.body}
               author={post.author}
@@ -612,34 +616,43 @@ function PostItem({
         onToggle={(kind) => onReact({ postId: post.id, kind })}
       />
 
-      {/* footer actions */}
-      <div className="mt-3 flex flex-wrap items-center gap-3 font-mono text-[0.68rem] text-muted">
-        <button
+      {/* ── Footer actions ───────────────────────────────────────────────
+          `-my-2` on the row with `py-2.5` on each button: the words stay
+          exactly the size they were, and the thing you can hit grows to 44pt.
+          They were about sixteen pixels tall, which is fine with a mouse and a
+          coin-flip with a thumb — and "Delete" being a coin-flip next to
+          "Edit" is the wrong one to get wrong. The negative margin means the
+          card does not grow to pay for it. */}
+      <div className="-my-2 mt-1 flex flex-wrap items-center gap-3 font-mono text-[0.68rem] text-muted">
+        <Pressable
+          press="none"
           type="button"
           onClick={() => setShowComments((s) => !s)}
-          className="underline underline-offset-4 hover:text-accent"
+          className="py-2.5 underline underline-offset-4 hover:text-accent"
         >
           {post.comments.length > 0
             ? `${post.comments.length} ${post.comments.length === 1 ? "reply" : "replies"}`
             : "Reply"}
-        </button>
+        </Pressable>
         {post.mine && (
           <>
-            <button
+            <Pressable
+              press="none"
               type="button"
               onClick={() => setEditing(true)}
-              className="underline underline-offset-4 hover:text-accent"
+              className="py-2.5 underline underline-offset-4 hover:text-accent"
             >
               Edit
-            </button>
-            <button
+            </Pressable>
+            <Pressable
+              press="none"
               type="button"
               disabled={pending}
               onClick={() => start(() => onDelete(post.id))}
-              className="underline underline-offset-4 hover:text-negative disabled:opacity-50"
+              className="py-2.5 underline underline-offset-4 hover:text-negative disabled:opacity-50"
             >
               Delete
-            </button>
+            </Pressable>
           </>
         )}
       </div>
@@ -711,13 +724,26 @@ function PostItem({
   );
 }
 
+/**
+ * `bleed` runs the photographs to the edges of the card that holds them,
+ * cancelling its padding.
+ *
+ * A picture of your daughter inset inside a bordered box, inside another
+ * bordered box, on a page of bordered boxes, is a thumbnail — it reads as an
+ * attachment to the writing rather than as the thing itself. Every app people
+ * actually look at photographs in does the opposite: the words are inset, the
+ * picture is not. Only the caller inside a padded card asks for it, since the
+ * negative margin has to match that card's padding exactly.
+ */
 function MediaGallery({
   media,
   said,
   author,
   when,
+  bleed = false,
 }: {
   media: MediaItem[];
+  bleed?: boolean;
   /** What was written alongside — the best description of these we will get. */
   said?: string | null;
   author?: string | null;
@@ -739,7 +765,9 @@ function MediaGallery({
   return (
     <>
       <div
-        className={`mt-3 grid gap-1.5 ${single ? "grid-cols-1" : "grid-cols-2"}`}
+        className={`mt-3 grid gap-1.5 ${single ? "grid-cols-1" : "grid-cols-2"} ${
+          bleed ? "-mx-5 md:-mx-6" : ""
+        }`}
       >
         {media.map((m, i) => (
           <button
@@ -753,9 +781,9 @@ function MediaGallery({
             aria-label={`${m.type === "video" ? "Play" : "Open"} ${
               alts[i].charAt(0).toLowerCase() + alts[i].slice(1)
             }`}
-            className={`group relative block w-full overflow-hidden rounded-xl border border-border transition-colors hover:border-accent/50 ${
-              single ? "" : "aspect-square"
-            }`}
+            className={`group relative block w-full overflow-hidden transition-colors ${
+              bleed ? "" : "rounded-xl border border-border hover:border-accent/50"
+            } ${single ? "" : "aspect-square"}`}
           >
             {m.type === "video" ? (
               <>
