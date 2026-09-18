@@ -66,6 +66,10 @@ export const CATEGORY_OF: Record<NotificationType, NotifyCategory> = {
 
   // The journey itself
   invite_accepted: "house",
+  // Somebody taking something off the registry. Housekeeping rather than the
+  // diary: it is an arrangement being made, the same shape as an invitation
+  // being accepted, and it is only ever sent to the two who keep the journey.
+  registry: "house",
 };
 
 export interface CategoryRow {
@@ -116,7 +120,7 @@ export const CATEGORIES: CategoryRow[] = [
     id: "house",
     field: "notifyHouse",
     label: "Housekeeping",
-    hint: "Somebody accepting an invitation to the circle.",
+    hint: "Somebody accepting an invitation to the circle, and gifts taken from your registry.",
   },
 ];
 

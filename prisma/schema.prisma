@@ -260,6 +260,7 @@ model Journey {
   readingUpdatedAt DateTime?
 
   memberships    Membership[]
+  registry       Registry?
   invites        Invite[]
   checkIns       CheckIn[]
   letters        Letter[]
@@ -482,6 +483,135 @@ model LetterReply {
   createdAt DateTime @default(now())
 
   @@index([letterId, createdAt])
+}
+
+/// ── The registry ─────────────────────────────────────────────────────────
+///
+/// One list of what a family actually needs, made of links to wherever those
+/// things are sold, and shared as a single address anybody can open.
+///
+/// Why this is in a family app at all: a registry is a pregnancy-shaped need.
+/// It appears around the sixth month, peaks at the shower, and is finished a
+/// few weeks after the birth — one of the very few features here that ends by
+/// itself. And the people it is for are already here. Every other registry
+/// makes a mother assemble an audience from nothing; this one already knows
+/// who the grandmothers are.
+///
+/// Why links rather than a shop: there is no single store this family buys
+/// from. Amazon, Noon, Mumzworld, a shop in Lekki, a cousin bringing a thing
+/// from London. A registry tied to one retailer is useless to them, so this
+/// holds a link to anywhere and does not care where.
+///
+/// ── What it deliberately does not do ─────────────────────────────────────
+/// No money passes through this app. Not a payment, not a cash gift, not a
+/// contribution to a fund. The moment it did, this would stop being a family
+/// app and become a regulated payments product, and that is a decision to
+/// take on purpose rather than to arrive at by accident.
+///
+/// It also does not claim to know what anybody actually bought. No shop tells
+/// you that, and pretending otherwise would be a lie told to a mother about
+/// whether her baby has a cot. What it knows is what somebody SAID they were
+/// getting — see RegistryClaim.
+model Registry {
+  id         String    @id @default(cuid())
+  journeyId  String    @unique
+  journey    Journey   @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  /// The unguessable half of the public address. From node:crypto and long —
+  /// see lib/registry-db.ts, and NOT lib/rand.ts, which says of itself that
+  /// it is not security-bearing.
+  slug       String    @unique
+  /// What the page is called: "For Baby Adeyemi". Hers to type.
+  title      String
+  /// How it signs itself to a guest — "Amara and Chidi", "The Adeyemis".
+  /// Typed, never taken from an account, so she chooses what a stranger is
+  /// told about who she is.
+  hostName   String
+  /// A word to whoever opens it.
+  message    String?
+  /// Whether she is shown who has taken what.
+  ///
+  /// Off is the surprise: she sees that a thing is spoken for and not by
+  /// whom, until she closes the registry — at which point the whole list
+  /// appears, because by then she is writing thank-you notes and needs it.
+  showClaims Boolean   @default(true)
+  /// Stopped taking claims. The page still reads; it becomes a record.
+  closedAt   DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  items RegistryItem[]
+}
+
+/// One thing on the list.
+///
+/// `kind` is the whole reason this is more than a list of shopping links:
+///
+///   THING — a thing in a shop, with a link to it.
+///   HELP  — not a thing at all. A week of meals, three evenings of cooking,
+///           a lift to the 34-week appointment, somebody to hold the baby
+///           while she sleeps. Every registry in the world does products;
+///           this is the half of what a new mother needs that none of them
+///           will let anybody give her.
+///   LIST  — a whole list kept somewhere else, an Amazon wishlist most often.
+///           One card, one link, and no pretence that we know what is on it:
+///           scraping somebody's wishlist is fragile and breaks the week the
+///           shop changes its markup. So it points, and the shop keeps its
+///           own record of what has been bought from it.
+model RegistryItem {
+  id         String   @id @default(cuid())
+  registryId String
+  registry   Registry @relation(fields: [registryId], references: [id], onDelete: Cascade)
+  kind       String   @default("THING")
+  title      String
+  note       String?
+  /// Where it is sold. Read once when she pastes it — see lib/link-preview.ts
+  /// — and everything read is hers to correct.
+  url        String?
+  imageUrl   String?
+  /// Text, not a number: "AED 249", "about ₦40,000", "whatever you like".
+  /// A decimal column would force a currency and a precision onto something
+  /// that is a note to a guest, not an amount anybody is charged.
+  price      String?
+  /// How many are wanted. Two of the same sleepsuit is a real answer.
+  quantity   Int      @default(1)
+  /// The handful of things that actually matter, said so plainly.
+  mostNeeded Boolean  @default(false)
+  position   Int      @default(0)
+  createdAt  DateTime @default(now())
+
+  claims RegistryClaim[]
+
+  @@index([registryId, position])
+}
+
+/// Somebody saying they are getting this.
+///
+/// A reservation, not a receipt. Nobody here knows whether the cot was
+/// actually bought, and this row does not claim to: what it does is stop the
+/// second grandmother buying the second cot, which is the entire practical
+/// job a registry has.
+///
+/// No account, and there will never be one. The guest's browser keeps a long
+/// random token, the same way an invitation reply does, which is how the same
+/// person changes their mind rather than adding a second claim, and why one
+/// guest cannot release another's.
+model RegistryClaim {
+  id        String       @id @default(cuid())
+  itemId    String
+  item      RegistryItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  token     String
+  /// Optional: somebody may give anonymously, and a mother writing thank-you
+  /// notes would rather have a name than a blank — so it is asked for and
+  /// never required.
+  name      String?
+  note      String?
+  quantity  Int          @default(1)
+  createdAt DateTime     @default(now())
+  /// Ticked off by her when the thank-you has been said.
+  thankedAt DateTime?
+
+  @@unique([itemId, token])
+  @@index([itemId])
 }
 
 /// Capturing the firsts.

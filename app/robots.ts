@@ -20,6 +20,10 @@ export default function robots(): MetadataRoute.Robots {
         // unguessable and each page says noindex for itself, but a crawler
         // that finds one pasted in a public forum should be told plainly too.
         "/i",
+        // A registry is for the people it was handed to. Same reasoning as an
+        // invitation: unguessable link, noindex on the page itself, and this
+        // for the crawler that finds one pasted in a public forum.
+        "/r",
         "/appointments",
         "/dates",
       ],

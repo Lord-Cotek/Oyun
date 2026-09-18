@@ -14,6 +14,7 @@ export type NotificationType =
   | "comment"
   | "reaction"
   | "letter_reply"
+  | "registry"
   | "appointment"
   | "appointment_reminder"
   | "nudge";
