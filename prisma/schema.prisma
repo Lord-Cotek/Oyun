@@ -523,7 +523,20 @@ enum AppointmentKind {
   POSTNATAL // the mother's own check after the birth
   BABY_CHECK // the baby's check
   IMMUNISATION
-  CLASS // an antenatal or parenting class
+  /// RETIRED. A class is a thing she chooses to go to, often with people she
+  /// invites — a day of her own, not a room she is called into — so it lives
+  /// in JourneyEventKind now, and nothing in the app will file one here again:
+  /// it is gone from APPOINTMENT_KINDS, so it is offered by no form and
+  /// accepted by no action. Every class already written down was moved by
+  /// scripts/move-classes.mjs.
+  ///
+  /// The value stays in the type on purpose. Dropping a value from a Postgres
+  /// enum needs `--accept-data-loss` on `prisma db push`, and that flag would
+  /// sit in the build accepting every future destruction too — a much worse
+  /// thing than one unused word in a type nobody reads. It also means a row
+  /// written in the seconds between the move and the deploy still reads back
+  /// correctly instead of erroring.
+  CLASS
   OTHER
 }
 

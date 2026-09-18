@@ -72,6 +72,12 @@ const VOICE: Record<AppointmentKind, KindVoice> = {
     weekAhead: false,
     tone: "green",
   },
+  /**
+   * Retired — see RETIRED_KINDS below and the note in schema.prisma. Kept here
+   * because rendering and offering are different jobs: nothing will ever file
+   * a class as an appointment again, but anything still sitting in the column
+   * has to come back out with a word on it rather than a blank.
+   */
   CLASS: {
     label: "Class",
     hint: "Antenatal or parenting classes",
@@ -90,7 +96,23 @@ export function kindVoice(k: AppointmentKind): KindVoice {
   return VOICE[k] ?? VOICE.OTHER;
 }
 
-export const APPOINTMENT_KINDS = Object.keys(VOICE) as AppointmentKind[];
+/**
+ * Kinds nothing may be filed as any more.
+ *
+ * A class is a thing she chooses to go to, often with people she invites —
+ * which makes it a day of her own, not a room she is called into. The ones
+ * already written down were moved by scripts/move-classes.mjs.
+ *
+ * Listed rather than deleted so the difference is deliberate and in one place:
+ * VOICE still knows how to say "Class", and this is what stops it being
+ * offered.
+ */
+const RETIRED_KINDS: AppointmentKind[] = ["CLASS"];
+
+/** What a form may offer, which is not the same as what VOICE can render. */
+export const APPOINTMENT_KINDS = (Object.keys(VOICE) as AppointmentKind[]).filter(
+  (k) => !RETIRED_KINDS.includes(k),
+);
 
 export function toKind(value: unknown): AppointmentKind {
   const v = String(value ?? "").toUpperCase();

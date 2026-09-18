@@ -145,6 +145,7 @@ function appointmentWord(kind: string): string {
     POSTNATAL: "Postnatal check",
     BABY_CHECK: "Baby's check",
     IMMUNISATION: "Immunisation",
+    // Retired, and there should be none left — but a word beats a blank.
     CLASS: "Class",
     OTHER: "Appointment",
   };
