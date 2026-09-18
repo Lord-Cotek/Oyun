@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { uploadOneToBlob } from "@/lib/blob-client";
 import { useAttempt, type Attempted } from "@/lib/use-attempt";
 import { Pressable } from "@/components/ui/Pressable";
@@ -53,6 +54,9 @@ export function CoverPicker({
   const [trouble, setTrouble] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const { attempt, slipped, settled } = useAttempt();
+  // A portal needs document, which the server has not got.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   function choose(url: string | null) {
     const before = shown;
@@ -105,98 +109,124 @@ export function CoverPicker({
         </p>
       )}
 
-      {open && (
-        <>
-          {/* The scrim closes it, which is the gesture everybody tries first. */}
-          <button
-            type="button"
-            aria-label="Close"
-            onClick={() => setOpen(false)}
-            className="fixed inset-0 z-[70] bg-black/45"
-          />
-          <div
-            role="dialog"
-            aria-label="Choose the cover photograph"
-            className="fixed inset-x-0 bottom-0 z-[71] max-h-[78dvh] overflow-y-auto rounded-t-3xl border-t border-border bg-surface p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]"
-          >
-            {/* A grabber, because a sheet that looks draggable is a sheet
-                people understand without being told. */}
-            <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-border" />
+      {/* ── Portalled to <body>, and it has to be ────────────────────────
+          This sheet is `position: fixed`, and it lives inside the hero, and
+          the hero carries `animate-fade-up`. An ancestor with a transform
+          becomes the containing block for fixed descendants — so "fixed to
+          the bottom of the screen" quietly became "fixed to the bottom of the
+          hero", and the sheet was drawn 280px above the top of the viewport.
+          With two photographs it was short enough to land on screen anyway
+          and looked merely odd; with ten it left the screen entirely.
 
-            <h2 className="font-serif text-xl text-ink">Cover photograph</h2>
-            <p className="mt-1 font-serif text-sm italic text-muted">
-              {current
-                ? "Pinned. Choose another, or go back to following what is shared."
-                : "Following whatever was shared most recently. Pick one to pin it."}
-            </p>
+          Measuring the box is what found it. It is the same trap as the one
+          in Pressable — an animation that holds a transform changing what the
+          CSS around it means — and the general answer for anything modal is
+          to render it out of the tree it was declared in. */}
+      {open &&
+        mounted &&
+        createPortal(
+          <>
+              {/* The scrim closes it, which is the gesture everybody tries first. */}
+            <button
+              type="button"
+              aria-label="Close"
+              onClick={() => setOpen(false)}
+              className="fixed inset-0 z-[70] bg-black/45"
+            />
+            <div
+              role="dialog"
+              aria-label="Choose the cover photograph"
+              className="fixed inset-x-0 bottom-0 z-[71] max-h-[78dvh] overflow-y-auto rounded-t-3xl border-t border-border bg-surface p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]"
+            >
+              {/* ── Pinned, so the way OUT of the grid never scrolls away ────
+                  The grid is the tallest thing here and it grows with the
+                  house. With seven or eight photographs it filled the sheet,
+                  pushed "Upload a photo" off the top, and the feature read as
+                  "you may choose one of these and nothing else" — the one house
+                  with a single photograph was the only one where the button
+                  stayed in view. A control that exists but cannot be found has
+                  not been built. */}
+              <div className="sticky top-0 z-10 -mx-5 -mt-5 border-b border-border bg-surface px-5 pb-4 pt-5">
+                {/* A grabber, because a sheet that looks draggable is a sheet
+                    people understand without being told. */}
+                <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-border" />
 
-            <div className="mt-4 flex flex-wrap gap-2">
-              <label className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-full bg-accent px-4 font-mono text-xs text-on-accent">
-                <Icon name="image" size={15} />
-                {busy ? "Uploading…" : "Upload a photo"}
-                <input
-                  ref={fileRef}
-                  type="file"
-                  accept="image/*"
-                  className="sr-only"
-                  disabled={busy}
-                  onChange={(e) => onFile(e.target.files)}
-                />
-              </label>
+                <h2 className="font-serif text-xl text-ink">Cover photograph</h2>
+                <p className="mt-1 font-serif text-sm italic text-muted">
+                  {current
+                    ? "Pinned. Choose another, or go back to following what is shared."
+                    : "Following whatever was shared most recently. Pick one to pin it."}
+                </p>
 
-              {current && (
-                <Pressable
-                  press="control"
-                  onClick={() => choose(null)}
-                  className="inline-flex min-h-11 items-center rounded-full border border-border px-4 font-mono text-xs text-ink"
-                >
-                  Follow the latest instead
-                </Pressable>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <label className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-full bg-accent px-4 font-mono text-xs text-on-accent">
+                    <Icon name="image" size={15} />
+                    {busy ? "Uploading…" : "Upload a photo"}
+                    <input
+                      ref={fileRef}
+                      type="file"
+                      accept="image/*"
+                      className="sr-only"
+                      disabled={busy}
+                      onChange={(e) => onFile(e.target.files)}
+                    />
+                  </label>
+
+                  {current && (
+                    <Pressable
+                      press="control"
+                      onClick={() => choose(null)}
+                      className="inline-flex min-h-11 items-center rounded-full border border-border px-4 font-mono text-xs text-ink"
+                    >
+                      Follow the latest instead
+                    </Pressable>
+                  )}
+                </div>
+              </div>
+
+              {choices.length > 0 ? (
+                <>
+                  <p className="mb-2 mt-5 font-serif text-sm italic text-muted">
+                    Already here
+                  </p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {choices.map((url) => {
+                      const on = url === shown;
+                      return (
+                        <Pressable
+                          key={url}
+                          press="tile"
+                          onClick={() => choose(url)}
+                          aria-pressed={on}
+                          // `bg-border/50` under the picture on purpose: a
+                          // thumbnail whose image fails to load would otherwise
+                          // be an invisible square, and an invisible square is
+                          // still tappable — you would set the cover to a
+                          // broken picture without ever seeing it.
+                          className={`relative aspect-square overflow-hidden rounded-xl bg-border/50 bg-cover bg-center ring-2 ${
+                            on ? "ring-accent" : "ring-transparent"
+                          }`}
+                          style={{ backgroundImage: `url("${encodeURI(url)}")` }}
+                        >
+                          {on && (
+                            <span className="absolute bottom-1 right-1 rounded-full bg-accent px-1.5 py-0.5 font-mono text-[0.55rem] text-on-accent">
+                              ✓
+                            </span>
+                          )}
+                        </Pressable>
+                      );
+                    })}
+                  </div>
+                </>
+              ) : (
+                <p className="mt-5 font-serif text-sm italic text-muted">
+                  Nothing shared here yet — upload one, and it becomes the cover.
+                </p>
               )}
             </div>
-
-            {choices.length > 0 ? (
-              <>
-                <p className="mb-2 mt-5 font-serif text-sm italic text-muted">
-                  Already here
-                </p>
-                <div className="grid grid-cols-3 gap-2">
-                  {choices.map((url) => {
-                    const on = url === shown;
-                    return (
-                      <Pressable
-                        key={url}
-                        press="tile"
-                        onClick={() => choose(url)}
-                        aria-pressed={on}
-                        // `bg-border/50` under the picture on purpose: a
-                        // thumbnail whose image fails to load would otherwise
-                        // be an invisible square, and an invisible square is
-                        // still tappable — you would set the cover to a
-                        // broken picture without ever seeing it.
-                        className={`relative aspect-square overflow-hidden rounded-xl bg-border/50 bg-cover bg-center ring-2 ${
-                          on ? "ring-accent" : "ring-transparent"
-                        }`}
-                        style={{ backgroundImage: `url("${encodeURI(url)}")` }}
-                      >
-                        {on && (
-                          <span className="absolute bottom-1 right-1 rounded-full bg-accent px-1.5 py-0.5 font-mono text-[0.55rem] text-on-accent">
-                            ✓
-                          </span>
-                        )}
-                      </Pressable>
-                    );
-                  })}
-                </div>
-              </>
-            ) : (
-              <p className="mt-5 font-serif text-sm italic text-muted">
-                Nothing shared here yet — upload one, and it becomes the cover.
-              </p>
-            )}
-          </div>
-        </>
-      )}
+          </>,
+          document.body,
+        )}
     </>
   );
 }

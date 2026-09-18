@@ -122,7 +122,6 @@
       "path": "components/ui/FirstStep.tsx",
       "code": true
     },
-    "components/ui/Grain.tsx",
     "components/ui/HoldToPray.tsx",
     "components/ui/Marks.tsx",
     "components/ui/Pressable.tsx",

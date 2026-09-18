@@ -6,7 +6,6 @@ import { Disclaimer } from "@/components/Disclaimer";
 import { PwaRegister } from "@/components/PwaRegister";
 import { OfflineBanner } from "@/components/OfflineBanner";
 import { NativePush } from "@/components/NativePush";
-import { Grain } from "@/components/ui/Grain";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -139,7 +138,6 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: themeInit }} />
       </head>
       <body>
-        <Grain />
         <div className="tabbar-pad relative z-10 flex min-h-dvh flex-col">
           <OfflineBanner />
           <div className="flex-1">{children}</div>

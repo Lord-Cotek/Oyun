@@ -352,20 +352,6 @@
 
   /* Paper. One tileable noise layer over everything, at about 5%. It is
      fixed rather than scrolling so it behaves like the grain of the page
-     rather than a texture printed on the content. */
-  .grain {
-    position: fixed;
-    inset: 0;
-    z-index: 50;
-    pointer-events: none;
-    opacity: 0.055;
-    mix-blend-mode: multiply;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
-  }
-  :root[data-theme="dark"] .grain {
-    mix-blend-mode: overlay;
-    opacity: 0.09;
-  }
 
   /* The signature COTEK section marker */
   /*
@@ -482,6 +468,31 @@
   it can be seen, and WITHOUT a blend mode: the same fixed layer with
   `mix-blend-mode: normal` measured 24 ms against 24 ms for no layer at all.
   The blend is the entire cost; the texture itself is free.
+
+
+  ── Measured a second time, and the same answer ─────────────────────────
+  A grain overlay was reintroduced with the warm-ground redesign, on the
+  reasoning that flat colour reads as a slide and the same colour with a
+  texture reads as a material. True in principle; false at any opacity this
+  palette can carry. Measured again, the same way:
+
+    scroll of the home room, CPU throttled to a mid-range Android
+      with the grain (mix-blend-mode)   33.3ms median, 69 of 118 frames dropped
+      with the grain (no blend mode)    16.7ms median,  3 of 118 dropped
+      no grain at all                   16.7ms median,  0 of 118 dropped
+
+    how much of it you can actually see, per channel against the bare ground
+      light #efe6d6 at 0.05 opacity     max 2 of 255, mean 0.78
+      light #efe6d6 at 0.12 opacity     max 6 of 255, mean 1.71
+      dark  #191410 at 0.07 opacity     max 6 of 255, mean 2.56
+
+  Two of 255 is not a texture, it is a rounding error — and the opacity that
+  would make it visible on this ground looks like dirt rather than paper. So
+  it is gone again, and the note above stands as written.
+
+  The frosted header was measured a second time too, and is innocent a second
+  time: turning `backdrop-filter` off while the grain still blended left the
+  page at 33.3ms. Leave the frosted shell alone.
 
   Two things that look expensive were measured and are not, so leave them be:
   the frosted header's `backdrop-filter`, and the blurred drifting blobs behind
