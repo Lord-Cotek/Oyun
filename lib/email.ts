@@ -6,7 +6,14 @@ import { type Role } from "@prisma/client";
  * errors, we log and return false rather than throwing, so a failed email
  * never breaks sign-up or invites.
  */
-const RESEND_ENDPOINT = "https://api.resend.com/emails";
+/**
+ * Resend's own endpoint unless something says otherwise. Overridable so the
+ * send path can be exercised for real against a local sink — the alternative
+ * is testing everything around the email and hoping about the email itself —
+ * and so a self-hosted deployment can point at its own relay.
+ */
+const RESEND_ENDPOINT =
+  process.env.RESEND_ENDPOINT ?? "https://api.resend.com/emails";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://oyun.cotek.app";
 
 function fromAddress(): string {
@@ -275,4 +282,96 @@ function escapeHtml(s: string): string {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
+}
+
+/**
+ * A word to somebody who is coming to a day, and who is not in this app.
+ *
+ * ── Why these are not `sendNotificationEmail` ────────────────────────────
+ * That one ends with a button saying "Open Ìdílé", which for a guest is an
+ * invitation to a product they did not ask for. Somebody's cousin sent them a
+ * link about a dinner; the only thing this email should offer is that dinner.
+ * So the button goes to the invitation, the subject is about the day, and
+ * there is no sign-up anywhere in it.
+ *
+ * It also says, every time and in plain words, why they are receiving it and
+ * how to stop — because an address given once to answer one invitation must
+ * never start to feel like a list somebody has been put on.
+ */
+export async function sendGuestDayEmail({
+  to,
+  name,
+  /** "Tomorrow" | "Today" | "The day has moved" — the reason for writing. */
+  lead,
+  title,
+  when,
+  where,
+  hostName,
+  url,
+  note,
+}: {
+  to: string;
+  name?: string | null;
+  lead: string;
+  title: string;
+  when: string;
+  where?: string | null;
+  hostName: string;
+  /** Null where there is nothing left to open — a day that has been called off. */
+  url: string | null;
+  note?: string | null;
+}): Promise<boolean> {
+  // The whole name as they typed it. Taking the first word turns "Auntie Bisi"
+  // into "Auntie," which is nobody's name — and a guest wrote down exactly
+  // what they want to be called, so there is nothing here worth guessing at.
+  const greeting = name?.trim() || "Hello";
+  const html = shell(`
+    <p style="font-size:16px;line-height:1.6;color:#ECE9DF;">${escapeHtml(greeting)},</p>
+    <p style="font-size:13px;letter-spacing:3px;text-transform:uppercase;color:#CF7D43;margin-bottom:4px;">${escapeHtml(lead)}</p>
+    <p style="font-family:Georgia,'Times New Roman',serif;font-size:26px;line-height:1.25;color:#ECE9DF;margin:0 0 12px;">${escapeHtml(title)}</p>
+    <p style="font-size:15px;line-height:1.7;color:#ECE9DF;margin:0;">${escapeHtml(when)}</p>
+    ${where ? `<p style="font-size:14px;line-height:1.7;color:#8B9086;margin:4px 0 0;">${escapeHtml(where)}</p>` : ""}
+    ${note ? `<p style="font-size:14px;line-height:1.7;color:#ECE9DF;margin-top:16px;">${escapeHtml(note)}</p>` : ""}
+    ${
+      url
+        ? `<p style="margin:24px 0;">
+      <a href="${url}" style="display:inline-block;background:#CF7D43;color:#120D08;text-decoration:none;font-weight:600;padding:12px 20px;border-radius:8px;font-size:14px;">See the invitation</a>
+    </p>`
+        : `<div style="height:24px;"></div>`
+    }
+    <p style="font-size:12px;line-height:1.7;color:#8B9086;">
+      ${
+        url
+          ? `You are getting this because you told ${escapeHtml(hostName)} you were coming.
+      Open the invitation and take your reply back to stop — that removes your
+      address with it. It is used for nothing else.`
+          : `You are getting this because you told ${escapeHtml(hostName)} you were coming.
+      Nothing further will be sent about it, and your address goes with the invitation.`
+      }
+    </p>
+  `);
+  // Nulls are the lines that are not there; "" is a paragraph break that is.
+  // Filtering on falsiness collapses both and hands somebody a wall of text.
+  const text = [
+    `${greeting},`,
+    "",
+    lead.toUpperCase(),
+    title,
+    when,
+    where ?? null,
+    note ? "" : null,
+    note ?? null,
+    "",
+    url ? `See the invitation: ${url}` : null,
+    url ? "" : null,
+    `You are getting this because you told ${hostName} you were coming.`,
+    url
+      ? "Open the invitation and take your reply back to stop — that removes your"
+      : "Nothing further will be sent about it, and your address goes with the",
+    url ? "address with it. It is used for nothing else." : "invitation.",
+  ]
+    .filter((l): l is string => l !== null)
+    .join("\n");
+
+  return sendEmail({ to, subject: `${lead} — ${title}`, html, text });
 }

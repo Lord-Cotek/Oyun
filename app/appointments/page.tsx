@@ -11,6 +11,10 @@ import { PageHero } from "@/components/ui/PageHero";
 import { Card } from "@/components/ui/Card";
 import { Verse } from "@/components/ui/Verse";
 import { AppointmentBook } from "@/components/appointments/AppointmentBook";
+import { DiaryBook, type DayRow } from "@/components/dates/DiaryBook";
+import { getDiary } from "@/lib/events-db";
+import { getHostInvitations, inviteUrl } from "@/lib/invitations-db";
+import { type InviteRow } from "@/components/dates/InvitePanel";
 
 export const metadata: Metadata = {
   title: "Appointments",
@@ -31,22 +35,78 @@ export default async function AppointmentsPage() {
     redirect("/journey");
   }
 
-  const [upcoming, past] = await Promise.all([
+  const [upcoming, past, diary, invitations] = await Promise.all([
     getUpcomingAppointments(active.journey.id, session.user.id),
     getPastAppointments(active.journey.id, session.user.id),
+    getDiary(active.journey.id),
+    getHostInvitations(active.journey.id),
   ]);
+
+  const byEvent = new Map<string, InviteRow>(
+    invitations.map((i) => [
+      i.eventId,
+      {
+        slug: i.slug,
+        url: inviteUrl(i.slug),
+        hostName: i.hostName,
+        message: i.message,
+        showGuestList: i.showGuestList,
+        allowPlusOnes: i.allowPlusOnes,
+        capacity: i.capacity,
+        repliesByISO: i.repliesBy ? i.repliesBy.toISOString() : null,
+        closed: i.closedAt !== null,
+        revoked: i.revokedAt !== null,
+        settled: i.settledAt !== null,
+        options: i.options.map((o) => ({
+          id: o.id,
+          atISO: o.at.toISOString(),
+          hasTime: o.hasTime,
+          endsAtISO: o.endsAt ? o.endsAt.toISOString() : null,
+          votes: o._count.votes,
+        })),
+        replies: i.replies.map((r) => ({
+          id: r.id,
+          name: r.name,
+          answer: r.answer,
+          partySize: r.partySize,
+          note: r.note,
+        })),
+      },
+    ]),
+  );
+
+  const rows: DayRow[] = diary.map((d) => ({
+    key: d.key,
+    source: d.source,
+    sourceId: d.sourceId,
+    atISO: d.at.toISOString(),
+    endsAtISO: d.endsAt ? d.endsAt.toISOString() : null,
+    hasTime: d.hasTime,
+    label: d.label,
+    where: d.where,
+    note: d.note,
+    kind: d.kind,
+    editable: d.editable,
+    daysAway: d.daysAway,
+    // Only a day she wrote down can be invited to. Nobody RSVPs to a scan.
+    invite: d.source === "event" ? (byEvent.get(d.sourceId) ?? null) : null,
+  }));
 
   return (
     <>
       <SiteHeader active="appointments" />
       <main className="mx-auto max-w-shell px-6 py-10">
         <PageHero
-          eyebrow="Appointments"
-          title="Every date, and what to ask when you get there."
-          lede="Scans, checks, tests and clinics in one place — with the questions you mean to ask written down before you walk in. You will be reminded the day before, and on the morning itself when there is a time on the letter."
+          eyebrow="Your dates"
+          title="Every day that is coming, and what to ask when you get there."
+          lede="Scans, checks and clinics — with the questions you mean to ask written down before you walk in. And the days you arrange yourself: a class, a shower, a morning with the other mothers, which you can send a link to. You will be reminded the day before, and on the morning itself when there is a time."
         />
 
         <Card className="mt-8 p-8">
+          <DiaryBook rows={rows} canEdit />
+        </Card>
+
+        <Card className="mt-6 p-8">
           <AppointmentBook upcoming={upcoming} past={past} />
         </Card>
 

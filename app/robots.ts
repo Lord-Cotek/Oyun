@@ -16,6 +16,11 @@ export default function robots(): MetadataRoute.Robots {
         "/onboarding",
         "/reset-password",
         "/api",
+        // An invitation is for the people it was handed to. The link is
+        // unguessable and each page says noindex for itself, but a crawler
+        // that finds one pasted in a public forum should be told plainly too.
+        "/i",
+        "/appointments",
       ],
     },
     sitemap: `${siteUrl}/sitemap.xml`,

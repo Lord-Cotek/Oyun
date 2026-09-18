@@ -4,8 +4,8 @@
     "compares each against its twin in the sibling repository and fails if one",
     "has moved without the other.",
     "",
-    "A file belongs here when the two copies are the same CODE — the same",
-    "component, the same rules — even where the wording around it differs.",
+    "A file belongs here when the two copies are the same CODE \u2014 the same",
+    "component, the same rules \u2014 even where the wording around it differs.",
     "Differences the two apps are entitled to (their names, their nouns) go in",
     "`substitutions`: each pair folds the second spelling onto the first before",
     "comparing, so a deliberate difference is written down once rather than",
@@ -16,19 +16,19 @@
     "",
     "An entry marked `\"code\": true` is compared with its comments stripped. Those",
     "files are the same component but explain themselves to each app's own",
-    "reader — Oyun's draft-keeping talks about a letter to the baby, Ìdílé's",
-    "about a letter to a child — and both are right.",
+    "reader \u2014 Oyun's draft-keeping talks about a letter to the baby, \u00ccd\u00edl\u00e9's",
+    "about a letter to a child \u2014 and both are right.",
     "",
     "The checker and this manifest are themselves on the list. A rule that",
     "only one side is enforcing is not a rule.",
     "",
     "One pair lives under two names: the reminder rules are lib/reminders.ts",
-    "in Ìdílé and lib/nudges.ts in Oyun, because each file is named for what",
+    "in \u00ccd\u00edl\u00e9 and lib/nudges.ts in Oyun, because each file is named for what",
     "its own app calls the thing. `pair` names both."
   ],
   "substitutions": [
     [
-      "Ìdílé",
+      "\u00ccd\u00edl\u00e9",
       "Oyun"
     ],
     [
@@ -49,6 +49,31 @@
     ]
   ],
   "files": [
+    {
+      "pair": [
+        "lib/reminders.ts",
+        "lib/nudges.ts"
+      ],
+      "code": true,
+      "substitutions": [
+        [
+          "REMINDER_CAP",
+          "NUDGE_CAP"
+        ],
+        [
+          "REMINDER_TEXT_MAX",
+          "NUDGE_TEXT_MAX"
+        ],
+        [
+          "REMINDER_WHENS",
+          "NUDGE_WHENS"
+        ],
+        [
+          "reminderDueToday",
+          "nudgeDueToday"
+        ]
+      ]
+    },
     "components/ForgotPasswordForm.tsx",
     "components/MobileMenu.tsx",
     "components/NativePush.tsx",
@@ -70,12 +95,16 @@
       "path": "components/ThemeToggle.tsx",
       "code": true
     },
+    "components/dates/CalendarMonth.tsx",
     "components/feed/Feed.tsx",
     "components/feed/ReactionRow.tsx",
     {
       "path": "components/feed/YearStrip.tsx",
       "code": true
     },
+    "components/invite/GuestPoll.tsx",
+    "components/invite/GuestReply.tsx",
+    "components/invite/ShareInvite.tsx",
     "components/media/Lightbox.tsx",
     "components/onboarding/WrongAccountSignOut.tsx",
     "components/settings/ExportButton.tsx",
@@ -107,43 +136,20 @@
     "lib/bible.ts",
     "lib/blob-client.ts",
     "lib/book-intros.ts",
+    "lib/calendar.ts",
     "lib/fcm.ts",
     "lib/feed.ts",
     "lib/hymns.ts",
+    "lib/invitations.ts",
     "lib/password.ts",
     "lib/photos.ts",
     "lib/prisma.ts",
     "lib/rand.ts",
     "lib/reaction-emojis.ts",
-    {
-      "pair": [
-        "lib/reminders.ts",
-        "lib/nudges.ts"
-      ],
-      "code": true,
-      "substitutions": [
-        [
-          "REMINDER_CAP",
-          "NUDGE_CAP"
-        ],
-        [
-          "REMINDER_TEXT_MAX",
-          "NUDGE_TEXT_MAX"
-        ],
-        [
-          "REMINDER_WHENS",
-          "NUDGE_WHENS"
-        ],
-        [
-          "reminderDueToday",
-          "nudgeDueToday"
-        ]
-      ]
-    },
     "lib/scroll.ts",
-    "lib/shrink-image.ts",
     "lib/share.ts",
     "lib/shell.ts",
+    "lib/shrink-image.ts",
     "lib/use-attempt.ts",
     {
       "path": "lib/use-draft.ts",

@@ -53,6 +53,7 @@ model User {
   commentReactions  PostCommentReaction[]
 
   createdAt DateTime @default(now())
+  journeyEvents JourneyEvent[] @relation("JourneyEventCreator")
 }
 
 /// A small emoji reaction on an encouragement or a check-in.
@@ -264,6 +265,7 @@ model Journey {
   readingNotes   ReadingNote[]
   posts          Post[]
   appointments   Appointment[]
+  journeyEvents JourneyEvent[]
 }
 
 /// The family feed — an update, a praise, a prayer, or a milestone that the
@@ -523,6 +525,170 @@ enum AppointmentKind {
   IMMUNISATION
   CLASS // an antenatal or parenting class
   OTHER
+}
+
+/// What kind of day somebody has written down. Not clinical — that is what
+/// Appointment is for.
+enum JourneyEventKind {
+  CLASS // an antenatal or parenting class
+  SHOWER // a baby shower
+  GATHERING // other mothers, friends coming round, a meal
+  CHURCH
+  CELEBRATION
+  OTHER
+}
+
+/// A day the household has written down that is not a clinic letter.
+///
+/// ── Why this is not just another AppointmentKind ─────────────────────────
+/// An Appointment is a room you are called into: it carries `who` (the midwife
+/// to ask for), `questions` (the things you mean to ask and forget), and an
+/// `outcome` afterwards. None of that is true of a baby shower, and a shower
+/// is not something the mother "attends" — it is something somebody hosts.
+///
+/// They sit on the same calendar because that is what a person wants to look
+/// at. They are different rows because they are different things, and only
+/// one of them is something you can invite people to.
+model JourneyEvent {
+  id          String           @id @default(cuid())
+  journeyId   String
+  journey     Journey          @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  createdById String
+  createdBy   User             @relation("JourneyEventCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  kind        JourneyEventKind @default(GATHERING)
+  title       String
+  at          DateTime
+  /// "Saturday afternoon" is a real answer, and inventing 09:00 would become a
+  /// wrong morning reminder later.
+  hasTime     Boolean          @default(true)
+  /// When it finishes, where anybody said. Optional for the same reason.
+  endsAt      DateTime?
+  where       String?
+  note        String?
+  cancelledAt DateTime?
+  /// Where this day came from, when somebody who already uses Oyun copied an
+  /// invitation they were sent into their own diary. A plain id, not a
+  /// relation: the other journey may delete its invitation, and that must not
+  /// reach into this one's diary.
+  fromInvitationId String?
+  /// Set only when somebody deliberately makes this day shareable.
+  invitation  Invitation?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@index([journeyId, at])
+  @@index([at])
+  @@index([journeyId, fromInvitationId])
+}
+
+/// A day in the diary, made shareable with people who are not in this app.
+///
+/// ── Why this exists at all, in an app built on a closed circle ───────────
+/// Oyun has no public profiles and nothing a stranger can browse to, and that
+/// does not change here. What this is, is ONE link to ONE day, which the
+/// household hands to people it chose, the way it would hand round a paper
+/// invitation — the other mothers from the antenatal class, the friends coming
+/// to a shower. Nothing about the journey is reachable from it: not her
+/// appointments, not her letters, not a name that was not typed onto the
+/// invitation itself. And it ends when she ends it.
+///
+/// Nothing exists here until somebody deliberately makes it. A day with no
+/// Invitation row is exactly as private as it was before this feature.
+model Invitation {
+  id      String       @id @default(cuid())
+  eventId String       @unique
+  event   JourneyEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  /// The unguessable half of the link. Long, and from a real random source —
+  /// see lib/invitations-db.ts, and NOT lib/rand.ts, which says of itself that
+  /// it is not security-bearing.
+  slug    String       @unique
+  /// How the invitation signs itself: "Amara and Chidi", "The antenatal group".
+  /// Typed rather than taken from an account, so she chooses what a guest sees.
+  hostName      String
+  message       String?
+  /// Whether a guest sees who else is coming. At a shower that is half the
+  /// reason to come; at a quiet supper it is nobody's business.
+  showGuestList Boolean   @default(true)
+  allowPlusOnes Boolean   @default(true)
+  /// A cap on heads, not on replies: somebody may always still answer no.
+  capacity      Int?
+  repliesBy     DateTime?
+  /// Stopped taking replies. The invitation still reads.
+  closedAt      DateTime?
+  /// The link is dead. Kept rather than deleted, so the replies survive it.
+  revokedAt     DateTime?
+  /// Set when a "which day suits?" has been decided. Null and with options on
+  /// it means the question is still open; no options at all means there was
+  /// never a question, which is the ordinary invitation.
+  settledAt     DateTime?
+  /// Reminder bookkeeping, stamped the moment each is sent — the same shape
+  /// Appointment already uses, rather than a separate ledger table. A journey
+  /// event never repeats, so there is no occurrence to key on: one stamp per
+  /// invitation is the whole truth. Moving the day clears them, or the stamp
+  /// for the old day would swallow the reminder for the new one.
+  remindedDayBeforeAt DateTime?
+  remindedMorningAt   DateTime?
+  /// The count sent to the household the evening before — separate, because it
+  /// goes to different people and must not be suppressed by the guests' row.
+  hostDigestAt        DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  replies       InvitationReply[]
+  options       InvitationOption[]
+}
+
+/// One of the days being offered in a "which day suits?".
+model InvitationOption {
+  id           String     @id @default(cuid())
+  invitationId String
+  invitation   Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+  at           DateTime
+  hasTime      Boolean    @default(true)
+  endsAt       DateTime?
+  createdAt    DateTime   @default(now())
+  votes        InvitationVote[]
+
+  @@index([invitationId, at])
+}
+
+/// A guest ticking one day as one that works for them.
+///
+/// It hangs off their REPLY, not off a name or a session, so the token already
+/// in their browser owns their ticks as well as their answer.
+model InvitationVote {
+  optionId String
+  option   InvitationOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  replyId  String
+  reply    InvitationReply  @relation(fields: [replyId], references: [id], onDelete: Cascade)
+
+  @@id([optionId, replyId])
+  @@index([replyId])
+}
+
+/// One guest's answer. No account, and never one.
+model InvitationReply {
+  id           String     @id @default(cuid())
+  invitationId String
+  invitation   Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+  /// The guest's own secret, kept in their browser. It is what lets somebody
+  /// change their mind — real people tap twice, and without it the second tap
+  /// makes a second guest — and what stops one guest editing another's reply.
+  token        String     @unique
+  name         String
+  /// Optional, and the only contact detail this app will ever hold for
+  /// somebody who is not in it. Used for this one day and nothing else.
+  email        String?
+  /// "YES" | "MAYBE" | "NO". A string rather than an enum so another answer
+  /// could be added without a migration that rewrites the column.
+  answer       String
+  /// Including themselves. 1 means "just me".
+  partySize    Int        @default(1)
+  note         String?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  votes        InvitationVote[]
+
+  @@index([invitationId, createdAt])
 }
 
 /// A hospital or clinic appointment, and everything a tired person needs to
