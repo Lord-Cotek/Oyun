@@ -276,57 +276,77 @@ function Row({
           </div>
         </div>
       ) : (
-        <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-border pt-3">
-          {!a.attendedAt && !a.cancelledAt && (
-            <>
+        /**
+         * ── Five actions that used to read as one sentence ───────────────
+         * They were five bare words in the same uppercase mono with nothing
+         * but a gap between them, so "WE WENT ASK THE CIRCLE TO PRAY EDIT
+         * CANCELLED REMOVE" arrived as a single run-on line — and `ml-auto`
+         * on the last one stranded it alone on the right of a second row,
+         * which made it look like the end of that sentence rather than a
+         * separate, destructive thing.
+         *
+         * Two rows now, because these are two kinds of thing. What you do
+         * about the appointment gets real buttons with edges. What you do to
+         * the entry — correct it, record that it fell through, throw it away
+         * — sits underneath, quieter and smaller. Sentence case throughout:
+         * five shouted words in a row is most of why it read as prose.
+         */
+        <div className="mt-3 border-t border-border pt-3">
+          <div className="flex flex-wrap items-center gap-2">
+            {!a.attendedAt && !a.cancelledAt && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setClosing(true)}
+                  className="rounded-lg border border-positive/40 px-3 py-1.5 font-mono text-[0.68rem] text-positive transition-colors hover:bg-positive/[0.08]"
+                >
+                  We went
+                </button>
+                <button
+                  type="button"
+                  onClick={() => run(() => askCircleToPray(a.id))}
+                  className="rounded-lg border border-border px-3 py-1.5 font-mono text-[0.68rem] text-ink transition-colors hover:border-accent hover:text-accent"
+                >
+                  Ask the circle to pray
+                </button>
+              </>
+            )}
+            {(a.attendedAt || a.cancelledAt) && (
               <button
                 type="button"
-                onClick={() => setClosing(true)}
-                className="font-mono text-[0.62rem] uppercase tracking-widest text-muted hover:text-positive"
+                onClick={() => run(() => reopenAppointment(a.id))}
+                className="rounded-lg border border-border px-3 py-1.5 font-mono text-[0.68rem] text-ink transition-colors hover:border-accent hover:text-accent"
               >
-                We went
+                Put it back
               </button>
+            )}
+          </div>
+
+          <div className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1">
+            <button
+              type="button"
+              onClick={() => setEditing(true)}
+              className="font-mono text-[0.64rem] text-muted underline underline-offset-4 hover:text-ink"
+            >
+              Edit
+            </button>
+            {!a.attendedAt && !a.cancelledAt && (
               <button
                 type="button"
-                onClick={() => run(() => askCircleToPray(a.id))}
-                className="font-mono text-[0.62rem] uppercase tracking-widest text-muted hover:text-accent"
+                onClick={() => run(() => cancelAppointment(a.id))}
+                className="font-mono text-[0.64rem] text-muted underline underline-offset-4 hover:text-ink"
               >
-                Ask the circle to pray
+                It was cancelled
               </button>
-            </>
-          )}
-          {(a.attendedAt || a.cancelledAt) && (
+            )}
             <button
               type="button"
-              onClick={() => run(() => reopenAppointment(a.id))}
-              className="font-mono text-[0.62rem] uppercase tracking-widest text-muted hover:text-accent"
+              onClick={() => run(() => deleteAppointment(a.id))}
+              className="font-mono text-[0.64rem] text-muted underline underline-offset-4 hover:text-negative"
             >
-              Put it back
+              Remove
             </button>
-          )}
-          <button
-            type="button"
-            onClick={() => setEditing(true)}
-            className="font-mono text-[0.62rem] uppercase tracking-widest text-muted hover:text-ink"
-          >
-            Edit
-          </button>
-          {!a.attendedAt && !a.cancelledAt && (
-            <button
-              type="button"
-              onClick={() => run(() => cancelAppointment(a.id))}
-              className="font-mono text-[0.62rem] uppercase tracking-widest text-muted hover:text-accent2"
-            >
-              Cancelled
-            </button>
-          )}
-          <button
-            type="button"
-            onClick={() => run(() => deleteAppointment(a.id))}
-            className="ml-auto font-mono text-[0.62rem] uppercase tracking-widest text-muted hover:text-negative"
-          >
-            Remove
-          </button>
+          </div>
         </div>
       )}
     </li>
