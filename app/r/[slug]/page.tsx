@@ -62,8 +62,12 @@ export default async function PublicRegistryPage({
   const r = await getPublicRegistry(params.slug, token);
   if (!r) notFound();
 
+  // Every kind gets a section. A kind with no section is an item that exists
+  // in her room and nowhere a guest can see it — which is how the first
+  // version of this page silently swallowed the funds.
   const things = r.items.filter((i) => i.kind === "THING");
   const help = r.items.filter((i) => i.kind === "HELP");
+  const funds = r.items.filter((i) => i.kind === "CASH");
   const lists = r.items.filter((i) => i.kind === "LIST");
   const mine = r.items.filter((i) => i.mine > 0).length;
 
@@ -138,6 +142,23 @@ export default async function PublicRegistryPage({
           </p>
           <ul className="space-y-3">
             {help.map((i) => (
+              <li key={i.id}>
+                <GuestItem slug={r.slug} item={i} closed={r.closed} />
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {funds.length > 0 && (
+        <section className="mt-10">
+          <Eyebrow className="mb-2">Money towards it</Eyebrow>
+          <p className="mb-4 prose-serif-sm text-muted">
+            Sent straight to the family. Nothing is paid through this page, and
+            nobody here takes a cut. Any amount at all, and nothing is expected.
+          </p>
+          <ul className="space-y-3">
+            {funds.map((i) => (
               <li key={i.id}>
                 <GuestItem slug={r.slug} item={i} closed={r.closed} />
               </li>

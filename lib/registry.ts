@@ -9,8 +9,8 @@ import { isHousehold } from "@/lib/roles";
  * This is the vocabulary and the limits.
  */
 
-/** The three sorts of thing a registry can hold. See the schema for why. */
-export const ITEM_KINDS = ["THING", "HELP", "LIST"] as const;
+/** The four sorts of thing a registry can hold. See the schema for why. */
+export const ITEM_KINDS = ["THING", "HELP", "CASH", "LIST"] as const;
 export type ItemKind = (typeof ITEM_KINDS)[number];
 
 export function isItemKind(v: string): v is ItemKind {
@@ -52,6 +52,14 @@ export const KIND_COPY: Record<
     claim: "I'll do this",
     claimed: "You're doing this",
   },
+  CASH: {
+    label: "Money towards it",
+    blurb:
+      "Something people can put money towards — the cot fund, the hospital bag. They send it to you directly; nothing is paid through this app, and nobody here takes a cut.",
+    placeholder: "Towards the cot, the hospital bag…",
+    claim: "I'd like to give",
+    claimed: "You said you sent something",
+  },
   LIST: {
     label: "A whole list",
     blurb:
@@ -61,6 +69,23 @@ export const KIND_COPY: Record<
     claimed: "You got something from here",
   },
 };
+
+/** How her transfer details read on the page, and what they are called. */
+export const PAY_LABEL_MAX = 60;
+export const PAY_DETAILS_MAX = 600;
+export const PAY_NOTE_MAX = 300;
+
+/**
+ * Whether a cash card can be offered at all.
+ *
+ * A "give money" card with no way to send the money is a dead end dressed up
+ * as a gift, so the details come first and the kind is refused until they do.
+ */
+export function canTakeMoney(r: {
+  payDetails: string | null;
+}): boolean {
+  return (r.payDetails ?? "").trim().length > 0;
+}
 
 /** Limits, all of them checked on the server. */
 export const TITLE_MAX = 120;

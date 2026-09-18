@@ -27,6 +27,8 @@ export function ShareRegistry({
 }) {
   const [copied, setCopied] = useState(false);
   const [showQr, setShowQr] = useState(false);
+  const [busyQr, setBusyQr] = useState(false);
+  const [qrSaid, setQrSaid] = useState<string | null>(null);
 
   async function copy() {
     try {
@@ -37,6 +39,69 @@ export function ShareRegistry({
       // Clipboard refused — an old browser, or no permission. The address is
       // on the screen and selectable, which is the fallback that always works.
       setCopied(false);
+    }
+  }
+
+  /** The PNG from /registry/qr — the same code, as a file. */
+  async function qrFile(): Promise<File | null> {
+    const res = await fetch("/registry/qr", { cache: "no-store" });
+    if (!res.ok) return null;
+    const blob = await res.blob();
+    return new File([blob], "registry-qr.png", { type: "image/png" });
+  }
+
+  /**
+   * Saving it.
+   *
+   * An anchor with `download` rather than opening the endpoint in a tab: the
+   * response is an attachment either way, but a new tab on a phone flashes up
+   * and closes itself, which reads as something having gone wrong.
+   */
+  async function downloadQr() {
+    setQrSaid(null);
+    setBusyQr(true);
+    try {
+      const a = document.createElement("a");
+      a.href = "/registry/qr";
+      a.download = "registry-qr.png";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setQrSaid("Saved to your downloads.");
+    } catch {
+      setQrSaid("That did not save. Long-press the code to keep it instead.");
+    } finally {
+      setBusyQr(false);
+    }
+  }
+
+  /**
+   * Sending the code itself, not a link to it.
+   *
+   * Where the browser can share files — Android Chrome, iOS 16 and later — the
+   * picture goes straight into WhatsApp, which is the whole point: whoever is
+   * making the shower invitation wants the square, not another URL. Everywhere
+   * else this falls back to saving it, and says so rather than failing quietly.
+   */
+  async function shareQr() {
+    setQrSaid(null);
+    setBusyQr(true);
+    try {
+      const nav = navigator as Navigator & {
+        share?: (d: { title?: string; text?: string; files?: File[] }) => Promise<void>;
+        canShare?: (d: { files?: File[] }) => boolean;
+      };
+      const file = await qrFile();
+      if (file && nav.share && nav.canShare?.({ files: [file] })) {
+        await nav.share({ title, text: `${title} — our registry`, files: [file] });
+      } else {
+        await downloadQr();
+        setQrSaid("This browser cannot send pictures — saved it instead.");
+      }
+    } catch {
+      /* they closed the sheet, or the browser refused; nothing to say */
+    } finally {
+      setBusyQr(false);
     }
   }
 
@@ -98,6 +163,35 @@ export function ShareRegistry({
           <p className="prose-serif-xs text-center text-muted">
             Point a phone at it. Good on a shower invitation, or a card.
           </p>
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            <Pressable
+              type="button"
+              disabled={busyQr}
+              onClick={shareQr}
+              className="rounded-lg border border-border px-3 py-2 font-mono text-xs text-muted transition-colors hover:border-accent hover:text-accent disabled:opacity-40"
+            >
+              Send the code
+            </Pressable>
+            <Pressable
+              type="button"
+              disabled={busyQr}
+              onClick={downloadQr}
+              className="rounded-lg border border-border px-3 py-2 font-mono text-xs text-muted transition-colors hover:border-accent hover:text-accent disabled:opacity-40"
+            >
+              Save as a picture
+            </Pressable>
+            <a
+              href="/registry/qr?format=svg"
+              className="rounded-lg px-2 py-2 font-mono text-[0.62rem] uppercase tracking-widest text-muted underline underline-offset-4 hover:text-accent"
+            >
+              SVG for printing
+            </a>
+          </div>
+          {qrSaid && (
+            <p role="status" className="prose-serif-xs text-center text-muted">
+              {qrSaid}
+            </p>
+          )}
         </div>
       )}
     </div>

@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Pressable } from "@/components/ui/Pressable";
-import { claim, release } from "@/app/r/[slug]/actions";
+import { claim, release, revealPayDetails } from "@/app/r/[slug]/actions";
 import {
   GUEST_NAME_MAX,
   GUEST_NOTE_MAX,
@@ -43,10 +43,19 @@ export function GuestItem({
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
+  /** Fetched on a tap, never rendered with the page — see the note below. */
+  const [pay, setPay] = useState<{
+    label: string;
+    details: string;
+    note: string | null;
+  } | null>(null);
+  const [asking, startAsking] = useTransition();
 
   const copy = KIND_COPY[item.kind as ItemKind] ?? KIND_COPY.THING;
   const left = remaining(item.quantity, item.claimed);
-  const gone = item.kind !== "LIST" && left <= 0;
+  // Neither a whole list nor a fund is ever "taken": several people may give
+  // towards the same cot, and several may buy from the same Amazon list.
+  const gone = item.kind !== "LIST" && item.kind !== "CASH" && left <= 0;
   const taken = item.mine > 0;
 
   return (
@@ -79,6 +88,11 @@ export function GuestItem({
                 Not a thing — a hand
               </span>
             )}
+            {item.kind === "CASH" && (
+              <span className="rounded-full border border-border px-2 py-0.5 font-mono text-[0.56rem] uppercase tracking-widest text-muted">
+                Money towards it
+              </span>
+            )}
           </div>
 
           {item.note && (
@@ -89,7 +103,7 @@ export function GuestItem({
             <Facts>
               {[
                 item.price,
-                item.kind !== "LIST" && item.quantity > 1 && !gone
+                item.kind !== "LIST" && item.kind !== "CASH" && item.quantity > 1 && !gone
                   ? `${left} still wanted`
                   : null,
                 gone ? <span className="text-accent">Taken</span> : null,
@@ -114,6 +128,56 @@ export function GuestItem({
           )}
         </div>
       </div>
+
+      {/*
+        ── Why the details are asked for rather than printed ────────────────
+        These are somebody's bank details. Rendering them into the page would
+        put them in front of everybody who ever opens the link, in every
+        screenshot of it, and in whatever fetches the page to build a preview
+        card. Fetched on a tap they reach only the people who meant to give.
+
+        Anybody holding the link can still tap, and the family is told exactly
+        that where they type them in. It is a smaller blast radius, not a wall,
+        and the wording here does not pretend otherwise.
+      */}
+      {item.kind === "CASH" && (
+        <div className="mt-3 border-t border-border/70 pt-3">
+          {pay ? (
+            <div className="rounded-xl border border-border bg-bg p-3">
+              <p className="font-mono text-[0.58rem] uppercase tracking-widest text-muted">
+                {pay.label}
+              </p>
+              <p className="mt-1.5 whitespace-pre-wrap break-words font-mono text-xs text-ink">
+                {pay.details}
+              </p>
+              {pay.note && (
+                <p className="mt-2 prose-serif-xs text-muted">{pay.note}</p>
+              )}
+              <p className="mt-2 prose-serif-xs text-muted">
+                Send it to them directly — nothing is paid through this page.
+              </p>
+            </div>
+          ) : (
+            <Pressable
+              type="button"
+              disabled={asking}
+              onClick={() =>
+                startAsking(async () => {
+                  const res = await revealPayDetails(slug);
+                  if (res.ok) {
+                    setPay({ label: res.label, details: res.details, note: res.note });
+                  } else {
+                    setError("They have not left a way to send money.");
+                  }
+                })
+              }
+              className="rounded-lg border border-border px-3 py-2 font-mono text-xs text-muted transition-colors hover:border-accent hover:text-accent disabled:opacity-40"
+            >
+              {asking ? "One moment…" : "Show how to send"}
+            </Pressable>
+          )}
+        </div>
+      )}
 
       {error && <p className="mt-2 prose-serif-xs text-negative">{error}</p>}
 
@@ -149,7 +213,7 @@ export function GuestItem({
             >
               <input type="hidden" name="slug" value={slug} />
               <input type="hidden" name="itemId" value={item.id} />
-              {item.kind !== "LIST" && left > 1 && (
+              {item.kind !== "LIST" && item.kind !== "CASH" && left > 1 && (
                 <input
                   type="number"
                   name="quantity"
@@ -169,7 +233,11 @@ export function GuestItem({
               <input
                 name="note"
                 maxLength={GUEST_NOTE_MAX}
-                placeholder="A word for them (optional)"
+                placeholder={
+                  item.kind === "CASH"
+                    ? "How much, if you want them to know (optional)"
+                    : "A word for them (optional)"
+                }
                 className={field}
               />
               <div className="flex items-center gap-2">

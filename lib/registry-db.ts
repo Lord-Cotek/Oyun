@@ -63,6 +63,15 @@ export interface PublicRegistry {
   hostName: string;
   message: string | null;
   closed: boolean;
+  /**
+   * Whether there is a way to send money, NOT what it is.
+   *
+   * The details themselves never travel with the page — a guest asks for them
+   * and `revealPayDetails` fetches them then. All this says is whether the
+   * card should offer to show anything, which is what the page needs in order
+   * to render and is not worth hiding.
+   */
+  takesMoney: boolean;
   items: PublicItem[];
 }
 
@@ -97,6 +106,9 @@ export async function getPublicRegistry(
       hostName: true,
       message: true,
       closedAt: true,
+      // Selected only to answer "is there one" — see takesMoney below. The
+      // string itself is dropped before anything leaves this function.
+      payDetails: true,
       items: {
         orderBy: [
           { mostNeeded: "desc" },
@@ -126,6 +138,7 @@ export async function getPublicRegistry(
     hostName: r.hostName,
     message: r.message,
     closed: r.closedAt !== null,
+    takesMoney: (r.payDetails ?? "").trim().length > 0,
     items: r.items.map((i) => ({
       id: i.id,
       kind: i.kind as ItemKind,

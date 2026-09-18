@@ -33,16 +33,23 @@ const label =
  * presses the button. A registry with the wrong name on a cot is worse than
  * one she typed by hand.
  *
- * ── The three kinds ──────────────────────────────────────────────────────
- * A thing, a hand, and a whole list. The middle one is the reason this is
- * Oyun's registry rather than a copy of somebody else's: a week of meals is
- * the most useful thing anybody gave us, and no shop sells it.
+ * ── The four kinds ───────────────────────────────────────────────────────
+ * A thing, a hand, money towards something, and a whole list.
  *
- * The third recognises a pasted Amazon wishlist and offers to put it on as
- * one card rather than pretending to know what is inside it — see
+ * "A hand" is the reason this is Oyun's registry rather than a copy of
+ * somebody else's: a week of meals is the most useful thing anybody gives a
+ * new mother, and no shop sells it.
+ *
+ * "Money towards it" only appears once she has said where money can be sent
+ * — see components/registry/PayDetails.tsx. It is a card with a purpose on
+ * it, not a payment: people send to her directly and nothing passes through
+ * this app.
+ *
+ * "A whole list" recognises a pasted Amazon wishlist and offers to put it on
+ * as one card rather than pretending to know what is inside it — see
  * lib/link-preview.ts for why it does not go rummaging.
  */
-export function AddItem() {
+export function AddItem({ takesMoney }: { takesMoney: boolean }) {
   const [kind, setKind] = useState<ItemKind>("THING");
   const [link, setLink] = useState("");
   const [title, setTitle] = useState("");
@@ -124,7 +131,10 @@ export function AddItem() {
   return (
     <div className="surface-premium rounded-2xl border border-border p-5 md:p-6">
       <div className="mb-4 flex flex-wrap gap-1.5">
-        {ITEM_KINDS.map((k) => (
+        {/* "Money towards it" only appears once there is somewhere for the
+            money to go. A card that asks for money and cannot say where to
+            send it is a dead end dressed up as a gift. */}
+        {ITEM_KINDS.filter((k) => k !== "CASH" || takesMoney).map((k) => (
           <button
             key={k}
             type="button"
@@ -142,7 +152,7 @@ export function AddItem() {
 
       <p className="mb-4 prose-serif-sm text-muted">{copy.blurb}</p>
 
-      {kind !== "HELP" && (
+      {kind !== "HELP" && kind !== "CASH" && (
         <div className="mb-4">
           <label htmlFor="registry-link" className={label}>
             {kind === "LIST" ? "The list's address" : "Link from the shop"}
@@ -224,7 +234,9 @@ export function AddItem() {
             placeholder={
               kind === "HELP"
                 ? "Any evening that suits you — we will be home."
-                : "Size 0–3 months. Any colour but white."
+                : kind === "CASH"
+                  ? "Anything towards it helps. Truly, nothing is expected."
+                  : "Size 0–3 months. Any colour but white."
             }
             className={`${field} resize-none`}
           />
@@ -232,22 +244,22 @@ export function AddItem() {
 
         {kind !== "LIST" && (
           <div className="flex flex-wrap gap-4">
-            {kind === "THING" && (
+            {(kind === "THING" || kind === "CASH") && (
               <div className="min-w-[8rem] flex-1">
                 <label htmlFor="registry-price" className={label}>
-                  About how much
+                  {kind === "CASH" ? "A suggested amount" : "About how much"}
                 </label>
                 <input
                   id="registry-price"
                   value={price}
                   maxLength={PRICE_MAX}
                   onChange={(e) => setPrice(e.target.value)}
-                  placeholder="AED 249"
+                  placeholder={kind === "CASH" ? "Any amount at all" : "AED 249"}
                   className={field}
                 />
               </div>
             )}
-            <div className="w-28">
+            <div className={kind === "CASH" ? "hidden" : "w-28"}>
               <label htmlFor="registry-quantity" className={label}>
                 How many
               </label>

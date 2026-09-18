@@ -4,7 +4,12 @@ import QRCode from "qrcode";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getActiveMembership } from "@/lib/data";
-import { canKeepRegistry, claimsVisibleToHost, type ItemKind } from "@/lib/registry";
+import {
+  canKeepRegistry,
+  canTakeMoney,
+  claimsVisibleToHost,
+  type ItemKind,
+} from "@/lib/registry";
 import { registryUrl } from "@/lib/registry-db";
 import { SiteHeader } from "@/components/SiteHeader";
 import { PageHero } from "@/components/ui/PageHero";
@@ -16,6 +21,7 @@ import { AddItem } from "@/components/registry/AddItem";
 import { ItemList, type HostItem } from "@/components/registry/ItemList";
 import { ShareRegistry } from "@/components/registry/ShareRegistry";
 import { RegistrySettings } from "@/components/registry/RegistrySettings";
+import { PayDetails } from "@/components/registry/PayDetails";
 import { ThankYous, ThankAll, type ThankYou } from "@/components/registry/ThankYous";
 
 export const metadata: Metadata = {
@@ -46,6 +52,9 @@ export default async function RegistryPage() {
       message: true,
       showClaims: true,
       closedAt: true,
+      payLabel: true,
+      payDetails: true,
+      payNote: true,
       items: {
         orderBy: [{ mostNeeded: "desc" }, { position: "asc" }, { createdAt: "asc" }],
         select: {
@@ -133,6 +142,7 @@ export default async function RegistryPage() {
 
   const closed = registry.closedAt !== null;
   const showClaims = claimsVisibleToHost(registry);
+  const takesMoney = canTakeMoney(registry);
 
   const items: HostItem[] = registry.items.map((i) => ({
     id: i.id,
@@ -213,12 +223,19 @@ export default async function RegistryPage() {
                 closed={closed}
               />
             </div>
+            <div className="mt-3">
+              <PayDetails
+                payLabel={registry.payLabel}
+                payDetails={registry.payDetails}
+                payNote={registry.payNote}
+              />
+            </div>
           </Card>
 
           {!closed && (
             <div>
               <Eyebrow className="mb-4">Add something</Eyebrow>
-              <AddItem />
+              <AddItem takesMoney={takesMoney} />
             </div>
           )}
 

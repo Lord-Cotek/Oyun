@@ -9,7 +9,11 @@ import { newSlug } from "@/lib/registry-db";
 import { readLink, type LinkPreview } from "@/lib/link-preview";
 import {
   canKeepRegistry,
+  canTakeMoney,
   isItemKind,
+  PAY_DETAILS_MAX,
+  PAY_LABEL_MAX,
+  PAY_NOTE_MAX,
   HOST_MAX,
   ITEMS_MAX,
   MESSAGE_MAX,
@@ -42,7 +46,7 @@ async function keeper() {
 async function mine(journeyId: string) {
   return prisma.registry.findUnique({
     where: { journeyId },
-    select: { id: true, slug: true, closedAt: true },
+    select: { id: true, slug: true, closedAt: true, payDetails: true },
   });
 }
 
@@ -95,6 +99,46 @@ export async function updateRegistry(formData: FormData): Promise<Result> {
       title,
       hostName,
       message: clean(formData.get("message"), MESSAGE_MAX) || null,
+    },
+  });
+  refresh();
+  return { ok: true };
+}
+
+/**
+ * Her own transfer details — the whole of the money feature.
+ *
+ * What this is: three strings she typed, shown to a guest who asks for them.
+ * A guest sends money to her the way they always would.
+ *
+ * What this is NOT, and must never quietly become: a payment. Nothing here
+ * talks to a bank, takes a card, holds a balance or moves a penny. The day it
+ * did, this would stop being a family app and become a regulated payments
+ * product in every country it runs in — licensing, know-your-customer,
+ * chargebacks, somebody's money sitting in an account that is not theirs.
+ * That is a decision to take deliberately, with lawyers, and not one to
+ * arrive at by adding a field.
+ *
+ * Clearing the details is allowed at any moment and takes the offer down with
+ * them: cash cards stop offering anything the instant there is nothing to
+ * offer.
+ */
+export async function setPayDetails(formData: FormData): Promise<Result> {
+  const { journeyId } = await keeper();
+  const r = await mine(journeyId);
+  if (!r) return { ok: false, error: "There is no registry yet." };
+
+  const details = clean(formData.get("payDetails"), PAY_DETAILS_MAX);
+  const label = clean(formData.get("payLabel"), PAY_LABEL_MAX);
+  if (details && !label) {
+    return { ok: false, error: "Say what sort of transfer it is." };
+  }
+  await prisma.registry.update({
+    where: { id: r.id },
+    data: {
+      payLabel: details ? label : null,
+      payDetails: details || null,
+      payNote: details ? clean(formData.get("payNote"), PAY_NOTE_MAX) || null : null,
     },
   });
   refresh();
@@ -170,6 +214,15 @@ export async function addItem(input: {
   const title = (input.title ?? "").trim().slice(0, TITLE_MAX);
   if (!title) return { ok: false, error: "What is it called?" };
   const kind = isItemKind(input.kind) ? input.kind : "THING";
+  // A "give money" card with nowhere to send it is a dead end dressed up as
+  // a gift. Checked here as well as hidden in the form, because a form is not
+  // a wall.
+  if (kind === "CASH" && !canTakeMoney(r)) {
+    return {
+      ok: false,
+      error: "Add how somebody can send money to you first.",
+    };
+  }
 
   const count = await prisma.registryItem.count({ where: { registryId: r.id } });
   if (count >= ITEMS_MAX) {

@@ -133,6 +133,41 @@ export async function claim(formData: FormData): Promise<Result> {
   return { ok: true };
 }
 
+/**
+ * Handing a guest the transfer details, when they ask for them.
+ *
+ * ── Why this is an action and not a field on the page ────────────────────
+ * Because the alternative is a bank account printed into the HTML of every
+ * visit. Anybody who opens the link would have it; so would a screenshot of
+ * the page passed round a group chat, so would a browser's saved copy, and so
+ * would whatever fetches the link to build a preview card.
+ *
+ * Fetching it on a tap does not make it secret — anybody holding the link can
+ * tap, and that is said plainly in the room where she types it. What it does
+ * is shrink the blast radius from "everybody who ever saw the page" to
+ * "everybody who asked to give", which is a real difference and the honest
+ * amount of protection to claim.
+ *
+ * It is refused on a registry that does not offer money at all, so this
+ * cannot be used to probe whether a slug exists.
+ */
+export async function revealPayDetails(slug: string): Promise<
+  { ok: true; label: string; details: string; note: string | null } | { ok: false }
+> {
+  const r = await prisma.registry.findUnique({
+    where: { slug },
+    select: { payLabel: true, payDetails: true, payNote: true },
+  });
+  const details = (r?.payDetails ?? "").trim();
+  if (!details) return { ok: false };
+  return {
+    ok: true,
+    label: (r?.payLabel ?? "").trim() || "Transfer",
+    details,
+    note: (r?.payNote ?? "").trim() || null,
+  };
+}
+
 /** Changing their mind. Their own claim only — the token decides that. */
 export async function release(formData: FormData): Promise<Result> {
   const slug = String(formData.get("slug") ?? "");

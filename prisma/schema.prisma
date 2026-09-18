@@ -534,6 +534,27 @@ model Registry {
   /// whom, until she closes the registry — at which point the whole list
   /// appears, because by then she is writing thank-you notes and needs it.
   showClaims Boolean   @default(true)
+  /// ── How somebody sends money, when she wants that offered ────────────
+  ///
+  /// Her own details, typed by her: a bank account, a mobile-money number, a
+  /// handle on whatever people use where she lives. Money does NOT pass
+  /// through this app — a guest reads these and sends directly, exactly as
+  /// they would if she had texted them. Oyun never sees a card, never holds a
+  /// penny and takes no cut, which is what keeps this a family app rather
+  /// than a regulated payments product.
+  ///
+  /// Null until she fills them in, and no cash card can be offered before
+  /// that.
+  ///
+  /// These are the most sensitive thing on a public page, so they are NOT
+  /// rendered into it. A guest taps to ask for them and they are fetched
+  /// then — which keeps them out of the first paint, out of a screenshot of
+  /// the page, and out of anything a link-preview crawler reads. Anybody
+  /// holding the link can still tap. That is said plainly where she types
+  /// them: it is friction and a smaller blast radius, not a wall.
+  payLabel   String?
+  payDetails String?
+  payNote    String?
   /// Stopped taking claims. The page still reads; it becomes a record.
   closedAt   DateTime?
   createdAt  DateTime  @default(now())
@@ -552,6 +573,11 @@ model Registry {
 ///           while she sleeps. Every registry in the world does products;
 ///           this is the half of what a new mother needs that none of them
 ///           will let anybody give her.
+///   CASH  — money towards something, sent directly to her by whatever means
+///           she has typed onto the registry. The app is not in the middle of
+///           it: this is a card that says "the cot fund" and, on request, how
+///           to send. What we know afterwards is that somebody SAID they had
+///           sent something — a note for a thank-you, never a receipt.
 ///   LIST  — a whole list kept somewhere else, an Amazon wishlist most often.
 ///           One card, one link, and no pretence that we know what is on it:
 ///           scraping somebody's wishlist is fragile and breaks the week the
