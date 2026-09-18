@@ -33,6 +33,7 @@ import { Verse } from "@/components/ui/Verse";
 import { Button } from "@/components/ui/Button";
 import { ActionTile } from "@/components/ui/ActionTile";
 import { Reveal } from "@/components/ui/Reveal";
+import { Arches, Rays } from "@/components/ui/Marks";
 import { JourneyProgress } from "@/components/JourneyProgress";
 import { SupportActions } from "@/components/journey/SupportActions";
 import { NudgeList } from "@/components/journey/NudgeList";
@@ -128,6 +129,15 @@ export default async function JourneyPage() {
     );
   }
 
+  /**
+   * What the hero is made of — the newest photograph anybody on this journey
+   * shared. A journey with nothing uploaded yet gets a band of amber instead,
+   * which is a deliberate fallback rather than an empty frame.
+   */
+  const heroPhoto =
+    familyPosts.flatMap((p) => p.media).find((m) => m.type === "image")?.url ??
+    null;
+
   const position = computePosition(journey.dueDate);
   const { stage } = position;
 
@@ -195,51 +205,81 @@ export default async function JourneyPage() {
     return (
       <>
         <SiteHeader active="journey" />
-        <main className="mx-auto max-w-shell px-6 py-10">
+        <main className="mx-auto max-w-shell px-6 pb-10">
           {showBirth && (
             <div className="mb-6 animate-fade-up">
               <BirthMoment babyCount={journey.babyCount} overdue={position.born} />
             </div>
           )}
-          {/* Half-height on purpose. This is the room a mother opens several
-              times a day; at full size the band *was* the first screen on a
-              phone and pushed every action below the fold. The ring stays —
-              a week of forty is real news, not a score. */}
-          <section className="animate-fade-up overflow-hidden rounded-2xl border border-border bg-surface p-6 md:p-9">
-            {/* Text first, then the ring — on a phone this was reversed, so
-                a 176px ring and its caption owned the top four hundred
-                pixels and the greeting, the week and every action in the room
-                began below them. Measured at 412px there was nothing to tap
-                until 584px down. The ring stays and stays prominent; it just
-                stopped going first and stopped being the size of a saucer.
-                It also puts Oyun in the same order as Ìdílé's home, which is
-                what makes the two read as one family. */}
-            <div className="flex flex-col items-start gap-5 md:flex-row md:items-center md:justify-between md:gap-8">
-              <div className="min-w-0">
-                {motherName && (
-                  <p className="mb-2 font-serif text-lg italic text-muted">
-                    Hello, {motherName}.
-                  </p>
-                )}
-                <Eyebrow className="mb-2">
-                  {position.born ? "Infancy" : "Pregnancy"} · {stageLabel}
-                </Eyebrow>
-                <h1 className="max-w-2xl font-serif text-[1.75rem] leading-tight text-ink md:text-4xl">
-                  {stage.title}
-                </h1>
-                <p className="mt-2 max-w-prose prose-serif-sm text-muted">
-                  {heroSubtitle}
-                </p>
-              </div>
+          {/* ── The way in ──────────────────────────────────────────────
+              A photograph from this journey, warmed into the palette, in
+              place of another surface-coloured card. Same composition as
+              Ìdílé's home, in Oyun's own hues — amber and rose where Ìdílé
+              has clay and olive. That is the whole sibling arrangement: one
+              material, two families of colour.
 
-              <div className="flex flex-col items-center gap-2.5 md:pl-6">
-                <ProgressRing
-                  progress={ringProgress}
-                  value={position.born ? months : position.week ?? 0}
-                  unit={position.born ? "months old" : "of 40 weeks"}
-                  size={132}
+              Nothing to upload yet gives the amber band instead, shorter. A
+              first week should not be the emptiest version of the app. */}
+          <section
+            className={`band-1 relative -mx-6 animate-fade-up overflow-hidden md:mx-0 md:rounded-3xl ${
+              heroPhoto ? "h-[21rem]" : "h-[16rem]"
+            }`}
+          >
+            {heroPhoto && (
+              <>
+                {/* A background, not an <img>. The photograph here is pure
+                    decoration — no information, no alt text — and an <img>
+                    whose source has gone (a deleted blob, an expired URL)
+                    paints a broken-image icon in the corner of the hero. A
+                    background that fails paints nothing, and the band
+                    underneath simply shows through. */}
+                <div
+                  className="absolute inset-0 bg-cover bg-center"
+                  style={{ backgroundImage: `url("${encodeURI(heroPhoto)}")` }}
                 />
-                <p className="font-mono text-xs text-muted">
+                <div className="absolute inset-0 bg-[#2e1f08]/22" />
+                <div className="absolute inset-x-0 bottom-0 h-3/4 bg-gradient-to-t from-[#241806] via-[#2e1f08]/65 to-transparent" />
+              </>
+            )}
+            <Arches className="on-band" />
+
+            <div className="absolute inset-x-0 bottom-0 p-6 pb-14">
+              {motherName && (
+                <p className="font-serif text-lg italic opacity-75 on-band">
+                  Hello, {motherName}.
+                </p>
+              )}
+              <p className="mt-1 font-mono text-[0.66rem] uppercase tracking-[0.16em] opacity-70 on-band">
+                {position.born ? "Infancy" : "Pregnancy"} · {stageLabel}
+              </p>
+              <h1 className="mt-2.5 max-w-[16ch] font-serif text-[1.95rem] leading-[1.12] on-band md:max-w-2xl md:text-4xl">
+                {stage.title}
+              </h1>
+            </div>
+          </section>
+
+          {/* ── The ring, straddling the join ────────────────────────────
+              The emotional centre of this app — a week of forty is real news,
+              not a score — so it gets the lifted card that Ìdílé gives to the
+              day's worship. Set beside its own words rather than stacked
+              above them, which is what let it come off the top of the screen
+              without being shrunk to a badge.
+
+              `relative z-10` is load-bearing: a static block paints before a
+              positioned one, so without it the hero's scrims paint over this
+              card and slice it in half. */}
+          <div className="relative z-10 -mt-9">
+            <div className="lift flex items-center gap-4 rounded-[1.4rem] bg-surface p-4">
+              <ProgressRing
+                progress={ringProgress}
+                value={position.born ? months : position.week ?? 0}
+                unit={position.born ? "months old" : "of 40 weeks"}
+                size={96}
+                stroke={8}
+              />
+              <div className="min-w-0 flex-1">
+                <p className="prose-serif-sm text-ink">{heroSubtitle}</p>
+                <p className="mt-1 font-serif text-[0.86rem] italic text-muted">
                   {position.born
                     ? journey.babyCount > 1
                       ? "welcome, little ones"
@@ -248,7 +288,7 @@ export default async function JourneyPage() {
                 </p>
               </div>
             </div>
-          </section>
+          </div>
 
           <div className="mt-4">
             <ComingUp appointments={nextAppointments} />
@@ -261,16 +301,16 @@ export default async function JourneyPage() {
           {/* Colorful launcher — the journey's app grid */}
           <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
             <Reveal>
-              <ActionTile href="/worship" label="Worship" hint="Daily altar" icon="flame" />
+              <ActionTile tone={0} href="/worship" label="Worship" hint="Daily altar" icon="flame" />
             </Reveal>
             <Reveal delay={60}>
-              <ActionTile href="/prayer" label="Prayer" hint="Requests" icon="hands" />
+              <ActionTile tone={1} href="/prayer" label="Prayer" hint="Requests" icon="hands" />
             </Reveal>
             <Reveal delay={120}>
-              <ActionTile href="/care" label="Care" hint="Your heart" icon="heart" />
+              <ActionTile tone={2} href="/care" label="Care" hint="Your heart" icon="heart" />
             </Reveal>
             <Reveal delay={180}>
-              <ActionTile
+              <ActionTile tone={3}
                 href="/child"
                 label="Nursery"
                 hint={journey.babyCount > 1 ? `${journey.babyCount} profiles` : "Profile"}
@@ -278,10 +318,10 @@ export default async function JourneyPage() {
               />
             </Reveal>
             <Reveal delay={240}>
-              <ActionTile href="/firsts" label="Firsts" hint={`${milestoneCount} kept`} icon="sparkles" />
+              <ActionTile tone={4} href="/firsts" label="Firsts" hint={`${milestoneCount} kept`} icon="sparkles" />
             </Reveal>
             <Reveal delay={300}>
-              <ActionTile href="/circle" label="Circle" hint="Who’s praying" icon="users" />
+              <ActionTile tone={5} href="/circle" label="Circle" hint="Who’s praying" icon="users" />
             </Reveal>
           </div>
 
@@ -306,9 +346,21 @@ export default async function JourneyPage() {
           </div>
 
           <div className="mt-6 grid gap-4 lg:grid-cols-[1.5fr_1fr]">
-            <Card className="p-8">
-              <Verse text={stage.verse.text} reference={stage.verse.ref} size="lg" />
-              <div className="mt-8 space-y-6 border-t border-border pt-6">
+            <Card className="overflow-hidden p-8">
+              {/* The stage's scripture, on a band that bleeds to the card's
+                  own edges. It was set on the same surface as the reflection
+                  underneath it, which made the one set-apart thing on the
+                  page look like the introduction to a paragraph. */}
+              <div className="band-1 relative -mx-8 -mt-8 mb-8 overflow-hidden px-8 py-9 text-center">
+                <Rays className="on-band" />
+                <Verse
+                  onBand
+                  text={stage.verse.text}
+                  reference={stage.verse.ref}
+                  size="lg"
+                />
+              </div>
+              <div className="space-y-6">
                 <Block eyebrow="This stage">{stage.body}</Block>
                 <Block eyebrow="A reflection">{stage.reflection}</Block>
               </div>
@@ -425,21 +477,51 @@ export default async function JourneyPage() {
   return (
     <>
       <SiteHeader active="journey" showCare={false} />
-      <main className="mx-auto max-w-shell px-6 py-10">
-        <section className="animate-fade-up overflow-hidden rounded-2xl border border-border bg-surface p-8 md:p-10">
-          {partnerFirst && (
-            <p className="mb-3 font-serif text-lg italic text-muted">
-              Hello, {partnerFirst}.
-            </p>
+      <main className="mx-auto max-w-shell px-6 pb-10">
+        {/* The same way in as the mother sees, from the other side of it.
+            A partner opens this app as often as she does, and leaving this
+            view on the old surface-coloured card would have meant half the
+            household getting the new home screen and half not. */}
+        <section
+          className={`band-1 relative -mx-6 animate-fade-up overflow-hidden md:mx-0 md:rounded-3xl ${
+            heroPhoto ? "h-[21rem]" : "h-[16rem]"
+          }`}
+        >
+          {heroPhoto && (
+            <>
+              {/* A background, not an <img>. The photograph here is pure
+                  decoration — no information, no alt text — and an <img>
+                  whose source has gone (a deleted blob, an expired URL)
+                  paints a broken-image icon in the corner of the hero. A
+                  background that fails paints nothing, and the band
+                  underneath simply shows through. */}
+              <div
+                className="absolute inset-0 bg-cover bg-center"
+                style={{ backgroundImage: `url("${encodeURI(heroPhoto)}")` }}
+              />
+              <div className="absolute inset-0 bg-[#2e1f08]/22" />
+              <div className="absolute inset-x-0 bottom-0 h-3/4 bg-gradient-to-t from-[#241806] via-[#2e1f08]/65 to-transparent" />
+            </>
           )}
-          <Eyebrow className="mb-3">
-            Supporting {motherName} · {stageLabel}
-          </Eyebrow>
-          <h1 className="max-w-3xl font-serif text-4xl leading-tight text-ink md:text-5xl">
-            {stage.title}
-          </h1>
+          <Arches className="on-band" />
 
-          <div className="mt-8 grid gap-4 md:grid-cols-2">
+          <div className="absolute inset-x-0 bottom-0 p-6 pb-8">
+            {partnerFirst && (
+              <p className="font-serif text-lg italic opacity-75 on-band">
+                Hello, {partnerFirst}.
+              </p>
+            )}
+            <p className="mt-1 font-mono text-[0.66rem] uppercase tracking-[0.16em] opacity-70 on-band">
+              Supporting {motherName} · {stageLabel}
+            </p>
+            <h1 className="mt-2.5 max-w-[16ch] font-serif text-[1.95rem] leading-[1.12] on-band md:max-w-3xl md:text-4xl">
+              {stage.title}
+            </h1>
+          </div>
+        </section>
+
+        <section className="overflow-hidden rounded-2xl border border-border bg-surface p-6 md:p-8">
+          <div className="grid gap-4 md:grid-cols-2">
             <div className="rounded-xl border border-border bg-bg/50 p-6">
               <Eyebrow className="mb-3">How she is</Eyebrow>
               {mood ? (

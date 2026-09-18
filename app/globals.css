@@ -9,11 +9,11 @@
 /* Dark is the default (brand: dark editorial). */
 :root,
 :root[data-theme="dark"] {
-  --bg: #080b11;
-  --surface: #1a202c;
-  --border: #333b48;
+  --bg: #14110d;
+  --surface: #221d17;
+  --border: #40372c;
   --ink: #ece8de;
-  --muted: #939aa6;
+  --muted: #a0968a;
 
   --accent: #efb35c; /* amber, primary — tuned warmer/maternal, brightened */
   --accent-deep: #f6c479; /* lighter on hover so it stays legible on dark */
@@ -29,12 +29,13 @@
      surfaces catch light like glass. Re-theme here, never in JS. */
   --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.38), 0 8px 22px -6px rgba(0, 0, 0, 0.58);
   --shadow-2: 0 3px 8px rgba(0, 0, 0, 0.44), 0 28px 60px -16px rgba(0, 0, 0, 0.68);
+  --lift: 0 12px 34px -10px rgba(0, 0, 0, 0.7);
   /* A plain value first, then the mix. An engine without color-mix()
      (Safari before 16.2, Firefox before 113) drops the second
      declaration and keeps this one — without it the sticky header's
      background resolves to nothing and the page scrolls under its own
      navigation. Same colours, computed against --surface / --ink. */
-  --glass-tint: rgba(26, 32, 44, 0.72);
+  --glass-tint: rgba(34, 29, 23, 0.72);
   --glass-tint: color-mix(in srgb, var(--surface) 72%, transparent);
   --glass-hairline: rgba(236, 232, 222, 0.1);
   --glass-hairline: color-mix(in srgb, var(--ink) 10%, transparent);
@@ -48,26 +49,38 @@
   color-scheme: dark;
 }
 
-/* Light — a cool blue-grey paper, kin to Oyun's own blue-black dark. It was
-   warm cream, the one that turns up on every second generated page; pushing
-   Oyun cool and Ìdílé green-grey also lets the two siblings tell themselves
-   apart at a glance. Contrast measured, not guessed: ink/bg, muted/bg and
-   accent/bg all clear WCAG AA for text, and surface now steps clear of bg so
-   a card is a card without being painted as one. */
+/* Light — warm linen, and a deliberate reversal of the cool blue-grey.
+
+   The ground was pushed cool partly to avoid warm cream, the palette that
+   turns up on every second generated page, and partly so the two siblings
+   could be told apart at a glance. The first reason was sound and the result
+   was still cold; what actually keeps this off the cliché is the material
+   below — bands of colour, gloss on the fills, grain over the whole thing —
+   none of which the over-used version has.
+
+   The second reason is now carried by hue rather than temperature, which is
+   the better place for it: both apps are warm, Ìdílé leads clay and olive,
+   Oyun leads amber and rose. They read as family instead of as strangers,
+   which is what they are.
+
+   Contrast measured, not guessed: ink/bg 13.5, muted/bg 5.3, accent/bg 5.1,
+   accent2/bg 5.0 — all clear of AA for body text. The rose came down from
+   #a8504a to #a04944 because the warmer ground lifted it to 4.48, just under
+   the line it used to clear. */
 :root[data-theme="light"] {
-  --bg: #e0e4ea;
-  --surface: #f7f8fa;
-  --border: #c4cad3;
-  --ink: #1a1d24;
-  --muted: #575d68;
+  --bg: #efeae0;
+  --surface: #fbf8f2;
+  --border: #d5ccbd;
+  --ink: #24201a;
+  --muted: #675f52;
 
   --accent: #8f5410; /* deep amber — legible as small text on ivory (AA) */
   --accent-deep: #71410c; /* darker still, for hover */
-  --on-accent: #f7f8fa; /* near-white text on the deep-amber fill (AA) */
+  --on-accent: #fbf8f2; /* near-white text on the deep-amber fill (AA) */
 
   --positive: #3f7d51;
   --negative: #b23b32;
-  --accent2: #a8504a; /* deeper rose so it reads on ivory */
+  --accent2: #a04944; /* deeper rose so it reads on the linen (AA) */
 
   /* Premium elevation & gloss (light). Softer, warmer shadows; a bright top
      sheen so ivory panels read like polished stone. */
@@ -75,7 +88,8 @@
     0 10px 26px -8px rgba(72, 60, 38, 0.14);
   --shadow-2: 0 3px 10px rgba(72, 60, 38, 0.1),
     0 30px 60px -18px rgba(72, 60, 38, 0.22);
-  --glass-tint: rgba(247, 248, 250, 0.68);
+  --lift: 0 10px 30px -10px rgba(72, 48, 28, 0.42);
+  --glass-tint: rgba(251, 248, 242, 0.68);
   --glass-tint: color-mix(in srgb, var(--surface) 68%, transparent);
   --glass-hairline: rgba(255, 255, 255, 0.7);
   --glass-hairline: color-mix(in srgb, #ffffff 70%, transparent);
@@ -296,6 +310,63 @@
     box-shadow: var(--shadow-2);
   }
 
+
+  /* ── Material ────────────────────────────────────────────────────────
+     A surface with light on it, a band of colour, and paper underneath.
+
+     What this replaces: every panel in the app was the same white rectangle
+     at the same elevation on a pale ground, with about two per cent of the
+     screen carrying any colour at all. That is what read as a document
+     rather than software. Bands, gloss and grain are the material the
+     design was missing — not decoration laid over it.
+
+     The two apps share this file's STRUCTURE and not its hues. Ìdílé leads
+     clay and olive; Oyun leads amber and rose, which is what it already led
+     with. Siblings rather than twins.
+
+     Every value here was measured: cream on each fill clears AA for body
+     text, and so does the quieter hint line at 70%. */
+
+  .band-1 { background: #8a5e18; color: #fbf8f2; }
+  .band-2 { background: #a0544c; color: #fbf8f2; }
+  .on-band { color: #fbf8f2; }
+
+  /* Two layers on every fill: a light wash falling off at 55%, then the
+     colour. That highlight is the whole difference between a flat swatch and
+     a surface that has light falling on it — it is what "glossy" means here,
+     and it costs one gradient. */
+  .fill-1 { --fill: linear-gradient(145deg, #8a5e18, #6b4711); } /* honey */
+  .fill-2 { --fill: linear-gradient(145deg, #a0544c, #7c3b35); } /* rose */
+  .fill-3 { --fill: linear-gradient(145deg, #46564f, #333f3a); } /* teal */
+  .fill-4 { --fill: linear-gradient(145deg, #5a5233, #423c24); } /* olive */
+  .fill-1, .fill-2, .fill-3, .fill-4 {
+    background-image:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.17), rgba(255, 255, 255, 0) 55%),
+      var(--fill);
+    color: #fbf8f2;
+    box-shadow: var(--lift);
+  }
+
+  /* Lifted, for the one object on a screen that should look nearest. */
+  .lift { box-shadow: var(--lift); }
+
+  /* Paper. One tileable noise layer over everything, at about 5%. It is
+     fixed rather than scrolling so it behaves like the grain of the page
+     rather than a texture printed on the content. */
+  .grain {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    pointer-events: none;
+    opacity: 0.055;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  }
+  :root[data-theme="dark"] .grain {
+    mix-blend-mode: overlay;
+    opacity: 0.09;
+  }
+
   /* The signature COTEK section marker */
   /*
     A section marker, and only that.
@@ -311,11 +382,26 @@
     heading shout at the same volume as the one above it.
   */
   .eyebrow {
-    font-family: var(--font-dm-mono), "DM Mono", ui-monospace, monospace;
-    text-transform: uppercase;
-    letter-spacing: 0.14em;
-    font-size: 0.7rem;
-    line-height: 1.2;
+    /* Serif italic, sentence case — no longer mono uppercase.
+
+       This was the single loudest thing making the app read as a document
+       rather than software: nine of these on one screen, in a monospace, in
+       capitals, with letter-spacing, each one shouting a heading that was
+       usually three quiet words. That typeface in caps is the voice of a
+       receipt or a terminal, and it was doing the work that colour, material
+       and hierarchy should have been sharing.
+
+       They are set in the reading face now, in italic, at the size of a
+       caption. The labels were already authored in sentence case and merely
+       shouted by CSS, so nothing had to be rewritten to turn the volume
+       down. Mono stays where it earns its place: dates, counts, timestamps
+       and anything that lines up in a column. */
+    font-family: var(--font-literata), Literata, Georgia, serif;
+    font-style: italic;
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 0.9rem;
+    line-height: 1.35;
     color: var(--muted);
   }
 

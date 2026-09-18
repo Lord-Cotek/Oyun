@@ -165,7 +165,9 @@ export async function SiteHeader({
             href="/search"
             aria-label="Search"
             title="Search"
-            className="rounded-lg p-2 text-muted transition-colors hover:bg-surface hover:text-ink"
+            // 44pt. It was 18px of icon in 8px of padding — 34px, and the
+            // first thing a thumb reaches for at the top of every screen.
+            className="inline-flex h-11 w-11 items-center justify-center rounded-lg text-muted transition-colors hover:bg-surface hover:text-ink"
           >
             <Icon name="search" size={18} aria-hidden="true" />
           </Link>
