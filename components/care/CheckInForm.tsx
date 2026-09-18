@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { addCheckIn } from "@/app/care/actions";
 import { MOOD_ORDER, MOOD_META } from "@/lib/moods";
+import { DraftTextarea } from "@/components/ui/DraftTextarea";
 
 export function CheckInForm() {
   const [mood, setMood] = useState<string>("STEADY");
@@ -41,7 +42,8 @@ export function CheckInForm() {
           );
         })}
       </div>
-      <textarea
+      <DraftTextarea
+        draftKey="care:checkin"
         name="note"
         rows={2}
         placeholder="A word about today (optional) — this stays yours unless you share it."

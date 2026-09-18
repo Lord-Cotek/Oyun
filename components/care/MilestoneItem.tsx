@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { mediaAlt } from "@/lib/alt";
 import { useFormStatus } from "react-dom";
 import { updateMilestone, deleteMilestone } from "@/app/care/actions";
 import { MilestoneFields, milestoneTitle } from "@/components/care/MilestoneFields";
 import { PhotoGallery } from "@/components/ui/PhotoGallery";
+import { sendPhotos } from "@/components/care/send-photos";
 
 export type MilestoneData = {
   id: string;
@@ -25,17 +27,38 @@ export function MilestoneItem({
   children: { id: string; name: string }[];
 }) {
   const [editing, setEditing] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
+  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const occurred = new Date(m.occurredAt);
   const childId = m.childId ?? "";
 
   if (editing) {
     return (
-      <li className="relative">
+      <li id={`milestone-${m.id}`} className="notif-target relative">
         <span className="absolute -left-[1.4rem] top-1.5 h-2 w-2 rounded-full bg-accent ring-4 ring-bg" />
         <form
+          ref={formRef}
           action={async (fd) => {
-            await updateMilestone(fd);
-            setEditing(false);
+            setMsg(null);
+            try {
+              const lost = await sendPhotos(formRef.current, fd, setMsg);
+              await updateMilestone(fd);
+              if (lost === 0) {
+                setEditing(false);
+              } else {
+                // Kept open, because the ones that failed are still sitting in
+                // the picker and closing the form would take them with it.
+                setMsg({
+                  ok: false,
+                  text: `Saved, but ${lost} ${lost === 1 ? "photo" : "photos"} wouldn’t upload. Try ${lost === 1 ? "it" : "them"} again.`,
+                });
+              }
+            } catch (err) {
+              setMsg({
+                ok: false,
+                text: err instanceof Error ? err.message : "Couldn’t save.",
+              });
+            }
           }}
           className="space-y-3 rounded-lg border border-border bg-bg p-4"
         >
@@ -51,6 +74,14 @@ export function MilestoneItem({
               childId,
             }}
           />
+          {msg && (
+            <p
+              role="status"
+              className={`prose-serif-xs ${msg.ok ? "text-muted" : "text-negative"}`}
+            >
+              {msg.text}
+            </p>
+          )}
           <div className="flex items-center gap-3">
             <SaveBtn />
             <button
@@ -67,7 +98,7 @@ export function MilestoneItem({
   }
 
   return (
-    <li className="relative">
+    <li id={`milestone-${m.id}`} className="notif-target relative">
       <span className="absolute -left-[1.4rem] top-1.5 h-2 w-2 rounded-full bg-accent ring-4 ring-bg" />
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
@@ -80,7 +111,7 @@ export function MilestoneItem({
             )}
           </p>
           {m.note && (
-            <p className="mt-0.5 font-mono text-xs leading-relaxed text-muted">{m.note}</p>
+            <p className="mt-0.5 prose-serif-xs text-muted">{m.note}</p>
           )}
           <p className="mt-0.5 font-mono text-[0.68rem] uppercase tracking-widest text-muted">
             {occurred.toLocaleDateString(undefined, {
@@ -91,7 +122,10 @@ export function MilestoneItem({
           </p>
           <PhotoGallery
             urls={m.photoUrls}
-            alt={`${milestoneTitle(m.kind, m.title)} — photo`}
+            alt={mediaAlt({
+              said: m.note ?? milestoneTitle(m.kind, m.title),
+              kind: "milestone",
+            })}
           />
         </div>
         <div className="flex shrink-0 items-center gap-2">

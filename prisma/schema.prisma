@@ -18,10 +18,21 @@ model User {
   notifyByEmail Boolean   @default(true)
   weeklyDigest  Boolean   @default(true)
 
+  /// What may interrupt this person — see lib/notify-prefs.ts. Each governs a
+  /// group a family recognises rather than a notification type, and each
+  /// defaults to true so nobody who was already being told stops being told.
+  /// Switching one off silences the push and the email; the notification is
+  /// still written down and still appears in the bell.
+  notifyCircle Boolean @default(true)
+  notifyHer    Boolean @default(true)
+  notifyDates  Boolean @default(true)
+  notifyDiary  Boolean @default(true)
+  notifyHouse  Boolean @default(true)
+
   accounts          Account[]
   sessions          Session[]
   memberships       Membership[]
-  ownedJourneys     Journey[]          @relation("JourneyOwner")
+  ownedJourneys     Journey[]             @relation("JourneyOwner")
   checkIns          CheckIn[]
   letters           Letter[]
   nudges            Nudge[]
@@ -39,8 +50,11 @@ model User {
   posts             Post[]
   postComments      PostComment[]
   postReactions     PostReaction[]
+  commentReactions  PostCommentReaction[]
 
-  createdAt DateTime @default(now())
+  createdAt     DateTime       @default(now())
+  journeyEvents JourneyEvent[] @relation("JourneyEventCreator")
+  letterReplies LetterReply[]
 }
 
 /// A small emoji reaction on an encouragement or a check-in.
@@ -231,6 +245,14 @@ model Journey {
   status    JourneyStatus @default(ACTIVE)
   lossAt    DateTime?
   createdAt DateTime      @default(now())
+  /// The photograph at the top of the home screen.
+  ///
+  /// Null means "whatever was shared most recently", which is what this did
+  /// before anyone could choose — a sensible default and a poor permanent
+  /// answer, because the first thing you see every day should not change
+  /// because somebody posted a screenshot. Setting this pins one picture;
+  /// clearing it goes back to following the feed.
+  coverUrl  String?
 
   // Scripture Journey — a chosen reading plan that advances by completion.
   readingPlanId    String?
@@ -238,6 +260,7 @@ model Journey {
   readingUpdatedAt DateTime?
 
   memberships    Membership[]
+  registry       Registry?
   invites        Invite[]
   checkIns       CheckIn[]
   letters        Letter[]
@@ -252,22 +275,33 @@ model Journey {
   readingNotes   ReadingNote[]
   posts          Post[]
   appointments   Appointment[]
+  journeyEvents  JourneyEvent[]
 }
 
 /// The family feed — an update, a praise, a prayer, or a milestone that the
 /// circle (mother, partner, and supporters) shares and carries together.
 model Post {
-  id        String    @id @default(cuid())
-  journeyId String
-  journey   Journey   @relation(fields: [journeyId], references: [id], onDelete: Cascade)
-  authorId  String
-  author    User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  kind      String    @default("UPDATE") // UPDATE | PRAISE | PRAYER | MILESTONE
-  body      String
-  imageUrl  String? // legacy single image; new posts use mediaUrls
-  mediaUrls String[]  @default([]) // images and videos, in order
-  createdAt DateTime  @default(now())
-  editedAt  DateTime?
+  id         String    @id @default(cuid())
+  journeyId  String
+  journey    Journey   @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  authorId   String
+  author     User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  kind       String    @default("UPDATE") // UPDATE | PRAISE | PRAYER | MILESTONE
+  body       String
+  imageUrl   String? // legacy single image; new posts use mediaUrls
+  mediaUrls  String[]  @default([]) // images and videos, in order
+  /// Kept to the family: the mother, the one beside her, and the relatives on
+  /// this journey. An accountability partner or a friend in the circle never
+  /// sees it, anywhere — not in the diary, not in search, not in the export,
+  /// and not as a notification.
+  ///
+  /// False by default, which is exactly what every post written before this
+  /// existed was. Nothing a family has already shared changes audience
+  /// underneath them. Who counts as family is decided in one place,
+  /// lib/post-visibility.ts, and every query that reads a post asks it.
+  familyOnly Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+  editedAt   DateTime?
 
   comments  PostComment[]
   reactions PostReaction[]
@@ -284,7 +318,28 @@ model PostComment {
   body      String
   createdAt DateTime @default(now())
 
+  reactions PostCommentReaction[]
+
   @@index([postId, createdAt])
+}
+
+/// A reaction to somebody's REPLY, not to the post itself.
+///
+/// Its own table rather than a nullable column on PostReaction: that one is
+/// unique on (postId, userId, kind) and making postId optional would weaken a
+/// constraint that is doing real work. Same shape, same `kind` strings from
+/// lib/feed.ts, so a reply answers the way a post does.
+model PostCommentReaction {
+  id        String      @id @default(cuid())
+  commentId String
+  comment   PostComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kind      String
+  createdAt DateTime    @default(now())
+
+  @@unique([commentId, userId, kind])
+  @@index([commentId])
 }
 
 model PostReaction {
@@ -343,6 +398,7 @@ model Child {
   note       String?
   createdAt  DateTime    @default(now())
   milestones Milestone[]
+  letters    Letter[]
 
   @@index([journeyId])
 }
@@ -396,16 +452,206 @@ model CheckIn {
 
 /// Letters to the baby / to each other.
 model Letter {
-  id        String   @id @default(cuid())
+  id        String        @id @default(cuid())
   journeyId String
-  journey   Journey  @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  journey   Journey       @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  body      String
+  toBaby    Boolean       @default(true)
+  /// Which of them it is written to, once there is more than one of them.
+  ///
+  /// Null means all of them, which is what a letter written during the
+  /// pregnancy is and what every letter written before this column existed
+  /// stays. A family with one baby never sees this: there is nothing to
+  /// choose between, so the picker does not appear and the column stays null.
+  ///
+  /// SetNull rather than Cascade on purpose. If a child row is ever removed,
+  /// the letters written to them must not go with it — they are the most
+  /// irreplaceable thing in this app, and a letter that quietly becomes a
+  /// letter to all of them is a far better failure than a letter that is gone.
+  childId   String?
+  child     Child?        @relation(fields: [childId], references: [id], onDelete: SetNull)
+  createdAt DateTime      @default(now())
+  replies   LetterReply[]
+
+  @@index([journeyId, createdAt])
+}
+
+/// A written reply to a letter.
+///
+/// Letters used to take emoji only, and an emoji is the right weight for
+/// "I saw this" and the wrong one for answering it. A letter between two
+/// people is a conversation; it was being given a doorbell and no door.
+///
+/// Who may write one is not decided here — see lib/letter-access.ts. The rule
+/// is exactly the rule for reacting, and both call the same function, because
+/// two copies of a permission rule is one rule and one bug waiting.
+model LetterReply {
+  id        String   @id @default(cuid())
+  letterId  String
+  letter    Letter   @relation(fields: [letterId], references: [id], onDelete: Cascade)
   authorId  String
   author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
   body      String
-  toBaby    Boolean  @default(true)
   createdAt DateTime @default(now())
 
-  @@index([journeyId, createdAt])
+  @@index([letterId, createdAt])
+}
+
+/// ── The registry ─────────────────────────────────────────────────────────
+///
+/// One list of what a family actually needs, made of links to wherever those
+/// things are sold, and shared as a single address anybody can open.
+///
+/// Why this is in a family app at all: a registry is a pregnancy-shaped need.
+/// It appears around the sixth month, peaks at the shower, and is finished a
+/// few weeks after the birth — one of the very few features here that ends by
+/// itself. And the people it is for are already here. Every other registry
+/// makes a mother assemble an audience from nothing; this one already knows
+/// who the grandmothers are.
+///
+/// Why links rather than a shop: there is no single store this family buys
+/// from. Amazon, Noon, Mumzworld, a shop in Lekki, a cousin bringing a thing
+/// from London. A registry tied to one retailer is useless to them, so this
+/// holds a link to anywhere and does not care where.
+///
+/// ── What it deliberately does not do ─────────────────────────────────────
+/// No money passes through this app. Not a payment, not a cash gift, not a
+/// contribution to a fund. The moment it did, this would stop being a family
+/// app and become a regulated payments product, and that is a decision to
+/// take on purpose rather than to arrive at by accident.
+///
+/// It also does not claim to know what anybody actually bought. No shop tells
+/// you that, and pretending otherwise would be a lie told to a mother about
+/// whether her baby has a cot. What it knows is what somebody SAID they were
+/// getting — see RegistryClaim.
+model Registry {
+  id         String    @id @default(cuid())
+  journeyId  String    @unique
+  journey    Journey   @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  /// The unguessable half of the public address. From node:crypto and long —
+  /// see lib/registry-db.ts, and NOT lib/rand.ts, which says of itself that
+  /// it is not security-bearing.
+  slug       String    @unique
+  /// What the page is called: "For Baby Adeyemi". Hers to type.
+  title      String
+  /// How it signs itself to a guest — "Amara and Chidi", "The Adeyemis".
+  /// Typed, never taken from an account, so she chooses what a stranger is
+  /// told about who she is.
+  hostName   String
+  /// A word to whoever opens it.
+  message    String?
+  /// Whether she is shown who has taken what.
+  ///
+  /// Off is the surprise: she sees that a thing is spoken for and not by
+  /// whom, until she closes the registry — at which point the whole list
+  /// appears, because by then she is writing thank-you notes and needs it.
+  showClaims Boolean   @default(true)
+  /// ── How somebody sends money, when she wants that offered ────────────
+  ///
+  /// Her own details, typed by her: a bank account, a mobile-money number, a
+  /// handle on whatever people use where she lives. Money does NOT pass
+  /// through this app — a guest reads these and sends directly, exactly as
+  /// they would if she had texted them. Oyun never sees a card, never holds a
+  /// penny and takes no cut, which is what keeps this a family app rather
+  /// than a regulated payments product.
+  ///
+  /// Null until she fills them in, and no cash card can be offered before
+  /// that.
+  ///
+  /// These are the most sensitive thing on a public page, so they are NOT
+  /// rendered into it. A guest taps to ask for them and they are fetched
+  /// then — which keeps them out of the first paint, out of a screenshot of
+  /// the page, and out of anything a link-preview crawler reads. Anybody
+  /// holding the link can still tap. That is said plainly where she types
+  /// them: it is friction and a smaller blast radius, not a wall.
+  payLabel   String?
+  payDetails String?
+  payNote    String?
+  /// Stopped taking claims. The page still reads; it becomes a record.
+  closedAt   DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  items RegistryItem[]
+}
+
+/// One thing on the list.
+///
+/// `kind` is the whole reason this is more than a list of shopping links:
+///
+///   THING — a thing in a shop, with a link to it.
+///   HELP  — not a thing at all. A week of meals, three evenings of cooking,
+///           a lift to the 34-week appointment, somebody to hold the baby
+///           while she sleeps. Every registry in the world does products;
+///           this is the half of what a new mother needs that none of them
+///           will let anybody give her.
+///   CASH  — money towards something, sent directly to her by whatever means
+///           she has typed onto the registry. The app is not in the middle of
+///           it: this is a card that says "the cot fund" and, on request, how
+///           to send. What we know afterwards is that somebody SAID they had
+///           sent something — a note for a thank-you, never a receipt.
+///   LIST  — a whole list kept somewhere else, an Amazon wishlist most often.
+///           One card, one link, and no pretence that we know what is on it:
+///           scraping somebody's wishlist is fragile and breaks the week the
+///           shop changes its markup. So it points, and the shop keeps its
+///           own record of what has been bought from it.
+model RegistryItem {
+  id         String   @id @default(cuid())
+  registryId String
+  registry   Registry @relation(fields: [registryId], references: [id], onDelete: Cascade)
+  kind       String   @default("THING")
+  title      String
+  note       String?
+  /// Where it is sold. Read once when she pastes it — see lib/link-preview.ts
+  /// — and everything read is hers to correct.
+  url        String?
+  imageUrl   String?
+  /// Text, not a number: "AED 249", "about ₦40,000", "whatever you like".
+  /// A decimal column would force a currency and a precision onto something
+  /// that is a note to a guest, not an amount anybody is charged.
+  price      String?
+  /// How many are wanted. Two of the same sleepsuit is a real answer.
+  quantity   Int      @default(1)
+  /// The handful of things that actually matter, said so plainly.
+  mostNeeded Boolean  @default(false)
+  position   Int      @default(0)
+  createdAt  DateTime @default(now())
+
+  claims RegistryClaim[]
+
+  @@index([registryId, position])
+}
+
+/// Somebody saying they are getting this.
+///
+/// A reservation, not a receipt. Nobody here knows whether the cot was
+/// actually bought, and this row does not claim to: what it does is stop the
+/// second grandmother buying the second cot, which is the entire practical
+/// job a registry has.
+///
+/// No account, and there will never be one. The guest's browser keeps a long
+/// random token, the same way an invitation reply does, which is how the same
+/// person changes their mind rather than adding a second claim, and why one
+/// guest cannot release another's.
+model RegistryClaim {
+  id        String       @id @default(cuid())
+  itemId    String
+  item      RegistryItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  token     String
+  /// Optional: somebody may give anonymously, and a mother writing thank-you
+  /// notes would rather have a name than a blank — so it is asked for and
+  /// never required.
+  name      String?
+  note      String?
+  quantity  Int          @default(1)
+  createdAt DateTime     @default(now())
+  /// Ticked off by her when the thank-you has been said.
+  thankedAt DateTime?
+
+  @@unique([itemId, token])
+  @@index([itemId])
 }
 
 /// Capturing the firsts.
@@ -427,19 +673,19 @@ model Milestone {
 
 /// Gentle reminders — "check in on her today" / appointment reminders.
 model Nudge {
-  id        String    @id @default(cuid())
-  journeyId String
-  journey   Journey   @relation(fields: [journeyId], references: [id], onDelete: Cascade)
-  userId    String
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  text      String
-  dueAt     DateTime
-  doneAt    DateTime?
+  id         String    @id @default(cuid())
+  journeyId  String
+  journey    Journey   @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  text       String
+  dueAt      DateTime
+  doneAt     DateTime?
   /// Stamped the morning this one is told, so it is told once and never again.
   /// Null on every row that existed before reminders worked at all; those are
   /// skipped by the date window rather than fired off in a batch.
   remindedAt DateTime?
-  createdAt DateTime  @default(now())
+  createdAt  DateTime  @default(now())
 
   @@index([journeyId, dueAt])
   @@index([dueAt])
@@ -488,8 +734,185 @@ enum AppointmentKind {
   POSTNATAL // the mother's own check after the birth
   BABY_CHECK // the baby's check
   IMMUNISATION
-  CLASS // an antenatal or parenting class
+  /// RETIRED. A class is a thing she chooses to go to, often with people she
+  /// invites — a day of her own, not a room she is called into — so it lives
+  /// in JourneyEventKind now, and nothing in the app will file one here again:
+  /// it is gone from APPOINTMENT_KINDS, so it is offered by no form and
+  /// accepted by no action. Every class already written down was moved by
+  /// scripts/move-classes.mjs.
+  ///
+  /// The value stays in the type on purpose. Dropping a value from a Postgres
+  /// enum needs `--accept-data-loss` on `prisma db push`, and that flag would
+  /// sit in the build accepting every future destruction too — a much worse
+  /// thing than one unused word in a type nobody reads. It also means a row
+  /// written in the seconds between the move and the deploy still reads back
+  /// correctly instead of erroring.
+  CLASS
   OTHER
+}
+
+/// What kind of day somebody has written down. Not clinical — that is what
+/// Appointment is for.
+enum JourneyEventKind {
+  CLASS // an antenatal or parenting class
+  SHOWER // a baby shower
+  GATHERING // other mothers, friends coming round, a meal
+  CHURCH
+  CELEBRATION
+  OTHER
+}
+
+/// A day the household has written down that is not a clinic letter.
+///
+/// ── Why this is not just another AppointmentKind ─────────────────────────
+/// An Appointment is a room you are called into: it carries `who` (the midwife
+/// to ask for), `questions` (the things you mean to ask and forget), and an
+/// `outcome` afterwards. None of that is true of a baby shower, and a shower
+/// is not something the mother "attends" — it is something somebody hosts.
+///
+/// They sit on the same calendar because that is what a person wants to look
+/// at. They are different rows because they are different things, and only
+/// one of them is something you can invite people to.
+model JourneyEvent {
+  id               String           @id @default(cuid())
+  journeyId        String
+  journey          Journey          @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  createdById      String
+  createdBy        User             @relation("JourneyEventCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  kind             JourneyEventKind @default(GATHERING)
+  title            String
+  at               DateTime
+  /// "Saturday afternoon" is a real answer, and inventing 09:00 would become a
+  /// wrong morning reminder later.
+  hasTime          Boolean          @default(true)
+  /// When it finishes, where anybody said. Optional for the same reason.
+  endsAt           DateTime?
+  where            String?
+  note             String?
+  cancelledAt      DateTime?
+  /// Where this day came from, when somebody who already uses Oyun copied an
+  /// invitation they were sent into their own diary. A plain id, not a
+  /// relation: the other journey may delete its invitation, and that must not
+  /// reach into this one's diary.
+  fromInvitationId String?
+  /// Set only when somebody deliberately makes this day shareable.
+  invitation       Invitation?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  @@index([journeyId, at])
+  @@index([at])
+  @@index([journeyId, fromInvitationId])
+}
+
+/// A day in the diary, made shareable with people who are not in this app.
+///
+/// ── Why this exists at all, in an app built on a closed circle ───────────
+/// Oyun has no public profiles and nothing a stranger can browse to, and that
+/// does not change here. What this is, is ONE link to ONE day, which the
+/// household hands to people it chose, the way it would hand round a paper
+/// invitation — the other mothers from the antenatal class, the friends coming
+/// to a shower. Nothing about the journey is reachable from it: not her
+/// appointments, not her letters, not a name that was not typed onto the
+/// invitation itself. And it ends when she ends it.
+///
+/// Nothing exists here until somebody deliberately makes it. A day with no
+/// Invitation row is exactly as private as it was before this feature.
+model Invitation {
+  id                  String             @id @default(cuid())
+  eventId             String             @unique
+  event               JourneyEvent       @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  /// The unguessable half of the link. Long, and from a real random source —
+  /// see lib/invitations-db.ts, and NOT lib/rand.ts, which says of itself that
+  /// it is not security-bearing.
+  slug                String             @unique
+  /// How the invitation signs itself: "Amara and Chidi", "The antenatal group".
+  /// Typed rather than taken from an account, so she chooses what a guest sees.
+  hostName            String
+  message             String?
+  /// Whether a guest sees who else is coming. At a shower that is half the
+  /// reason to come; at a quiet supper it is nobody's business.
+  showGuestList       Boolean            @default(true)
+  allowPlusOnes       Boolean            @default(true)
+  /// A cap on heads, not on replies: somebody may always still answer no.
+  capacity            Int?
+  repliesBy           DateTime?
+  /// Stopped taking replies. The invitation still reads.
+  closedAt            DateTime?
+  /// The link is dead. Kept rather than deleted, so the replies survive it.
+  revokedAt           DateTime?
+  /// Set when a "which day suits?" has been decided. Null and with options on
+  /// it means the question is still open; no options at all means there was
+  /// never a question, which is the ordinary invitation.
+  settledAt           DateTime?
+  /// Reminder bookkeeping, stamped the moment each is sent — the same shape
+  /// Appointment already uses, rather than a separate ledger table. A journey
+  /// event never repeats, so there is no occurrence to key on: one stamp per
+  /// invitation is the whole truth. Moving the day clears them, or the stamp
+  /// for the old day would swallow the reminder for the new one.
+  remindedDayBeforeAt DateTime?
+  remindedMorningAt   DateTime?
+  /// The count sent to the household the evening before — separate, because it
+  /// goes to different people and must not be suppressed by the guests' row.
+  hostDigestAt        DateTime?
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+  replies             InvitationReply[]
+  options             InvitationOption[]
+}
+
+/// One of the days being offered in a "which day suits?".
+model InvitationOption {
+  id           String           @id @default(cuid())
+  invitationId String
+  invitation   Invitation       @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+  at           DateTime
+  hasTime      Boolean          @default(true)
+  endsAt       DateTime?
+  createdAt    DateTime         @default(now())
+  votes        InvitationVote[]
+
+  @@index([invitationId, at])
+}
+
+/// A guest ticking one day as one that works for them.
+///
+/// It hangs off their REPLY, not off a name or a session, so the token already
+/// in their browser owns their ticks as well as their answer.
+model InvitationVote {
+  optionId String
+  option   InvitationOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  replyId  String
+  reply    InvitationReply  @relation(fields: [replyId], references: [id], onDelete: Cascade)
+
+  @@id([optionId, replyId])
+  @@index([replyId])
+}
+
+/// One guest's answer. No account, and never one.
+model InvitationReply {
+  id           String           @id @default(cuid())
+  invitationId String
+  invitation   Invitation       @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+  /// The guest's own secret, kept in their browser. It is what lets somebody
+  /// change their mind — real people tap twice, and without it the second tap
+  /// makes a second guest — and what stops one guest editing another's reply.
+  token        String           @unique
+  name         String
+  /// Optional, and the only contact detail this app will ever hold for
+  /// somebody who is not in it. Used for this one day and nothing else.
+  email        String?
+  /// "YES" | "MAYBE" | "NO". A string rather than an enum so another answer
+  /// could be added without a migration that rewrites the column.
+  answer       String
+  /// Including themselves. 1 means "just me".
+  partySize    Int              @default(1)
+  note         String?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  votes        InvitationVote[]
+
+  @@index([invitationId, createdAt])
 }
 
 /// A hospital or clinic appointment, and everything a tired person needs to

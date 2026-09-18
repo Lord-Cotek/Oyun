@@ -43,7 +43,7 @@ export default async function CirclePage() {
   return (
     <>
       <SiteHeader active="circle" />
-      <main className="mx-auto max-w-shell px-6 py-10">
+      <main className="mx-auto max-w-shell px-6 pb-10">
         <PageHero
           eyebrow="Your circle"
           title="The people walking with you."
@@ -80,7 +80,7 @@ export default async function CirclePage() {
                 {supporters.length === 0 && (
                   <li className="flex flex-col items-center gap-3 rounded-lg border border-dashed border-border px-4 py-8 text-center">
                     <Icon name="users" size={28} className="text-accent2" />
-                    <p className="max-w-xs font-mono text-xs leading-relaxed text-muted">
+                    <p className="max-w-xs prose-serif-xs text-muted">
                       No one else yet. Invite a spouse, or a friend from church who
                       will pray — you were never meant to carry this alone.
                     </p>

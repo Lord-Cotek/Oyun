@@ -1,16 +1,37 @@
-/** A quiet progress bar across the whole arc: conception → 24 months. */
+import Link from "next/link";
+
+/**
+ * A quiet progress bar across the whole arc: conception → 24 months.
+ *
+ * `href` turns the heading into the way through to the record of every stage
+ * so far. It stayed unlinked for a long time while there was nothing behind
+ * it; the bar itself is deliberately not the target, because a progress bar
+ * that can be tapped invites being tapped to change something.
+ */
 export function JourneyProgress({
   progress,
   label,
+  href,
 }: {
   progress: number;
   label: string;
+  /** Where "The whole journey" leads. Plain text when there is nowhere. */
+  href?: string;
 }) {
   const pct = Math.round(Math.min(1, Math.max(0, progress)) * 100);
   return (
     <div>
       <div className="mb-2 flex items-baseline justify-between">
-        <p className="eyebrow text-muted">The whole journey</p>
+        {href ? (
+          <Link
+            href={href}
+            className="eyebrow text-accent underline-offset-4 hover:underline"
+          >
+            The whole journey →
+          </Link>
+        ) : (
+          <p className="eyebrow text-muted">The whole journey</p>
+        )}
         <p className="font-mono text-xs text-muted">{label}</p>
       </div>
       <div

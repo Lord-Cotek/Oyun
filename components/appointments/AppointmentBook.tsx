@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { FirstStep, FirstStepButton } from "@/components/ui/FirstStep";
 import { type AppointmentKind } from "@prisma/client";
 import {
   kindVoice,
@@ -22,24 +23,9 @@ import {
   askCircleToPray,
 } from "@/app/appointments/actions";
 
-/** Mirrors AppointmentView in lib/appointments-db.ts, declared here so this
- *  client component never reaches into a module that opens the database. */
-type Appt = {
-  id: string;
-  kind: AppointmentKind;
-  title: string | null;
-  at: Date;
-  hasTime: boolean;
-  where: string | null;
-  who: string | null;
-  notes: string | null;
-  questions: string | null;
-  attendedAt: Date | null;
-  outcome: string | null;
-  cancelledAt: Date | null;
-  addedBy: string | null;
-  mine: boolean;
-};
+import { type Appt, dateValue, timeValue } from "@/components/appointments/shared";
+import { AppointmentForm } from "@/components/appointments/AppointmentForm";
+
 type Res = { ok: boolean; error?: string };
 
 const TONE: Record<string, string> = {
@@ -51,13 +37,6 @@ const TONE: Record<string, string> = {
   plum: "border-tone-plum/40 bg-tone-plum/[0.06] text-tone-plum",
 };
 
-/** yyyy-mm-dd / hh:mm from a stored instant, for putting back in the form. */
-function dateValue(d: Date): string {
-  return new Date(d).toISOString().slice(0, 10);
-}
-function timeValue(d: Date): string {
-  return new Date(d).toISOString().slice(11, 16);
-}
 
 export function AppointmentBook({
   upcoming,
@@ -67,6 +46,8 @@ export function AppointmentBook({
   past: Appt[];
 }) {
   const [adding, setAdding] = useState(false);
+  /** Pre-chosen kind when the blank book opened the form for her. */
+  const [seedKind, setSeedKind] = useState<AppointmentKind | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [, start] = useTransition();
 
@@ -85,9 +66,13 @@ export function AppointmentBook({
 
       <div>
         {adding ? (
-          <Form
+          <AppointmentForm
+            seedKind={seedKind ?? undefined}
             onSubmit={(fd) => run(() => addAppointment(fd))}
-            onCancel={() => setAdding(false)}
+            onCancel={() => {
+              setAdding(false);
+              setSeedKind(null);
+            }}
             submitLabel="Keep this date"
           />
         ) : (
@@ -106,11 +91,22 @@ export function AppointmentBook({
           Coming up
         </p>
         {upcoming.length === 0 ? (
-          <p className="max-w-prose font-mono text-xs leading-relaxed text-muted">
-            Nothing in the book. Put the next one in as soon as the letter
-            arrives — you will be reminded the day before, and on the morning
-            itself if there is a time on it.
-          </p>
+          <FirstStep
+            action={
+              <FirstStepButton
+                onClick={() => {
+                  setSeedKind("SCAN");
+                  setAdding(true);
+                }}
+              >
+                Put the 20-week scan in
+              </FirstStepButton>
+            }
+          >
+            Nothing in the book yet. You will be reminded the day before, and
+            on the morning itself when there is a time on the letter — so the
+            sooner it goes in, the less there is to hold in your head.
+          </FirstStep>
         ) : (
           <ul className="space-y-3">
             {upcoming.map((a) => (
@@ -157,7 +153,7 @@ function Row({
   if (editing) {
     return (
       <li id={`appt-${a.id}`} className="rounded-xl border border-border bg-bg p-4">
-        <Form
+        <AppointmentForm
           a={a}
           onSubmit={(fd) =>
             run(async () => {
@@ -194,17 +190,37 @@ function Row({
           <p className="mt-2 font-serif text-lg leading-snug text-ink">
             {appointmentTitle(a.kind, a.title)}
           </p>
-          <p className="mt-0.5 font-mono text-xs text-muted">
-            <span className={soon ? "text-accent" : ""}>
-              {dayLabel(at)}
-              {time ? ` at ${time}` : ""}
-            </span>
+          {/* ── When, then where and who ──────────────────────────────
+              This was one line — "Tuesday at 07:19 · Ferti Clinic · Dr
+              Moujha" — with the same dot between three facts of three
+              different kinds, so a stranger's name arrived looking like
+              another place and the whole thing had to be parsed rather
+              than read.
+
+              The when is its own line, because it is the thing you are
+              actually looking for and it is the part that turns accent
+              when the day is close. Where and who go underneath in
+              words, not dots: "At Ferti Clinic, ask for Dr Moujha" is a
+              sentence a tired person reads in one go, and "ask for" is
+              the phrase that makes a bare name obviously a person. */}
+          <p
+            className={`mt-0.5 font-mono text-xs ${soon ? "text-accent" : "text-muted"}`}
+          >
+            {dayLabel(at)}
+            {time ? ` at ${time}` : ""}
             {!a.hasTime && !past && (
-              <span className="text-muted"> · no time given</span>
+              <span className="text-muted"> — no time on the letter</span>
             )}
-            {a.where && ` · ${a.where}`}
-            {a.who && ` · ${a.who}`}
           </p>
+          {(a.where || a.who) && (
+            <p className="mt-0.5 font-mono text-xs text-muted">
+              {a.where && a.who
+                ? `At ${a.where}, ask for ${a.who}`
+                : a.where
+                  ? `At ${a.where}`
+                  : `Ask for ${a.who}`}
+            </p>
+          )}
         </div>
 
         {a.attendedAt && (
@@ -220,7 +236,7 @@ function Row({
       </div>
 
       {a.notes && (
-        <p className="mt-2 whitespace-pre-wrap font-mono text-xs leading-relaxed text-muted">
+        <p className="mt-2 whitespace-pre-wrap prose-serif-xs text-muted">
           {a.notes}
         </p>
       )}
@@ -245,7 +261,7 @@ function Row({
 
       {closing ? (
         <div className="mt-3 rounded-lg border border-border bg-surface p-3">
-          <p className="mb-2 font-mono text-[0.66rem] leading-relaxed text-muted">
+          <p className="prose-serif-xs mb-2 text-muted">
             What came of it? Worth a line while it is fresh — a measurement, a
             word from the midwife, a relief.
           </p>
@@ -255,7 +271,7 @@ function Row({
             maxLength={TEXT_MAX}
             onChange={(e) => setOutcome(e.target.value)}
             placeholder="Optional"
-            className="w-full rounded-lg border border-border bg-bg px-3 py-2 font-mono text-xs text-ink placeholder:text-muted focus:border-accent focus:outline-none"
+            className="prose-serif-xs w-full rounded-lg border border-border bg-bg px-3 py-2 text-ink placeholder:text-muted focus:border-accent focus:outline-none"
           />
           <div className="mt-2 flex flex-wrap gap-2">
             <button
@@ -280,205 +296,80 @@ function Row({
           </div>
         </div>
       ) : (
-        <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-border pt-3">
-          {!a.attendedAt && !a.cancelledAt && (
-            <>
+        /**
+         * ── Five actions that used to read as one sentence ───────────────
+         * They were five bare words in the same uppercase mono with nothing
+         * but a gap between them, so "WE WENT ASK THE CIRCLE TO PRAY EDIT
+         * CANCELLED REMOVE" arrived as a single run-on line — and `ml-auto`
+         * on the last one stranded it alone on the right of a second row,
+         * which made it look like the end of that sentence rather than a
+         * separate, destructive thing.
+         *
+         * Two rows now, because these are two kinds of thing. What you do
+         * about the appointment gets real buttons with edges. What you do to
+         * the entry — correct it, record that it fell through, throw it away
+         * — sits underneath, quieter and smaller. Sentence case throughout:
+         * five shouted words in a row is most of why it read as prose.
+         */
+        <div className="mt-3 border-t border-border pt-3">
+          <div className="flex flex-wrap items-center gap-2">
+            {!a.attendedAt && !a.cancelledAt && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setClosing(true)}
+                  className="rounded-lg border border-positive/40 px-3 py-1.5 font-mono text-[0.68rem] text-positive transition-colors hover:bg-positive/[0.08]"
+                >
+                  We went
+                </button>
+                <button
+                  type="button"
+                  onClick={() => run(() => askCircleToPray(a.id))}
+                  className="rounded-lg border border-border px-3 py-1.5 font-mono text-[0.68rem] text-ink transition-colors hover:border-accent hover:text-accent"
+                >
+                  Ask the circle to pray
+                </button>
+              </>
+            )}
+            {(a.attendedAt || a.cancelledAt) && (
               <button
                 type="button"
-                onClick={() => setClosing(true)}
-                className="font-mono text-[0.62rem] uppercase tracking-widest text-muted hover:text-positive"
+                onClick={() => run(() => reopenAppointment(a.id))}
+                className="rounded-lg border border-border px-3 py-1.5 font-mono text-[0.68rem] text-ink transition-colors hover:border-accent hover:text-accent"
               >
-                We went
+                Put it back
               </button>
+            )}
+          </div>
+
+          <div className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1">
+            <button
+              type="button"
+              onClick={() => setEditing(true)}
+              className="font-mono text-[0.64rem] text-muted underline underline-offset-4 hover:text-ink"
+            >
+              Edit
+            </button>
+            {!a.attendedAt && !a.cancelledAt && (
               <button
                 type="button"
-                onClick={() => run(() => askCircleToPray(a.id))}
-                className="font-mono text-[0.62rem] uppercase tracking-widest text-muted hover:text-accent"
+                onClick={() => run(() => cancelAppointment(a.id))}
+                className="font-mono text-[0.64rem] text-muted underline underline-offset-4 hover:text-ink"
               >
-                Ask the circle to pray
+                It was cancelled
               </button>
-            </>
-          )}
-          {(a.attendedAt || a.cancelledAt) && (
+            )}
             <button
               type="button"
-              onClick={() => run(() => reopenAppointment(a.id))}
-              className="font-mono text-[0.62rem] uppercase tracking-widest text-muted hover:text-accent"
+              onClick={() => run(() => deleteAppointment(a.id))}
+              className="font-mono text-[0.64rem] text-muted underline underline-offset-4 hover:text-negative"
             >
-              Put it back
+              Remove
             </button>
-          )}
-          <button
-            type="button"
-            onClick={() => setEditing(true)}
-            className="font-mono text-[0.62rem] uppercase tracking-widest text-muted hover:text-ink"
-          >
-            Edit
-          </button>
-          {!a.attendedAt && !a.cancelledAt && (
-            <button
-              type="button"
-              onClick={() => run(() => cancelAppointment(a.id))}
-              className="font-mono text-[0.62rem] uppercase tracking-widest text-muted hover:text-accent2"
-            >
-              Cancelled
-            </button>
-          )}
-          <button
-            type="button"
-            onClick={() => run(() => deleteAppointment(a.id))}
-            className="ml-auto font-mono text-[0.62rem] uppercase tracking-widest text-muted hover:text-negative"
-          >
-            Remove
-          </button>
+          </div>
         </div>
       )}
     </li>
   );
 }
 
-function Form({
-  a,
-  onSubmit,
-  onCancel,
-  submitLabel,
-}: {
-  a?: Appt;
-  onSubmit: (fd: FormData) => void;
-  onCancel: () => void;
-  submitLabel: string;
-}) {
-  const [kind, setKind] = useState<AppointmentKind>(a?.kind ?? "ANTENATAL");
-
-  return (
-    <form action={onSubmit} className="space-y-3">
-      <fieldset>
-        <legend className="mb-2 font-mono text-[0.66rem] uppercase tracking-widest text-muted">
-          What kind
-        </legend>
-        <div className="flex flex-wrap gap-2">
-          {APPOINTMENT_KINDS.map((k) => (
-            <label
-              key={k}
-              className={`cursor-pointer rounded-lg border px-3 py-1.5 font-mono text-[0.68rem] transition-colors ${
-                kind === k
-                  ? "border-accent bg-accent/10 text-accent"
-                  : "border-border text-muted hover:text-ink"
-              }`}
-            >
-              <input
-                type="radio"
-                name="kind"
-                value={k}
-                checked={kind === k}
-                onChange={() => setKind(k)}
-                className="sr-only"
-              />
-              {kindVoice(k).label}
-            </label>
-          ))}
-        </div>
-        <p className="mt-2 font-mono text-[0.62rem] leading-relaxed text-muted">
-          {kindVoice(kind).hint}
-          {kindVoice(kind).weekAhead
-            ? " · you'll also be reminded a week ahead"
-            : ""}
-        </p>
-      </fieldset>
-
-      <div className="flex flex-wrap gap-3">
-        <label className="flex-1">
-          <span className="mb-1 block font-mono text-[0.66rem] uppercase tracking-widest text-muted">
-            Date
-          </span>
-          <input
-            type="date"
-            name="date"
-            required
-            defaultValue={a ? dateValue(a.at) : ""}
-            className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 font-mono text-sm text-ink focus:border-accent focus:outline-none"
-          />
-        </label>
-        <label className="flex-1">
-          <span className="mb-1 block font-mono text-[0.66rem] uppercase tracking-widest text-muted">
-            Time (if the letter says)
-          </span>
-          <input
-            type="time"
-            name="time"
-            defaultValue={a?.hasTime ? timeValue(a.at) : ""}
-            className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 font-mono text-sm text-ink focus:border-accent focus:outline-none"
-          />
-        </label>
-      </div>
-
-      <input
-        type="text"
-        name="title"
-        maxLength={TITLE_MAX}
-        defaultValue={a?.title ?? ""}
-        placeholder="A name of its own (optional) — “20-week anomaly scan”"
-        className="w-full rounded-lg border border-border bg-surface px-4 py-2.5 font-mono text-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none"
-      />
-
-      <div className="flex flex-wrap gap-3">
-        <input
-          type="text"
-          name="where"
-          maxLength={200}
-          defaultValue={a?.where ?? ""}
-          placeholder="Where — hospital, clinic, ward"
-          className="min-w-0 flex-1 rounded-lg border border-border bg-surface px-4 py-2.5 font-mono text-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none"
-        />
-        <input
-          type="text"
-          name="who"
-          maxLength={200}
-          defaultValue={a?.who ?? ""}
-          placeholder="Who you're seeing"
-          className="min-w-0 flex-1 rounded-lg border border-border bg-surface px-4 py-2.5 font-mono text-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none"
-        />
-      </div>
-
-      <textarea
-        name="notes"
-        rows={2}
-        maxLength={TEXT_MAX}
-        defaultValue={a?.notes ?? ""}
-        placeholder="Anything to bring, or to remember (optional)"
-        className="w-full rounded-lg border border-border bg-surface px-4 py-2.5 font-mono text-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none"
-      />
-
-      <div>
-        <textarea
-          name="questions"
-          rows={3}
-          maxLength={TEXT_MAX}
-          defaultValue={a?.questions ?? ""}
-          placeholder="What you mean to ask — one per line"
-          className="w-full rounded-lg border border-accent/30 bg-surface px-4 py-2.5 font-mono text-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none"
-        />
-        <p className="mt-1 font-mono text-[0.62rem] leading-relaxed text-muted">
-          Write them down now. Everybody forgets once they are in the room, and
-          this is shown to you on the appointment the moment you open it.
-        </p>
-      </div>
-
-      <div className="flex flex-wrap gap-2">
-        <button
-          type="submit"
-          className="rounded-lg bg-accent px-4 py-2 font-mono text-xs font-medium text-on-accent hover:bg-accent-deep"
-        >
-          {submitLabel}
-        </button>
-        <button
-          type="button"
-          onClick={onCancel}
-          className="rounded-lg px-3 py-2 font-mono text-xs text-muted hover:text-ink"
-        >
-          Not now
-        </button>
-      </div>
-    </form>
-  );
-}

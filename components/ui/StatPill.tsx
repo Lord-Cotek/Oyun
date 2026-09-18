@@ -1,39 +1,52 @@
-import { type CSSProperties } from "react";
+import { type ReactNode } from "react";
 import { AnimatedNumber } from "@/components/ui/AnimatedNumber";
-import { type Tone } from "@/components/ui/ActionTile";
 
 /**
- * A compact stat — a big serif number that counts up, a label, and a hint —
- * sized to sit three-across on a phone. Denser than StatCard, for the dashboard
- * header row. A numeric value animates; pass a node to render as-is.
+ * A compact figure — a serif number that counts up, a label, and a hint.
+ *
+ * These were three cards in a row: three borders, three surfaces, three
+ * shadows, for three small numbers. That is a lot of furniture around "3
+ * praying with you", and on a screen that now carries a photograph, two bands
+ * and four filled tiles, it was the row that made the page feel padded.
+ *
+ * So they stopped being cards. Three figures set on the paper itself, divided
+ * by a hairline — which is how a figure is set in a book, and this app is much
+ * closer to a book than to a dashboard. Nothing is lost: the numbers are the
+ * same size and they read better without a box each.
+ *
+ * (The number used to come in one of six category colours. A row of three
+ * stats in three different hues tells a reader nothing except that somebody
+ * had six colours available. One accent, and the row reads as one row.)
  */
 export function StatPill({
   label,
   value,
   hint,
-  tone = "amber",
 }: {
   label: string;
   value: number | string;
   hint?: string;
-  tone?: Tone;
 }) {
   return (
-    <div
-      style={{ ["--tone" as string]: `var(--tone-${tone})` } as CSSProperties}
-      className="rounded-2xl border border-border bg-surface px-4 py-3.5 transition-colors hover:border-[color-mix(in_srgb,var(--tone)_45%,transparent)]"
-    >
-      <p className="font-serif text-3xl leading-none text-[var(--tone)]">
+    <div className="flex-1 px-3 first:pl-0 last:pr-0">
+      <p className="font-serif text-[1.7rem] leading-none text-accent">
         {typeof value === "number" ? <AnimatedNumber value={value} /> : value}
       </p>
-      <p className="mt-2 font-mono text-[0.6rem] uppercase tracking-[0.16em] text-ink">
+      <p className="mt-1 font-serif text-[0.82rem] leading-tight text-ink/70">
         {label}
+        {hint && <span className="block italic opacity-70">{hint}</span>}
       </p>
-      {hint && (
-        <p className="mt-0.5 font-mono text-[0.6rem] leading-tight text-muted">
-          {hint}
-        </p>
-      )}
     </div>
   );
+}
+
+/**
+ * The row they sit in.
+ *
+ * Exported alongside because the hairlines belong to the row, not to the
+ * figure: a divider drawn by the child is a divider that turns up before the
+ * first one or after the last one the moment somebody reorders them.
+ */
+export function StatRow({ children }: { children: ReactNode }) {
+  return <div className="flex divide-x divide-border">{children}</div>;
 }

@@ -34,7 +34,7 @@ export function DeleteAccount({ email }: { email: string }) {
   return (
     <div>
       <Eyebrow className="mb-2 text-negative">Delete account</Eyebrow>
-      <p className="mb-4 max-w-prose font-mono text-xs leading-relaxed text-muted">
+      <p className="mb-4 max-w-prose prose-serif-xs text-muted">
         Permanently delete your account and everything tied to it — your profile,
         your journey, check-ins, letters, prayers, and photos. This can&rsquo;t be
         undone.
@@ -50,7 +50,7 @@ export function DeleteAccount({ email }: { email: string }) {
         </button>
       ) : (
         <div className="space-y-3 rounded-xl border border-negative/40 bg-negative/[0.06] p-4">
-          <p className="font-mono text-xs leading-relaxed text-ink">
+          <p className="prose-serif-xs text-ink">
             This will permanently erase everything for{" "}
             <span className="text-ink">{email}</span>. To confirm, type{" "}
             <span className="font-medium text-negative">DELETE</span> below.
@@ -62,7 +62,7 @@ export function DeleteAccount({ email }: { email: string }) {
             placeholder="Type DELETE"
             autoComplete="off"
             aria-label="Type DELETE to confirm"
-            className="w-full rounded-lg border border-border bg-bg px-4 py-2.5 font-mono text-sm text-ink placeholder:text-muted focus:border-negative focus:outline-none"
+            className="prose-serif-sm w-full rounded-lg border border-border bg-bg px-4 py-2.5 text-ink placeholder:text-muted focus:border-negative focus:outline-none"
           />
           {error && (
             <p className="font-mono text-xs text-negative">{error}</p>

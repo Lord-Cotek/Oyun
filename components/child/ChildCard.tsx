@@ -51,7 +51,7 @@ export function ChildCard({ child }: { child: Child }) {
               "Little one"}
           </p>
           {child.note && (
-            <p className="mt-2 font-mono text-xs leading-relaxed text-muted">{child.note}</p>
+            <p className="mt-2 prose-serif-xs text-muted">{child.note}</p>
           )}
           <p className="mt-2.5 flex items-center gap-1.5 font-mono text-[0.68rem] text-muted">
             <Icon name="star" size={13} className="text-accent" />

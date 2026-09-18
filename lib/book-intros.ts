@@ -612,7 +612,7 @@ export const BOOK_INTROS: Record<string, BookIntro> = {
     christ:
       "'Now to him who is able to keep them from stumbling' (v. 24) — the letter's frightening warnings end in safety.",
     watch:
-      "Mercy toward the doubting (v. 22), alongside the warnings. Both are commanded.",
+      "Mercy towards the doubting (v. 22), alongside the warnings. Both are commanded.",
   },
   revelation: {
     what: "The end, shown to a persecuted church, so they would hold on.",

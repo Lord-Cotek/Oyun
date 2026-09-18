@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import {
   completeNudge,
   dropNudge,
   setNudge,
 } from "@/app/journey/support-actions";
 import { NUDGE_TEXT_MAX, NUDGE_WHENS } from "@/lib/nudges";
+import { useAttempt } from "@/lib/use-attempt";
 
 type NudgeItem = { id: string; text: string; dueAt: string };
 
@@ -35,6 +36,12 @@ function dayLabel(iso: string): { text: string; late: boolean } {
  * Not the appointment book: these are the small things nobody else needs to
  * know about — ring her mum, order the car seat, take Friday off. Only you
  * see them, and only you are told.
+ *
+ * Ticking one off used to wait on the server: the row sat there, every other
+ * row's buttons went dim, and nothing moved until the page revalidated. On a
+ * poor signal that is a second or more of a list that looks broken, and the
+ * usual response is to tap it again. The row now goes the instant you tick it,
+ * and comes back — with a line saying why — if the server never heard.
  */
 export function NudgeList({
   nudges,
@@ -43,7 +50,11 @@ export function NudgeList({
   nudges: NudgeItem[];
   motherName: string;
 }) {
-  const [pending, start] = useTransition();
+  const { attempt, slipped } = useAttempt();
+  // Rows this person has just ticked off or removed. Held here rather than by
+  // filtering a copy of the list, so that when the server revalidates and a
+  // fresh `nudges` arrives the two simply agree.
+  const [gone, setGone] = useState<string[]>([]);
   const [adding, setAdding] = useState(false);
   const [when, setWhen] = useState<string>("tomorrow");
   const [error, setError] = useState<string | null>(null);
@@ -52,24 +63,41 @@ export function NudgeList({
   const inputClass =
     "w-full rounded-lg border border-border bg-bg px-3 py-2 font-mono text-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none";
 
+  const shown = nudges.filter((n) => !gone.includes(n.id));
+
+  /** Take the row away now; put it back if the server never heard. */
+  function put(id: string, action: () => Promise<void>, message: string) {
+    attempt(
+      () => setGone((g) => [...g, id]),
+      action,
+      () => setGone((g) => g.filter((x) => x !== id)),
+      message,
+    );
+  }
+
   return (
     <div>
-      {nudges.length === 0 ? (
-        <p className="font-mono text-xs leading-relaxed text-muted">
+      {shown.length === 0 ? (
+        <p className="prose-serif-xs text-muted">
           Nothing set for yourself yet. The simplest thing still holds: check in
           on {motherName} today.
         </p>
       ) : (
         <ul className="space-y-3">
-          {nudges.map((n) => {
+          {shown.map((n) => {
             const day = dayLabel(n.dueAt);
             return (
               <li key={n.id} className="group flex items-start gap-2.5">
                 <button
                   type="button"
                   aria-label={`Mark done: ${n.text}`}
-                  disabled={pending}
-                  onClick={() => start(() => completeNudge(n.id))}
+                  onClick={() =>
+                    put(
+                      n.id,
+                      () => completeNudge(n.id),
+                      "That didn’t tick off — it is still here. Try again?",
+                    )
+                  }
                   className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-border transition-colors hover:border-accent hover:bg-accent/10 disabled:opacity-50"
                 >
                   <span className="h-1.5 w-1.5 rounded-full bg-accent opacity-0 transition-opacity hover:opacity-100" />
@@ -89,8 +117,13 @@ export function NudgeList({
                 <button
                   type="button"
                   aria-label={`Remove: ${n.text}`}
-                  disabled={pending}
-                  onClick={() => start(() => dropNudge(n.id))}
+                  onClick={() =>
+                    put(
+                      n.id,
+                      () => dropNudge(n.id),
+                      "That didn’t come off — it is still here. Try again?",
+                    )
+                  }
                   className="shrink-0 font-mono text-[0.68rem] text-muted opacity-0 transition-opacity hover:text-ink focus:opacity-100 group-hover:opacity-100 disabled:opacity-50"
                 >
                   Remove
@@ -99,6 +132,11 @@ export function NudgeList({
             );
           })}
         </ul>
+      )}
+      {slipped && (
+        <p role="status" className="mt-3 font-mono text-[0.68rem] text-muted">
+          {slipped}
+        </p>
       )}
 
       {!adding ? (
@@ -170,7 +208,7 @@ export function NudgeList({
               className={`${inputClass} [color-scheme:dark]`}
             />
           )}
-          <p className="font-mono text-[0.62rem] leading-relaxed text-muted">
+          <p className="text-[0.62rem] leading-relaxed text-muted">
             You&rsquo;ll be told once, that morning — a notification, and an
             email if you have those on. Nobody else sees it.
           </p>

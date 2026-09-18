@@ -13,7 +13,7 @@ export function MarkLoss() {
   if (!open) {
     return (
       <div>
-        <p className="mb-4 max-w-prose font-mono text-xs leading-relaxed text-muted">
+        <p className="mb-4 max-w-prose prose-serif-xs text-muted">
           If you have lost your baby, we are so deeply sorry. Whenever you are
           ready, Oyun can gently become a place of lament and remembrance instead
           — with Scripture for grief, a space to remember, and your circle drawn
@@ -32,7 +32,7 @@ export function MarkLoss() {
 
   return (
     <div>
-      <p className="mb-5 max-w-prose font-mono text-xs leading-relaxed text-muted">
+      <p className="mb-5 max-w-prose prose-serif-xs text-muted">
         We are holding this with you. This will turn your journey into a place of
         remembrance. Nothing you have written is lost, and you can begin a new
         journey later if that day comes.
@@ -53,7 +53,7 @@ export function MarkLoss() {
             defaultChecked
             className="mt-0.5 h-4 w-4 accent-[color:var(--accent)]"
           />
-          <span className="font-mono text-[0.7rem] leading-relaxed text-muted">
+          <span className="prose-serif-xs text-muted">
             Let my circle know, so they can come near. (You are not meant to
             carry this alone — but this is your choice.)
           </span>

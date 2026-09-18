@@ -4,7 +4,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { NavMoreMenu } from "@/components/NavMoreMenu";
 import { NotificationBell } from "@/components/NotificationBell";
 import { TabBar, type Tab } from "@/components/TabBar";
-import { type IconName } from "@/components/ui/Icon";
+import { Icon, type IconName } from "@/components/ui/Icon";
 import { JourneySwitcher } from "@/components/JourneySwitcher";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -22,7 +22,8 @@ type ActiveKey =
   | "appointments"
   | "help"
   | "nursery"
-  | "worship";
+  | "worship"
+  | "registry";
 
 export async function SiteHeader({
   active,
@@ -88,6 +89,13 @@ export async function SiteHeader({
     ...(isMother
       ? [{ href: "/circle", label: "Circle", current: active === "circle" }]
       : []),
+    // The registry is the two of them deciding what the baby needs, so it
+    // sits with the rooms only they can open. It is never a bottom tab: a
+    // gift list is not a daily rhythm, and a thing you do twice should not
+    // take a place from a thing you do every morning.
+    ...(isHousehold && !inLoss
+      ? [{ href: "/registry", label: "Registry", current: active === "registry" }]
+      : []),
     { href: "/help", label: "How this works", current: active === "help" },
     { href: "/settings", label: "Settings", current: active === "settings" },
   ];
@@ -113,6 +121,7 @@ export async function SiteHeader({
     "/child": "star",
     "/firsts": "sparkles",
     "/circle": "users",
+    "/registry": "gift",
     "/help": "question",
     "/settings": "settings",
   };
@@ -161,6 +170,16 @@ export async function SiteHeader({
           </nav>
 
           {/* Always-visible controls */}
+          <Link
+            href="/search"
+            aria-label="Search"
+            title="Search"
+            // 44pt. It was 18px of icon in 8px of padding — 34px, and the
+            // first thing a thumb reaches for at the top of every screen.
+            className="inline-flex h-11 w-11 items-center justify-center rounded-lg text-muted transition-colors hover:bg-surface hover:text-ink"
+          >
+            <Icon name="search" size={18} aria-hidden="true" />
+          </Link>
           <NotificationBell initialUnread={unread} />
           <ThemeToggle />
         </div>

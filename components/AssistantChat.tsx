@@ -166,7 +166,7 @@ export function AssistantChat() {
             {messages.length === 0 && (
               <div className="space-y-3 pt-2">
                 <p className="font-serif text-lg text-ink">{greeting}</p>
-                <p className="font-mono text-xs leading-relaxed text-muted">
+                <p className="prose-serif-xs text-muted">
                   Ask for a prayer, a word of Scripture, or just tell me how you
                   are. I'm here for the whole journey — but I'm not a doctor. For
                   anything medical, always turn to your care provider.
@@ -197,7 +197,7 @@ export function AssistantChat() {
                 }}
                 rows={1}
                 placeholder="Speak to Agbebi…"
-                className="max-h-28 flex-1 resize-none rounded-lg border border-border bg-bg px-3 py-2 font-mono text-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none"
+                className="prose-serif-sm max-h-28 flex-1 resize-none rounded-lg border border-border bg-bg px-3 py-2 text-ink placeholder:text-muted focus:border-accent focus:outline-none"
               />
               <button
                 type="submit"
@@ -220,7 +220,7 @@ function Bubble({ msg, streaming }: { msg: Msg; streaming: boolean }) {
   if (isUser) {
     return (
       <div className="flex justify-end">
-        <div className="max-w-[85%] whitespace-pre-wrap rounded-2xl rounded-br-md bg-accent/15 px-3.5 py-2 font-mono text-sm leading-relaxed text-ink">
+        <div className="max-w-[85%] whitespace-pre-wrap rounded-2xl rounded-br-md bg-accent/15 px-3.5 py-2 prose-serif-sm text-ink">
           {msg.content}
         </div>
       </div>

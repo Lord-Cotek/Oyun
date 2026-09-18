@@ -1,8 +1,8 @@
 import { type ReactNode } from "react";
 
 /**
- * A soft radial progress ring with a warm amber→rose gradient stroke and a
- * serif value at its center. The visual anchor for the journey hero — "week 24
+ * A soft radial progress ring with a single-accent stroke and a serif value at
+ * its centre. The visual anchor for the journey hero — "week 24
  * of 40", "5 months old". Pure SVG, theme-aware (track uses --border).
  */
 export function ProgressRing({
@@ -28,8 +28,12 @@ export function ProgressRing({
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
         <defs>
           <linearGradient id="oyun-ring" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="var(--accent)" />
-            <stop offset="100%" stopColor="var(--accent2)" />
+            {/* One colour. A two-accent sweep made the arc read as a scale —
+                as though olive meant one thing and clay another — when it is
+                a single count of days. It was also the loudest object on the
+                home page, for a number nobody is being scored on. */}
+            <stop offset="0%" stopColor="var(--accent)" stopOpacity="0.55" />
+            <stop offset="100%" stopColor="var(--accent)" />
           </linearGradient>
         </defs>
         <g transform={`rotate(-90 ${size / 2} ${size / 2})`}>
@@ -54,10 +58,26 @@ export function ProgressRing({
           />
         </g>
       </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="font-serif text-5xl leading-none text-ink">{value}</span>
+      {/* The label scales with the ring. At the default size these were fixed
+          at text-5xl / 0.66rem, which overflowed the stroke as soon as a caller
+          asked for a smaller ring. Both now derive from `size`, and the unit is
+          held inside the inner circle so it can never cross the arc. */}
+      <div className="absolute inset-0 flex flex-col items-center justify-center px-2">
+        <span
+          className="font-serif leading-none text-ink"
+          style={{ fontSize: Math.round(size * 0.3) }}
+        >
+          {value}
+        </span>
         {unit && (
-          <span className="mt-1.5 font-mono text-[0.66rem] uppercase tracking-[0.2em] text-muted">
+          <span
+            className="mt-1.5 text-center font-mono uppercase text-muted"
+            style={{
+              fontSize: Math.max(9, Math.round(size * 0.058 * 10) / 10),
+              letterSpacing: size < 140 ? "0.14em" : "0.2em",
+              maxWidth: size - stroke * 2 - 12,
+            }}
+          >
             {unit}
           </span>
         )}

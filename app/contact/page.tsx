@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 export default function ContactPage() {
   return (
     <LegalShell title="Contact &amp; Support" updated="1 August 2026">
-      <p className="font-mono text-sm leading-relaxed text-muted">
+      <p className="prose-serif-sm text-muted">
         We&rsquo;d love to hear from you — a question, a problem, a word of
         thanks, or a request to delete your account.
       </p>

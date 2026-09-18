@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { CATEGORY_FIELDS } from "@/lib/notify-prefs";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
@@ -72,15 +73,20 @@ export async function changePassword(_prev: unknown, formData: FormData): Promis
 
 export async function updateNotifications(_prev: unknown, formData: FormData): Promise<Result> {
   const userId = await requireUser();
+  // An unchecked checkbox sends nothing at all, so every switch has to be read
+  // as "absent means off" — which is only safe because the form always renders
+  // all five rows.
+  const on = (name: string) => formData.get(name) === "on";
   await prisma.user.update({
     where: { id: userId },
     data: {
-      notifyByEmail: formData.get("notifyByEmail") === "on",
-      weeklyDigest: formData.get("weeklyDigest") === "on",
+      notifyByEmail: on("notifyByEmail"),
+      weeklyDigest: on("weeklyDigest"),
+      ...Object.fromEntries(CATEGORY_FIELDS.map((f) => [f, on(f)])),
     },
   });
   revalidatePath("/settings");
-  return { ok: true, message: "Notification preferences saved." };
+  return { ok: true, message: "Saved. This takes effect from the next one." };
 }
 
 export async function updateJourney(_prev: unknown, formData: FormData): Promise<Result> {

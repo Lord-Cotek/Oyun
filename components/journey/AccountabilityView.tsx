@@ -20,7 +20,7 @@ import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Verse } from "@/components/ui/Verse";
 import { PageHero } from "@/components/ui/PageHero";
 import { Icon } from "@/components/ui/Icon";
-import Link from "next/link";
+import { Pressable } from "@/components/ui/Pressable";
 import { type Role } from "@prisma/client";
 import { supporterFraming } from "@/lib/roles";
 import { type FeedPost } from "@/lib/feed-query";
@@ -94,7 +94,7 @@ export async function AccountabilityView({
   const framing = supporterFraming(role, motherName);
 
   return (
-    <main className="mx-auto max-w-shell px-6 py-10">
+    <main className="mx-auto max-w-shell px-6 pb-10">
       <PageHero
         greeting={firstName ? `Hello, ${firstName}.` : undefined}
         eyebrow={`${framing.eyebrow} · ${stageLabel}`}
@@ -108,7 +108,7 @@ export async function AccountabilityView({
                 <p className={`font-serif text-2xl ${MOOD_TONE_TEXT[mood.tone]}`}>
                   {mood.label}
                 </p>
-                <p className="mt-2 font-mono text-xs leading-relaxed text-muted">
+                <p className="mt-2 prose-serif-xs text-muted">
                   {latest?.note?.trim() ? `"${latest.note}"` : mood.blurb}
                 </p>
                 {latest && latestReactions && (
@@ -125,7 +125,7 @@ export async function AccountabilityView({
                 )}
               </>
             ) : (
-              <p className="font-mono text-xs leading-relaxed text-muted">
+              <p className="prose-serif-xs text-muted">
                 {motherName} hasn&rsquo;t shared a check-in yet. When she does,
                 you&rsquo;ll see it here — a cue to reach out.
               </p>
@@ -169,9 +169,10 @@ export async function AccountabilityView({
       </div>
 
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
-        <Link
+        <Pressable
           href="/life"
-          className="surface-premium flex items-center justify-between rounded-2xl border border-border p-5 transition-colors hover:border-accent/50"
+          press="row"
+          className="surface-premium flex items-center justify-between rounded-2xl border border-border p-5 hover:border-accent/50"
         >
           <div>
             <p className="font-serif text-lg text-ink">Life</p>
@@ -180,10 +181,11 @@ export async function AccountabilityView({
             </p>
           </div>
           <span className="font-mono text-accent">→</span>
-        </Link>
-        <Link
+        </Pressable>
+        <Pressable
           href="/prayer"
-          className="surface-premium flex items-center justify-between rounded-2xl border border-border p-5 transition-colors hover:border-accent/50"
+          press="row"
+          className="surface-premium flex items-center justify-between rounded-2xl border border-border p-5 hover:border-accent/50"
         >
           <div>
             <p className="font-serif text-lg text-ink">Prayer wall</p>
@@ -192,14 +194,14 @@ export async function AccountabilityView({
             </p>
           </div>
           <span className="font-mono text-accent">→</span>
-        </Link>
+        </Pressable>
       </div>
 
       <div className="mt-6 grid gap-4 lg:grid-cols-[1.3fr_1fr]">
         <div className="min-w-0 space-y-4">
           <Card className="p-8">
             <Eyebrow className="mb-3">Send them a word</Eyebrow>
-            <p className="mb-4 font-mono text-xs leading-relaxed text-muted">
+            <p className="mb-4 prose-serif-xs text-muted">
               A sentence of Scripture or encouragement, sent to {motherName}. Keep
               pointing them past yourself, to the Lord.
             </p>
@@ -208,7 +210,7 @@ export async function AccountabilityView({
 
           <Card className="p-8">
             <Eyebrow className="mb-3">Pray for them</Eyebrow>
-            <p className="font-mono text-sm leading-relaxed text-muted">
+            <p className="prose-serif-sm text-muted">
               {stage.prayerPoint}
             </p>
             <div className="mt-6 border-t border-border pt-5">
@@ -243,7 +245,7 @@ export async function AccountabilityView({
           {(idileUrl || !hasOwnJourney) && (
             <Card className="border-accent2/30 bg-accent2/[0.05]">
               <Eyebrow className="mb-3">And your own home</Eyebrow>
-              <p className="mb-4 font-mono text-xs leading-relaxed text-muted">
+              <p className="mb-4 prose-serif-xs text-muted">
                 You are carrying someone else&rsquo;s season well. Your own
                 family is worth tending too.
               </p>
@@ -267,9 +269,10 @@ export async function AccountabilityView({
                   </a>
                 )}
                 {!hasOwnJourney && (
-                  <Link
+                  <Pressable
                     href="/onboarding"
-                    className="flex items-center justify-between gap-3 rounded-lg border border-border bg-bg px-4 py-3 transition-colors hover:border-accent"
+                    press="row"
+                    className="flex items-center justify-between gap-3 rounded-lg border border-border bg-bg px-4 py-3 hover:border-accent"
                   >
                     <span className="min-w-0">
                       <span className="block font-serif text-base text-ink">
@@ -280,7 +283,7 @@ export async function AccountabilityView({
                       </span>
                     </span>
                     <span className="shrink-0 font-mono text-accent">→</span>
-                  </Link>
+                  </Pressable>
                 )}
               </div>
             </Card>
@@ -291,9 +294,9 @@ export async function AccountabilityView({
               <Icon name="church" size={16} />
               <span className="eyebrow">Point them to the Body</span>
             </div>
-            <p className="font-mono text-xs leading-relaxed text-muted">
+            <p className="prose-serif-xs text-muted">
               {born ? "This family" : "This couple"} was made for the church, not
-              just for you. Keep encouraging them toward their local congregation,
+              just for you. Keep encouraging them towards their local congregation,
               their pastor, and the ordinary means of grace.
             </p>
           </Card>

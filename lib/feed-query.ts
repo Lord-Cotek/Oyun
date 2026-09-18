@@ -1,4 +1,7 @@
+import { yearBounds } from "./story";
 import { prisma } from "./prisma";
+import { postScope } from "./post-visibility";
+import { type Role } from "@prisma/client";
 
 export interface FeedComment {
   id: string;
@@ -6,6 +9,8 @@ export interface FeedComment {
   mine: boolean;
   body: string;
   when: string;
+  /** A reply can be answered the same way a post can. */
+  reactions: FeedReaction[];
 }
 
 export interface FeedReaction {
@@ -38,6 +43,12 @@ export interface FeedPost {
   when: string;
   reactions: FeedReaction[];
   comments: FeedComment[];
+  /**
+   * Kept to the family. Carried through to the screen so a post that the
+   * circle cannot see says so — somebody who chose a smaller audience should
+   * be able to tell at a glance that it took, rather than trusting it.
+   */
+  familyOnly: boolean;
 }
 
 function relative(d: Date, now = new Date()): string {
@@ -53,34 +64,59 @@ function relative(d: Date, now = new Date()): string {
 }
 
 /** Load the family feed for a journey, from one member's point of view. */
+/** Group reactions by kind, and note which are the viewer's own. */
+function tally(
+  rows: { kind: string; userId: string }[],
+  viewerId: string,
+): FeedReaction[] {
+  const byKind = new Map<string, FeedReaction>();
+  for (const r of rows) {
+    const cur = byKind.get(r.kind) ?? { kind: r.kind, count: 0, mine: false };
+    cur.count += 1;
+    if (r.userId === viewerId) cur.mine = true;
+    byKind.set(r.kind, cur);
+  }
+  return [...byKind.values()];
+}
+
+/**
+ * `role` is required and sits before the optional arguments on purpose: it
+ * decides whether the family-only posts are in this list at all, and a
+ * parameter with a default is a parameter somebody forgets to pass. See
+ * lib/post-visibility.ts.
+ */
 export async function loadFeed(
   journeyId: string,
   viewerId: string,
+  role: Role | string,
   take = 40,
+  year?: number,
 ): Promise<FeedPost[]> {
   const posts = await prisma.post.findMany({
-    where: { journeyId },
+    where: {
+      journeyId,
+      ...postScope(role),
+      ...(year ? { createdAt: yearBounds(year) } : {}),
+    },
     orderBy: { createdAt: "desc" },
-    take,
+    // A year is a bounded thing a family asked to see in full, so it is not
+    // cut short at the usual page size.
+    take: year ? 400 : take,
     include: {
       author: { select: { id: true, name: true, image: true } },
       reactions: { select: { kind: true, userId: true } },
       comments: {
         orderBy: { createdAt: "asc" },
-        include: { author: { select: { id: true, name: true } } },
+        include: {
+          author: { select: { id: true, name: true } },
+          reactions: { select: { kind: true, userId: true } },
+        },
       },
     },
   });
   const now = new Date();
 
   return posts.map((p) => {
-    const byKind = new Map<string, FeedReaction>();
-    for (const r of p.reactions) {
-      const cur = byKind.get(r.kind) ?? { kind: r.kind, count: 0, mine: false };
-      cur.count += 1;
-      if (r.userId === viewerId) cur.mine = true;
-      byKind.set(r.kind, cur);
-    }
     return {
       id: p.id,
       kind: p.kind,
@@ -96,13 +132,15 @@ export async function loadFeed(
       authorImage: p.author.image ?? null,
       mine: p.authorId === viewerId,
       when: relative(p.createdAt, now),
-      reactions: [...byKind.values()],
+      familyOnly: p.familyOnly,
+      reactions: tally(p.reactions, viewerId),
       comments: p.comments.map((c) => ({
         id: c.id,
         author: c.author.name ?? "Someone",
         mine: c.authorId === viewerId,
         body: c.body,
         when: relative(c.createdAt, now),
+        reactions: tally(c.reactions, viewerId),
       })),
     };
   });

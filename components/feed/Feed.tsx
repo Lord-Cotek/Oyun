@@ -1,24 +1,35 @@
 "use client";
 
 import { useEffect, useRef, useState, useTransition } from "react";
+import { randomId } from "@/lib/rand";
 import { upload } from "@vercel/blob/client";
 import {
   POST_KINDS,
   KIND_LABEL,
-  KIND_TONE,
   REACTIONS,
   type PostKind,
 } from "@/lib/feed";
 import type { FeedPost, MediaItem } from "@/lib/feed-query";
 import { Lightbox } from "@/components/media/Lightbox";
+import { Pressable } from "@/components/ui/Pressable";
+import { ReactionRow } from "@/components/feed/ReactionRow";
+import { shrinkImage } from "@/lib/shrink-image";
+import { mediaAlt } from "@/lib/alt";
+import { FirstStep, FirstStepFocus } from "@/components/ui/FirstStep";
 import { Avatar } from "@/components/ui/Avatar";
 import { isIosNativeShell } from "@/lib/shell";
+import { FAMILY_ONLY } from "@/lib/post-visibility";
 
 type CreateFn = (input: {
   kind: string;
   body: string;
   mediaUrls?: string[];
+  familyOnly?: boolean;
 }) => Promise<void>;
+type AudienceFn = (input: {
+  id: string;
+  familyOnly: boolean;
+}) => Promise<{ ok: boolean }>;
 type EditFn = (input: {
   id: string;
   body: string;
@@ -26,6 +37,10 @@ type EditFn = (input: {
 }) => Promise<void>;
 type CommentFn = (input: { postId: string; body: string }) => Promise<void>;
 type ReactFn = (input: { postId: string; kind: string }) => Promise<void>;
+type ReactCommentFn = (input: {
+  commentId: string;
+  kind: string;
+}) => Promise<void>;
 type IdFn = (id: string) => Promise<void>;
 
 interface Actions {
@@ -35,28 +50,55 @@ interface Actions {
   onComment: CommentFn;
   onDeleteComment: IdFn;
   onReact: ReactFn;
+  onReactToComment: ReactCommentFn;
+  /** Change who an existing post is for. See lib/post-visibility.ts. */
+  onSetAudience: AudienceFn;
 }
 
 export function Feed({
   posts,
+  canKeepToFamily,
   composerPlaceholder = "Share something with the family…",
+  // A blank diary is the first thing a new house sees, so it gets one
+  // particular thing to write rather than four categories to choose between.
+  emptyLine = "Nothing here yet. The entries worth having in ten years are the ordinary ones — what somebody said, what you ate, who came round.",
+  emptyAction = "Write down one thing that happened today",
   ...actions
-}: { posts: FeedPost[]; composerPlaceholder?: string } & Actions) {
+}: {
+  posts: FeedPost[];
+  /**
+   * Whether this viewer may keep a post to the family. Required rather than
+   * defaulted: somebody in the circle must not be shown a switch that decides
+   * who sees them, and a prop with a default is a prop somebody forgets.
+   */
+  canKeepToFamily: boolean;
+  composerPlaceholder?: string;
+  emptyLine?: string;
+  emptyAction?: string;
+} & Actions) {
   return (
     <div className="space-y-6">
-      <Composer onCreate={actions.onCreate} placeholder={composerPlaceholder} />
+      <Composer
+        onCreate={actions.onCreate}
+        placeholder={composerPlaceholder}
+        canKeepToFamily={canKeepToFamily}
+      />
       {posts.length === 0 ? (
-        <div className="surface-premium rounded-2xl border border-border p-8 text-center">
-          <p className="font-mono text-sm leading-relaxed text-muted">
-            Nothing shared yet. Be the first — a word, a praise, a prayer, a
-            small moment worth keeping.
-          </p>
+        <div className="surface-premium rounded-2xl border border-border p-8">
+          <FirstStep
+            className="text-center [&>div]:flex [&>div]:justify-center"
+            action={
+              <FirstStepFocus htmlFor="composer-box">{emptyAction}</FirstStepFocus>
+            }
+          >
+            {emptyLine}
+          </FirstStep>
         </div>
       ) : (
         <ul className="space-y-4">
           {posts.map((p) => (
-            <li key={p.id}>
-              <PostItem post={p} {...actions} />
+            <li key={p.id} id={`post-${p.id}`} className="notif-target">
+              <PostItem post={p} canKeepToFamily={canKeepToFamily} {...actions} />
             </li>
           ))}
         </ul>
@@ -122,11 +164,20 @@ interface Picked {
 function Composer({
   onCreate,
   placeholder,
+  canKeepToFamily,
 }: {
   onCreate: CreateFn;
   placeholder: string;
+  canKeepToFamily: boolean;
 }) {
   const [kind, setKind] = useState<PostKind>("UPDATE");
+  /**
+   * Who this one is for. It deliberately does NOT persist between posts: an
+   * audience that stays where you last left it is how somebody writes for
+   * everybody and quietly posts to half the house, or the reverse. Each post
+   * is its own decision, and the default is the one the diary has always had.
+   */
+  const [familyOnly, setFamilyOnly] = useState(false);
   const [body, setBody] = useState("");
   const [picked, setPicked] = useState<Picked[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -234,7 +285,7 @@ function Composer({
         continue;
       }
       next.push({
-        id: `${file.name}-${file.size}-${crypto.randomUUID()}`,
+        id: `${file.name}-${file.size}-${randomId()}`,
         file,
         preview: URL.createObjectURL(file),
         isVideo,
@@ -272,10 +323,14 @@ function Composer({
       try {
         urls = await Promise.all(
           picked.map(async (p) => {
-            const res = await upload(p.file.name, p.file, {
+            // Photographs shrink before they go; a video is left exactly as it
+            // is — re-encoding one in a browser is a different undertaking and
+            // this is not it.
+            const file = p.isVideo ? p.file : await shrinkImage(p.file);
+            const res = await upload(file.name, file, {
               access: "public",
               handleUploadUrl: "/api/blob/upload",
-              contentType: p.file.type || undefined,
+              contentType: file.type || undefined,
             });
             return res.url;
           }),
@@ -291,9 +346,10 @@ function Composer({
       setUploading(false);
     }
     start(async () => {
-      await onCreate({ kind, body: body.trim(), mediaUrls: urls });
+      await onCreate({ kind, body: body.trim(), mediaUrls: urls, familyOnly });
       setBody("");
       setKind("UPDATE");
+      setFamilyOnly(false);
       setRestored(null);
       forgetDraft();
       clearAll();
@@ -319,16 +375,17 @@ function Composer({
         ))}
       </div>
       <textarea
+        id="composer-box"
         value={body}
         onChange={(e) => setBody(e.target.value)}
         rows={3}
         placeholder={placeholder}
-        className="w-full resize-y rounded-xl border border-border bg-bg px-4 py-3 font-mono text-sm leading-relaxed text-ink placeholder:text-muted focus:border-accent focus:outline-none"
+        className="w-full resize-y rounded-xl border border-border bg-bg px-4 py-3 prose-serif-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none"
       />
 
       {picked.length > 0 && (
         <div className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-4">
-          {picked.map((p) => (
+          {picked.map((p, i) => (
             <div
               key={p.id}
               className="relative aspect-square overflow-hidden rounded-lg border border-border"
@@ -336,6 +393,7 @@ function Composer({
               {p.isVideo ? (
                 <video
                   src={p.preview}
+                  aria-label={`Video ${i + 1} of ${picked.length}, ready to post`}
                   className="h-full w-full object-cover"
                   muted
                   playsInline
@@ -344,7 +402,7 @@ function Composer({
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={p.preview}
-                  alt="To share"
+                  alt={`Photo ${i + 1} of ${picked.length}, ready to post`}
                   className="h-full w-full object-cover"
                 />
               )}
@@ -423,7 +481,7 @@ function Composer({
       />
 
       {iosApp && (
-        <p className="mt-3 rounded-lg border border-border bg-bg/50 px-3 py-2 font-mono text-[0.62rem] leading-relaxed text-muted">
+        <p className="mt-3 rounded-lg border border-border bg-bg/50 px-3 py-2 text-[0.62rem] leading-relaxed text-muted">
           In the app, choose{" "}
           <span className="text-ink">Photo Library</span>.{" "}
           <span className="text-ink">Take Photo</span> closes the app — a fault
@@ -457,38 +515,126 @@ function Composer({
             Video
           </button>
         </div>
-        <button
-          type="button"
-          disabled={!canSend}
-          onClick={submit}
-          className="btn-primary rounded-lg px-5 py-2.5 font-mono text-sm font-medium text-on-accent transition-transform active:scale-[0.98] disabled:opacity-40"
-        >
-          {uploading ? "Uploading…" : pending ? "Sharing…" : "Share"}
-        </button>
+        {/* Who it is for, and then Share — in that order and side by side,
+            because the audience is a decision about the post being written
+            and the last thing read before publishing should be who it goes
+            to. It sat with Photos and Video, which are attachments, and that
+            put it in the wrong sentence. */}
+        <div className="flex items-center gap-4">
+          {canKeepToFamily && (
+            <button
+              type="button"
+              id="composer-audience"
+              onClick={() => setFamilyOnly((v) => !v)}
+              aria-pressed={familyOnly}
+              // The chip on an existing post below carries the same two words,
+              // meaning the same thing about a different post. They are far
+              // apart on the screen and read correctly there — but to anybody
+              // hearing the page rather than seeing it they were two identical
+              // buttons, so this one says which post it is deciding.
+              aria-label={
+                familyOnly
+                  ? "This post will be kept to the family. Share it with everyone here instead."
+                  : "This post will be shared with everyone here. Keep it to the family instead."
+              }
+              className={`inline-flex items-center gap-1.5 font-mono text-[0.68rem] transition-colors ${
+                familyOnly
+                  ? "text-accent"
+                  : "text-muted hover:text-accent"
+              }`}
+            >
+              <span aria-hidden className="text-sm leading-none">
+                {familyOnly ? "🔒" : "👪"}
+              </span>
+              {familyOnly ? FAMILY_ONLY.onLabel : FAMILY_ONLY.offLabel}
+            </button>
+          )}
+          <button
+            type="button"
+            disabled={!canSend}
+            onClick={submit}
+            className="btn-primary rounded-lg px-5 py-2.5 font-mono text-sm font-medium text-on-accent transition-transform active:scale-[0.98] disabled:opacity-40"
+          >
+            {uploading ? "Uploading…" : pending ? "Sharing…" : "Share"}
+          </button>
+        </div>
       </div>
+      {familyOnly && (
+        <p className="mt-2 font-mono text-[0.62rem] leading-relaxed text-muted">
+          {FAMILY_ONLY.hint}
+        </p>
+      )}
     </div>
+  );
+}
+
+/**
+ * Changing who a post is for, afterwards.
+ *
+ * It sits with Edit and Delete rather than up in the header, because it is a
+ * thing you do and those are the things you do. The header carries the state
+ * — a "Family only" marker, and nothing at all on an ordinary post, since the
+ * audience the diary has always had does not need announcing on every entry.
+ *
+ * Only ever on your own post, and only for somebody who has a family to
+ * narrow it to. Narrowing takes effect at once, and cannot unsend: a
+ * notification already read has been read. So the word is "keep", not "hide".
+ */
+function Audience({
+  post,
+  onSetAudience,
+  busy,
+}: {
+  post: FeedPost;
+  onSetAudience: AudienceFn;
+  busy: boolean;
+}) {
+  const [pending, start] = useTransition();
+  return (
+    <Pressable
+      press="none"
+      type="button"
+      disabled={pending || busy}
+      onClick={() =>
+        start(async () => {
+          await onSetAudience({ id: post.id, familyOnly: !post.familyOnly });
+        })
+      }
+      className="py-2.5 underline underline-offset-4 hover:text-accent disabled:opacity-50"
+    >
+      {pending
+        ? "…"
+        : post.familyOnly
+          ? "Open to everyone"
+          : "Keep to family"}
+    </Pressable>
   );
 }
 
 function PostItem({
   post,
+  canKeepToFamily,
   onEdit,
   onDelete,
   onComment,
   onDeleteComment,
   onReact,
-}: { post: FeedPost } & Actions) {
+  onReactToComment,
+  onSetAudience,
+}: { post: FeedPost; canKeepToFamily: boolean } & Actions) {
   const [pending, start] = useTransition();
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(post.body);
   const [removeMedia, setRemoveMedia] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [comment, setComment] = useState("");
-  const tone = KIND_TONE[post.kind] ?? "sky";
   const hasMedia = post.media.length > 0;
 
+
   return (
-    <div className="surface-premium rounded-2xl border border-border p-5 md:p-6">
+    // `overflow-hidden` is what lets the photographs below reach the card's
+    // edges without their corners poking out past its radius.
+    <div className="surface-premium overflow-hidden rounded-2xl border border-border p-5 md:p-6">
       <div className="flex items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-2.5">
           <Avatar name={post.author} photoUrl={post.authorImage} size={34} />
@@ -497,14 +643,22 @@ function PostItem({
           <span aria-hidden>·</span>
           <span>{post.when}</span>
           <span
-            className="rounded-full border px-2 py-0.5 text-[0.56rem]"
-            style={{
-              color: `var(--tone-${tone})`,
-              borderColor: `color-mix(in srgb, var(--tone-${tone}) 40%, transparent)`,
-            }}
+            className="rounded-full border border-border px-2 py-0.5 text-[0.56rem] text-muted"
+            // The chip says "Praise" or "Prayer"; the word is the marker.
+            // A hue per kind meant four colours in one row of metadata.
           >
             {KIND_LABEL[post.kind] ?? "Update"}
           </span>
+          {/* Who this one is for, said on the post itself rather than only in
+              the composer that is long since gone. Somebody who chose a
+              smaller audience three weeks ago should be able to see that it
+              took, and the family reading it should know the circle is not.
+              For whoever wrote it the marker is also the control. */}
+          {post.familyOnly && (
+            <span className="rounded-full border border-accent/40 bg-accent/[0.08] px-2 py-0.5 text-[0.56rem] text-accent">
+              {FAMILY_ONLY.badge}
+            </span>
+          )}
           </div>
         </div>
       </div>
@@ -515,7 +669,7 @@ function PostItem({
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             rows={3}
-            className="w-full resize-y rounded-lg border border-border bg-bg px-3 py-2 font-mono text-sm leading-relaxed text-ink focus:border-accent focus:outline-none"
+            className="w-full resize-y rounded-lg border border-border bg-bg px-3 py-2 prose-serif-sm text-ink focus:border-accent focus:outline-none"
           />
           {hasMedia && (
             <label className="mt-2 flex items-center gap-2 font-mono text-[0.68rem] text-muted">
@@ -563,67 +717,73 @@ function PostItem({
       ) : (
         <>
           {post.body && (
-            <p className="mt-3 whitespace-pre-line font-mono text-sm leading-relaxed text-ink/90">
+            <p className="mt-3 whitespace-pre-line prose-serif-sm text-ink/90">
               {post.body}
             </p>
           )}
-          {hasMedia && <MediaGallery media={post.media} />}
+          {hasMedia && (
+            <MediaGallery
+              bleed
+              media={post.media}
+              said={post.body}
+              author={post.author}
+              when={post.when}
+            />
+          )}
         </>
       )}
 
-      {/* reactions */}
-      <div className="mt-4 flex flex-wrap items-center gap-1.5">
-        {REACTIONS.map((r) => {
-          const mine = post.reactions.find((x) => x.kind === r.kind)?.mine;
-          const count = post.reactions.find((x) => x.kind === r.kind)?.count ?? 0;
-          return (
-            <button
-              key={r.kind}
-              type="button"
-              disabled={pending}
-              onClick={() => start(() => onReact({ postId: post.id, kind: r.kind }))}
-              aria-label={r.label}
-              className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 font-mono text-xs transition-colors disabled:opacity-50 ${
-                mine
-                  ? "border-accent/50 bg-accent/10 text-ink"
-                  : "border-border text-muted hover:border-accent/40"
-              }`}
-            >
-              <span aria-hidden>{r.glyph}</span>
-              {count > 0 && <span className="text-[0.68rem]">{count}</span>}
-            </button>
-          );
-        })}
-      </div>
+      {/* reactions — they move the moment you tap, and move back if the
+          server never heard about it */}
+      <ReactionRow
+        reactions={post.reactions}
+        onToggle={(kind) => onReact({ postId: post.id, kind })}
+      />
 
-      {/* footer actions */}
-      <div className="mt-3 flex flex-wrap items-center gap-3 font-mono text-[0.68rem] text-muted">
-        <button
+      {/* ── Footer actions ───────────────────────────────────────────────
+          `-my-2` on the row with `py-2.5` on each button: the words stay
+          exactly the size they were, and the thing you can hit grows to 44pt.
+          They were about sixteen pixels tall, which is fine with a mouse and a
+          coin-flip with a thumb — and "Delete" being a coin-flip next to
+          "Edit" is the wrong one to get wrong. The negative margin means the
+          card does not grow to pay for it. */}
+      <div className="-my-2 mt-1 flex flex-wrap items-center gap-3 font-mono text-[0.68rem] text-muted">
+        <Pressable
+          press="none"
           type="button"
           onClick={() => setShowComments((s) => !s)}
-          className="underline underline-offset-4 hover:text-accent"
+          className="py-2.5 underline underline-offset-4 hover:text-accent"
         >
           {post.comments.length > 0
             ? `${post.comments.length} ${post.comments.length === 1 ? "reply" : "replies"}`
             : "Reply"}
-        </button>
+        </Pressable>
         {post.mine && (
           <>
-            <button
+            <Pressable
+              press="none"
               type="button"
               onClick={() => setEditing(true)}
-              className="underline underline-offset-4 hover:text-accent"
+              className="py-2.5 underline underline-offset-4 hover:text-accent"
             >
               Edit
-            </button>
-            <button
+            </Pressable>
+            <Pressable
+              press="none"
               type="button"
               disabled={pending}
               onClick={() => start(() => onDelete(post.id))}
-              className="underline underline-offset-4 hover:text-negative disabled:opacity-50"
+              className="py-2.5 underline underline-offset-4 hover:text-negative disabled:opacity-50"
             >
               Delete
-            </button>
+            </Pressable>
+            {canKeepToFamily && (
+              <Audience
+                post={post}
+                onSetAudience={onSetAudience}
+                busy={pending}
+              />
+            )}
           </>
         )}
       </div>
@@ -632,20 +792,28 @@ function PostItem({
       {(showComments || post.comments.length > 0) && (
         <div className="mt-4 space-y-3 border-t border-border pt-4">
           {post.comments.map((c) => (
-            <div key={c.id} className="flex items-start justify-between gap-3">
-              <p className="font-mono text-xs leading-relaxed text-ink/85">
-                <span className="text-muted">{c.author}</span> · {c.body}
-              </p>
-              {c.mine && (
-                <button
-                  type="button"
-                  disabled={pending}
-                  onClick={() => start(() => onDeleteComment(c.id))}
-                  className="shrink-0 font-mono text-[0.62rem] text-muted underline underline-offset-4 hover:text-negative disabled:opacity-50"
-                >
-                  Remove
-                </button>
-              )}
+            <div key={c.id}>
+              <div className="flex items-start justify-between gap-3">
+                <p className="font-mono text-xs leading-relaxed text-ink/85">
+                  <span className="text-muted">{c.author}</span> · {c.body}
+                </p>
+                {c.mine && (
+                  <button
+                    type="button"
+                    disabled={pending}
+                    onClick={() => start(() => onDeleteComment(c.id))}
+                    className="shrink-0 font-mono text-[0.62rem] text-muted underline underline-offset-4 hover:text-negative disabled:opacity-50"
+                  >
+                    Remove
+                  </button>
+                )}
+              </div>
+              <ReactionRow
+                compact
+                label="them"
+                reactions={c.reactions}
+                onToggle={(kind) => onReactToComment({ commentId: c.id, kind })}
+              />
             </div>
           ))}
           <div className="flex items-center gap-2">
@@ -654,7 +822,7 @@ function PostItem({
               value={comment}
               onChange={(e) => setComment(e.target.value)}
               placeholder="Say something kind…"
-              className="w-full rounded-lg border border-border bg-bg px-3 py-2 font-mono text-xs text-ink placeholder:text-muted focus:border-accent focus:outline-none"
+              className="prose-serif-xs w-full rounded-lg border border-border bg-bg px-3 py-2 text-ink placeholder:text-muted focus:border-accent focus:outline-none"
               onKeyDown={(e) => {
                 if (e.key === "Enter" && comment.trim()) {
                   e.preventDefault();
@@ -687,26 +855,66 @@ function PostItem({
   );
 }
 
-function MediaGallery({ media }: { media: MediaItem[] }) {
+/**
+ * `bleed` runs the photographs to the edges of the card that holds them,
+ * cancelling its padding.
+ *
+ * A picture of your daughter inset inside a bordered box, inside another
+ * bordered box, on a page of bordered boxes, is a thumbnail — it reads as an
+ * attachment to the writing rather than as the thing itself. Every app people
+ * actually look at photographs in does the opposite: the words are inset, the
+ * picture is not. Only the caller inside a padded card asks for it, since the
+ * negative margin has to match that card's padding exactly.
+ */
+function MediaGallery({
+  media,
+  said,
+  author,
+  when,
+  bleed = false,
+}: {
+  media: MediaItem[];
+  bleed?: boolean;
+  /** What was written alongside — the best description of these we will get. */
+  said?: string | null;
+  author?: string | null;
+  when?: string | null;
+}) {
   const [at, setAt] = useState<number | null>(null);
   const single = media.length === 1;
+  const alts = media.map((m, i) =>
+    mediaAlt({
+      said,
+      author,
+      when,
+      index: i + 1,
+      total: media.length,
+      isVideo: m.type === "video",
+    }),
+  );
 
   return (
     <>
       <div
-        className={`mt-3 grid gap-1.5 ${single ? "grid-cols-1" : "grid-cols-2"}`}
+        className={`mt-3 grid gap-1.5 ${single ? "grid-cols-1" : "grid-cols-2"} ${
+          bleed ? "-mx-5 md:-mx-6" : ""
+        }`}
       >
         {media.map((m, i) => (
           <button
             key={`${m.url}-${i}`}
             type="button"
             onClick={() => setAt(i)}
-            aria-label={
-              m.type === "video" ? "Play video" : `Open photo ${i + 1}`
-            }
-            className={`group relative block w-full overflow-hidden rounded-xl border border-border transition-colors hover:border-accent/50 ${
-              single ? "" : "aspect-square"
+            // An aria-label on the button replaces everything inside it, so
+            // this — not the img alt below — is what a screen reader announces.
+            // The description starts a sentence of its own, so it is lowered
+            // when a verb is put in front of it.
+            aria-label={`${m.type === "video" ? "Play" : "Open"} ${
+              alts[i].charAt(0).toLowerCase() + alts[i].slice(1)
             }`}
+            className={`group relative block w-full overflow-hidden transition-colors ${
+              bleed ? "" : "rounded-xl border border-border hover:border-accent/50"
+            } ${single ? "" : "aspect-square"}`}
           >
             {m.type === "video" ? (
               <>
@@ -731,7 +939,7 @@ function MediaGallery({ media }: { media: MediaItem[] }) {
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={m.url}
-                alt=""
+                alt={alts[i]}
                 loading="lazy"
                 className={`transition-transform duration-500 ease-out group-hover:scale-[1.03] ${
                   single
@@ -747,6 +955,7 @@ function MediaGallery({ media }: { media: MediaItem[] }) {
       {at !== null && (
         <Lightbox
           items={media}
+          alts={alts}
           index={at}
           onIndex={setAt}
           onClose={() => setAt(null)}

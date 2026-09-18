@@ -1,0 +1,173 @@
+{
+  "_": [
+    "Files that are meant to say the same thing in both apps. `npm run drift`",
+    "compares each against its twin in the sibling repository and fails if one",
+    "has moved without the other.",
+    "",
+    "A file belongs here when the two copies are the same CODE \u2014 the same",
+    "component, the same rules \u2014 even where the wording around it differs.",
+    "Differences the two apps are entitled to (their names, their nouns) go in",
+    "`substitutions`: each pair folds the second spelling onto the first before",
+    "comparing, so a deliberate difference is written down once rather than",
+    "rediscovered every time somebody reads the diff.",
+    "",
+    "A file NOT listed here is free to differ. That is the normal case: most of",
+    "each app is its own.",
+    "",
+    "An entry marked `\"code\": true` is compared with its comments stripped. Those",
+    "files are the same component but explain themselves to each app's own",
+    "reader \u2014 Oyun's draft-keeping talks about a letter to the baby, \u00ccd\u00edl\u00e9's",
+    "about a letter to a child \u2014 and both are right.",
+    "",
+    "The checker and this manifest are themselves on the list. A rule that",
+    "only one side is enforcing is not a rule.",
+    "",
+    "One pair lives under two names: the reminder rules are lib/reminders.ts",
+    "in \u00ccd\u00edl\u00e9 and lib/nudges.ts in Oyun, because each file is named for what",
+    "its own app calls the thing. `pair` names both."
+  ],
+  "substitutions": [
+    [
+      "\u00ccd\u00edl\u00e9",
+      "Oyun"
+    ],
+    [
+      "idile",
+      "oyun"
+    ],
+    [
+      "householdId",
+      "journeyId"
+    ],
+    [
+      "household",
+      "journey"
+    ],
+    [
+      "Household",
+      "Journey"
+    ]
+  ],
+  "files": [
+    {
+      "pair": [
+        "lib/reminders.ts",
+        "lib/nudges.ts"
+      ],
+      "code": true,
+      "substitutions": [
+        [
+          "REMINDER_CAP",
+          "NUDGE_CAP"
+        ],
+        [
+          "REMINDER_TEXT_MAX",
+          "NUDGE_TEXT_MAX"
+        ],
+        [
+          "REMINDER_WHENS",
+          "NUDGE_WHENS"
+        ],
+        [
+          "reminderDueToday",
+          "nudgeDueToday"
+        ]
+      ]
+    },
+    "components/ForgotPasswordForm.tsx",
+    "components/MobileMenu.tsx",
+    "components/NativePush.tsx",
+    {
+      "path": "components/OfflineBanner.tsx",
+      "code": true
+    },
+    {
+      "path": "components/PwaRegister.tsx",
+      "code": true
+    },
+    "components/ResetPasswordForm.tsx",
+    "components/ShareButton.tsx",
+    {
+      "path": "components/SignInForm.tsx",
+      "code": true
+    },
+    {
+      "path": "components/ThemeToggle.tsx",
+      "code": true
+    },
+    "components/dates/CalendarMonth.tsx",
+    "components/feed/Feed.tsx",
+    "components/feed/ReactionRow.tsx",
+    {
+      "path": "components/feed/YearStrip.tsx",
+      "code": true
+    },
+    "components/invite/GuestPoll.tsx",
+    "components/invite/GuestReply.tsx",
+    "components/invite/ShareInvite.tsx",
+    "components/media/Lightbox.tsx",
+    "components/onboarding/WrongAccountSignOut.tsx",
+    "components/settings/ExportButton.tsx",
+    "components/ui/ActionTile.tsx",
+    "components/ui/AnimatedNumber.tsx",
+    {
+      "path": "components/ui/Avatar.tsx",
+      "code": true
+    },
+    "components/ui/Button.tsx",
+    "components/ui/CoverPicker.tsx",
+    "components/ui/DraftTextarea.tsx",
+    "components/ui/Eyebrow.tsx",
+    {
+      "path": "components/ui/FirstStep.tsx",
+      "code": true
+    },
+    "components/ui/HoldToPray.tsx",
+    "components/ui/Marks.tsx",
+    "components/ui/Pressable.tsx",
+    "components/ui/Reveal.tsx",
+    "components/ui/Skeleton.tsx",
+    "components/ui/StatPill.tsx",
+    "components/ui/Verse.tsx",
+    "components/worship/LiturgyRail.tsx",
+    "components/worship/ReflectionJournal.tsx",
+    "components/worship/Reflections.tsx",
+    {
+      "path": "components/worship/ScriptureJourney.tsx",
+      "code": true
+    },
+    "lib/alt.ts",
+    "lib/auth.ts",
+    "lib/bible.ts",
+    "lib/blob-client.ts",
+    "lib/book-intros.ts",
+    "lib/calendar.ts",
+    "lib/fcm.ts",
+    "lib/feed.ts",
+    "lib/haptics.ts",
+    "lib/hymns.ts",
+    "lib/invitations.ts",
+    "lib/password.ts",
+    "lib/photos.ts",
+    "lib/prisma.ts",
+    "lib/rand.ts",
+    "lib/reaction-emojis.ts",
+    "lib/scroll.ts",
+    "lib/share.ts",
+    "lib/shell.ts",
+    "lib/shrink-image.ts",
+    "lib/use-attempt.ts",
+    {
+      "path": "lib/use-draft.ts",
+      "code": true
+    },
+    "lib/zip.ts",
+    {
+      "path": "scripts/drift.mjs",
+      "code": true
+    },
+    "shared-files.json",
+    "components/letters/LetterReplies.tsx",
+    "lib/letter-replies.ts"
+  ]
+}
