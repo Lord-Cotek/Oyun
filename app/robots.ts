@@ -21,6 +21,7 @@ export default function robots(): MetadataRoute.Robots {
         // that finds one pasted in a public forum should be told plainly too.
         "/i",
         "/appointments",
+        "/dates",
       ],
     },
     sitemap: `${siteUrl}/sitemap.xml`,
