@@ -258,8 +258,7 @@
     }
   }
 
-  /* The primary action: one flat accent, one soft shadow, and a small lift on
-     hover.
+  /* The primary action: one flat accent and one soft shadow.
 
      It used to carry a white-to-black vertical gradient and two inset
      highlight lines — the same 2013 gloss taken off the cards, kept here
@@ -267,27 +266,34 @@
      than anywhere: this is the only filled accent element on most pages, so
      it is the loudest thing on the screen and the first thing that dated the
      whole app. A solid fill is also the honest one — the colour you see is
-     --accent, not --accent lit from above. */
+     --accent, not --accent lit from above.
+
+     It no longer moves, either, and that removal is what let the primary
+     action start answering a thumb. This class owned a hover lift and an
+     `:active` reset, and a rule carrying a pseudo-class outranks a plain
+     utility class — so `.btn-primary:active { transform: translateY(0) }`
+     silently beat the press that Pressable applies, and the loudest control
+     on every page was the one control that stayed perfectly still under a
+     finger. (The handful of buttons that wear this class directly and pair it
+     with `active:scale-[0.98]` were never affected: Tailwind's `active:`
+     variant carries a pseudo-class of its own, ties on specificity, and wins
+     on layer order.)
+
+     Movement belongs to Pressable now — one file, one feel, everywhere. What
+     is left here is colour and depth, which is all a look should have been.
+     The transition stays for those direct users, so their hover still fades
+     rather than snapping; anything built on Pressable overrides it from the
+     utilities layer with the press timing instead. */
   .btn-primary {
     background-color: var(--accent);
     box-shadow: var(--shadow-1);
     transition:
-      transform 0.18s ease,
       background-color 0.18s ease,
       box-shadow 0.18s ease;
   }
   .btn-primary:hover {
     background-color: var(--accent-deep);
-    transform: translateY(-1px);
     box-shadow: var(--shadow-2);
-  }
-  .btn-primary:active {
-    transform: translateY(0);
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .btn-primary:hover {
-      transform: none;
-    }
   }
 
   /* The signature COTEK section marker */

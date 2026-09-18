@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { useAttempt, type Attempted } from "@/lib/use-attempt";
+import { sealed } from "@/lib/haptics";
 
 /**
  * Prayer as an act, not a click. Press and *hold* — a warm ember fills as you
@@ -50,11 +51,12 @@ export function HoldToPray({
         setProgress(1);
         setBloom(true);
         setC((n) => n + 1);
-        try {
-          navigator.vibrate?.(18);
-        } catch {
-          /* no haptics here */
-        }
+        // This used to call navigator.vibrate directly, which meant the one
+        // gesture in the app most worth confirming did nothing at all on an
+        // iPhone — WebKit has never shipped the Vibration API. Routed through
+        // lib/haptics it reaches the taptic engine through the installed
+        // shell, and still falls back to the motor on Android.
+        sealed();
         setTimeout(() => setBloom(false), 1400);
       },
       action,
@@ -116,7 +118,10 @@ export function HoldToPray({
         aria-pressed={done}
         aria-label={done ? "You are praying for this" : "Hold to pray"}
         style={{ touchAction: "none" }}
-        className={`group relative select-none overflow-hidden rounded-full border px-4 py-2 font-mono text-xs transition-colors disabled:opacity-70 ${
+        // min-h-11 because this is the signature gesture of the app and it was
+        // 34px tall — you have to hold it for over a second, so a target the
+        // thumb keeps sliding off is worse here than anywhere else.
+        className={`group relative inline-flex min-h-11 select-none items-center overflow-hidden rounded-full border px-4 font-mono text-xs transition-colors disabled:opacity-70 ${
           done
             ? "border-accent/50 text-accent"
             : "border-border text-ink hover:border-accent"

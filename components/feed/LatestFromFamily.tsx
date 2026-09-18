@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Pressable } from "@/components/ui/Pressable";
 import { mediaAlt } from "@/lib/alt";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { KIND_LABEL } from "@/lib/feed";
@@ -25,12 +26,16 @@ export function LatestFromFamily({
           )}
           <Eyebrow className={greeting ? "mt-1" : ""}>Latest from the family</Eyebrow>
         </div>
-        <Link
+        {/* A section's own action, shaped like a control. As an underlined
+            phrase in 11px mono it was about sixteen pixels tall — findable
+            with a mouse, a coin-flip with a thumb. */}
+        <Pressable
           href="/life"
-          className="shrink-0 font-mono text-[0.68rem] uppercase tracking-widest text-accent underline underline-offset-4 hover:text-accent-deep"
+          press="control"
+          className="inline-flex min-h-11 shrink-0 items-center rounded-lg border border-border px-3 font-mono text-[0.68rem] uppercase tracking-widest text-accent hover:border-accent"
         >
           All →
-        </Link>
+        </Pressable>
       </div>
 
       {posts.length === 0 ? (
@@ -47,9 +52,10 @@ export function LatestFromFamily({
         <ul className="space-y-2.5">
           {posts.map((p) => (
             <li key={p.id}>
-              <Link
+              <Pressable
                 href="/life"
-                className="block rounded-xl border border-border bg-bg/50 p-4 transition-colors hover:border-accent/40"
+                press="row"
+                className="block rounded-xl border border-border bg-bg/50 p-4 hover:border-accent/40"
               >
                 <div className="mb-1 flex flex-wrap items-center gap-2 font-mono text-[0.6rem] uppercase tracking-widest text-muted">
                   <span className="text-ink/80">{p.author}</span>
@@ -109,7 +115,7 @@ export function LatestFromFamily({
                     </span>
                   )}
                 </div>
-              </Link>
+              </Pressable>
             </li>
           ))}
         </ul>

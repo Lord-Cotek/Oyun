@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Pressable } from "@/components/ui/Pressable";
 import { type AppointmentKind } from "@prisma/client";
 import {
   kindVoice,
@@ -46,16 +47,20 @@ export function ComingUp({ appointments }: { appointments: Appt[] }) {
 
   return (
     <div className="rounded-xl border border-border bg-bg/60 p-4">
-      <div className="flex items-baseline justify-between gap-3">
+      <div className="flex items-center justify-between gap-3">
         <p className="font-mono text-[0.6rem] uppercase tracking-widest text-muted">
           Coming up
         </p>
-        <Link
+        {/* A section's own action, shaped like one. Baseline alignment went
+            with it: a bordered control has no business hanging off the text
+            baseline of the label beside it. */}
+        <Pressable
           href="/appointments"
-          className="font-mono text-[0.58rem] uppercase tracking-widest text-accent underline underline-offset-4 hover:text-accent-deep"
+          press="control"
+          className="inline-flex min-h-11 shrink-0 items-center rounded-lg border border-border px-3 font-mono text-[0.58rem] uppercase tracking-widest text-accent hover:border-accent"
         >
           All →
-        </Link>
+        </Pressable>
       </div>
 
       <ul className="mt-2.5 space-y-2">

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Pressable } from "@/components/ui/Pressable";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 
 export interface LetterPreview {
@@ -61,12 +62,13 @@ export function LettersSummary({
     <div className="surface-premium rounded-2xl border border-border p-6 md:p-7">
       <div className="mb-4 flex items-center justify-between">
         <Eyebrow>Letters</Eyebrow>
-        <Link
+        <Pressable
           href="/letters"
-          className="font-mono text-[0.68rem] uppercase tracking-widest text-accent underline underline-offset-4 hover:text-accent-deep"
+          press="control"
+          className="inline-flex min-h-11 shrink-0 items-center rounded-lg border border-border px-3 font-mono text-[0.68rem] uppercase tracking-widest text-accent hover:border-accent"
         >
           Open letters →
-        </Link>
+        </Pressable>
       </div>
       {empty ? (
         <p className="prose-serif-sm text-muted">

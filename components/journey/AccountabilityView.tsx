@@ -20,7 +20,7 @@ import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Verse } from "@/components/ui/Verse";
 import { PageHero } from "@/components/ui/PageHero";
 import { Icon } from "@/components/ui/Icon";
-import Link from "next/link";
+import { Pressable } from "@/components/ui/Pressable";
 import { type Role } from "@prisma/client";
 import { supporterFraming } from "@/lib/roles";
 import { type FeedPost } from "@/lib/feed-query";
@@ -169,9 +169,10 @@ export async function AccountabilityView({
       </div>
 
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
-        <Link
+        <Pressable
           href="/life"
-          className="surface-premium flex items-center justify-between rounded-2xl border border-border p-5 transition-colors hover:border-accent/50"
+          press="row"
+          className="surface-premium flex items-center justify-between rounded-2xl border border-border p-5 hover:border-accent/50"
         >
           <div>
             <p className="font-serif text-lg text-ink">Life</p>
@@ -180,10 +181,11 @@ export async function AccountabilityView({
             </p>
           </div>
           <span className="font-mono text-accent">→</span>
-        </Link>
-        <Link
+        </Pressable>
+        <Pressable
           href="/prayer"
-          className="surface-premium flex items-center justify-between rounded-2xl border border-border p-5 transition-colors hover:border-accent/50"
+          press="row"
+          className="surface-premium flex items-center justify-between rounded-2xl border border-border p-5 hover:border-accent/50"
         >
           <div>
             <p className="font-serif text-lg text-ink">Prayer wall</p>
@@ -192,7 +194,7 @@ export async function AccountabilityView({
             </p>
           </div>
           <span className="font-mono text-accent">→</span>
-        </Link>
+        </Pressable>
       </div>
 
       <div className="mt-6 grid gap-4 lg:grid-cols-[1.3fr_1fr]">
@@ -267,9 +269,10 @@ export async function AccountabilityView({
                   </a>
                 )}
                 {!hasOwnJourney && (
-                  <Link
+                  <Pressable
                     href="/onboarding"
-                    className="flex items-center justify-between gap-3 rounded-lg border border-border bg-bg px-4 py-3 transition-colors hover:border-accent"
+                    press="row"
+                    className="flex items-center justify-between gap-3 rounded-lg border border-border bg-bg px-4 py-3 hover:border-accent"
                   >
                     <span className="min-w-0">
                       <span className="block font-serif text-base text-ink">
@@ -280,7 +283,7 @@ export async function AccountabilityView({
                       </span>
                     </span>
                     <span className="shrink-0 font-mono text-accent">→</span>
-                  </Link>
+                  </Pressable>
                 )}
               </div>
             </Card>

@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Pressable } from "@/components/ui/Pressable";
 import { Icon, type IconName } from "@/components/ui/Icon";
 
 /**
@@ -15,6 +15,12 @@ import { Icon, type IconName } from "@/components/ui/Icon";
  * is the same surface now, and the one accent does the work of marking the
  * icon. The press stays: a control that answers the thumb is worth more than a
  * control that is a different colour.
+ *
+ * The press now comes from Pressable rather than from an `active:` utility.
+ * These are the first things a thumb lands on after the app opens, and on an
+ * iPhone `:active` arrives a beat late or not at all while the browser decides
+ * whether the finger meant to scroll. They are also the shortest surfaces on
+ * the home screen, so `min-h-24` holds the row even where a tile has no hint.
  */
 export function ActionTile({
   href,
@@ -30,9 +36,10 @@ export function ActionTile({
   className?: string;
 }) {
   return (
-    <Link
+    <Pressable
       href={href}
-      className={`surface-premium group relative flex flex-col rounded-2xl border border-border p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-accent/50 active:translate-y-0 active:scale-[0.97] ${className}`}
+      press="tile"
+      className={`surface-premium group relative flex min-h-24 flex-col rounded-2xl border border-border p-4 hover:-translate-y-0.5 hover:border-accent/50 ${className}`}
     >
       <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent/[0.12] text-accent transition-colors duration-300 group-hover:bg-accent/20">
         <Icon name={icon} size={20} />
@@ -45,6 +52,6 @@ export function ActionTile({
           {hint}
         </span>
       )}
-    </Link>
+    </Pressable>
   );
 }

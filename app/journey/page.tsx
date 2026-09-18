@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -207,7 +206,15 @@ export default async function JourneyPage() {
               phone and pushed every action below the fold. The ring stays —
               a week of forty is real news, not a score. */}
           <section className="animate-fade-up overflow-hidden rounded-2xl border border-border bg-surface p-6 md:p-9">
-            <div className="flex flex-col-reverse items-start gap-5 md:flex-row md:items-center md:justify-between md:gap-8">
+            {/* Text first, then the ring — on a phone this was reversed, so
+                a 176px ring and its caption owned the top four hundred
+                pixels and the greeting, the week and every action in the room
+                began below them. Measured at 412px there was nothing to tap
+                until 584px down. The ring stays and stays prominent; it just
+                stopped going first and stopped being the size of a saucer.
+                It also puts Oyun in the same order as Ìdílé's home, which is
+                what makes the two read as one family. */}
+            <div className="flex flex-col items-start gap-5 md:flex-row md:items-center md:justify-between md:gap-8">
               <div className="min-w-0">
                 {motherName && (
                   <p className="mb-2 font-serif text-lg italic text-muted">
@@ -230,6 +237,7 @@ export default async function JourneyPage() {
                   progress={ringProgress}
                   value={position.born ? months : position.week ?? 0}
                   unit={position.born ? "months old" : "of 40 weeks"}
+                  size={132}
                 />
                 <p className="font-mono text-xs text-muted">
                   {position.born

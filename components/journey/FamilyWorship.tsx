@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Pressable } from "@/components/ui/Pressable";
 import { familyWorship } from "@/lib/worship";
 import { Card } from "@/components/ui/Card";
 import { Eyebrow } from "@/components/ui/Eyebrow";
@@ -61,12 +61,13 @@ export function FamilyWorship({
         ) : (
           <span />
         )}
-        <Link
+        <Pressable
           href="/worship"
-          className="font-mono text-xs text-accent hover:underline"
+          press="control"
+          className="inline-flex min-h-11 shrink-0 items-center rounded-lg border border-border px-3.5 font-mono text-xs text-accent hover:border-accent"
         >
           Open family worship &rarr;
-        </Link>
+        </Pressable>
       </div>
     </Card>
   );

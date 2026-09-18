@@ -108,6 +108,7 @@
     "components/media/Lightbox.tsx",
     "components/onboarding/WrongAccountSignOut.tsx",
     "components/settings/ExportButton.tsx",
+    "components/ui/ActionTile.tsx",
     "components/ui/AnimatedNumber.tsx",
     {
       "path": "components/ui/Avatar.tsx",
@@ -121,8 +122,10 @@
       "code": true
     },
     "components/ui/HoldToPray.tsx",
+    "components/ui/Pressable.tsx",
     "components/ui/Reveal.tsx",
     "components/ui/Skeleton.tsx",
+    "components/ui/StatPill.tsx",
     "components/ui/Verse.tsx",
     "components/worship/LiturgyRail.tsx",
     "components/worship/ReflectionJournal.tsx",
@@ -139,6 +142,7 @@
     "lib/calendar.ts",
     "lib/fcm.ts",
     "lib/feed.ts",
+    "lib/haptics.ts",
     "lib/hymns.ts",
     "lib/invitations.ts",
     "lib/password.ts",
