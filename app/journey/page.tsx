@@ -38,6 +38,7 @@ import { CoverPicker } from "@/components/ui/CoverPicker";
 import { Arches, Rays } from "@/components/ui/Marks";
 import { JourneyProgress } from "@/components/JourneyProgress";
 import { WeekMark } from "@/components/journey/WeekMark";
+import { babyWords } from "@/lib/babies";
 import { SupportActions } from "@/components/journey/SupportActions";
 import { NudgeList } from "@/components/journey/NudgeList";
 import { EncouragementBox } from "@/components/journey/EncouragementBox";
@@ -202,17 +203,20 @@ export default async function JourneyPage() {
     // Warm hero details.
     const motherName = journey.owner.name?.trim().split(/\s+/)[0] ?? null;
     const babyLabel = journey.babyName?.trim() || null;
+    // One place decides how to talk about one baby or four — see lib/babies.ts.
+    const bw = babyWords(journey.babyCount, journey.babyName);
     const sizePhrase = position.born ? null : babySizeFor(position.week ?? 0);
     const ringProgress = position.born
       ? (position.month ?? 0) / 24
       : ((position.week ?? 0) + (position.dayInWeek ?? 0) / 7) / 40;
     const months = position.month ?? 0;
     const heroSubtitle: React.ReactNode = position.born ? (
-      `${babyLabel ?? (journey.babyCount > 1 ? "Your little ones" : "Your little one")} — ${months} month${months === 1 ? "" : "s"} into the world. Welcome.`
+      `${bw.subject} — ${months} month${months === 1 ? "" : "s"} into the world. Welcome.`
     ) : sizePhrase ? (
       <>
-        {babyLabel ? `${babyLabel} is` : "Your little one is"} about the size of{" "}
-        {sizePhrase} this week —{" "}
+        {/* "Ebun and Tobi are each about the size of a coconut" — the "each"
+            matters, because two babies are not together the size of one. */}
+        {bw.subject} {bw.is} {bw.each}about the size of {sizePhrase} this week —{" "}
         <span className="text-ink">fearfully and wonderfully made.</span>
       </>
     ) : (
@@ -308,6 +312,7 @@ export default async function JourneyPage() {
                   born: position.born,
                   week: position.week ?? 4,
                   month: months,
+                  count: journey.babyCount,
                 }}
                 id="home"
               />
@@ -445,7 +450,7 @@ export default async function JourneyPage() {
                     Ìdílé — Oyun&rsquo;s sibling — carries the family on through
                     childhood: family worship, catechism, Scripture memory, and
                     shepherding the heart. Bring{" "}
-                    {journey.babyName ?? "your little one"} home to start.
+                    {journey.babyName ?? bw.subjectLower} home to start.
                   </p>
                   <Button
                     href={idileHandoff}
@@ -624,6 +629,7 @@ export default async function JourneyPage() {
               born: position.born,
               week: position.week ?? 4,
               month: position.month ?? 0,
+              count: journey.babyCount,
             }}
             id="partner"
           />

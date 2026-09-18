@@ -11,6 +11,7 @@ import {
   type ItemKind,
 } from "@/lib/registry";
 import { registryUrl } from "@/lib/registry-db";
+import { registryTitleFor } from "@/lib/babies";
 import { SiteHeader } from "@/components/SiteHeader";
 import { PageHero } from "@/components/ui/PageHero";
 import { Card } from "@/components/ui/Card";
@@ -84,7 +85,6 @@ export default async function RegistryPage() {
   });
 
   if (!registry) {
-    const babyName = journey.babyName?.trim();
     const motherName = journey.owner.name?.trim()?.split(/\s+/)[0];
     return (
       <>
@@ -120,7 +120,7 @@ export default async function RegistryPage() {
             <Card className="p-8">
               <Eyebrow className="mb-4">Start one</Eyebrow>
               <StartRegistry
-                suggestedTitle={babyName ? `For baby ${babyName}` : "For our baby"}
+                suggestedTitle={registryTitleFor(journey.babyCount, journey.babyName)}
                 suggestedHost={motherName ? `${motherName} and family` : "Our family"}
               />
             </Card>

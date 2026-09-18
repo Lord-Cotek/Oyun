@@ -56,6 +56,15 @@ export interface MarkStage {
   week: number;
   /** 0–24 after the birth. */
   month: number;
+  /**
+   * How many. One unless she is carrying twins or more.
+   *
+   * A mother of twins opening a picture with one form in it is being told,
+   * quietly and every morning, that the app was built for somebody else. So
+   * the clearing holds as many forms as there are, nestled and each a little
+   * smaller so the group occupies the space one would have.
+   */
+  count?: number;
 }
 
 export interface MarkThread {
@@ -80,17 +89,20 @@ export interface WeekMark {
   threads: MarkThread[];
   halo: { cx: number; cy: number; rx: number; ry: number };
   rays: MarkRay[];
-  form: {
-    cx: number;
-    cy: number;
-    /** This week's shape. */
-    d: string;
-    /** A month ago, dashed, so the growth is the picture. */
-    ghost: string;
-    /** A hairline inside the edge, to stop the fill reading as a sticker. */
-    inner: string;
-    ribs: string[];
-  };
+  /** One per baby, already placed. */
+  forms: MarkForm[];
+}
+
+export interface MarkForm {
+  cx: number;
+  cy: number;
+  /** This week's shape. */
+  d: string;
+  /** A month ago, dashed, so the growth is the picture. */
+  ghost: string;
+  /** A hairline inside the edge, to stop the fill reading as a sticker. */
+  inner: string;
+  ribs: string[];
 }
 
 /**
@@ -177,12 +189,12 @@ export function weekMark(
 
   // ── The ground ──────────────────────────────────────────────────────────
   const tr = rng(1000 + key * 977);
-  const count = Math.round(8 + p * 30 + mp * 8);
+  const threadCount = Math.round(8 + p * 30 + mp * 8);
   const threads: MarkThread[] = [];
-  for (let i = 0; i < count; i++) {
+  for (let i = 0; i < threadCount; i++) {
     const baseY =
       height * 0.06 +
-      (i / (count - 1 || 1)) * (height * 0.88) +
+      (i / (threadCount - 1 || 1)) * (height * 0.88) +
       (tr() - 0.5) * (height * 0.03);
     const amp = height * 0.03 + tr() * (height * 0.12) * (0.4 + p);
     const wave = width * 0.35 + tr() * width * 0.55;
@@ -232,8 +244,14 @@ export function weekMark(
     });
   }
 
-  // ── The form ────────────────────────────────────────────────────────────
-  const size = Math.min(c.ry, c.rx) * (0.44 + p * 0.2);
+  // ── The forms ───────────────────────────────────────────────────────────
+  // Two babies are not one baby twice the size: each is its own, and together
+  // they fill about the room a single one would. So the shapes shrink as the
+  // count rises and sit side by side, overlapping a little, the way they do.
+  const babies = Math.max(1, Math.min(4, Math.round(stage.count ?? 1)));
+  const shrink =
+    babies === 1 ? 1 : babies === 2 ? 0.74 : babies === 3 ? 0.6 : 0.52;
+  const size = Math.min(c.ry, c.rx) * (0.44 + p * 0.2) * shrink;
   // A month back, not a week: one week of growth is a hairline on top of a
   // hairline, which defeats the point of drawing growth rather than stating
   // it. Four weeks is the smallest step you can actually see.
@@ -241,7 +259,7 @@ export function weekMark(
   const backP = clamp((Math.min(back, 40) - 4) / 36, 0, 1);
   const backMp = back > 40 ? clamp((back - 40) / 24, 0, 1) : 0;
   const backC = clearing(backP, backMp, width, height);
-  const backSize = Math.min(backC.ry, backC.rx) * (0.44 + backP * 0.2);
+  const backSize = Math.min(backC.ry, backC.rx) * (0.44 + backP * 0.2) * shrink;
 
   const ribCount = Math.round(p * 5);
   const ribs: string[] = [];
@@ -251,6 +269,24 @@ export function weekMark(
     ribs.push(`M${r1(x)} ${r1(-h)} Q${r1(x * 1.12)} 0 ${r1(x)} ${r1(h)}`);
   }
 
+  const fr = rng(4000 + key * 131 + babies * 7);
+  const forms: MarkForm[] = [];
+  // Spread across the clearing, and nudged off the centre line so a pair does
+  // not read as one symmetrical ornament.
+  const spread = babies === 1 ? 0 : size * (babies === 2 ? 1.02 : 1.18);
+  for (let i = 0; i < babies; i++) {
+    const at = babies === 1 ? 0 : i - (babies - 1) / 2;
+    forms.push({
+      cx: r1(c.cx + at * spread),
+      cy: r1(c.cy + (babies === 1 ? 0 : (fr() - 0.5) * size * 0.4)),
+      // A seed per baby, so no two of them are the same shape.
+      d: pod(3000 + key * 31 + i * 617, size),
+      ghost: pod(3000 + back * 31 + i * 617, backSize),
+      inner: pod(3000 + key * 31 + i * 617, size * 0.97),
+      ribs,
+    });
+  }
+
   return {
     width,
     height,
@@ -258,17 +294,11 @@ export function weekMark(
     halo: {
       cx: r1(c.cx),
       cy: r1(c.cy),
-      rx: r1(c.rx * 1.7),
+      // A pair needs a wider pool of light than one does.
+      rx: r1(c.rx * (babies > 1 ? 1.9 : 1.7)),
       ry: r1(c.ry * 1.7),
     },
     rays,
-    form: {
-      cx: r1(c.cx),
-      cy: r1(c.cy),
-      d: pod(3000 + key * 31, size),
-      ghost: pod(3000 + back * 31, backSize),
-      inner: pod(3000 + key * 31, size * 0.97),
-      ribs,
-    },
+    forms,
   };
 }

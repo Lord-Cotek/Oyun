@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getActiveMembership, getCoupleLetters, getBabyLetters } from "@/lib/data";
 import { HOUSEHOLD_ROLES, isHousehold } from "@/lib/roles";
+import { babyWords } from "@/lib/babies";
 import { SiteHeader } from "@/components/SiteHeader";
 import { PageHero } from "@/components/ui/PageHero";
 import { Card } from "@/components/ui/Card";
@@ -49,6 +50,8 @@ export default async function LettersPage() {
     select: { user: { select: { name: true } } },
   });
   const otherName = other?.user.name?.trim().split(/\s+/)[0] || null;
+  // One baby or four, said the same way everywhere — see lib/babies.ts.
+  const bw = babyWords(journey.babyCount, journey.babyName);
 
   const [coupleLetters, babyLetters] = await Promise.all([
     getCoupleLetters(journey.id, session.user.id),
@@ -62,7 +65,7 @@ export default async function LettersPage() {
         <PageHero
           eyebrow="Letters"
           title="Words kept."
-          lede="Letters between the two of you, and letters to your little one for the years ahead — write, read, and react together."
+          lede={`Letters between the two of you, and letters to your ${bw.littleOne} for the years ahead — write, read, and react together.`}
         />
 
         <div className="mt-8">
@@ -84,8 +87,8 @@ export default async function LettersPage() {
               }
               babyIntro={
                 <>
-                  Write to your little one — a keepsake for the years ahead.
-                  Both of you can write, read, and react.
+                  Write to your {bw.littleOne} — a keepsake for the years
+                  ahead. Both of you can write, read, and react.
                 </>
               }
               couple={
@@ -103,7 +106,8 @@ export default async function LettersPage() {
                 <BabyLetters
                   letters={babyLetters}
                   viewerId={session.user.id}
-                  placeholder="Dear little one…"
+                  placeholder={`Dear ${bw.littleOne}…`}
+                  toWhom={`to the ${bw.noun}`}
                 />
               }
             />

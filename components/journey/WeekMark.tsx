@@ -81,37 +81,39 @@ export function WeekMark({
           />
         ))}
 
-        {/* The form, with a month ago behind it. */}
-        <g transform={`translate(${m.form.cx} ${m.form.cy})`}>
-          <path
-            d={m.form.ghost}
-            fill="none"
-            stroke="#fbf8f2"
-            strokeWidth={1}
-            strokeDasharray="3 5"
-            opacity={0.5}
-          />
-          <path d={m.form.d} fill="#fbf8f2" opacity={0.9} />
-          {/* A hairline just inside the edge, so the fill reads as a form with
-              light on it rather than a sticker laid on the weave. */}
-          <path
-            d={m.form.inner}
-            fill="none"
-            stroke="#8a5e18"
-            strokeWidth={1}
-            opacity={0.13}
-          />
-          {m.form.ribs.map((d, i) => (
+        {/* The forms — one for each of them — with a month ago behind. */}
+        {m.forms.map((f, n) => (
+          <g key={n} transform={`translate(${f.cx} ${f.cy})`}>
             <path
-              key={i}
-              d={d}
+              d={f.ghost}
+              fill="none"
+              stroke="#fbf8f2"
+              strokeWidth={1}
+              strokeDasharray="3 5"
+              opacity={0.5}
+            />
+            <path d={f.d} fill="#fbf8f2" opacity={0.9} />
+            {/* A hairline just inside the edge, so the fill reads as a form
+                with light on it rather than a sticker laid on the weave. */}
+            <path
+              d={f.inner}
               fill="none"
               stroke="#8a5e18"
               strokeWidth={1}
-              opacity={0.2}
+              opacity={0.13}
             />
-          ))}
-        </g>
+            {f.ribs.map((d, i) => (
+              <path
+                key={i}
+                d={d}
+                fill="none"
+                stroke="#8a5e18"
+                strokeWidth={1}
+                opacity={0.2}
+              />
+            ))}
+          </g>
+        ))}
       </svg>
     </div>
   );

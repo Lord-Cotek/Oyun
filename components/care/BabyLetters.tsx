@@ -16,10 +16,13 @@ export function BabyLetters({
   letters,
   viewerId,
   placeholder,
+  /** "to the baby" or "to the babies" — see lib/babies.ts. */
+  toWhom = "to the baby",
 }: {
   letters: BabyLetterView[];
   viewerId: string;
   placeholder?: string;
+  toWhom?: string;
 }) {
   return (
     <>
@@ -49,7 +52,7 @@ export function BabyLetters({
                   {l.body}
                 </p>
                 <p className="mt-3 font-mono text-[0.68rem] uppercase tracking-widest text-muted">
-                  {who} · to the baby ·{" "}
+                  {who} · {toWhom} ·{" "}
                   {new Date(l.createdAt).toLocaleDateString(undefined, {
                     month: "short",
                     day: "numeric",
