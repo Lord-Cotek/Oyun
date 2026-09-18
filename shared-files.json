@@ -115,6 +115,7 @@
       "code": true
     },
     "components/ui/Button.tsx",
+    "components/ui/CoverPicker.tsx",
     "components/ui/DraftTextarea.tsx",
     "components/ui/Eyebrow.tsx",
     {

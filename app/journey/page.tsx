@@ -14,6 +14,7 @@ import {
   getUpcoming,
 } from "@/lib/data";
 import { computePosition, gestationLabel } from "@/lib/stage";
+import { setJourneyCover } from "@/app/journey/cover-actions";
 import { babySizeFor } from "@/lib/babySize";
 import { partnerDailyCare, dayKey } from "@/lib/partner-care";
 import { getReactionsFor } from "@/lib/reactions";
@@ -33,6 +34,7 @@ import { Verse } from "@/components/ui/Verse";
 import { Button } from "@/components/ui/Button";
 import { ActionTile } from "@/components/ui/ActionTile";
 import { Reveal } from "@/components/ui/Reveal";
+import { CoverPicker } from "@/components/ui/CoverPicker";
 import { Arches, Rays } from "@/components/ui/Marks";
 import { JourneyProgress } from "@/components/JourneyProgress";
 import { SupportActions } from "@/components/journey/SupportActions";
@@ -134,9 +136,20 @@ export default async function JourneyPage() {
    * shared. A journey with nothing uploaded yet gets a band of amber instead,
    * which is a deliberate fallback rather than an empty frame.
    */
-  const heroPhoto =
+  const autoPhoto =
     familyPosts.flatMap((p) => p.media).find((m) => m.type === "image")?.url ??
     null;
+  const heroPhoto = journey.coverUrl ?? autoPhoto;
+  /** What the picker offers — the photographs already on this journey. */
+  const coverChoices = Array.from(
+    new Set(
+      familyPosts
+        .flatMap((p) => p.media)
+        .filter((m) => m.type === "image")
+        .map((m) => m.url),
+    ),
+  ).slice(0, 18);
+  const canSetCover = isHousehold(role);
 
   const position = computePosition(journey.dueDate);
   const { stage } = position;
@@ -242,6 +255,16 @@ export default async function JourneyPage() {
               </>
             )}
             <Arches className="on-band" />
+
+            {canSetCover && (
+              <div className="absolute right-4 top-4 z-10">
+                <CoverPicker
+                  current={journey.coverUrl ?? null}
+                  choices={coverChoices}
+                  action={setJourneyCover}
+                />
+              </div>
+            )}
 
             <div className="absolute inset-x-0 bottom-0 p-6 pb-14">
               {motherName && (
@@ -504,6 +527,16 @@ export default async function JourneyPage() {
             </>
           )}
           <Arches className="on-band" />
+
+          {canSetCover && (
+            <div className="absolute right-4 top-4 z-10">
+              <CoverPicker
+                current={journey.coverUrl ?? null}
+                choices={coverChoices}
+                action={setJourneyCover}
+              />
+            </div>
+          )}
 
           <div className="absolute inset-x-0 bottom-0 p-6 pb-8">
             {partnerFirst && (

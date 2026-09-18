@@ -244,6 +244,14 @@ model Journey {
   status    JourneyStatus @default(ACTIVE)
   lossAt    DateTime?
   createdAt DateTime      @default(now())
+  /// The photograph at the top of the home screen.
+  ///
+  /// Null means "whatever was shared most recently", which is what this did
+  /// before anyone could choose — a sensible default and a poor permanent
+  /// answer, because the first thing you see every day should not change
+  /// because somebody posted a screenshot. Setting this pins one picture;
+  /// clearing it goes back to following the feed.
+  coverUrl  String?
 
   // Scripture Journey — a chosen reading plan that advances by completion.
   readingPlanId    String?
