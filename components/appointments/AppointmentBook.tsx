@@ -190,17 +190,37 @@ function Row({
           <p className="mt-2 font-serif text-lg leading-snug text-ink">
             {appointmentTitle(a.kind, a.title)}
           </p>
-          <p className="mt-0.5 font-mono text-xs text-muted">
-            <span className={soon ? "text-accent" : ""}>
-              {dayLabel(at)}
-              {time ? ` at ${time}` : ""}
-            </span>
+          {/* ── When, then where and who ──────────────────────────────
+              This was one line — "Tuesday at 07:19 · Ferti Clinic · Dr
+              Moujha" — with the same dot between three facts of three
+              different kinds, so a stranger's name arrived looking like
+              another place and the whole thing had to be parsed rather
+              than read.
+
+              The when is its own line, because it is the thing you are
+              actually looking for and it is the part that turns accent
+              when the day is close. Where and who go underneath in
+              words, not dots: "At Ferti Clinic, ask for Dr Moujha" is a
+              sentence a tired person reads in one go, and "ask for" is
+              the phrase that makes a bare name obviously a person. */}
+          <p
+            className={`mt-0.5 font-mono text-xs ${soon ? "text-accent" : "text-muted"}`}
+          >
+            {dayLabel(at)}
+            {time ? ` at ${time}` : ""}
             {!a.hasTime && !past && (
-              <span className="text-muted"> · no time given</span>
+              <span className="text-muted"> — no time on the letter</span>
             )}
-            {a.where && ` · ${a.where}`}
-            {a.who && ` · ${a.who}`}
           </p>
+          {(a.where || a.who) && (
+            <p className="mt-0.5 font-mono text-xs text-muted">
+              {a.where && a.who
+                ? `At ${a.where}, ask for ${a.who}`
+                : a.where
+                  ? `At ${a.where}`
+                  : `Ask for ${a.who}`}
+            </p>
+          )}
         </div>
 
         {a.attendedAt && (
