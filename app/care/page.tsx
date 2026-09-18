@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { getActiveMembership, getCoupleLetters } from "@/lib/data";
 import { getReactionsFor } from "@/lib/reactions";
 import { MOOD_META } from "@/lib/moods";
+import { babyWords } from "@/lib/babies";
 import { Reactions } from "@/components/Reactions";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Card } from "@/components/ui/Card";
@@ -30,6 +31,8 @@ export default async function CarePage() {
   if (active.role !== "MOTHER") redirect("/journey");
 
   const journeyId = active.journey.id;
+  // One baby or four, said the same way everywhere — see lib/babies.ts.
+  const bw = babyWords(active.journey.babyCount, active.journey.babyName);
 
   const [checkIns, letters, coupleLetters] = await Promise.all([
     prisma.checkIn.findMany({
@@ -139,6 +142,7 @@ export default async function CarePage() {
           <div className="lg:col-span-2">
             <LettersSummary
               viewerId={session.user.id}
+              babyLabel={`To your ${bw.noun}`}
               couple={
                 coupleLetters.items[0]
                   ? {

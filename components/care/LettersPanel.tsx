@@ -17,12 +17,16 @@ export function LettersPanel({
   babyIntro,
   coupleIntro,
   babyCount,
+  babyLabel = "To your baby",
 }: {
   baby: ReactNode;
   couple: ReactNode;
   babyIntro: ReactNode;
   coupleIntro: ReactNode;
+  /** How many keepsake letters there are, shown beside the tab. */
   babyCount?: number;
+  /** "To your baby" or "To your babies" — the caller knows how many. */
+  babyLabel?: string;
 }) {
   const [tab, setTab] = useState<Key>("couple");
 
@@ -51,7 +55,7 @@ export function LettersPanel({
     <div>
       <div className="mb-4 flex gap-1 rounded-xl border border-border bg-bg/60 p-1">
         <TabBtn id="couple" label="To each other" />
-        <TabBtn id="baby" label="To your baby" />
+        <TabBtn id="baby" label={babyLabel} />
       </div>
 
       <p className="mb-5 prose-serif-xs text-muted">

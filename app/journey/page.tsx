@@ -511,6 +511,10 @@ export default async function JourneyPage() {
     }),
   ]);
   const motherName = journey.owner.name ?? "her";
+  // The partner's view needs the same grammar the mother's does — see
+  // lib/babies.ts. Declared again here because the mother's branch above has
+  // already returned by this point and its own copy is out of scope.
+  const bw = babyWords(journey.babyCount, journey.babyName);
   const mood = latest ? MOOD_META[latest.mood] : null;
   const latestReactions = latest
     ? (await getReactionsFor("CHECKIN", [latest.id], session.user.id))[latest.id]
@@ -679,6 +683,7 @@ export default async function JourneyPage() {
 
             <LettersSummary
               viewerId={session.user.id}
+              babyLabel={`To your ${bw.noun}`}
               couple={
                 coupleLetters.items[0]
                   ? {

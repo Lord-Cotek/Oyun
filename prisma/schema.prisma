@@ -398,6 +398,7 @@ model Child {
   note       String?
   createdAt  DateTime    @default(now())
   milestones Milestone[]
+  letters    Letter[]
 
   @@index([journeyId])
 }
@@ -458,6 +459,19 @@ model Letter {
   author    User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
   body      String
   toBaby    Boolean       @default(true)
+  /// Which of them it is written to, once there is more than one of them.
+  ///
+  /// Null means all of them, which is what a letter written during the
+  /// pregnancy is and what every letter written before this column existed
+  /// stays. A family with one baby never sees this: there is nothing to
+  /// choose between, so the picker does not appear and the column stays null.
+  ///
+  /// SetNull rather than Cascade on purpose. If a child row is ever removed,
+  /// the letters written to them must not go with it — they are the most
+  /// irreplaceable thing in this app, and a letter that quietly becomes a
+  /// letter to all of them is a far better failure than a letter that is gone.
+  childId   String?
+  child     Child?        @relation(fields: [childId], references: [id], onDelete: SetNull)
   createdAt DateTime      @default(now())
   replies   LetterReply[]
 

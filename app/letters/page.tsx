@@ -53,9 +53,20 @@ export default async function LettersPage() {
   // One baby or four, said the same way everywhere — see lib/babies.ts.
   const bw = babyWords(journey.babyCount, journey.babyName);
 
-  const [coupleLetters, babyLetters] = await Promise.all([
+  const [coupleLetters, babyLetters, babies] = await Promise.all([
     getCoupleLetters(journey.id, session.user.id),
     getBabyLetters(journey.id, session.user.id),
+    /**
+     * Their children, once they have arrived, so a mother of twins can write
+     * to one of them by name. Ordered by arrival, which for twins is the
+     * order the family itself says them in. Before the birth there are no
+     * rows here and the form shows no chooser at all.
+     */
+    prisma.child.findMany({
+      where: { journeyId: journey.id },
+      select: { id: true, name: true },
+      orderBy: { createdAt: "asc" },
+    }),
   ]);
 
   return (
@@ -72,6 +83,7 @@ export default async function LettersPage() {
           <Card className="p-8">
             <LettersPanel
               babyCount={babyLetters.length}
+              babyLabel={`To your ${bw.noun}`}
               coupleIntro={
                 otherName ? (
                   <>
@@ -108,6 +120,7 @@ export default async function LettersPage() {
                   viewerId={session.user.id}
                   placeholder={`Dear ${bw.littleOne}…`}
                   toWhom={`to the ${bw.noun}`}
+                  babies={babies}
                 />
               }
             />

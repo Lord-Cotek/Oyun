@@ -18,15 +18,18 @@ export function BabyLetters({
   placeholder,
   /** "to the baby" or "to the babies" — see lib/babies.ts. */
   toWhom = "to the baby",
+  babies = [],
 }: {
   letters: BabyLetterView[];
   viewerId: string;
   placeholder?: string;
   toWhom?: string;
+  /** Their children, once they have arrived. Only used to offer the choice. */
+  babies?: { id: string; name: string }[];
 }) {
   return (
     <>
-      <LetterForm placeholder={placeholder} />
+      <LetterForm placeholder={placeholder} babies={babies} />
       <div className="mt-6 space-y-3 border-t border-border pt-5">
         {letters.length === 0 ? (
           <FirstStep
@@ -52,7 +55,10 @@ export function BabyLetters({
                   {l.body}
                 </p>
                 <p className="mt-3 font-mono text-[0.68rem] uppercase tracking-widest text-muted">
-                  {who} · {toWhom} ·{" "}
+                  {/* Named when it was written to one of them; the general
+                      wording when it was written to all of them, which is
+                      every letter from before they arrived. */}
+                  {who} · {l.childName ? `to ${l.childName}` : toWhom} ·{" "}
                   {new Date(l.createdAt).toLocaleDateString(undefined, {
                     month: "short",
                     day: "numeric",

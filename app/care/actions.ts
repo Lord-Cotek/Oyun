@@ -7,6 +7,7 @@ import { auth } from "@/lib/auth";
 import { getActiveMembership } from "@/lib/data";
 import { notify } from "@/lib/notify";
 import { MAX_PHOTOS } from "@/lib/photos";
+import { babyWords } from "@/lib/babies";
 import { Mood, MilestoneKind } from "@prisma/client";
 
 async function requireMother() {
@@ -47,17 +48,48 @@ export async function addLetter(formData: FormData) {
   const toBaby = String(formData.get("toBaby") ?? "true") === "true";
   if (!body) throw new Error("A letter needs a few words.");
 
+  /**
+   * Which of them it is to, when there is more than one of them.
+   *
+   * Checked against this journey's own children rather than trusted: the id
+   * arrives from a form, and a letter filed under somebody else's child would
+   * be both wrong and unreachable. Anything that does not belong here becomes
+   * a letter to all of them, which is the safe reading and the old behaviour.
+   */
+  const asked = String(formData.get("childId") ?? "").trim();
+  let childId: string | null = null;
+  let childName: string | null = null;
+  if (toBaby && asked && asked !== "all") {
+    const child = await prisma.child.findFirst({
+      where: { id: asked, journeyId },
+      select: { id: true, name: true },
+    });
+    childId = child?.id ?? null;
+    childName = child?.name ?? null;
+  }
+
   await prisma.letter.create({
-    data: { journeyId, authorId: userId, body, toBaby },
+    data: { journeyId, authorId: userId, body, toBaby, childId },
   });
 
   // Let the other parent know a new keepsake letter is waiting for them.
   if (toBaby) {
-    const author = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { name: true },
-    });
+    const [author, journey] = await Promise.all([
+      prisma.user.findUnique({
+        where: { id: userId },
+        select: { name: true },
+      }),
+      prisma.journey.findUnique({
+        where: { id: journeyId },
+        select: { babyCount: true },
+      }),
+    ]);
     const who = author?.name?.trim().split(/\s+/)[0] || "Someone";
+    // Named when it was to one of them; otherwise the count decides whether
+    // it is "your baby" or "your babies" — see lib/babies.ts.
+    const toWhom = childName
+      ? childName
+      : `your ${babyWords(journey?.babyCount ?? 1).noun}`;
     const others = await prisma.membership.findMany({
       where: {
         journeyId,
@@ -70,12 +102,13 @@ export async function addLetter(formData: FormData) {
       await notify({
         userId: o.userId,
         type: "encouragement",
-        title: `${who} wrote a letter to your baby.`,
-        href: o.role === "MOTHER" ? "/care" : "/journey",
+        title: `${who} wrote a letter to ${toWhom}.`,
+        href: "/letters",
       });
     }
   }
 
+  revalidatePath("/letters");
   revalidatePath("/care");
   revalidatePath("/journey");
 }

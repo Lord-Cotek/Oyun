@@ -52,10 +52,13 @@ export function LettersSummary({
   couple,
   baby,
   viewerId,
+  babyLabel = "To your baby",
 }: {
   couple: LetterPreview | null;
   baby: LetterPreview | null;
   viewerId: string;
+  /** "To your baby" or "To your babies" — the caller knows how many. */
+  babyLabel?: string;
 }) {
   const empty = !couple && !baby;
   return (
@@ -86,7 +89,7 @@ export function LettersSummary({
             <Line label="Between you two" letter={couple} viewerId={viewerId} />
           )}
           {baby && (
-            <Line label="To your baby" letter={baby} viewerId={viewerId} />
+            <Line label={babyLabel} letter={baby} viewerId={viewerId} />
           )}
         </div>
       )}

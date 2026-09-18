@@ -147,7 +147,12 @@ export async function getBabyLetters(
     where: { journeyId, toBaby: true },
     orderBy: { createdAt: "desc" },
     take: limit,
-    include: { author: { select: { id: true, name: true } } },
+    include: {
+      author: { select: { id: true, name: true } },
+      // Who it was written to, when it was written to one of them. Null is
+      // "all of them", which is every letter from the pregnancy.
+      child: { select: { id: true, name: true } },
+    },
   });
   const ids = letters.map((l) => l.id);
   const [reactions, replies] = await Promise.all([
@@ -160,6 +165,8 @@ export async function getBabyLetters(
     createdAt: l.createdAt.toISOString(),
     authorId: l.authorId,
     authorName: l.author.name ?? null,
+    childId: l.child?.id ?? null,
+    childName: l.child?.name ?? null,
     reactions: reactions[l.id] ?? { counts: {}, mine: [] },
     replies: replies[l.id] ?? [],
   }));
