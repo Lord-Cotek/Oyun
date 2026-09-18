@@ -9,6 +9,7 @@ import {
   loadEarlierCoupleLetters,
 } from "@/app/journey/letter-actions";
 import { Reactions } from "@/components/Reactions";
+import { LetterReplies } from "@/components/letters/LetterReplies";
 import { type CoupleLetter } from "@/lib/data";
 import { scrollToElement } from "@/lib/scroll";
 
@@ -145,6 +146,12 @@ export function CoupleLetters({
                       align="end"
                     />
                   </div>
+                  <LetterReplies
+                    letterId={l.id}
+                    replies={l.replies}
+                    viewerId={viewerId}
+                    fallbackName={spouseFallback}
+                  />
                 </div>
               );
             })}

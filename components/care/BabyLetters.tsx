@@ -1,6 +1,7 @@
 import { LetterForm } from "@/components/care/LetterForm";
 import { FirstStep, FirstStepFocus } from "@/components/ui/FirstStep";
 import { Reactions } from "@/components/Reactions";
+import { LetterReplies } from "@/components/letters/LetterReplies";
 import { type BabyLetter } from "@/lib/data";
 
 export type BabyLetterView = BabyLetter;
@@ -62,6 +63,15 @@ export function BabyLetters({
                     initial={l.reactions}
                   />
                 </div>
+                {/* A letter to the baby becomes a thread over months — one
+                    parent writes, the other adds to it — and the child reading
+                    the whole of it later gets a conversation rather than two
+                    monologues. */}
+                <LetterReplies
+                  letterId={l.id}
+                  replies={l.replies}
+                  viewerId={viewerId}
+                />
               </div>
             );
           })

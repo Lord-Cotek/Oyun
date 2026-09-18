@@ -32,7 +32,7 @@ model User {
   accounts          Account[]
   sessions          Session[]
   memberships       Membership[]
-  ownedJourneys     Journey[]          @relation("JourneyOwner")
+  ownedJourneys     Journey[]             @relation("JourneyOwner")
   checkIns          CheckIn[]
   letters           Letter[]
   nudges            Nudge[]
@@ -52,8 +52,9 @@ model User {
   postReactions     PostReaction[]
   commentReactions  PostCommentReaction[]
 
-  createdAt DateTime @default(now())
+  createdAt     DateTime       @default(now())
   journeyEvents JourneyEvent[] @relation("JourneyEventCreator")
+  letterReplies LetterReply[]
 }
 
 /// A small emoji reaction on an encouragement or a check-in.
@@ -273,7 +274,7 @@ model Journey {
   readingNotes   ReadingNote[]
   posts          Post[]
   appointments   Appointment[]
-  journeyEvents JourneyEvent[]
+  journeyEvents  JourneyEvent[]
 }
 
 /// The family feed — an update, a praise, a prayer, or a milestone that the
@@ -439,16 +440,38 @@ model CheckIn {
 
 /// Letters to the baby / to each other.
 model Letter {
-  id        String   @id @default(cuid())
+  id        String        @id @default(cuid())
   journeyId String
-  journey   Journey  @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  journey   Journey       @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  body      String
+  toBaby    Boolean       @default(true)
+  createdAt DateTime      @default(now())
+  replies   LetterReply[]
+
+  @@index([journeyId, createdAt])
+}
+
+/// A written reply to a letter.
+///
+/// Letters used to take emoji only, and an emoji is the right weight for
+/// "I saw this" and the wrong one for answering it. A letter between two
+/// people is a conversation; it was being given a doorbell and no door.
+///
+/// Who may write one is not decided here — see lib/letter-access.ts. The rule
+/// is exactly the rule for reacting, and both call the same function, because
+/// two copies of a permission rule is one rule and one bug waiting.
+model LetterReply {
+  id        String   @id @default(cuid())
+  letterId  String
+  letter    Letter   @relation(fields: [letterId], references: [id], onDelete: Cascade)
   authorId  String
   author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
   body      String
-  toBaby    Boolean  @default(true)
   createdAt DateTime @default(now())
 
-  @@index([journeyId, createdAt])
+  @@index([letterId, createdAt])
 }
 
 /// Capturing the firsts.
@@ -470,19 +493,19 @@ model Milestone {
 
 /// Gentle reminders — "check in on her today" / appointment reminders.
 model Nudge {
-  id        String    @id @default(cuid())
-  journeyId String
-  journey   Journey   @relation(fields: [journeyId], references: [id], onDelete: Cascade)
-  userId    String
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  text      String
-  dueAt     DateTime
-  doneAt    DateTime?
+  id         String    @id @default(cuid())
+  journeyId  String
+  journey    Journey   @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  text       String
+  dueAt      DateTime
+  doneAt     DateTime?
   /// Stamped the morning this one is told, so it is told once and never again.
   /// Null on every row that existed before reminders worked at all; those are
   /// skipped by the date window rather than fired off in a batch.
   remindedAt DateTime?
-  createdAt DateTime  @default(now())
+  createdAt  DateTime  @default(now())
 
   @@index([journeyId, dueAt])
   @@index([dueAt])
@@ -571,31 +594,31 @@ enum JourneyEventKind {
 /// at. They are different rows because they are different things, and only
 /// one of them is something you can invite people to.
 model JourneyEvent {
-  id          String           @id @default(cuid())
-  journeyId   String
-  journey     Journey          @relation(fields: [journeyId], references: [id], onDelete: Cascade)
-  createdById String
-  createdBy   User             @relation("JourneyEventCreator", fields: [createdById], references: [id], onDelete: Cascade)
-  kind        JourneyEventKind @default(GATHERING)
-  title       String
-  at          DateTime
+  id               String           @id @default(cuid())
+  journeyId        String
+  journey          Journey          @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  createdById      String
+  createdBy        User             @relation("JourneyEventCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  kind             JourneyEventKind @default(GATHERING)
+  title            String
+  at               DateTime
   /// "Saturday afternoon" is a real answer, and inventing 09:00 would become a
   /// wrong morning reminder later.
-  hasTime     Boolean          @default(true)
+  hasTime          Boolean          @default(true)
   /// When it finishes, where anybody said. Optional for the same reason.
-  endsAt      DateTime?
-  where       String?
-  note        String?
-  cancelledAt DateTime?
+  endsAt           DateTime?
+  where            String?
+  note             String?
+  cancelledAt      DateTime?
   /// Where this day came from, when somebody who already uses Oyun copied an
   /// invitation they were sent into their own diary. A plain id, not a
   /// relation: the other journey may delete its invitation, and that must not
   /// reach into this one's diary.
   fromInvitationId String?
   /// Set only when somebody deliberately makes this day shareable.
-  invitation  Invitation?
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
+  invitation       Invitation?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
 
   @@index([journeyId, at])
   @@index([at])
@@ -616,32 +639,32 @@ model JourneyEvent {
 /// Nothing exists here until somebody deliberately makes it. A day with no
 /// Invitation row is exactly as private as it was before this feature.
 model Invitation {
-  id      String       @id @default(cuid())
-  eventId String       @unique
-  event   JourneyEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  id                  String             @id @default(cuid())
+  eventId             String             @unique
+  event               JourneyEvent       @relation(fields: [eventId], references: [id], onDelete: Cascade)
   /// The unguessable half of the link. Long, and from a real random source —
   /// see lib/invitations-db.ts, and NOT lib/rand.ts, which says of itself that
   /// it is not security-bearing.
-  slug    String       @unique
+  slug                String             @unique
   /// How the invitation signs itself: "Amara and Chidi", "The antenatal group".
   /// Typed rather than taken from an account, so she chooses what a guest sees.
-  hostName      String
-  message       String?
+  hostName            String
+  message             String?
   /// Whether a guest sees who else is coming. At a shower that is half the
   /// reason to come; at a quiet supper it is nobody's business.
-  showGuestList Boolean   @default(true)
-  allowPlusOnes Boolean   @default(true)
+  showGuestList       Boolean            @default(true)
+  allowPlusOnes       Boolean            @default(true)
   /// A cap on heads, not on replies: somebody may always still answer no.
-  capacity      Int?
-  repliesBy     DateTime?
+  capacity            Int?
+  repliesBy           DateTime?
   /// Stopped taking replies. The invitation still reads.
-  closedAt      DateTime?
+  closedAt            DateTime?
   /// The link is dead. Kept rather than deleted, so the replies survive it.
-  revokedAt     DateTime?
+  revokedAt           DateTime?
   /// Set when a "which day suits?" has been decided. Null and with options on
   /// it means the question is still open; no options at all means there was
   /// never a question, which is the ordinary invitation.
-  settledAt     DateTime?
+  settledAt           DateTime?
   /// Reminder bookkeeping, stamped the moment each is sent — the same shape
   /// Appointment already uses, rather than a separate ledger table. A journey
   /// event never repeats, so there is no occurrence to key on: one stamp per
@@ -652,21 +675,21 @@ model Invitation {
   /// The count sent to the household the evening before — separate, because it
   /// goes to different people and must not be suppressed by the guests' row.
   hostDigestAt        DateTime?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  replies       InvitationReply[]
-  options       InvitationOption[]
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+  replies             InvitationReply[]
+  options             InvitationOption[]
 }
 
 /// One of the days being offered in a "which day suits?".
 model InvitationOption {
-  id           String     @id @default(cuid())
+  id           String           @id @default(cuid())
   invitationId String
-  invitation   Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+  invitation   Invitation       @relation(fields: [invitationId], references: [id], onDelete: Cascade)
   at           DateTime
-  hasTime      Boolean    @default(true)
+  hasTime      Boolean          @default(true)
   endsAt       DateTime?
-  createdAt    DateTime   @default(now())
+  createdAt    DateTime         @default(now())
   votes        InvitationVote[]
 
   @@index([invitationId, at])
@@ -688,13 +711,13 @@ model InvitationVote {
 
 /// One guest's answer. No account, and never one.
 model InvitationReply {
-  id           String     @id @default(cuid())
+  id           String           @id @default(cuid())
   invitationId String
-  invitation   Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+  invitation   Invitation       @relation(fields: [invitationId], references: [id], onDelete: Cascade)
   /// The guest's own secret, kept in their browser. It is what lets somebody
   /// change their mind — real people tap twice, and without it the second tap
   /// makes a second guest — and what stops one guest editing another's reply.
-  token        String     @unique
+  token        String           @unique
   name         String
   /// Optional, and the only contact detail this app will ever hold for
   /// somebody who is not in it. Used for this one day and nothing else.
@@ -703,10 +726,10 @@ model InvitationReply {
   /// could be added without a migration that rewrites the column.
   answer       String
   /// Including themselves. 1 means "just me".
-  partySize    Int        @default(1)
+  partySize    Int              @default(1)
   note         String?
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
   votes        InvitationVote[]
 
   @@index([invitationId, createdAt])

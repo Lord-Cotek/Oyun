@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { type Role } from "@prisma/client";
 import { getReactionsFor } from "@/lib/reactions";
+import { getRepliesFor } from "@/lib/letter-replies";
 import { computePosition } from "@/lib/stage";
 import { appointmentTitle, timeLabel } from "@/lib/appointments";
 
@@ -113,11 +114,11 @@ export async function getCoupleLetters(
   });
   const hasMore = letters.length > limit;
   const page = hasMore ? letters.slice(0, limit) : letters;
-  const reactions = await getReactionsFor(
-    "LETTER",
-    page.map((l) => l.id),
-    viewerId,
-  );
+  const ids = page.map((l) => l.id);
+  const [reactions, replies] = await Promise.all([
+    getReactionsFor("LETTER", ids, viewerId),
+    getRepliesFor(ids),
+  ]);
   return {
     items: page.map((l) => ({
       id: l.id,
@@ -126,6 +127,7 @@ export async function getCoupleLetters(
       authorId: l.authorId,
       authorName: l.author.name ?? null,
       reactions: reactions[l.id] ?? { counts: {}, mine: [] },
+      replies: replies[l.id] ?? [],
     })),
     hasMore,
   };
@@ -147,11 +149,11 @@ export async function getBabyLetters(
     take: limit,
     include: { author: { select: { id: true, name: true } } },
   });
-  const reactions = await getReactionsFor(
-    "LETTER",
-    letters.map((l) => l.id),
-    viewerId,
-  );
+  const ids = letters.map((l) => l.id);
+  const [reactions, replies] = await Promise.all([
+    getReactionsFor("LETTER", ids, viewerId),
+    getRepliesFor(ids),
+  ]);
   return letters.map((l) => ({
     id: l.id,
     body: l.body,
@@ -159,6 +161,7 @@ export async function getBabyLetters(
     authorId: l.authorId,
     authorName: l.author.name ?? null,
     reactions: reactions[l.id] ?? { counts: {}, mine: [] },
+    replies: replies[l.id] ?? [],
   }));
 }
 

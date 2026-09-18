@@ -59,6 +59,10 @@ export const CATEGORY_OF: Record<NotificationType, NotifyCategory> = {
   post: "diary",
   comment: "diary",
   reaction: "diary",
+  // Somebody writing back to a letter. It sits with the diary rather than the
+  // circle because a reaction to that same letter already does, and the two
+  // notifications are about one thing — one switch should govern both.
+  letter_reply: "diary",
 
   // The journey itself
   invite_accepted: "house",

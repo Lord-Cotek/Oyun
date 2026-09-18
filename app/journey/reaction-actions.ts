@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { notify } from "@/lib/notify";
+import { letterAccess, letterHref } from "@/lib/letter-access";
 import { isReactionEmoji } from "@/lib/reaction-emojis";
 import { type ReactionTarget } from "@/lib/reactions";
 
@@ -90,8 +91,15 @@ export async function toggleReaction(
    * said "That didn't reach them. Tap again?", which no amount of tapping could
    * fix. Tested: it never once saved. The refusal was the bug, not the row.
    */
-  if (targetType === "LETTER" && member.role !== "MOTHER" && member.role !== "PARTNER") {
-    return { ok: false };
+  if (targetType === "LETTER") {
+    // The rule itself lives in lib/letter-access.ts, because replies need the
+    // identical one and two copies of a permission check is one rule and one
+    // bug waiting — the day somebody tightens who may read a letter and
+    // forgets who may answer it, this app leaks in the room where the words
+    // are most private. It repeats the membership lookup done above, which is
+    // one indexed query and worth it to keep the rule in a single place.
+    const access = await letterAccess(userId, targetId);
+    if (!access.ok) return { ok: false };
   }
 
   const where = {
@@ -111,17 +119,16 @@ export async function toggleReaction(
     const who = me?.name?.trim() || "Someone in your circle";
     const word = EMOJI_WORD[emoji] ?? "a reaction";
     if (targetType === "LETTER" && authorId && authorId !== userId) {
-      // Notify the letter's author, wherever they read (mother → care).
-      const authorMember = await prisma.membership.findFirst({
-        where: { journeyId, userId: authorId },
-        select: { role: true },
-      });
-      const base = authorMember?.role === "MOTHER" ? "/care" : "/journey";
+      // One destination for anything that happens to a letter. This used to
+      // send the mother to /care and her partner to /journey, from the days
+      // before letters had a room of their own; a reaction and a reply landing
+      // in two different places for the same letter is the kind of small
+      // wrongness nobody reports and everybody feels.
       await notify({
         userId: authorId,
         type: "encouragement",
         title: `${who} responded with ${word} ${emoji} to your letter.`,
-        href: `${base}#letter-${targetId}`,
+        href: letterHref(),
       });
     } else if (targetType === "PRAYER" && authorId && authorId !== userId) {
       await notify({

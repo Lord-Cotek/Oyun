@@ -13,6 +13,7 @@ export type NotificationType =
   | "post"
   | "comment"
   | "reaction"
+  | "letter_reply"
   | "appointment"
   | "appointment_reminder"
   | "nudge";

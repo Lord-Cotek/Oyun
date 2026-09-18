@@ -166,6 +166,8 @@
       "path": "scripts/drift.mjs",
       "code": true
     },
-    "shared-files.json"
+    "shared-files.json",
+    "components/letters/LetterReplies.tsx",
+    "lib/letter-replies.ts"
   ]
 }
