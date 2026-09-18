@@ -514,6 +514,13 @@ function Composer({
             </span>
             Video
           </button>
+        </div>
+        {/* Who it is for, and then Share — in that order and side by side,
+            because the audience is a decision about the post being written
+            and the last thing read before publishing should be who it goes
+            to. It sat with Photos and Video, which are attachments, and that
+            put it in the wrong sentence. */}
+        <div className="flex items-center gap-4">
           {canKeepToFamily && (
             <button
               type="button"
@@ -542,15 +549,15 @@ function Composer({
               {familyOnly ? FAMILY_ONLY.onLabel : FAMILY_ONLY.offLabel}
             </button>
           )}
+          <button
+            type="button"
+            disabled={!canSend}
+            onClick={submit}
+            className="btn-primary rounded-lg px-5 py-2.5 font-mono text-sm font-medium text-on-accent transition-transform active:scale-[0.98] disabled:opacity-40"
+          >
+            {uploading ? "Uploading…" : pending ? "Sharing…" : "Share"}
+          </button>
         </div>
-        <button
-          type="button"
-          disabled={!canSend}
-          onClick={submit}
-          className="btn-primary rounded-lg px-5 py-2.5 font-mono text-sm font-medium text-on-accent transition-transform active:scale-[0.98] disabled:opacity-40"
-        >
-          {uploading ? "Uploading…" : pending ? "Sharing…" : "Share"}
-        </button>
       </div>
       {familyOnly && (
         <p className="mt-2 font-mono text-[0.62rem] leading-relaxed text-muted">
