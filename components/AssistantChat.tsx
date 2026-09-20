@@ -1,8 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { OyunMark } from "@/components/ui/OyunMark";
 import { detectCrisis, type CrisisKind } from "@/lib/crisis";
+import { isGuestRoute } from "@/lib/assistant-routes";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
@@ -56,7 +59,26 @@ function useHideOnScroll(open: boolean) {
   return hidden;
 }
 
+/**
+ * Agbebi, everywhere she belongs and nowhere else.
+ *
+ * ── Two gates, and only one of them is this file ─────────────────────────
+ * She is mounted in the root layout, so she used to float over the guest
+ * pages too — a registry link sent to a grandmother, a single shared post,
+ * an invitation. Those are pages held by people with no account, and the
+ * endpoint behind the button answered anybody who asked. The stop that
+ * matters is the session check on /api/agbebi; this one is manners. See
+ * lib/assistant-routes.
+ *
+ * ── And why she still appears when nobody is signed in ───────────────────
+ * On the pages that are not guest doors — the page that sells Oyun, the
+ * privacy and terms — she opens and says what she is and who she walks
+ * with. That is worth more than a button that is not there, and it cannot
+ * cost a token: the composer is not rendered until the server has said
+ * there is a session behind this browser.
+ */
 export function AssistantChat() {
+  const pathname = usePathname() ?? "";
   const [open, setOpen] = useState(false);
   const hidden = useHideOnScroll(open);
   const [messages, setMessages] = useState<Msg[]>([]);
@@ -82,6 +104,9 @@ export function AssistantChat() {
     });
   }, [messages, streaming]);
 
+  /** Known to be signed out — not merely "not yet asked". */
+  const signedOut = ctx !== null && !ctx.authenticated;
+
   const greeting = ctx?.name
     ? `Peace to you, ${ctx.name}.`
     : "Peace to you.";
@@ -91,7 +116,7 @@ export function AssistantChat() {
 
   const send = useCallback(async () => {
     const text = input.trim();
-    if (!text || streaming) return;
+    if (!text || streaming || signedOut) return;
 
     const detected = detectCrisis(text);
     if (detected) setCrisis(detected);
@@ -127,7 +152,10 @@ export function AssistantChat() {
     } finally {
       setStreaming(false);
     }
-  }, [input, streaming, messages]);
+  }, [input, streaming, messages, signedOut]);
+
+  // Below every hook, never above one: a guest door gets no companion at all.
+  if (isGuestRoute(pathname)) return null;
 
   return (
     <>
@@ -163,7 +191,8 @@ export function AssistantChat() {
           {crisis && <CrisisBanner kind={crisis} onDismiss={() => setCrisis(null)} />}
 
           <div ref={scrollRef} className="flex-1 space-y-4 overflow-y-auto px-4 py-4">
-            {messages.length === 0 && (
+            {signedOut && <SignedOut />}
+            {!signedOut && messages.length === 0 && (
               <div className="space-y-3 pt-2">
                 <p className="font-serif text-lg text-ink">{greeting}</p>
                 <p className="prose-serif-xs text-muted">
@@ -178,6 +207,22 @@ export function AssistantChat() {
             ))}
           </div>
 
+          {signedOut ? (
+            <div className="border-t border-border p-3">
+              <Link
+                href="/sign-in"
+                className="flex min-h-11 items-center justify-center rounded-lg bg-accent px-3 font-mono text-sm font-medium text-on-accent transition-colors hover:bg-accent-deep"
+              >
+                Sign in
+              </Link>
+              <p className="mt-2 text-center font-mono text-[0.62rem] text-muted">
+                No account yet?{" "}
+                <Link href="/sign-up" className="text-accent hover:underline">
+                  Start a journey
+                </Link>
+              </p>
+            </div>
+          ) : (
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -208,9 +253,34 @@ export function AssistantChat() {
               </button>
             </div>
           </form>
+          )}
         </section>
       )}
     </>
+  );
+}
+
+/**
+ * What she says to somebody who has not signed in.
+ *
+ * Not an error, and not a wall. Somebody reading the page that sells Oyun
+ * has done nothing wrong by opening this; they are owed a straight answer
+ * about who Agbebi is for, and a door.
+ */
+function SignedOut() {
+  return (
+    <div className="space-y-3 pt-2">
+      <p className="font-serif text-lg text-ink">Peace to you.</p>
+      <p className="prose-serif-xs text-muted">
+        I'm Agbebi. I walk with families inside Oyun — Scripture, prayer and a
+        word for whatever week you are in. Sign in and I'll know where you are
+        in the journey, and we can talk properly.
+      </p>
+      <p className="prose-serif-xs text-muted">
+        I'm not a doctor. For anything medical, always turn to your midwife or
+        care provider.
+      </p>
+    </div>
   );
 }
 

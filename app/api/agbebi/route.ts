@@ -15,6 +15,29 @@ const MAX_MESSAGES = 24;
 const MAX_CHARS = 6000;
 
 export async function POST(req: Request) {
+  /**
+   * Members only, and this is the line that matters.
+   *
+   * Every shared link Oyun makes — a post, a registry, an invitation — is a
+   * public address by design, meant to be forwarded. Until this check
+   * existed, so was this endpoint: anybody holding any of those links, or
+   * none of them, could post twenty-four messages of six thousand
+   * characters at it as often as they liked, against the family's key, from
+   * any browser on earth. Hiding the button would have changed nothing,
+   * because the button was never the way in.
+   *
+   * First of everything, before the body is read and before the key is even
+   * looked for: an unwelcome request costs a cookie lookup and nothing
+   * else, and a stranger learns nothing about how this app is configured.
+   */
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json(
+      { error: "Agbebi walks with families inside Oyun. Please sign in." },
+      { status: 401 },
+    );
+  }
+
   if (!process.env.ANTHROPIC_API_KEY) {
     return NextResponse.json(
       { error: "Agbebi is not configured yet (missing ANTHROPIC_API_KEY)." },
@@ -35,30 +58,26 @@ export async function POST(req: Request) {
   }
 
   // Build authoritative context server-side from the session — never trust the client.
-  const session = await auth();
-  let system = buildAgbebiSystem({ name: session?.user?.name });
+  let system = buildAgbebiSystem({ name: session.user.name });
 
-  if (session?.user?.id) {
-    const active = await getActiveMembership(session.user.id);
-    const me = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: { name: true },
+  const active = await getActiveMembership(session.user.id);
+  const me = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { name: true },
+  });
+  if (active) {
+    const position = computePosition(active.journey.dueDate);
+    system = buildAgbebiSystem({
+      name: me?.name ?? session.user.name,
+      role: active.role,
+      stage: position.stage,
+      babyName: active.journey.babyName,
+      babyCount: active.journey.babyCount,
+      grieving: active.journey.status === "LOSS",
+      // The mother is the journey owner. Only a real, set name is passed; if
+      // it's null, Agbebi is told never to guess it.
+      motherName: active.role === "MOTHER" ? null : active.journey.owner.name,
     });
-    if (active) {
-      const position = computePosition(active.journey.dueDate);
-      system = buildAgbebiSystem({
-        name: me?.name ?? session.user.name,
-        role: active.role,
-        stage: position.stage,
-        babyName: active.journey.babyName,
-        babyCount: active.journey.babyCount,
-        grieving: active.journey.status === "LOSS",
-        // The mother is the journey owner. Only a real, set name is passed; if
-        // it's null, Agbebi is told never to guess it.
-        motherName:
-          active.role === "MOTHER" ? null : active.journey.owner.name,
-      });
-    }
   }
 
   const encoder = new TextEncoder();
