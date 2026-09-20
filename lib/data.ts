@@ -473,15 +473,21 @@ export async function getPrayerRequests(journeyId: string, viewerId: string) {
   }));
 }
 
-/** The household's family-worship streak (journey-level, shared by both parents). */
-export async function getWorshipStreak(journeyId: string) {
-  const since = new Date();
-  since.setUTCDate(since.getUTCDate() - 60);
-  const days = await prisma.worshipDay.findMany({
-    where: { journeyId, day: { gte: utcDay(since) } },
-    orderBy: { day: "desc" },
-  });
+export type WorshipStreak = {
+  doneToday: boolean;
+  streak: number;
+  last7: number;
+};
 
+/**
+ * The same arithmetic, whoever kept the day.
+ *
+ * Pulled out when the circle got an altar of its own: two copies of "count
+ * backwards from today until a gap" would have drifted the first time one of
+ * them was touched, and a household and a grandmother deserve their days
+ * counted the same way.
+ */
+function streakFrom(days: { day: Date }[]): WorshipStreak {
   const today = utcDay(new Date());
   const set = new Set(days.map((d) => d.day.getTime()));
   const doneToday = set.has(today.getTime());
@@ -502,6 +508,39 @@ export async function getWorshipStreak(journeyId: string) {
   }
 
   return { doneToday, streak, last7 };
+}
+
+/** How far back either record is read. Sixty days is plenty for a week and a run. */
+function streakSince(): Date {
+  const since = new Date();
+  since.setUTCDate(since.getUTCDate() - 60);
+  return utcDay(since);
+}
+
+/** The household's family-worship streak (journey-level, shared by both parents). */
+export async function getWorshipStreak(journeyId: string): Promise<WorshipStreak> {
+  return streakFrom(
+    await prisma.worshipDay.findMany({
+      where: { journeyId, day: { gte: streakSince() } },
+      orderBy: { day: "desc" },
+    }),
+  );
+}
+
+/**
+ * One person's own worship streak — the circle's altar.
+ *
+ * Keyed on the person, not on any journey: someone in two circles has one
+ * record of their own faithfulness, and it does not reset when they look at
+ * the other one. See PersonalWorshipDay.
+ */
+export async function getOwnWorshipStreak(userId: string): Promise<WorshipStreak> {
+  return streakFrom(
+    await prisma.personalWorshipDay.findMany({
+      where: { userId, day: { gte: streakSince() } },
+      orderBy: { day: "desc" },
+    }),
+  );
 }
 
 /** Today's support state plus a faithfulness streak of consecutive prayed days. */

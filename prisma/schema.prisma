@@ -56,6 +56,8 @@ model User {
   journeyEvents JourneyEvent[] @relation("JourneyEventCreator")
   letterReplies LetterReply[]
   postShares    PostShare[]
+
+  personalWorshipDays PersonalWorshipDay[]
 }
 
 /// A small emoji reaction on an encouragement or a check-in.
@@ -495,6 +497,32 @@ model WorshipDay {
 
   @@unique([journeyId, day])
   @@index([journeyId])
+}
+
+/// One row per day a person kept worship on their own.
+///
+/// ── Why this is not a column on WorshipDay ───────────────────────────────
+/// WorshipDay is the household's: the mother and the one beside her keeping
+/// one altar, one row a day. The circle around them keeps their own, and
+/// hanging a nullable userId off the household's row would have meant
+/// changing a unique index that already has rows under it — and would have
+/// made "the family kept worship" and "a grandmother kept worship" the same
+/// kind of fact, which they are not.
+///
+/// ── Why it hangs off the person and not the journey ──────────────────────
+/// Because a grandmother may be in her daughter's circle and her son's. Her
+/// own faithfulness is one thing, not two, and it should not reset or split
+/// because of whose circle she happens to be looking at. This row belongs to
+/// her, and it outlives any particular circle she is in.
+model PersonalWorshipDay {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  day       DateTime @db.Date
+  createdAt DateTime @default(now())
+
+  @@unique([userId, day])
+  @@index([userId])
 }
 
 /// A child profile (0-2 years). One per baby — supports twins and multiples.

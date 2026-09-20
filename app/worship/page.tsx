@@ -2,7 +2,11 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { getActiveMembership, getWorshipStreak } from "@/lib/data";
+import {
+  getActiveMembership,
+  getWorshipStreak,
+  getOwnWorshipStreak,
+} from "@/lib/data";
 import { computePosition } from "@/lib/stage";
 import { familyWorship, hymnaryUrl } from "@/lib/worship";
 import {
@@ -17,6 +21,7 @@ import { hymnSlug } from "@/lib/hymns";
 import { isHousehold } from "@/lib/roles";
 import {
   markWorship,
+  markOwnWorship,
   chooseReadingPlan,
   markReadingRead,
   undoReadingRead,
@@ -74,20 +79,47 @@ export default async function WorshipPage({
 
   const active = await getActiveMembership(session.user.id);
   if (!active) redirect("/onboarding");
-  if (!isHousehold(active.role)) redirect("/journey");
   if (active.journey.status === "LOSS") redirect("/journey");
+
+  /**
+   * Whose altar this is.
+   *
+   * ── Why the circle is here at all now ────────────────────────────────────
+   * This room used to turn everyone but the two of them away, which meant a
+   * grandmother invited into a circle got the photographs and the prayer
+   * list and none of the daily rhythm the app is actually built around. She
+   * lost the best of it for no reason: her own morning is her own business,
+   * and nothing about it needs to touch theirs.
+   *
+   * ── And why almost nothing below is shared ───────────────────────────────
+   * The liturgy is the same, deliberately — the circle prays the day the
+   * family prays. Everything that is a *record* is separate: her own kept
+   * days, her own reading plan, her own reflections. She never writes to
+   * the family's, never reads the family's, and the server actions enforce
+   * that on their own rather than trusting this page to hide a button.
+   */
+  const keeper = isHousehold(active.role);
+  // Only used to address the circle warmly. A journey whose owner never set a
+  // name gets a phrase rather than a blank or a guess.
+  const motherName = active.journey.owner?.name?.trim() || "the family";
 
   const born = computePosition(active.journey.dueDate).born;
   const { liturgy, hymn, catechism, catechismNumber } = familyWorship();
-  const streak = await getWorshipStreak(active.journey.id);
+  const streak = keeper
+    ? await getWorshipStreak(active.journey.id)
+    : await getOwnWorshipStreak(session.user.id);
 
   // Scripture Journey — the shared plan (together), or this member's own.
   const { journey, membership } = active;
-  const sharedPlan = planById(journey.readingPlanId);
+  // The family's plan is not offered to the circle at all — not hidden behind
+  // a disabled control, not read and then discarded. Somebody in the circle
+  // has one track, their own, and `track` below can only ever be "me".
+  const sharedPlan = keeper ? planById(journey.readingPlanId) : null;
   const myPlan = planById(membership.readingPlanId);
   const requested = searchParams.track;
-  const track: "shared" | "me" =
-    requested === "me" && myPlan
+  const track: "shared" | "me" = !keeper
+    ? "me"
+    : requested === "me" && myPlan
       ? "me"
       : requested === "shared" && sharedPlan
         ? "shared"
@@ -156,7 +188,13 @@ export default async function WorshipPage({
               journeyId: active.journey.id,
               bookSlug: st.next.slug,
               chapter: st.next.chapter,
-              OR: [{ isPrivate: false }, { authorId: session.user.id }],
+              // A keeper sees the household's shared notes and their own. The
+              // circle sees their own and nothing else — the family's shared
+              // reflections are shared *with the household*, which is not the
+              // same thing as public to everyone who can see the nursery.
+              ...(keeper
+                ? { OR: [{ isPrivate: false }, { authorId: session.user.id }] }
+                : { authorId: session.user.id }),
             },
             include: { author: { select: { id: true, name: true } } },
             orderBy: { createdAt: "asc" },
@@ -252,15 +290,17 @@ export default async function WorshipPage({
           <Arches className="on-band" />
           <div className="relative">
             <p className="font-serif text-lg italic opacity-75 on-band">
-              Family worship
+              {keeper ? "Family worship" : "Daily worship"}
             </p>
             <h1 className="mt-2 max-w-[15ch] font-serif text-[2.05rem] leading-[1.12] on-band md:max-w-xl md:text-4xl">
-              A daily altar in your home.
+              {keeper
+                ? "A daily altar in your home."
+                : "A daily altar in your own home."}
             </h1>
             <p className="mt-3 max-w-prose prose-serif-sm opacity-80 on-band">
-              A few unhurried minutes, walked together — read a little,
-              understand a little, pray a little, sing a little. Consistency
-              matters more than length.
+              {keeper
+                ? "A few unhurried minutes, walked together — read a little, understand a little, pray a little, sing a little. Consistency matters more than length."
+                : `The same words ${motherName} is praying today, wherever you are. Read a little, pray a little, sing a little — and carry them with you while you do.`}
             </p>
           </div>
         </section>
@@ -284,7 +324,9 @@ export default async function WorshipPage({
               <div className="min-w-0 flex-1">
                 <p className="font-serif text-[1.15rem] leading-tight text-ink">
                   {streak.doneToday
-                    ? "Worship kept today"
+                    ? keeper
+                      ? "Worship kept today"
+                      : "Kept today"
                     : "The altar is waiting"}
                 </p>
                 <p className="mt-0.5 font-serif text-[0.86rem] italic text-muted">
@@ -307,7 +349,13 @@ export default async function WorshipPage({
             </p>
           </div>
 
-          <LiturgyRail stations={stations} doneToday={streak.doneToday} onSeal={markWorship} />
+          {/* Same rail, different book. A keeper's amen goes on the family's
+              record; the circle's goes on their own — see markOwnWorship. */}
+          <LiturgyRail
+            stations={stations}
+            doneToday={streak.doneToday}
+            onSeal={keeper ? markWorship : markOwnWorship}
+          />
         </section>
 
         <section className="mt-10">
@@ -319,14 +367,14 @@ export default async function WorshipPage({
             onRead={markReadingRead}
             onUndo={undoReadingRead}
             track={track}
-            canChooseShared
+            canChooseShared={keeper}
             scopeLabels={{
               shared: {
                 label: "Together",
                 blurb: "You and the one beside you, on the same plan.",
               },
               me: {
-                label: "Just me",
+                label: keeper ? "Just me" : "Your journey",
                 blurb: "Your own journey, at your own pace.",
               },
             }}
@@ -357,6 +405,7 @@ export default async function WorshipPage({
               bookSlug={st.next.slug}
               chapter={st.next.chapter}
               notes={noteViews}
+              privateOnly={!keeper}
               onAdd={addReflection}
               onUpdate={updateReflection}
               onDelete={deleteReflection}

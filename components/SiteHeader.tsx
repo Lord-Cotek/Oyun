@@ -63,8 +63,11 @@ export async function SiteHeader({
       ? [{ href: "/letters", label: "Letters", current: active === "letters" }]
       : []),
     // Worship comes before Prayer so it sits in the thumb-reachable bottom tabs
-    // — worship is the daily rhythm, always one tap away.
-    ...(!inLoss && isHousehold
+    // — worship is the daily rhythm, always one tap away. It is everybody's
+    // now: the circle keeps its own altar in the same room, on the same day's
+    // liturgy, against its own record. Still hidden after a loss, for whom the
+    // words of this particular liturgy would be a wound.
+    ...(!inLoss
       ? [{ href: "/worship", label: "Worship", current: active === "worship" }]
       : []),
     { href: "/prayer", label: "Prayer", current: active === "prayer" },

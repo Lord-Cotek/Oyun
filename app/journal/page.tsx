@@ -33,13 +33,28 @@ export default async function JournalPage() {
   if (!session?.user?.id) redirect("/sign-in?callbackUrl=/journal");
   const active = await getActiveMembership(session.user.id);
   if (!active) redirect("/onboarding");
-  // The reflections journal belongs to the household, not the wider circle.
-  if (!isHousehold(active.role)) redirect("/journey");
+  /**
+   * The household's journal, and the circle's own.
+   *
+   * ── Why the circle is let in, and what it changes ────────────────────────
+   * This page used to turn them away entirely, which was right while the
+   * circle had no reading of its own. Now that they do, they need somewhere
+   * to find what they have written — but "the household's journal" is still
+   * the household's. So a keeper sees the family's shared notes plus their
+   * own private ones, exactly as before, and somebody in the circle sees
+   * only what they wrote themselves.
+   *
+   * The wall is this query, not the gate above it: there is no route a
+   * supporter can take to a note that is not theirs.
+   */
+  const keeper = isHousehold(active.role);
 
   const rows = await prisma.readingNote.findMany({
     where: {
       journeyId: active.journey.id,
-      OR: [{ isPrivate: false }, { authorId: session.user.id }],
+      ...(keeper
+        ? { OR: [{ isPrivate: false }, { authorId: session.user.id }] }
+        : { authorId: session.user.id }),
     },
     include: { author: { select: { id: true, name: true } } },
     orderBy: { createdAt: "desc" },
