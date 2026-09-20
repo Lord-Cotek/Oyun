@@ -279,7 +279,13 @@ export async function AccountabilityView({
                         Expecting yourself?
                       </span>
                       <span className="block font-mono text-[0.62rem] uppercase tracking-widest text-muted">
-                        Start your own journey in Oyun
+                        {/* The fear is never "can I?" — it is "will I lose
+                            this?". Somebody who has prayed for a friend for six
+                            months will not press a button that might take that
+                            away, so the line says what stays rather than what
+                            is added. Nothing does go away: a person may belong
+                            to any number of journeys and move between them. */}
+                        Start your own — you stay in {motherName}&rsquo;s circle
                       </span>
                     </span>
                     <span className="shrink-0 font-mono text-accent">→</span>

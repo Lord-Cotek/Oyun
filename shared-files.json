@@ -170,6 +170,9 @@
     "components/letters/LetterReplies.tsx",
     "lib/letter-replies.ts",
     "components/feed/ShareOutside.tsx",
-    "lib/post-share.ts"
+    "lib/post-share.ts",
+    "components/share/GuestHello.tsx",
+    "components/share/AskToJoin.tsx",
+    "components/circle/JoinRequests.tsx"
   ]
 }

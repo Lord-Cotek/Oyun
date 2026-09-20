@@ -143,3 +143,21 @@ export async function revokeShare(postId: string): Promise<{ ok: boolean }> {
   revalidatePath("/life");
   return { ok: true };
 }
+
+/**
+ * Take down a word from outside.
+ *
+ * Hidden rather than deleted, so the same person cannot post it again into an
+ * empty slot — the unique index on (share, guest) is what stops them, and it
+ * only stops them while the row is still there.
+ */
+export async function hideHello(helloId: string): Promise<{ ok: boolean }> {
+  const { journeyId, role } = await requireMember();
+  if (!isHousehold(role)) return { ok: false };
+  await prisma.shareHello.updateMany({
+    where: { id: helloId, journeyId },
+    data: { hiddenAt: new Date() },
+  });
+  revalidatePath("/life");
+  return { ok: true };
+}

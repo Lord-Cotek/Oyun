@@ -170,3 +170,98 @@ export function seenLabel(views: number): string {
   if (views === 1) return "Opened once";
   return `Opened ${views} times`;
 }
+
+/* ────────────────────────────────────────────────────────────────────────
+   PHASE 2 — a word back from outside
+   ──────────────────────────────────────────────────────────────────────── */
+
+export const HELLO_NAME_MAX = 60;
+export const HELLO_BODY_MAX = 300;
+/**
+ * Past this on one link, something is wrong and it is not a family sharing a
+ * photograph. One hello per browser is the real limit; this is the backstop
+ * for somebody clearing cookies in a loop.
+ */
+export const HELLOS_PER_SHARE_MAX = 300;
+
+export const HELLO_WORDS = {
+  prompt: "Say something to them",
+  /**
+   * Said above the box, and it is the load-bearing sentence of the whole
+   * feature. A guest who thinks they are posting a public comment writes a
+   * different thing from one who knows they are sending a private note, and
+   * this is the difference between a warm message and a performance.
+   */
+  onlyThem:
+    "Only they will read this. It is not shown to anybody else who has the link.",
+  placeholder: "Congratulations — we are so happy for you…",
+  sent: "Sent. They will see it in the app.",
+  /** After sending, on a return visit. */
+  yours: "You said:",
+  change: "Change what you said",
+  remove: "Take it back",
+} as const;
+
+/* ────────────────────────────────────────────────────────────────────────
+   PHASE 3 — asking to come in
+   ──────────────────────────────────────────────────────────────────────── */
+
+/**
+ * What somebody says they are.
+ *
+ * ── This list grants nothing ─────────────────────────────────────────────
+ * It is written on the card the household reads, and that is all it does.
+ * The app never turns "Grandparent" into a role, an access level or a
+ * shortcut; the household picks the real role by hand, afterwards, looking at
+ * a name it recognises. A link can be forwarded, so anything a stranger types
+ * into it must be treated as a claim and never as a credential.
+ */
+export const RELATIONS = [
+  "Grandparent",
+  "Aunt or uncle",
+  "Brother or sister",
+  "Cousin",
+  "Church family",
+  "Friend",
+  "Someone else",
+] as const;
+
+export type RelationClaim = (typeof RELATIONS)[number];
+
+export function isRelation(v: string): v is RelationClaim {
+  return (RELATIONS as readonly string[]).includes(v);
+}
+
+export const JOIN_NOTE_MAX = 300;
+/** Past this, a link is being worked rather than shared. */
+export const REQUESTS_PER_JOURNEY_MAX = 200;
+
+export const JOIN_WORDS = {
+  title: "Would you like to keep up with them?",
+  /**
+   * Honest about what happens next, because the worst version of this feature
+   * is somebody filling in a form believing they are now in, and hearing
+   * nothing. It says who decides and that the answer may be no.
+   */
+  body: (who: string) =>
+    `Tell ${who} who you are and they can add you to their circle. They decide — you will hear from them by email if they do.`,
+  nameLabel: "Your name",
+  relationLabel: "How do they know you?",
+  emailLabel: "Your email",
+  emailHint: "Only used to send you the invitation, if they send one.",
+  noteLabel: "Anything you would like to say (optional)",
+  send: "Ask to join",
+  done: "Asked. If they add you, the invitation comes by email.",
+  already: "You have already asked. They will be in touch.",
+} as const;
+
+/** "Grandparent · asked 2 days ago" — for the card the household reads. */
+export function askedAgo(at: Date | string, now: Date = new Date()): string {
+  const ms = now.getTime() - new Date(at).getTime();
+  const days = Math.floor(ms / (24 * 60 * 60 * 1000));
+  if (days < 1) return "asked today";
+  if (days === 1) return "asked yesterday";
+  if (days < 30) return `asked ${days} days ago`;
+  const months = Math.round(days / 30);
+  return `asked ${months} month${months === 1 ? "" : "s"} ago`;
+}

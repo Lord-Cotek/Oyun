@@ -4,7 +4,19 @@ import { useState } from "react";
 import { createInvite } from "@/app/journey/actions";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 
-export function InvitePanel({ hasSupporter }: { hasSupporter: boolean }) {
+/**
+ * `isMother` changes only the words. The door is the same either way — see
+ * app/circle/page.tsx. But "bring your husband alongside" read as nonsense to
+ * the husband, who was looking at it, and a page that does not know who is
+ * reading it is a page that feels like it was written for somebody else.
+ */
+export function InvitePanel({
+  hasSupporter,
+  isMother = true,
+}: {
+  hasSupporter: boolean;
+  isMother?: boolean;
+}) {
   const [link, setLink] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -13,11 +25,26 @@ export function InvitePanel({ hasSupporter }: { hasSupporter: boolean }) {
   return (
     <div>
       <Eyebrow className="mb-3">
-        {hasSupporter ? "Invite another" : "Invite your partner"}
+        {hasSupporter
+          ? "Invite another"
+          : isMother
+            ? "Invite your partner"
+            : "Invite someone"}
       </Eyebrow>
       <p className="mb-4 prose-serif-xs text-muted">
-        Bring your husband or an accountability partner alongside. They&rsquo;ll
-        get their own view — how to support and pray for you, right where you are.
+        {isMother ? (
+          <>
+            Bring your husband or an accountability partner alongside.
+            They&rsquo;ll get their own view — how to support and pray for you,
+            right where you are.
+          </>
+        ) : (
+          <>
+            Bring family, a friend from church, or an accountability partner
+            alongside. They&rsquo;ll get their own view — how to support and
+            pray for the two of you.
+          </>
+        )}
       </p>
 
       <form

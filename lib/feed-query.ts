@@ -60,6 +60,14 @@ export interface FeedPost {
   canShare: boolean;
   /** The live link it already has, for the family's eyes only. */
   share: { path: string; expiresAt: string | null; views: number } | null;
+  /**
+   * Words sent back through a link, by people outside the app.
+   *
+   * Only ever carried for somebody who could have shared the post — the same
+   * test as `share` — because a hello is a message to the family, and the
+   * circle has no part in it. Empty for everybody else, always.
+   */
+  hellos: { id: string; name: string; body: string; when: string }[];
 }
 
 function relative(d: Date, now = new Date()): string {
@@ -134,6 +142,15 @@ export async function loadFeed(
         orderBy: { createdAt: "desc" },
         take: 1,
       },
+      // Not scoped to the live link: a hello outlives the link that carried
+      // it, and a family closing a link must not lose the kind words that
+      // came through it.
+      hellos: {
+        where: { hiddenAt: null },
+        select: { id: true, name: true, body: true, createdAt: true },
+        orderBy: { createdAt: "desc" },
+        take: 50,
+      },
     },
   });
   const now = new Date();
@@ -167,6 +184,14 @@ export async function loadFeed(
               views: p.shares[0].views,
             }
           : null,
+      hellos: canSharePost(isHousehold(role), p, viewerId)
+        ? p.hellos.map((h) => ({
+            id: h.id,
+            name: h.name,
+            body: h.body,
+            when: relative(h.createdAt, now),
+          }))
+        : [],
       reactions: tally(p.reactions, viewerId),
       comments: p.comments.map((c) => ({
         id: c.id,

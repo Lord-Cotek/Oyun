@@ -10,7 +10,7 @@ import { seesFamilyOnly } from "@/lib/post-visibility";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Arches } from "@/components/ui/Marks";
 import { Feed } from "@/components/feed/Feed";
-import { sharePost, revokeShare } from "@/app/life/share-actions";
+import { sharePost, revokeShare, hideHello } from "@/app/life/share-actions";
 import {
   createPost,
   editPost,
@@ -110,6 +110,7 @@ export default async function LifePage({
             onSetAudience={setPostAudience}
             onSharePost={sharePost}
             onRevokeShare={revokeShare}
+            onHideHello={hideHello}
             canKeepToFamily={seesFamilyOnly(active.role)}
             composerPlaceholder="Share something with your circle…"
           />

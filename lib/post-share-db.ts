@@ -131,3 +131,74 @@ export function countOneView(token: string): void {
     .update({ where: { token }, data: { views: { increment: 1 } } })
     .catch(() => {});
 }
+
+/* ────────────────────────────────────────────────────────────────────────
+   The guest's own browser
+   ──────────────────────────────────────────────────────────────────────── */
+
+/**
+ * The cookie a guest keeps so they can come back to what they wrote.
+ *
+ * Per link, not per browser, so somebody who is sent two posts by two
+ * different families leaves two separate traces and neither can be used to
+ * follow them from one to the other. It is a name in a cookie jar, not an
+ * identity: nothing is ever looked up by it except that person's own hello
+ * and their own request on that one link.
+ */
+export function helloCookieName(token: string): string {
+  return `oyun_hello_${token.slice(0, 12)}`;
+}
+
+export function newGuestToken(): string {
+  return randomBytes(18).toString("base64url");
+}
+
+/** The share row behind a token, if the link is still live. */
+export async function liveShare(token: string): Promise<{
+  id: string;
+  postId: string;
+  journeyId: string;
+} | null> {
+  if (!token || token.length > 64) return null;
+  const s = await prisma.postShare.findUnique({
+    where: { token },
+    select: {
+      id: true,
+      postId: true,
+      journeyId: true,
+      expiresAt: true,
+      revokedAt: true,
+      post: { select: { familyOnly: true } },
+    },
+  });
+  if (!s || !shareIsLive(s) || s.post.familyOnly) return null;
+  return { id: s.id, postId: s.postId, journeyId: s.journeyId };
+}
+
+/** What this guest has already said on this link, if anything. */
+export async function myHello(
+  shareId: string,
+  guestToken: string,
+): Promise<{ name: string; body: string } | null> {
+  if (!guestToken) return null;
+  const h = await prisma.shareHello.findUnique({
+    where: { shareId_guestToken: { shareId, guestToken } },
+    select: { name: true, body: true, hiddenAt: true },
+  });
+  // A hello the family took down is not shown back as "you said", which would
+  // invite writing it again. It simply reads as not having said anything.
+  if (!h || h.hiddenAt) return null;
+  return { name: h.name, body: h.body };
+}
+
+/** Whether this guest has already asked to join this journey. */
+export async function alreadyAsked(
+  journeyId: string,
+  guestToken: string,
+): Promise<boolean> {
+  if (!guestToken) return false;
+  const n = await prisma.joinRequest.count({
+    where: { journeyId, guestToken, status: { in: ["PENDING", "INVITED"] } },
+  });
+  return n > 0;
+}

@@ -278,6 +278,8 @@ model Journey {
   appointments   Appointment[]
   journeyEvents  JourneyEvent[]
   postShares     PostShare[]
+  shareHellos    ShareHello[]
+  joinRequests   JoinRequest[]
 }
 
 /// The family feed — an update, a praise, a prayer, or a milestone that the
@@ -309,6 +311,8 @@ model Post {
   reactions PostReaction[]
   shares    PostShare[]
 
+  hellos ShareHello[]
+
   @@index([journeyId, createdAt])
 }
 
@@ -338,8 +342,77 @@ model PostShare {
   views       Int       @default(0)
   createdAt   DateTime  @default(now())
 
+  hellos       ShareHello[]
+  joinRequests JoinRequest[]
+
   @@index([journeyId, createdAt])
   @@index([postId])
+}
+
+/// A word from somebody outside, on a shared post.
+///
+/// ── Who ever reads one ───────────────────────────────────────────────────
+/// The family, and the person who wrote it. Nobody else — not other guests
+/// holding the same link, not the circle inside the app. It is a message TO
+/// the family, not a comment thread, and that is the whole reason this is
+/// safe to offer: nothing a stranger writes here is ever shown to another
+/// stranger, so a forwarded link cannot become a place where people who do
+/// not know this family talk to each other over a picture of their child.
+model ShareHello {
+  id         String    @id @default(cuid())
+  shareId    String
+  share      PostShare @relation(fields: [shareId], references: [id], onDelete: Cascade)
+  /// Denormalised so a hello outlives the link that carried it. Somebody's
+  /// kind word in month four should still be there in year ten, long after
+  /// the link it arrived through was closed.
+  postId     String
+  post       Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  journeyId  String
+  journey    Journey   @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  name       String
+  body       String
+  /// The cookie in the guest's browser. One hello per person per link — which
+  /// is both the rate limit and the reason somebody can come back and change
+  /// what they said.
+  guestToken String
+  createdAt  DateTime  @default(now())
+  /// The family took it down. Kept rather than deleted so the same person
+  /// cannot simply post it again into an empty slot.
+  hiddenAt   DateTime?
+
+  @@unique([shareId, guestToken])
+  @@index([journeyId, createdAt])
+  @@index([postId, createdAt])
+}
+
+/// Somebody outside asking to be let in.
+///
+/// ── Why this is a request and not a membership ───────────────────────────
+/// A link can be forwarded. If opening a link could put somebody in a
+/// family's circle, then the link IS the circle, and one WhatsApp group would
+/// put a stranger inside a pregnancy. So nothing here grants anything. The
+/// household reads it, decides, and CHOOSES THE ROLE ITSELF — what the person
+/// claims to be is written down as a hint and is never acted on by the app.
+model JoinRequest {
+  id         String     @id @default(cuid())
+  journeyId  String
+  journey    Journey    @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  /// Which link brought them. SetNull rather than Cascade: closing a link must
+  /// never quietly delete somebody's request to be part of the family.
+  shareId    String?
+  share      PostShare? @relation(fields: [shareId], references: [id], onDelete: SetNull)
+  name       String
+  /// What they say they are. A hint on a card, never a grant.
+  relation   String
+  email      String
+  note       String?
+  guestToken String
+  /// PENDING | INVITED | DECLINED
+  status     String     @default("PENDING")
+  decidedAt  DateTime?
+  createdAt  DateTime   @default(now())
+
+  @@index([journeyId, status, createdAt])
 }
 
 model PostComment {

@@ -27,6 +27,7 @@ import {
   ShareOutside,
   type SharePostFn,
   type RevokeShareFn,
+  type HideHelloFn,
 } from "@/components/feed/ShareOutside";
 
 type CreateFn = (input: {
@@ -65,6 +66,8 @@ interface Actions {
   /** Put one post on a link anybody can open. See lib/post-share.ts. */
   onSharePost: SharePostFn;
   onRevokeShare: RevokeShareFn;
+  /** Take down a word that came in from outside. */
+  onHideHello: HideHelloFn;
 }
 
 export function Feed({
@@ -824,6 +827,7 @@ function PostItem({
   onSetAudience,
   onSharePost,
   onRevokeShare,
+  onHideHello,
 }: { post: FeedPost; canKeepToFamily: boolean } & Actions) {
   const [pending, start] = useTransition();
   const [editing, setEditing] = useState(false);
@@ -996,8 +1000,10 @@ function PostItem({
           <ShareOutside
             postId={post.id}
             live={post.share}
+            hellos={post.hellos}
             onShare={onSharePost}
             onRevoke={onRevokeShare}
+            onHideHello={onHideHello}
           />
         )}
       </div>

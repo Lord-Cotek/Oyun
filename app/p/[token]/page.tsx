@@ -1,6 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getSharedPost, countOneView } from "@/lib/post-share-db";
+import {
+  getSharedPost,
+  countOneView,
+  liveShare,
+  myHello,
+  alreadyAsked,
+  helloCookieName,
+} from "@/lib/post-share-db";
+import { cookies } from "next/headers";
+import { GuestHello } from "@/components/share/GuestHello";
+import { AskToJoin } from "@/components/share/AskToJoin";
+import { sayHello, unsayHello, askToJoin } from "@/app/p/[token]/actions";
 import { SHARE_WORDS } from "@/lib/post-share";
 import { KIND_LABEL } from "@/lib/feed";
 import { OyunMark } from "@/components/ui/OyunMark";
@@ -63,6 +74,22 @@ export default async function SharedPost({
 
   // Counted, not awaited — see countOneView.
   countOneView(params.token);
+
+  /**
+   * What this particular browser has already done here.
+   *
+   * The cookie is read but never minted on a plain visit: somebody who only
+   * reads the post and leaves is given nothing to carry, and a token appears
+   * only when they choose to write something. See guestTokenFor in actions.
+   */
+  const share = await liveShare(params.token);
+  const guestToken = cookies().get(helloCookieName(params.token))?.value ?? "";
+  const [mine, asked] = share
+    ? await Promise.all([
+        myHello(share.id, guestToken),
+        alreadyAsked(share.journeyId, guestToken),
+      ])
+    : [null, false];
 
   const when = new Date(shared.postedAt).toLocaleDateString("en-GB", {
     day: "numeric",
@@ -140,17 +167,31 @@ export default async function SharedPost({
         </p>
       </article>
 
-      {/* The invitation. Phase 3 turns this into asking to join; for now it is
-          an honest signpost rather than a button that does nothing. */}
-      <section className="mt-6 rounded-2xl border border-border p-6 text-center">
-        <p className="prose-serif-sm text-muted">
+      {/* A word back — read by the family and by nobody else. */}
+      <GuestHello
+        token={params.token}
+        mine={mine}
+        onSay={sayHello}
+        onUnsay={unsayHello}
+      />
+
+      {/* And the door. It asks; it does not open. */}
+      <AskToJoin
+        token={params.token}
+        who={shared.household}
+        asked={asked}
+        onAsk={askToJoin}
+      />
+
+      <section className="mt-6 text-center">
+        <p className="prose-serif-xs text-muted">
           {shared.household} keep the rest of this in Oyun — a quiet place for
           a family walking through pregnancy and the first years, with
           Scripture, prayer, and the people who love them.
         </p>
         <Link
           href="/"
-          className="mt-4 inline-flex min-h-11 items-center rounded-lg border border-border px-4 font-mono text-[0.68rem] uppercase tracking-widest text-accent hover:border-accent"
+          className="mt-4 inline-flex min-h-11 items-center rounded-lg px-4 font-mono text-[0.68rem] uppercase tracking-widest text-accent hover:underline"
         >
           What Oyun is →
         </Link>

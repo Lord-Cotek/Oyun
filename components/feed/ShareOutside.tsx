@@ -21,6 +21,72 @@ export type SharePostFn = (input: {
   days?: number;
 }) => Promise<{ path: string; expiresAt: string | null }>;
 export type RevokeShareFn = (postId: string) => Promise<{ ok: boolean }>;
+export type HideHelloFn = (helloId: string) => Promise<{ ok: boolean }>;
+
+export interface Hello {
+  id: string;
+  name: string;
+  body: string;
+  when: string;
+}
+
+/**
+ * The words that came back.
+ *
+ * ── Why this is here and not in the comments ─────────────────────────────
+ * The replies under a post are the circle talking to the family. These are
+ * from people who are not in the circle at all, and running them together
+ * would quietly erase that difference — somebody skimming would have no way
+ * to tell a sister-in-law who is a member from a colleague who was forwarded
+ * a link. So they sit in their own block, named for what they are, and only
+ * the family ever sees them.
+ */
+function Hellos({
+  hellos,
+  onHide,
+}: {
+  hellos: Hello[];
+  onHide?: HideHelloFn;
+}) {
+  const [gone, setGone] = useState<string[]>([]);
+  const left = hellos.filter((h) => !gone.includes(h.id));
+  if (left.length === 0) return null;
+
+  return (
+    <div className="mt-3 w-full rounded-xl border border-accent/25 bg-accent/[0.05] p-4">
+      <p className="mb-3 font-mono text-[0.62rem] uppercase tracking-widest text-accent">
+        {left.length === 1 ? "A word from outside" : `${left.length} words from outside`}
+      </p>
+      <ul className="space-y-3">
+        {left.map((h) => (
+          <li key={h.id} className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <p className="whitespace-pre-wrap prose-serif-sm text-ink">
+                {h.body}
+              </p>
+              <p className="mt-1 font-mono text-[0.58rem] uppercase tracking-widest text-muted">
+                {h.name} · {h.when}
+              </p>
+            </div>
+            {onHide && (
+              <button
+                type="button"
+                onClick={async () => {
+                  const r = await onHide(h.id);
+                  if (r.ok) setGone((g) => [...g, h.id]);
+                }}
+                aria-label={`Take down the word from ${h.name}`}
+                className="shrink-0 font-mono text-[0.58rem] uppercase tracking-widest text-muted underline underline-offset-4 hover:text-negative"
+              >
+                Take down
+              </button>
+            )}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
 
 /**
  * Sharing one post with somebody who is not in the app.
@@ -41,14 +107,19 @@ export type RevokeShareFn = (postId: string) => Promise<{ ok: boolean }>;
 export function ShareOutside({
   postId,
   live,
+  hellos = [],
   onShare,
   onRevoke,
+  onHideHello,
 }: {
   postId: string;
   /** The link this post already has, if it has a live one. */
   live: LiveShare | null;
+  /** Words sent back through a link. Only ever passed to the family. */
+  hellos?: Hello[];
   onShare: SharePostFn;
   onRevoke: RevokeShareFn;
+  onHideHello?: HideHelloFn;
 }) {
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -122,6 +193,8 @@ export function ShareOutside({
       >
         {live ? "Shared ·" : "Share"} {live ? shareWindowLabel({ expiresAt: live.expiresAt, revokedAt: null }) : "outside"}
       </Pressable>
+
+      <Hellos hellos={hellos} onHide={onHideHello} />
 
       {open && (
         <div className="mt-2 w-full rounded-xl border border-border bg-bg p-4">

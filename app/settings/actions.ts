@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { CATEGORY_FIELDS } from "@/lib/notify-prefs";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { isHousehold } from "@/lib/roles";
 import { auth } from "@/lib/auth";
 import { getActiveMembership } from "@/lib/data";
 import { hashPassword, verifyPassword, passwordProblem } from "@/lib/password";
@@ -92,8 +93,10 @@ export async function updateNotifications(_prev: unknown, formData: FormData): P
 export async function updateJourney(_prev: unknown, formData: FormData): Promise<Result> {
   const userId = await requireUser();
   const active = await getActiveMembership(userId);
-  if (!active || active.role !== "MOTHER") {
-    return { ok: false, error: "Only the mother can edit journey details." };
+  // The due date and the babies' names belong to both of them, not to her
+  // alone — a husband correcting a date should not have to ask her to do it.
+  if (!active || !isHousehold(active.role)) {
+    return { ok: false, error: "Only the two of you can edit journey details." };
   }
 
   const dateStr = String(formData.get("dueDate") ?? "").trim();
