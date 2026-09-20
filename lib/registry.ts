@@ -150,3 +150,35 @@ export function claimsVisibleToHost(r: {
 }): boolean {
   return r.showClaims || r.closedAt !== null;
 }
+
+/**
+ * What the button to the shop says.
+ *
+ * ── Why the shop is named in the label ───────────────────────────────────
+ * "See it" tells somebody nothing about what is about to happen to them. A
+ * guest on a phone, holding a link a cousin forwarded, is deciding whether a
+ * tap is safe — and "Open on amazon.ae" answers that before they commit, in
+ * the one way that matters: it names where they are going. It also means a
+ * shop they do not recognise is visible as such rather than hidden behind a
+ * polite phrase.
+ *
+ * ── Why a whole list gets its own words ──────────────────────────────────
+ * For a LIST item the link IS the item — there is nothing else on that card
+ * worth looking at — so it says so, rather than sharing a label with a single
+ * cot that happens to have a link attached to it.
+ */
+export function shopLabel(kind: ItemKind, url: string): string {
+  const where = shopHost(url);
+  return kind === "LIST"
+    ? `Open the full list on ${where}`
+    : `Open on ${where}`;
+}
+
+/** "amazon.ae" — the bit of an address a person recognises. */
+export function shopHost(url: string): string {
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    return "the shop";
+  }
+}

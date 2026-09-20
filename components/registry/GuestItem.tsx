@@ -9,6 +9,8 @@ import {
   KIND_COPY,
   remaining,
   type ItemKind,
+  shopLabel,
+  shopHost,
 } from "@/lib/registry";
 import type { PublicItem } from "@/lib/registry-db";
 
@@ -69,11 +71,25 @@ export function GuestItem({
           // A background rather than an <img>: this picture is on a shop's
           // server, not ours, and a shop that takes it down should leave a
           // quiet empty square on a guest's screen, not a broken icon.
-          <span
-            aria-hidden
-            className="h-20 w-20 shrink-0 rounded-lg border border-border bg-bg bg-cover bg-center"
-            style={{ backgroundImage: `url(${JSON.stringify(item.imageUrl)})` }}
-          />
+          // A picture of the thing is the most tapped-looking element on the
+          // card whether or not it does anything, so when there is somewhere
+          // for it to go, it goes there.
+          item.url ? (
+            <a
+              href={item.url}
+              target="_blank"
+              rel="noopener noreferrer nofollow"
+              aria-label={shopLabel(item.kind, item.url)}
+              className="h-20 w-20 shrink-0 rounded-lg border border-border bg-bg bg-cover bg-center transition-opacity hover:opacity-90"
+              style={{ backgroundImage: `url(${JSON.stringify(item.imageUrl)})` }}
+            />
+          ) : (
+            <span
+              aria-hidden
+              className="h-20 w-20 shrink-0 rounded-lg border border-border bg-bg bg-cover bg-center"
+              style={{ backgroundImage: `url(${JSON.stringify(item.imageUrl)})` }}
+            />
+          )
         )}
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
@@ -112,20 +128,6 @@ export function GuestItem({
             </Facts>
           </p>
 
-          {item.url && (
-            <a
-              href={item.url}
-              target="_blank"
-              // noreferrer as well as noopener: the shop has no business
-              // being told which page sent this person, and that page is a
-              // private link.
-              rel="noopener noreferrer nofollow"
-              className="mt-2 inline-block rounded-lg border border-border px-3 py-1.5 font-mono text-[0.62rem] text-muted transition-colors hover:border-accent hover:text-accent"
-            >
-              {item.kind === "LIST" ? "Open the list" : "See it at"}{" "}
-              {shopName(item.url)} ↗
-            </a>
-          )}
         </div>
       </div>
 
@@ -171,11 +173,51 @@ export function GuestItem({
                   }
                 })
               }
-              className="rounded-lg border border-border px-3 py-2 font-mono text-xs text-muted transition-colors hover:border-accent hover:text-accent disabled:opacity-40"
+              // The same weight as the shop button one card up: for a gift of
+              // money this IS the "take me to where I actually do it" step,
+              // and leaving it as the quietest control on the card repeated
+              // exactly the mistake that hid the shop links.
+              className="btn-primary inline-flex min-h-11 w-full items-center justify-center rounded-lg px-4 font-mono text-sm font-medium text-on-accent disabled:opacity-50 sm:w-auto"
             >
               {asking ? "One moment…" : "Show how to send"}
             </Pressable>
           )}
+        </div>
+      )}
+
+      {/*
+        ── Why this is a real button and why it is here ─────────────────────
+        It used to be a 0.62rem line of muted text inside the description,
+        styled exactly like every other control on the card — and people could
+        not find it. Which is the whole point of a registry: somebody opens
+        the link to go and buy the cot, and the way to the cot was the
+        quietest thing on the screen.
+
+        So it is the first thing in the action row, at a size a thumb can hit,
+        and it is filled rather than outlined — because looking at the item is
+        the step that comes BEFORE saying you will get it, and the card should
+        read in the order the person actually moves.
+      */}
+      {item.url && (
+        <div className="mt-3 border-t border-border/70 pt-3">
+          <a
+            href={item.url}
+            target="_blank"
+            // noreferrer as well as noopener: the shop has no business being
+            // told which page sent this person, and that page is a private
+            // link.
+            rel="noopener noreferrer nofollow"
+            className="btn-primary inline-flex min-h-11 w-full items-center justify-center gap-1.5 rounded-lg px-4 font-mono text-sm font-medium text-on-accent sm:w-auto"
+          >
+            {shopLabel(item.kind, item.url)}
+            <span aria-hidden>↗</span>
+          </a>
+          <p className="mt-2 font-mono text-[0.58rem] leading-relaxed text-muted">
+            {/* The address in full, under the button. Some people will not tap
+                a button until they can see where it goes, and some want to
+                send it on to whoever is actually doing the shopping. */}
+            Opens {shopHost(item.url)} in a new tab
+          </p>
         </div>
       )}
 
@@ -257,7 +299,7 @@ export function GuestItem({
               type="button"
               disabled={gone || pending}
               onClick={() => start(() => setOpen(true))}
-              className="rounded-lg border border-border px-3 py-2 font-mono text-xs text-muted transition-colors hover:border-accent hover:text-accent disabled:opacity-40"
+              className="inline-flex min-h-11 w-full items-center justify-center rounded-lg border border-accent/50 px-4 font-mono text-sm text-accent transition-colors hover:bg-accent/[0.06] disabled:border-border disabled:text-muted disabled:opacity-60 sm:w-auto"
             >
               {gone ? "Already taken" : copy.claim}
             </Pressable>
@@ -301,10 +343,3 @@ function Submit({ label }: { label: string }) {
   );
 }
 
-function shopName(url: string): string {
-  try {
-    return new URL(url).hostname.replace(/^www\./, "");
-  } catch {
-    return "the shop";
-  }
-}

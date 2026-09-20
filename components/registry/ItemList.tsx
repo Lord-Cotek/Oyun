@@ -16,6 +16,7 @@ import {
   TITLE_MAX,
   remaining,
   type ItemKind,
+  shopHost,
 } from "@/lib/registry";
 
 export interface HostItem {
@@ -192,7 +193,7 @@ function Row({
                   rel="noopener noreferrer nofollow"
                   className="mt-1 inline-block font-mono text-[0.62rem] text-muted underline underline-offset-2 hover:text-accent"
                 >
-                  {shopName(item.url)} ↗
+                  {shopHost(item.url)} ↗
                 </a>
               )}
             </>
@@ -379,10 +380,3 @@ function Taken({
 }
 
 /** "amazon.ae", so a link says where it goes before anybody taps it. */
-function shopName(url: string): string {
-  try {
-    return new URL(url).hostname.replace(/^www\./, "");
-  } catch {
-    return "the shop";
-  }
-}
