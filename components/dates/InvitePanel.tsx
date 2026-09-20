@@ -7,6 +7,7 @@ import {
   revokeInvitation,
   restoreInvitation,
   removeReply,
+  emailInvitation,
 } from "@/app/appointments/event-actions";
 import {
   HOST_NAME_MAX,
@@ -32,6 +33,8 @@ export type InviteRow = {
   /** Empty on an ordinary invitation; the days offered on a "which day suits". */
   options: PollOption[];
   settled: boolean;
+  /** How many invitation emails have already gone from this link. */
+  emailsSent: number;
   replies: {
     id: string;
     name: string;
@@ -106,6 +109,9 @@ export function InvitePanel({
             title={title}
             when="The day is still being decided"
             where={where}
+            eventId={eventId}
+            onEmail={emailInvitation}
+            sentCount={invite.emailsSent}
           />
         </div>
       )}
@@ -139,6 +145,9 @@ export function InvitePanel({
                 title={title}
                 when={isAsking ? "The day is still being decided" : when}
                 where={where}
+                eventId={eventId}
+                onEmail={emailInvitation}
+                sentCount={invite.emailsSent}
               />
             </div>
           )}

@@ -375,3 +375,88 @@ export async function sendGuestDayEmail({
 
   return sendEmail({ to, subject: `${lead} — ${title}`, html, text });
 }
+
+
+/**
+ * The invitation itself, sent to somebody who has no account and may never
+ * have heard of this app.
+ *
+ * ── Why "an invitation from", and not "X has invited you" ────────────────
+ * Because a host name is a name they typed, and most of the ones people
+ * actually type are plural: "Amara and Chidi", "The Coteks", "the antenatal
+ * group". "Amara and Chidi has invited you" is the kind of small wrongness
+ * that makes a message look automatic, which is exactly what this one must
+ * not look like. A noun phrase is right however many people are in it.
+ *
+ * ── Why it opens with who it is from and not with the app ────────────────
+ * Because this lands in the inbox of somebody who did not ask for it. The
+ * first line a stranger reads has to answer "who is this and why have they
+ * written to me", and the answer is a person they know, not a product. The
+ * app's name appears once, at the bottom, where it belongs.
+ *
+ * ── Why there is no unsubscribe link ─────────────────────────────────────
+ * There is nothing to unsubscribe from. The address was typed once by a
+ * host, used for this one message and never written down — so a link
+ * promising to remove them from a list would be promising to do something
+ * to a list that does not exist. The footer says that plainly instead,
+ * which is the true version and the more reassuring one.
+ */
+export async function sendInvitationEmail({
+  to,
+  title,
+  when,
+  where,
+  hostName,
+  message,
+  url,
+}: {
+  to: string;
+  title: string;
+  /** Already worded — "Saturday 26 September 2026, 18:00 – 21:00". */
+  when: string;
+  where?: string | null;
+  hostName: string;
+  /** The host's own word to whoever opens it. */
+  message?: string | null;
+  url: string;
+}): Promise<boolean> {
+  const html = shell(`
+    <p style="font-size:13px;letter-spacing:3px;text-transform:uppercase;color:#CF7D43;margin-bottom:4px;">An invitation from ${escapeHtml(hostName)}</p>
+    <p style="font-family:Georgia,'Times New Roman',serif;font-size:26px;line-height:1.25;color:#ECE9DF;margin:0 0 12px;">${escapeHtml(title)}</p>
+    <p style="font-size:15px;line-height:1.7;color:#ECE9DF;margin:0;">${escapeHtml(when)}</p>
+    ${where ? `<p style="font-size:14px;line-height:1.7;color:#8B9086;margin:4px 0 0;">${escapeHtml(where)}</p>` : ""}
+    ${message ? `<p style="font-size:15px;line-height:1.7;color:#ECE9DF;margin-top:18px;">${escapeHtml(message)}</p>` : ""}
+    <p style="margin:24px 0;">
+      <a href="${url}" style="display:inline-block;background:#CF7D43;color:#120D08;text-decoration:none;font-weight:600;padding:12px 20px;border-radius:8px;font-size:14px;">See it and reply</a>
+    </p>
+    <p style="font-size:12px;line-height:1.7;color:#8B9086;">
+      You need no account to open it, and you can simply say whether you are
+      coming. ${escapeHtml(hostName)} sent this to your address directly —
+      you are not on a list, and nothing else will follow unless you reply.
+    </p>
+  `);
+  const text = [
+    `An invitation from ${hostName}.`,
+    "",
+    title,
+    when,
+    where ?? null,
+    message ? "" : null,
+    message ?? null,
+    "",
+    `See it and reply: ${url}`,
+    "",
+    "You need no account to open it, and you can simply say whether you are",
+    `coming. ${hostName} sent this to your address directly — you are not on a`,
+    "list, and nothing else will follow unless you reply.",
+  ]
+    .filter((l): l is string => l !== null)
+    .join("\n");
+
+  return sendEmail({
+    to,
+    subject: `An invitation from ${hostName} — ${title}`,
+    html,
+    text,
+  });
+}

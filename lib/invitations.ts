@@ -177,6 +177,114 @@ export function shareText(
     .join("\n");
 }
 
+/**
+ * Sending the invitation to an address, rather than handing over a link.
+ *
+ * ── Why the app sends at all, when WhatsApp was already there ────────────
+ * Because not everybody is on WhatsApp, and the people most likely to be
+ * missing from it at a christening or a baby shower are the ones a family
+ * most wants there. An aunt with an email address and no messaging app was,
+ * until now, somebody you had to remember to write to separately.
+ *
+ * ── Why the addresses are never stored ───────────────────────────────────
+ * InvitationReply.email says of itself that it is "the only contact detail
+ * this app will ever hold for somebody who is not in it", and that promise
+ * is worth more than the convenience of a sent-to list. So an address typed
+ * here is used for one send and then gone: not written to a row, not kept
+ * in a draft, not logged. What the invitation keeps is a count and a date,
+ * which is enough for a host to know it went and roughly when.
+ *
+ * The cost is honest and small — send twice and somebody gets two emails.
+ * The alternative is a family quietly accumulating a mailing list of their
+ * friends inside an app that promises it does not do that.
+ *
+ * ── Why the caps ─────────────────────────────────────────────────────────
+ * An endpoint that emails arbitrary strangers on request is a spam cannon
+ * unless it is bounded. Twenty at a time is more than any real supper, and
+ * two hundred over the life of one link is past any real wedding.
+ */
+export const EMAIL_BATCH_MAX = 20;
+export const EMAIL_TOTAL_MAX = 200;
+
+/**
+ * Deliberately forgiving about separators, strict about shape.
+ *
+ * People paste addresses out of a contacts app, a spreadsheet or another
+ * email, so they arrive separated by commas, semicolons, newlines or plain
+ * spaces, sometimes wrapped as "Auntie Bisi <bisi@example.com>". All of that
+ * is the host doing a reasonable thing, and none of it should be an error
+ * message. What comes back is de-duplicated, lower-cased, and split into the
+ * ones that will be sent and the ones that were not understood — so the host
+ * is told exactly which line to fix rather than "invalid input".
+ */
+export function parseAddresses(raw: string): { ok: string[]; bad: string[] } {
+  const ok: string[] = [];
+  const bad: string[] = [];
+  const seen = new Set<string>();
+
+  const take = (v: string) => {
+    const key = v.toLowerCase();
+    if (!seen.has(key)) {
+      seen.add(key);
+      ok.push(key);
+    }
+  };
+
+  // Split on the separators that really divide one recipient from the next.
+  // A space is NOT one of them at this level: "Auntie Bisi <bisi@x.com>" is a
+  // single recipient, and splitting it here reported her name as two things
+  // the app could not understand.
+  for (const chunk of raw.split(/[,;\n\r]+/)) {
+    const piece = chunk.trim();
+    if (!piece) continue;
+
+    // The display-name form wins outright when it is there, because the part
+    // outside the angle brackets is a name and never an address.
+    const bracketed = piece.match(/<([^<>]+)>/g);
+    if (bracketed) {
+      let any = false;
+      for (const b of bracketed) {
+        const inner = b.slice(1, -1).trim();
+        if (isAddress(inner)) {
+          take(inner);
+          any = true;
+        }
+      }
+      if (!any && !bad.includes(piece)) bad.push(piece);
+      continue;
+    }
+
+    // Otherwise the chunk may still hold several space-separated addresses,
+    // which is what a paste out of a contacts app looks like.
+    const tokens = piece.split(/\s+/).filter(Boolean);
+    const found = tokens.filter(isAddress);
+    if (found.length) {
+      found.forEach(take);
+    } else if (!bad.includes(piece)) {
+      bad.push(piece);
+    }
+  }
+  return { ok, bad };
+}
+
+/**
+ * Not RFC 5322, on purpose.
+ *
+ * A full-fidelity address grammar accepts things no mail provider will take
+ * and is famously unreadable. This rejects what is obviously not an address
+ * and lets the mail server be the judge of the rest, which is the only thing
+ * that can actually decide.
+ */
+export function isAddress(v: string): boolean {
+  return /^[^\s@]+@[^\s@.]+(\.[^\s@.]+)+$/.test(v) && v.length <= 254;
+}
+
+/** "Sent to 6 people." — said once, plainly, and never as a running total. */
+export function sentSentence(n: number): string {
+  if (n === 0) return "Nothing sent.";
+  return n === 1 ? "Sent to 1 person." : `Sent to ${n} people.`;
+}
+
 /** The one place the two halves of "when" are joined, so they always match. */
 export function whenWords(
   at: Date,

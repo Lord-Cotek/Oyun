@@ -7,7 +7,7 @@ import { auth } from "@/lib/auth";
 import { getActiveMembership } from "@/lib/data";
 import { notify } from "@/lib/notify";
 import { isHousehold, HOUSEHOLD_ROLES } from "@/lib/roles";
-import { sendGuestDayEmail } from "@/lib/email";
+import { sendGuestDayEmail, sendInvitationEmail } from "@/lib/email";
 import { toEventKind } from "@/lib/events-db";
 import { newSlug, inviteUrl } from "@/lib/invitations-db";
 import {
@@ -16,6 +16,9 @@ import {
   MAX_OPTIONS,
   MIN_OPTIONS,
   whenWords,
+  parseAddresses,
+  EMAIL_BATCH_MAX,
+  EMAIL_TOTAL_MAX,
 } from "@/lib/invitations";
 
 type Result = { ok: true } | { ok: false; error: string };
@@ -193,6 +196,126 @@ function readInviteSettings(formData: FormData) {
  * WhatsApp keeps working when the wording is edited. Killing a link is a
  * separate, deliberate act — see `revokeInvitation`.
  */
+/**
+ * Send the invitation to an address, rather than handing over a link.
+ *
+ * ── The address is never written down ────────────────────────────────────
+ * Read from the form, used for one send, and gone when this function
+ * returns. Nothing about it reaches a row, a log line or an error message.
+ * What the invitation keeps is a count and a date — see the comment on
+ * Invitation.emailsSentCount, and lib/invitations for why.
+ *
+ * ── The caps, and why they are checked here ──────────────────────────────
+ * This is an endpoint that will email whoever it is told to. The household
+ * gate above stops a stranger reaching it, but it does not stop a member of
+ * one household from pasting a list of two thousand addresses into it, so
+ * the batch and the lifetime total are both enforced on the server. The
+ * form limits the same things; the form is a courtesy and this is the rule.
+ *
+ * ── Sent one at a time, on purpose ───────────────────────────────────────
+ * Not one message with twenty people in the To line. A guest list is the
+ * host's business and not every guest's: at a shower half the room may not
+ * know each other, and an address disclosed to strangers cannot be taken
+ * back. One send each also means one failure does not lose the rest.
+ */
+export async function emailInvitation(
+  formData: FormData,
+): Promise<{ ok: true; sent: number; failed: number } | { ok: false; error: string }> {
+  const who = await requireHouse();
+  if (!who) return { ok: false, error: "This is the household's diary." };
+
+  const eventId = String(formData.get("eventId") ?? "");
+  const event = await prisma.journeyEvent.findFirst({
+    where: { id: eventId, journeyId: who.journeyId },
+    select: {
+      id: true,
+      title: true,
+      at: true,
+      endsAt: true,
+      hasTime: true,
+      where: true,
+      invitation: {
+        select: {
+          id: true,
+          slug: true,
+          hostName: true,
+          message: true,
+          revokedAt: true,
+          closedAt: true,
+          emailsSentCount: true,
+        },
+      },
+    },
+  });
+  if (!event) return { ok: false, error: "That day is no longer here." };
+
+  const inv = event.invitation;
+  if (!inv) return { ok: false, error: "Make the link first." };
+  if (inv.revokedAt) {
+    return { ok: false, error: "That link has been switched off." };
+  }
+
+  const { ok: addresses, bad } = parseAddresses(
+    String(formData.get("addresses") ?? ""),
+  );
+  if (addresses.length === 0) {
+    return {
+      ok: false,
+      error: bad.length
+        ? `That does not look like an email address: ${bad.slice(0, 3).join(", ")}`
+        : "Write an email address to send it to.",
+    };
+  }
+  if (bad.length) {
+    return {
+      ok: false,
+      error: `Check this before sending: ${bad.slice(0, 3).join(", ")}`,
+    };
+  }
+  if (addresses.length > EMAIL_BATCH_MAX) {
+    return {
+      ok: false,
+      error: `${EMAIL_BATCH_MAX} at a time is the most — send the rest after.`,
+    };
+  }
+  if (inv.emailsSentCount + addresses.length > EMAIL_TOTAL_MAX) {
+    return {
+      ok: false,
+      error: `This invitation has reached ${EMAIL_TOTAL_MAX} emails. Share the link instead.`,
+    };
+  }
+
+  const when = whenWords(event.at, event.hasTime, event.endsAt);
+  const url = inviteUrl(inv.slug);
+
+  let sent = 0;
+  for (const to of addresses) {
+    const went = await sendInvitationEmail({
+      to,
+      title: event.title,
+      when,
+      where: event.where,
+      hostName: inv.hostName,
+      message: inv.message,
+      url,
+    });
+    if (went) sent += 1;
+  }
+
+  if (sent > 0) {
+    await prisma.invitation.update({
+      where: { id: inv.id },
+      data: {
+        emailsSentCount: { increment: sent },
+        emailsSentAt: new Date(),
+      },
+    });
+  }
+
+  revalidatePath("/appointments");
+  return { ok: true, sent, failed: addresses.length - sent };
+}
+
 export async function saveInvitation(formData: FormData): Promise<Result> {
   const who = await requireHouse();
   if (!who) return { ok: false, error: "This is the household's diary." };

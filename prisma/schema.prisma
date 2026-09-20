@@ -994,6 +994,20 @@ model Invitation {
   /// The count sent to the household the evening before — separate, because it
   /// goes to different people and must not be suppressed by the guests' row.
   hostDigestAt        DateTime?
+  /// How many invitation emails have gone out from this link, and when the
+  /// last of them went.
+  ///
+  /// A count and a date, and deliberately never the addresses. A guest's
+  /// reply email is described one model below as "the only contact detail
+  /// this app will ever hold for somebody who is not in it", and a sent-to
+  /// list would quietly make that false — a family accumulating a mailing
+  /// list of their friends inside an app that promises it does not. So an
+  /// address typed into the send box is used once and forgotten, and what
+  /// survives is only enough for a host to know it went, and roughly when.
+  ///
+  /// The count is also the cap: see EMAIL_TOTAL_MAX in lib/invitations.
+  emailsSentCount     Int                @default(0)
+  emailsSentAt        DateTime?
   createdAt           DateTime           @default(now())
   updatedAt           DateTime           @updatedAt
   replies             InvitationReply[]

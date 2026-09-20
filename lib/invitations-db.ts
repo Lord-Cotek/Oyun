@@ -184,6 +184,8 @@ export async function getHostInvitations(journeyId: string) {
       closedAt: true,
       revokedAt: true,
       settledAt: true,
+      // A count, never the addresses — see the field's own comment.
+      emailsSentCount: true,
       options: {
         orderBy: { at: "asc" },
         select: {

@@ -57,6 +57,7 @@ export default async function AppointmentsPage() {
         closed: i.closedAt !== null,
         revoked: i.revokedAt !== null,
         settled: i.settledAt !== null,
+        emailsSent: i.emailsSentCount,
         options: i.options.map((o) => ({
           id: o.id,
           atISO: o.at.toISOString(),
