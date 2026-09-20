@@ -67,13 +67,11 @@ export async function SiteHeader({
     // now: the circle keeps its own altar in the same room, on the same day's
     // liturgy, against its own record.
     //
-    // After a loss it stays for the circle and goes for the family. The
-    // family's home screen has become a lament companion written for them,
-    // which is a better room than this one; the circle gets a grief liturgy
-    // here instead of being shut out at the moment they are most needed.
-    ...(!inLoss || !isHousehold
-      ? [{ href: "/worship", label: "Worship", current: active === "worship" }]
-      : []),
+    // It stays after a loss too, for everybody. Both the family and the
+    // circle get a grief liturgy in this room rather than being shut out of
+    // it: grief is not a reason to stop drawing near to God, and the words
+    // change rather than the door.
+    { href: "/worship", label: "Worship", current: active === "worship" },
     { href: "/prayer", label: "Prayer", current: active === "prayer" },
     ...(isHousehold && !inLoss
       ? [

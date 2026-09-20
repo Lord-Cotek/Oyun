@@ -82,22 +82,21 @@ export default async function WorshipPage({
   if (!active) redirect("/onboarding");
 
   /**
-   * After a loss, two different rooms.
+   * After a loss, nobody is turned away.
    *
-   * The family is sent home, where their journey has become a lament
-   * companion written for them — that is a better place to be than here,
-   * and it is where they already were.
+   * This room used to close for everyone: the circle got nothing at all,
+   * and the family were sent to the lament companion on their home screen
+   * and no further. The worry was that a liturgy about a coming baby would
+   * wound them, which was true of those particular words and not of the
+   * room — grief is not a reason to stop drawing near to God, it is most of
+   * the reason the psalms exist.
    *
-   * The circle is not sent anywhere any more. They used to be turned away
-   * with the family, which left the grandmother and the friend — the people
-   * this house most needs steady — with no daily place to stand at exactly
-   * the moment they were needed. They get a liturgy of their own instead:
-   * the same passage the mother is reading, a prayer for interceding in a
-   * grief that is not theirs, and one concrete thing to do today. See
-   * lib/grief-liturgy.
+   * So the words change instead. Everyone here reads the same passage on
+   * the same day; the prayer and the thing for today are written twice,
+   * once for the two people it happened to and once for those standing
+   * beside them. See lib/grief-liturgy.
    */
   const grieving = active.journey.status === "LOSS";
-  if (grieving && isHousehold(active.role)) redirect("/journey");
 
   /**
    * Whose altar this is.
@@ -123,7 +122,9 @@ export default async function WorshipPage({
 
   const born = computePosition(active.journey.dueDate).born;
   const { liturgy, hymn, catechism, catechismNumber } = familyWorship();
-  const grief = grieving ? griefWorship() : null;
+  const grief = grieving
+    ? griefWorship(keeper ? "bereaved" : "beside")
+    : null;
   const streak = keeper
     ? await getWorshipStreak(active.journey.id)
     : await getOwnWorshipStreak(session.user.id);
@@ -277,15 +278,19 @@ export default async function WorshipPage({
         {
           id: "pray",
           icon: "flame",
-          eyebrow: `Pray for ${motherName}`,
+          // The bereaved are not interceding for anybody; it would be a
+          // strange thing to tell a mother to pray for herself by name.
+          eyebrow: keeper ? "Pray" : `Pray for ${motherName}`,
           body: grief.station.pray,
         },
         {
           id: "carry",
           icon: "message",
-          eyebrow: "Carry this today",
+          eyebrow: keeper ? "For today" : "Carry this today",
           title: grief.station.carry,
-          note: "One small thing, today, that asks nothing of them. Grieving people rarely have the strength to ask \u2014 so do not wait to be asked.",
+          note: keeper
+            ? "One thing, and it is a permission rather than a task. There is nothing here you can fail at today."
+            : "One small thing, today, that asks nothing of them. Grieving people rarely have the strength to ask \u2014 so do not wait to be asked.",
         },
         {
           id: "sing",
@@ -373,18 +378,28 @@ export default async function WorshipPage({
           <Arches className="on-band" />
           <div className="relative">
             <p className="font-serif text-lg italic opacity-75 on-band">
-              {grieving ? "Standing with them" : keeper ? "Family worship" : "Daily worship"}
+              {grieving
+                ? keeper
+                  ? "Worship, in grief"
+                  : "Standing with them"
+                : keeper
+                  ? "Family worship"
+                  : "Daily worship"}
             </p>
             <h1 className="mt-2 max-w-[15ch] font-serif text-[2.05rem] leading-[1.12] on-band md:max-w-xl md:text-4xl">
               {grieving
-                ? "Stay with them."
+                ? keeper
+                  ? "Draw near anyway."
+                  : "Stay with them."
                 : keeper
                   ? "A daily altar in your home."
                   : "A daily altar in your own home."}
             </h1>
             <p className="mt-3 max-w-prose prose-serif-sm opacity-80 on-band">
               {grieving
-                ? `${motherName} has lost their child. There is nothing here that will mend it and nothing that will explain it. What there is: the passage they are reading today, a prayer to carry them to God, and one small thing you can do before the day is out.`
+                ? keeper
+                  ? "Nothing here will mend it and nothing here will explain it. But the door to God has not shut, and you do not have to arrive composed. A passage, a prayer you can borrow when you have none of your own, and one thing for today that you cannot fail at."
+                  : `${motherName} has lost their child. There is nothing here that will mend it and nothing that will explain it. What there is: the passage they are reading today, a prayer to carry them to God, and one small thing you can do before the day is out.`
                 : keeper
                   ? "A few unhurried minutes, walked together — read a little, understand a little, pray a little, sing a little. Consistency matters more than length."
                   : `The same words ${motherName} is praying today, wherever you are. Read a little, pray a little, sing a little — and carry them with you while you do.`}
@@ -429,7 +444,11 @@ export default async function WorshipPage({
         <section className="mt-8">
           <div className="mb-5">
             <h2 className="font-serif text-xl leading-tight text-ink">
-              {grieving ? "Today, for them" : "Today’s liturgy"}
+              {grieving
+                ? keeper
+                  ? "Today"
+                  : "Today, for them"
+                : "Today’s liturgy"}
             </h2>
             <p className="font-serif text-sm italic text-muted">
               {(grieving ? griefStations : stations).length} stations, and an amen
@@ -444,7 +463,9 @@ export default async function WorshipPage({
             onSeal={keeper ? markWorship : markOwnWorship}
             sealPrompt={
               grieving
-                ? "When you have prayed for them, seal the day — and come back tomorrow. Staying is the gift."
+                ? keeper
+                  ? "When you have said what you can say, seal the day. Showing up counts, even when it was all you managed."
+                  : "When you have prayed for them, seal the day — and come back tomorrow. Staying is the gift."
                 : undefined
             }
           />
@@ -511,11 +532,19 @@ export default async function WorshipPage({
               household keeping its own altar and the wrong one entirely for
               somebody standing outside a house that has just lost a child. */}
           {grieving ? (
-            <Verse
-              onBand
-              text="Rejoice with those who rejoice. Weep with those who weep."
-              reference="Romans 12:15"
-            />
+            keeper ? (
+              <Verse
+                onBand
+                text="Trust in him at all times, you people. Pour out your heart before him. God is a refuge for us."
+                reference="Psalm 62:8"
+              />
+            ) : (
+              <Verse
+                onBand
+                text="Rejoice with those who rejoice. Weep with those who weep."
+                reference="Romans 12:15"
+              />
+            )
           ) : (
             <Verse
               onBand
