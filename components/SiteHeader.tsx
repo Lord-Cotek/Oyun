@@ -65,9 +65,13 @@ export async function SiteHeader({
     // Worship comes before Prayer so it sits in the thumb-reachable bottom tabs
     // — worship is the daily rhythm, always one tap away. It is everybody's
     // now: the circle keeps its own altar in the same room, on the same day's
-    // liturgy, against its own record. Still hidden after a loss, for whom the
-    // words of this particular liturgy would be a wound.
-    ...(!inLoss
+    // liturgy, against its own record.
+    //
+    // After a loss it stays for the circle and goes for the family. The
+    // family's home screen has become a lament companion written for them,
+    // which is a better room than this one; the circle gets a grief liturgy
+    // here instead of being shut out at the moment they are most needed.
+    ...(!inLoss || !isHousehold
       ? [{ href: "/worship", label: "Worship", current: active === "worship" }]
       : []),
     { href: "/prayer", label: "Prayer", current: active === "prayer" },

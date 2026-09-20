@@ -131,8 +131,14 @@ export function ScriptureJourney({
           </div>
         ) : (
           <p className="mt-4 rounded-lg border border-border bg-bg/60 px-4 py-3 text-[0.72rem] leading-relaxed text-muted">
-            The shared journey is set by a parent or guardian — this begins{" "}
-            <span className="text-ink">your own</span>.
+            {/* Named no role on purpose. This line is read by anybody who does
+                not keep the shared journey — in Oyun that includes somebody in
+                the circle, who cannot see the family's plan at all, and
+                "a parent or guardian keeps it" told them about a thing that
+                is none of their business and was Ìdílé's wording besides. */}
+            This begins a journey of{" "}
+            <span className="text-ink">your own</span> — yours to read at your
+            own pace.
           </p>
         )}
 
@@ -297,8 +303,8 @@ export function ScriptureJourney({
       <div className="mt-5 flex flex-wrap items-center gap-3">
         {!canAdvance ? (
           <span className="prose-serif-xs text-muted">
-            Read along; a parent or guardian keeps this journey moving — or start
-            your own above.
+            Read along; this journey is kept by the household — or start your
+            own above.
           </span>
         ) : (
           <>

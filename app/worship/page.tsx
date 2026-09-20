@@ -9,6 +9,7 @@ import {
 } from "@/lib/data";
 import { computePosition } from "@/lib/stage";
 import { familyWorship, hymnaryUrl } from "@/lib/worship";
+import { griefWorship } from "@/lib/grief-liturgy";
 import {
   READING_PLANS,
   planById,
@@ -79,7 +80,24 @@ export default async function WorshipPage({
 
   const active = await getActiveMembership(session.user.id);
   if (!active) redirect("/onboarding");
-  if (active.journey.status === "LOSS") redirect("/journey");
+
+  /**
+   * After a loss, two different rooms.
+   *
+   * The family is sent home, where their journey has become a lament
+   * companion written for them — that is a better place to be than here,
+   * and it is where they already were.
+   *
+   * The circle is not sent anywhere any more. They used to be turned away
+   * with the family, which left the grandmother and the friend — the people
+   * this house most needs steady — with no daily place to stand at exactly
+   * the moment they were needed. They get a liturgy of their own instead:
+   * the same passage the mother is reading, a prayer for interceding in a
+   * grief that is not theirs, and one concrete thing to do today. See
+   * lib/grief-liturgy.
+   */
+  const grieving = active.journey.status === "LOSS";
+  if (grieving && isHousehold(active.role)) redirect("/journey");
 
   /**
    * Whose altar this is.
@@ -105,6 +123,7 @@ export default async function WorshipPage({
 
   const born = computePosition(active.journey.dueDate).born;
   const { liturgy, hymn, catechism, catechismNumber } = familyWorship();
+  const grief = grieving ? griefWorship() : null;
   const streak = keeper
     ? await getWorshipStreak(active.journey.id)
     : await getOwnWorshipStreak(session.user.id);
@@ -218,6 +237,70 @@ export default async function WorshipPage({
       }
     : undefined;
 
+  /**
+   * The circle's stations when a journey has ended in loss.
+   *
+   * Five, and two of them are different in kind. "Pray for them" rather than
+   * "pray together", because this person is interceding for a grief that is
+   * not theirs and often doing it alone. And "carry", which is the one thing
+   * this page exists for: the honest problem around a bereaved family is not
+   * unwillingness but not knowing what to do, so every day names one small
+   * concrete act that asks the family for nothing.
+   *
+   * No catechism — that station belongs to children in a home — and nothing
+   * anywhere that offers an explanation.
+   */
+  const griefStations: Station[] = grief
+    ? [
+        {
+          id: "read",
+          icon: "book",
+          eyebrow: "Read",
+          verse: { text: grief.lament.text, ref: grief.lament.ref },
+          share: (() => {
+            const slug = shareSlug(grief.lament.ref);
+            return slug
+              ? {
+                  path: `/v/${slug}`,
+                  title: grief.lament.ref,
+                  text: `“${grief.lament.text}” — ${grief.lament.ref}`,
+                }
+              : undefined;
+          })(),
+        },
+        {
+          id: "reflect",
+          icon: "sparkles",
+          eyebrow: "Reflect",
+          body: grief.lament.reflection,
+        },
+        {
+          id: "pray",
+          icon: "flame",
+          eyebrow: `Pray for ${motherName}`,
+          body: grief.station.pray,
+        },
+        {
+          id: "carry",
+          icon: "message",
+          eyebrow: "Carry this today",
+          title: grief.station.carry,
+          note: "One small thing, today, that asks nothing of them. Grieving people rarely have the strength to ask \u2014 so do not wait to be asked.",
+        },
+        {
+          id: "sing",
+          icon: "music",
+          eyebrow: "Sing",
+          title: grief.hymn.title,
+          body: `“${grief.hymn.line}”`,
+          author: grief.hymn.author,
+          lyrics: grief.hymn.lyrics,
+          link: { href: hymnaryUrl(grief.hymn.title), label: "Listen on Hymnary" },
+          tone: "accent2",
+        },
+      ]
+    : [];
+
   const stations: Station[] = [
     {
       id: "read",
@@ -290,17 +373,21 @@ export default async function WorshipPage({
           <Arches className="on-band" />
           <div className="relative">
             <p className="font-serif text-lg italic opacity-75 on-band">
-              {keeper ? "Family worship" : "Daily worship"}
+              {grieving ? "Standing with them" : keeper ? "Family worship" : "Daily worship"}
             </p>
             <h1 className="mt-2 max-w-[15ch] font-serif text-[2.05rem] leading-[1.12] on-band md:max-w-xl md:text-4xl">
-              {keeper
-                ? "A daily altar in your home."
-                : "A daily altar in your own home."}
+              {grieving
+                ? "Stay with them."
+                : keeper
+                  ? "A daily altar in your home."
+                  : "A daily altar in your own home."}
             </h1>
             <p className="mt-3 max-w-prose prose-serif-sm opacity-80 on-band">
-              {keeper
-                ? "A few unhurried minutes, walked together — read a little, understand a little, pray a little, sing a little. Consistency matters more than length."
-                : `The same words ${motherName} is praying today, wherever you are. Read a little, pray a little, sing a little — and carry them with you while you do.`}
+              {grieving
+                ? `${motherName} has lost their child. There is nothing here that will mend it and nothing that will explain it. What there is: the passage they are reading today, a prayer to carry them to God, and one small thing you can do before the day is out.`
+                : keeper
+                  ? "A few unhurried minutes, walked together — read a little, understand a little, pray a little, sing a little. Consistency matters more than length."
+                  : `The same words ${motherName} is praying today, wherever you are. Read a little, pray a little, sing a little — and carry them with you while you do.`}
             </p>
           </div>
         </section>
@@ -342,19 +429,24 @@ export default async function WorshipPage({
         <section className="mt-8">
           <div className="mb-5">
             <h2 className="font-serif text-xl leading-tight text-ink">
-              Today’s liturgy
+              {grieving ? "Today, for them" : "Today’s liturgy"}
             </h2>
             <p className="font-serif text-sm italic text-muted">
-              {stations.length} stations, and an amen
+              {(grieving ? griefStations : stations).length} stations, and an amen
             </p>
           </div>
 
           {/* Same rail, different book. A keeper's amen goes on the family's
               record; the circle's goes on their own — see markOwnWorship. */}
           <LiturgyRail
-            stations={stations}
+            stations={grieving ? griefStations : stations}
             doneToday={streak.doneToday}
             onSeal={keeper ? markWorship : markOwnWorship}
+            sealPrompt={
+              grieving
+                ? "When you have prayed for them, seal the day — and come back tomorrow. Staying is the gift."
+                : undefined
+            }
           />
         </section>
 
@@ -415,11 +507,22 @@ export default async function WorshipPage({
 
         <section className="band-1 relative -mx-6 mt-10 overflow-hidden px-7 py-10 text-center md:mx-0 md:rounded-3xl">
           <Rays className="on-band" />
-          <Verse
-            onBand
-            text="But as for me and my house, we will serve the LORD."
-            reference="Joshua 24:15"
-          />
+          {/* The closing word. "Me and my house" is the right note for a
+              household keeping its own altar and the wrong one entirely for
+              somebody standing outside a house that has just lost a child. */}
+          {grieving ? (
+            <Verse
+              onBand
+              text="Rejoice with those who rejoice. Weep with those who weep."
+              reference="Romans 12:15"
+            />
+          ) : (
+            <Verse
+              onBand
+              text="But as for me and my house, we will serve the LORD."
+              reference="Joshua 24:15"
+            />
+          )}
         </section>
       </main>
     </>
