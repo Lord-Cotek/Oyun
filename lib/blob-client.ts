@@ -120,7 +120,31 @@ export type UploadOutcome = {
   urls: string[];
   /** Tried and did not make it. Everything else was still saved. */
   failed: File[];
+  /** The person stopped it. What had landed is still in `urls`. */
+  cancelled: boolean;
 };
+
+/**
+ * What is happening, in bytes, while it happens.
+ *
+ * ── Why bytes and not a count of files ───────────────────────────────────
+ * "Uploading…" for two and a half minutes is indistinguishable from a broken
+ * app, and so is "Sent 0 of 1". Every other app people use shows a bar that
+ * moves, and they are right to: the only question somebody staring at a
+ * spinner actually has is whether anything at all is happening, and a count
+ * of finished FILES cannot answer it when there is one file and it is eighty
+ * megabytes.
+ */
+export interface UploadWatch {
+  /** Files finished, landed or lost. */
+  done: number;
+  total: number;
+  /** Bytes gone, and bytes there are to go. */
+  loaded: number;
+  bytes: number;
+  /** Something being retried, or null. */
+  note: string | null;
+}
 
 /**
  * Called the moment one lands, with the index it was given in.
@@ -134,35 +158,100 @@ export type UploadOutcome = {
  */
 export type OnOne = (index: number, url: string) => void;
 
+/** Thrown, and recognised, when the person asked for this to stop. */
+export class UploadCancelled extends Error {
+  constructor() {
+    super("cancelled");
+    this.name = "UploadCancelled";
+  }
+}
+
 /**
- * One photograph, with a deadline and a second try.
+ * ── Stalled is not the same as slow ──────────────────────────────────────
+ * The deadlines above are a backstop, and a crude one: they cannot tell an
+ * eighty-megabyte video moving steadily up a phone connection from one that
+ * died in the first second. Both look identical from outside — the promise
+ * has not settled — so the only safe number was a generous one, and a
+ * genuinely dead upload sat there for eleven minutes before anybody found
+ * out.
+ *
+ * Now that the SDK reports bytes as they leave, there is a far better
+ * question to ask: has anything moved lately? A big file that is crawling is
+ * fine and must never be cut off. A file of any size that has not moved a
+ * byte in three-quarters of a minute is not slow, it is gone.
+ *
+ * So the stall clock is what actually ends most failures, and it resets on
+ * every progress event. The total deadline stays behind it for the case the
+ * SDK reports no progress at all.
+ */
+const STALL_MS = 45_000;
+
+/**
+ * Over this, upload it in parts.
+ *
+ * The SDK splits the file, sends the parts in parallel and retries a part
+ * that fails on its own. On a phone — high latency, one connection doing all
+ * the work — that is most of the difference between a video that arrives and
+ * one that gives up, and it means a blip costs one part rather than eighty
+ * megabytes. Below the threshold it is pure overhead, so photographs go the
+ * ordinary way.
+ */
+const MULTIPART_OVER = 8 * 1024 * 1024;
+
+/**
+ * One file, with a deadline, a stall clock, a second try — and a way out.
  *
  * Throws once both attempts are spent; the caller counts it as lost and moves
- * on. Never hangs: that is the entire point of it.
+ * on. Throws `UploadCancelled`, without retrying, when the person stopped it.
+ * Never hangs: that is the entire point of it.
  */
 async function sendOne(
   f: File,
   folder: string,
-  onRetry?: () => void,
+  opts: {
+    onRetry?: () => void;
+    /** Bytes of THIS file that have gone, as they go. */
+    onBytes?: (loaded: number) => void;
+    /** The whole batch's stop button. */
+    signal?: AbortSignal;
+  },
 ): Promise<string> {
   const ext = f.name.includes(".") ? f.name.slice(f.name.lastIndexOf(".")) : "";
   let last: unknown;
   for (const [attempt, ms] of attemptsFor(f.size).entries()) {
-    if (attempt > 0) onRetry?.();
+    if (opts.signal?.aborted) throw new UploadCancelled();
+    if (attempt > 0) opts.onRetry?.();
+
     const control = new AbortController();
-    const deadline = setTimeout(() => control.abort(), ms);
+    const stop = () => control.abort();
+    opts.signal?.addEventListener("abort", stop);
+    const ceiling = setTimeout(stop, ms);
+    let stall = setTimeout(stop, STALL_MS);
+
     try {
       const res = await upload(`${folder}/${randomId()}${ext}`, f, {
         access: "public",
         handleUploadUrl: "/api/blob/upload",
         contentType: f.type || undefined,
+        multipart: f.size > MULTIPART_OVER,
         abortSignal: control.signal,
+        onUploadProgress: ({ loaded }) => {
+          clearTimeout(stall);
+          stall = setTimeout(stop, STALL_MS);
+          opts.onBytes?.(loaded);
+        },
       });
       return res.url;
     } catch (err) {
+      // Somebody pressed the X. That is an answer, not a failure, and it must
+      // not be retried — retrying a cancellation is how a cancel button comes
+      // to look like it does nothing at all.
+      if (opts.signal?.aborted) throw new UploadCancelled();
       last = err;
     } finally {
-      clearTimeout(deadline);
+      clearTimeout(ceiling);
+      clearTimeout(stall);
+      opts.signal?.removeEventListener("abort", stop);
     }
   }
   throw last instanceof Error ? last : new Error("upload failed");
@@ -182,6 +271,10 @@ export async function uploadToBlob(
     onProgress?: (done: number, total: number, note?: string) => void;
     /** Each one as it lands, by the index it was passed in at. */
     onOne?: OnOne;
+    /** Bytes, as they move. See `UploadWatch`. */
+    onWatch?: (w: UploadWatch) => void;
+    /** The stop button. Aborting it ends the batch and keeps what landed. */
+    signal?: AbortSignal;
   } = {},
 ): Promise<UploadOutcome> {
   const max = opts.max ?? MAX_PHOTOS;
@@ -197,9 +290,26 @@ export async function uploadToBlob(
   const failed: File[] = [];
   let done = 0;
   let next = 0;
+  let cancelled = false;
+
+  // Bytes are counted per file and summed, rather than accumulated into one
+  // running total, because a retry starts that file's count again from zero
+  // and a running total would march past 100% and stay there.
+  const bytes = real.reduce((n, f) => n + f.size, 0);
+  const sent = new Array(real.length).fill(0);
+  let note: string | null = null;
+  const watch = () =>
+    opts.onWatch?.({
+      done,
+      total: real.length,
+      loaded: sent.reduce((a: number, b: number) => a + b, 0),
+      bytes,
+      note,
+    });
 
   async function worker() {
     for (;;) {
+      if (cancelled || opts.signal?.aborted) return;
       const i = next++;
       if (i >= real.length) return;
       const chosen = real[i];
@@ -208,20 +318,39 @@ export async function uploadToBlob(
         // soon as its smaller copy is on the wire rather than sixty of them
         // being held at once. Done once, not once per attempt.
         const f = await beforeLongEnough(shrinkImage(chosen), SHRINK_MS, chosen);
-        const url = await sendOne(f, folder, () =>
-          opts.onProgress?.(
-            done,
-            real.length,
-            `Photo ${i + 1} is taking its time — trying once more…`,
-          ),
-        );
+        const url = await sendOne(f, folder, {
+          signal: opts.signal,
+          onBytes: (loaded) => {
+            // Capped at the original size: a shrunk copy is smaller than what
+            // the person chose, and a bar that finishes early and waits is a
+            // bar that has lied.
+            sent[i] = Math.min(chosen.size, loaded);
+            watch();
+          },
+          onRetry: () => {
+            sent[i] = 0;
+            note = `${real.length > 1 ? `Item ${i + 1} is` : "It is"} taking its time — trying once more…`;
+            watch();
+            opts.onProgress?.(done, real.length, note);
+          },
+        });
         urls[i] = url;
+        sent[i] = chosen.size;
         opts.onOne?.(i, url);
-      } catch {
+      } catch (err) {
+        if (err instanceof UploadCancelled || opts.signal?.aborted) {
+          // Stop the whole batch. What already landed is still returned, so
+          // the caller can bank it and send only the rest later.
+          cancelled = true;
+          return;
+        }
         // One photograph, not the whole evening.
         failed.push(chosen);
+        sent[i] = chosen.size;
       }
       done += 1;
+      note = null;
+      watch();
       opts.onProgress?.(done, real.length);
     }
   }
@@ -233,7 +362,11 @@ export async function uploadToBlob(
     ),
   );
 
-  return { urls: urls.filter((u): u is string => u !== null), failed };
+  return {
+    urls: urls.filter((u): u is string => u !== null),
+    failed,
+    cancelled: cancelled || !!opts.signal?.aborted,
+  };
 }
 
 /**
@@ -254,6 +387,41 @@ export async function uploadOneToBlob(
     );
   }
   return urls[0] ?? null;
+}
+
+/**
+ * "82 MB". Sized for a sentence somebody reads once, so no decimals above a
+ * megabyte — "81.7 MB" is not more useful than "82 MB" and is harder to read.
+ */
+export function humanBytes(n: number): string {
+  if (n < 1024) return `${n} B`;
+  if (n < 1024 * 1024) return `${Math.round(n / 1024)} kB`;
+  const mb = n / (1024 * 1024);
+  return mb < 10 ? `${mb.toFixed(1)} MB` : `${Math.round(mb)} MB`;
+}
+
+/**
+ * "about 2 min left", or null when it is too early to say honestly.
+ *
+ * A phone's uplink in the first second of an upload tells you nothing, and an
+ * estimate built on it swings from "4 hours" to "3 seconds" and back, which is
+ * worse than no estimate at all. So: nothing until some real time has passed
+ * and some real bytes have moved, and rounded coarsely once it appears.
+ */
+export function humanLeft(
+  loaded: number,
+  bytes: number,
+  sinceMs: number,
+): string | null {
+  if (sinceMs < 3000 || loaded < 64 * 1024 || loaded >= bytes) return null;
+  const perMs = loaded / sinceMs;
+  if (perMs <= 0) return null;
+  const secs = Math.round((bytes - loaded) / perMs / 1000);
+  if (secs < 10) return "nearly there";
+  if (secs < 60) return `about ${Math.round(secs / 10) * 10} seconds left`;
+  const mins = Math.round(secs / 60);
+  if (mins > 30) return "this one will take a while";
+  return `about ${mins} minute${mins === 1 ? "" : "s"} left`;
 }
 
 /** Read the selected files from a form's file input by name. */

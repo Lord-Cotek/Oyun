@@ -2,7 +2,12 @@
 
 import { useEffect, useRef, useState, useTransition } from "react";
 import { randomId } from "@/lib/rand";
-import { uploadToBlob } from "@/lib/blob-client";
+import {
+  uploadToBlob,
+  humanBytes,
+  humanLeft,
+  type UploadWatch,
+} from "@/lib/blob-client";
 import {
   POST_KINDS,
   KIND_LABEL,
@@ -170,6 +175,87 @@ interface Picked {
   url?: string;
 }
 
+/**
+ * What is happening, while it happens.
+ *
+ * ── Why this exists at all ───────────────────────────────────────────────
+ * An eighty-megabyte video off a modern phone — ten seconds of 4K at sixty
+ * frames — takes minutes on a mobile connection, and every second of that
+ * used to look exactly like a broken app: one word, "Uploading…", no number,
+ * no bar, and no way out. Somebody watching that has no way to tell a working
+ * upload from a dead one, and the reasonable thing to do is give up.
+ *
+ * So: a bar that moves, the size in megabytes so the wait makes sense, an
+ * honest estimate once there is enough evidence for one, and a Stop that
+ * stops. That is what every app people already use does, and the reason they
+ * feel calm to use is not that they are faster — it is that they are legible.
+ */
+function UploadBar({
+  watch,
+  startedAt,
+  onStop,
+}: {
+  watch: UploadWatch | null;
+  startedAt: number;
+  onStop: () => void;
+}) {
+  const pct = watch && watch.bytes > 0
+    ? Math.min(100, Math.round((watch.loaded / watch.bytes) * 100))
+    : 0;
+  const left = watch
+    ? humanLeft(watch.loaded, watch.bytes, Date.now() - startedAt)
+    : null;
+
+  return (
+    <div className="mt-3 rounded-xl border border-border bg-bg p-3">
+      <p
+        role="status"
+        aria-live="polite"
+        className="mb-2 font-mono text-[0.68rem] text-ink"
+      >
+        {watch && watch.total > 1 ? `Sending ${watch.total} items — ` : "Sending — "}
+        <span className="tabular-nums">{pct}%</span>
+        {watch && watch.bytes > 0 && (
+          <span className="text-muted"> of {humanBytes(watch.bytes)}</span>
+        )}
+      </p>
+      {/* The bar carries the same number the line above says, so a screen
+          reader gets one reading of it rather than two that disagree. */}
+      <div
+        className="h-1.5 w-full overflow-hidden rounded-full bg-border"
+        role="progressbar"
+        aria-valuenow={pct}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-label="Upload progress"
+      >
+        <div
+          className="h-full rounded-full bg-accent transition-[width] duration-300"
+          style={{ width: `${pct}%` }}
+        />
+      </div>
+      {/* Stop on the LEFT, deliberately. The floating button sits bottom-right
+          on every screen in the app, and a stop button somebody has to reach
+          around a floating circle for is a stop button at exactly the moment
+          they are already frustrated. */}
+      <div className="mt-3 flex items-center gap-3">
+        <button
+          type="button"
+          onClick={onStop}
+          className="shrink-0 rounded-lg border border-border px-3 py-1.5 font-mono text-[0.68rem] text-muted transition-colors hover:border-accent2 hover:text-accent2"
+        >
+          Stop
+        </button>
+        {(watch?.note || left) && (
+          <p className="min-w-0 font-mono text-[0.62rem] leading-relaxed text-muted">
+            {watch?.note ?? left}
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function Composer({
   onCreate,
   placeholder,
@@ -192,14 +278,19 @@ function Composer({
   const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   /**
-   * "Sent 3 of 5", or a word about one that is being retried.
+   * What is happening, in bytes.
    *
    * A button that says "Uploading…" and nothing else is indistinguishable
-   * from a button that has died, which is exactly what five photographs on a
-   * slow connection looked like. A number that moves is the difference
-   * between waiting and giving up.
+   * from a button that has died — which is exactly what an eighty-megabyte
+   * video looked like, for two and a half minutes, with no way to tell and no
+   * way to stop it. A bar that moves is the difference between waiting and
+   * giving up.
    */
-  const [progress, setProgress] = useState<string | null>(null);
+  const [watch, setWatch] = useState<UploadWatch | null>(null);
+  /** When this upload started, for an honest estimate of what is left. */
+  const startedAt = useRef(0);
+  /** The stop button's other half. Held so the X can reach it mid-flight. */
+  const stopper = useRef<AbortController | null>(null);
   // Separate inputs for photos and video — a narrow, image-only accept is what
   // makes Android offer the Camera / Files chooser instead of the gallery.
   const photoRef = useRef<HTMLInputElement>(null);
@@ -318,7 +409,20 @@ function Composer({
     if (videoRef.current) videoRef.current.value = "";
   }
 
+  /**
+   * Take one out — including while it is going up.
+   *
+   * The X used to remove the thumbnail and nothing else: the upload carried
+   * on in the background, invisibly, for as long as it took, and the button
+   * still said "Uploading…" for a file that was no longer on the screen. A
+   * control that looks like a stop button and is not one is worse than no
+   * control at all, so this now stops the batch as well.
+   *
+   * Everything that already landed is kept, so pressing Share afterwards
+   * sends the rest and not the lot.
+   */
   function removeOne(id: string) {
+    stopper.current?.abort();
     setPicked((p) => {
       const gone = p.find((x) => x.id === id);
       if (gone) URL.revokeObjectURL(gone.preview);
@@ -326,7 +430,13 @@ function Composer({
     });
   }
 
+  /** Stop the upload, keep everything on screen. */
+  function stopUpload() {
+    stopper.current?.abort();
+  }
+
   function clearAll() {
+    stopper.current?.abort();
     picked.forEach((p) => URL.revokeObjectURL(p.preview));
     setPicked([]);
     resetInputs();
@@ -363,12 +473,11 @@ function Composer({
     // Only what has not already gone up — see Picked.url.
     const remaining = picked.filter((p) => !p.url);
     if (remaining.length > 0) {
+      const control = new AbortController();
+      stopper.current = control;
+      startedAt.current = Date.now();
       setUploading(true);
-      setProgress(
-        picked.length > remaining.length
-          ? `Picking up where it stopped — ${picked.length - remaining.length} of ${picked.length} already sent`
-          : null,
-      );
+      setWatch(null);
       let outcome;
       try {
         outcome = await uploadToBlob(
@@ -376,23 +485,23 @@ function Composer({
           "feed",
           {
             max: MAX_FILES,
+            signal: control.signal,
             onOne: (i, url) => landed.set(remaining[i].id, url),
-            onProgress: (done, total, note) =>
-              setProgress(
-                note ?? (total > 1 ? `Sent ${done} of ${total}` : null),
-              ),
+            onWatch: setWatch,
           },
         );
       } catch (err) {
         // Only thrown for "too many" — nothing was uploaded.
+        stopper.current = null;
         setUploading(false);
-        setProgress(null);
+        setWatch(null);
         setError(
           (err as Error)?.message ||
             "Something went wrong uploading. Please try again.",
         );
         return;
       }
+      stopper.current = null;
 
       // Whatever landed is remembered before anything else happens, so a
       // failure below still leaves those photographs banked for the retry.
@@ -403,7 +512,13 @@ function Composer({
       }
 
       setUploading(false);
-      setProgress(null);
+      setWatch(null);
+
+      if (outcome.cancelled) {
+        // Stopped on purpose. Say nothing accusatory: what landed is banked,
+        // the rest is still on screen, and Share picks up from here.
+        return;
+      }
 
       if (outcome.failed.length > 0) {
         // Nothing is posted and nothing is discarded: the words, the pictures
@@ -636,18 +751,7 @@ function Composer({
           </button>
         </div>
       </div>
-      {progress && (
-        /* Announced politely, so somebody using a screen reader hears the
-           count move rather than sitting in silence next to a button that
-           will not say anything until it is finished. */
-        <p
-          role="status"
-          aria-live="polite"
-          className="mt-2 font-mono text-[0.62rem] leading-relaxed text-muted"
-        >
-          {progress}
-        </p>
-      )}
+      {uploading && <UploadBar watch={watch} startedAt={startedAt.current} onStop={stopUpload} />}
       {familyOnly && (
         <p className="mt-2 font-mono text-[0.62rem] leading-relaxed text-muted">
           {FAMILY_ONLY.hint}
