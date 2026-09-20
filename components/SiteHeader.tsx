@@ -23,7 +23,8 @@ type ActiveKey =
   | "help"
   | "nursery"
   | "worship"
-  | "registry";
+  | "registry"
+  | "shared";
 
 export async function SiteHeader({
   active,
@@ -86,7 +87,10 @@ export async function SiteHeader({
     ...(isHousehold && !inLoss
       ? [{ href: "/firsts", label: "Firsts", current: active === "firsts" }]
       : []),
-    ...(isMother
+    // The household, not the mother alone. Inviting and welcoming became
+    // theirs together; a link she can see and he cannot would have left him
+    // able to reach the page only by typing the address.
+    ...(isHousehold
       ? [{ href: "/circle", label: "Circle", current: active === "circle" }]
       : []),
     // The registry is the two of them deciding what the baby needs, so it
@@ -95,6 +99,13 @@ export async function SiteHeader({
     // take a place from a thing you do every morning.
     ...(isHousehold && !inLoss
       ? [{ href: "/registry", label: "Registry", current: active === "registry" }]
+      : []),
+    // Under More on purpose. It is a thing you go looking for on the one day
+    // you need it, not a room you visit; and putting "what have I shared with
+    // the world" beside the daily rhythms would give it a weight in the app
+    // it does not have in a life.
+    ...(isHousehold
+      ? [{ href: "/shared", label: "Shared outside", current: active === "shared" }]
       : []),
     { href: "/help", label: "How this works", current: active === "help" },
     { href: "/settings", label: "Settings", current: active === "settings" },

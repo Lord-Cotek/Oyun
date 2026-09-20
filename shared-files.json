@@ -173,6 +173,7 @@
     "lib/post-share.ts",
     "components/share/GuestHello.tsx",
     "components/share/AskToJoin.tsx",
-    "components/circle/JoinRequests.tsx"
+    "components/circle/JoinRequests.tsx",
+    "components/share/SharedList.tsx"
   ]
 }

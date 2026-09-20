@@ -265,3 +265,49 @@ export function askedAgo(at: Date | string, now: Date = new Date()): string {
   const months = Math.round(days / 30);
   return `asked ${months} month${months === 1 ? "" : "s"} ago`;
 }
+
+/* ────────────────────────────────────────────────────────────────────────
+   PHASE 4 — everything you have shared
+   ──────────────────────────────────────────────────────────────────────── */
+
+/**
+ * What a link is doing, in one word, for the list.
+ *
+ * "Closed" and "Ran out" are deliberately separate. They are the same thing
+ * to the person holding the link and completely different things to the
+ * family: one is a decision they made and might want to reverse, the other
+ * is the default quietly doing its job. Collapsing them would hide the only
+ * fact on the page that ever prompts anybody to act.
+ */
+export type ShareState = "open" | "closed" | "expired";
+
+export function shareState(s: ShareLike, now: Date = new Date()): ShareState {
+  if (s.revokedAt) return "closed";
+  if (s.expiresAt && new Date(s.expiresAt).getTime() <= now.getTime()) {
+    return "expired";
+  }
+  return "open";
+}
+
+export const SHARE_STATE_LABEL: Record<ShareState, string> = {
+  open: "Open",
+  closed: "You closed it",
+  expired: "Ran out on its own",
+};
+
+export const SHARED_WORDS = {
+  title: "What you have shared",
+  lede: "Every link you have made, and what became of it. Closing one stops it working immediately, for everybody who has it.",
+  empty:
+    "You have not shared anything outside the app. When you do, every link will be listed here so you can close it whenever you like.",
+  closeAll: "Close every open link",
+  closeAllSure: "Close them all?",
+  /** After closing everything. */
+  allClosed: "All closed. Nothing you have shared is reachable any more.",
+} as const;
+
+/** "3 words back", or null when there are none to mention. */
+export function helloCountLabel(n: number): string | null {
+  if (n <= 0) return null;
+  return n === 1 ? "1 word back" : `${n} words back`;
+}

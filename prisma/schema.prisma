@@ -325,8 +325,13 @@ model PostShare {
   id          String    @id @default(cuid())
   postId      String
   post        Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
-  /// Denormalised from the post so a family can list every link they have ever
-  /// made in one query, including for posts that have since been deleted.
+  /// Denormalised from the post so every link a family has made can be listed in
+  /// one query without reading the posts themselves.
+  ///
+  /// It does NOT outlive the post: `onDelete: Cascade` above means deleting a
+  /// post takes its links with it, which is the behaviour anybody would
+  /// expect and the only safe one — a live address pointing at something the
+  /// family deleted is the worst possible outcome.
   journeyId   String
   journey     Journey   @relation(fields: [journeyId], references: [id], onDelete: Cascade)
   createdById String

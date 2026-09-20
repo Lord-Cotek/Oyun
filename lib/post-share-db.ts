@@ -202,3 +202,76 @@ export async function alreadyAsked(
   });
   return n > 0;
 }
+
+/* ────────────────────────────────────────────────────────────────────────
+   Everything this family has shared
+   ──────────────────────────────────────────────────────────────────────── */
+
+export interface SharedRow {
+  id: string;
+  path: string;
+  /** The post's first line, or a word about what it is if there are none. */
+  excerpt: string;
+  hasMedia: boolean;
+  expiresAt: string | null;
+  revokedAt: string | null;
+  createdAt: string;
+  views: number;
+  hellos: number;
+  /** A first name — who made this link. Two people can now share. */
+  by: string;
+}
+
+/**
+ * Every link this family has ever made, newest first.
+ *
+ * ── Why the closed ones are still here ───────────────────────────────────
+ * A list of only the open links answers "what is out there?" and nothing
+ * else. This page also has to answer "did I ever share that?", which comes
+ * up months later, usually anxiously, and usually about something that was
+ * closed long ago. Showing only live links would leave that question
+ * permanently unanswerable — and an empty page would read as proof that
+ * nothing was ever shared, which is a different and worse thing than a page
+ * that says it was shared and then closed.
+ *
+ * Links for deleted posts are genuinely gone, not hidden: deleting a post
+ * cascades to its shares, which is the behaviour anybody would expect.
+ */
+export async function listShares(
+  journeyId: string,
+  take = 200,
+): Promise<SharedRow[]> {
+  const rows = await prisma.postShare.findMany({
+    where: { journeyId },
+    orderBy: { createdAt: "desc" },
+    take,
+    select: {
+      id: true,
+      token: true,
+      expiresAt: true,
+      revokedAt: true,
+      createdAt: true,
+      views: true,
+      createdBy: { select: { name: true } },
+      post: { select: { body: true, mediaUrls: true, imageUrl: true } },
+      _count: { select: { hellos: { where: { hiddenAt: null } } } },
+    },
+  });
+
+  return rows.map((r) => {
+    const line = r.post.body.trim().split("\n")[0].slice(0, 90);
+    const hasMedia = r.post.mediaUrls.length > 0 || !!r.post.imageUrl;
+    return {
+      id: r.id,
+      path: `/p/${r.token}`,
+      excerpt: line || (hasMedia ? "A photograph, with no words" : "A post"),
+      hasMedia,
+      expiresAt: r.expiresAt?.toISOString() ?? null,
+      revokedAt: r.revokedAt?.toISOString() ?? null,
+      createdAt: r.createdAt.toISOString(),
+      views: r.views,
+      hellos: r._count.hellos,
+      by: firstName(r.createdBy.name),
+    };
+  });
+}

@@ -161,3 +161,52 @@ export async function hideHello(helloId: string): Promise<{ ok: boolean }> {
   revalidatePath("/life");
   return { ok: true };
 }
+
+/**
+ * Close one link from the list, by its own id.
+ *
+ * `revokeShare` above closes every live link on a POST, which is what the
+ * Close button beside a post should do. This closes one row, which is what
+ * the list of everything ever shared needs — a post may have been shared,
+ * closed, and shared again, and on that page the two are separate lines with
+ * separate histories.
+ */
+export async function closeShare(shareId: string): Promise<{ ok: boolean }> {
+  const { journeyId, role, userId } = await requireMember();
+  const share = await prisma.postShare.findFirst({
+    where: { id: shareId, journeyId },
+    select: { id: true, createdById: true },
+  });
+  if (!share) return { ok: false };
+  // Whoever keeps the house, or whoever made this particular link. Being able
+  // to stop something must never be harder than being able to start it.
+  if (!isHousehold(role) && share.createdById !== userId) return { ok: false };
+
+  await prisma.postShare.updateMany({
+    where: { id: share.id, journeyId, revokedAt: null },
+    data: { revokedAt: new Date() },
+  });
+  revalidatePath("/shared");
+  revalidatePath("/life");
+  return { ok: true };
+}
+
+/**
+ * Close everything at once.
+ *
+ * Here because the question people actually arrive with is not "which of
+ * these eleven links is the one I am worried about" but "make it all stop".
+ * Making them answer the first question before they can do the second is how
+ * a safety control becomes something somebody gives up on halfway down.
+ */
+export async function closeAllShares(): Promise<{ ok: boolean; closed: number }> {
+  const { journeyId, role } = await requireMember();
+  if (!isHousehold(role)) return { ok: false, closed: 0 };
+  const r = await prisma.postShare.updateMany({
+    where: { journeyId, revokedAt: null },
+    data: { revokedAt: new Date() },
+  });
+  revalidatePath("/shared");
+  revalidatePath("/life");
+  return { ok: true, closed: r.count };
+}
