@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { PROMISE_SHORT } from "@/lib/promise";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
@@ -42,8 +43,7 @@ export default async function SignUpPage({
           />
         </div>
         <p className="prose-serif-xs max-w-xs text-muted">
-          Oyun and Agbebi offer spiritual companionship — not medical advice.
-          Always consult your doctor or midwife for health decisions.
+          {PROMISE_SHORT}
         </p>
       </aside>
 
@@ -74,7 +74,7 @@ export default async function SignUpPage({
           </div>
 
           <p className="prose-serif-xs mt-6 text-muted md:hidden">
-            Oyun and Agbebi offer spiritual companionship — not medical advice.
+            {PROMISE_SHORT}
           </p>
         </div>
       </div>

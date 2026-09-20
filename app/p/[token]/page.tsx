@@ -11,6 +11,7 @@ import {
 import { cookies } from "next/headers";
 import { GuestHello } from "@/components/share/GuestHello";
 import { AskToJoin } from "@/components/share/AskToJoin";
+import { SharedMedia } from "@/components/share/SharedMedia";
 import { sayHello, unsayHello, askToJoin } from "@/app/p/[token]/actions";
 import { SHARE_WORDS } from "@/lib/post-share";
 import { KIND_LABEL } from "@/lib/feed";
@@ -135,32 +136,10 @@ export default async function SharedPost({
           {shared.body}
         </p>
 
-        {shared.media.length > 0 && (
-          <div
-            className={`mt-5 grid gap-2 ${shared.media.length > 1 ? "grid-cols-2" : "grid-cols-1"}`}
-          >
-            {shared.media.map((m, i) =>
-              m.type === "video" ? (
-                <video
-                  key={i}
-                  src={m.url}
-                  controls
-                  playsInline
-                  preload="metadata"
-                  className="w-full rounded-xl bg-bg"
-                />
-              ) : (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  key={i}
-                  src={m.url}
-                  alt={`Shared by ${shared.household}`}
-                  className="w-full rounded-xl object-cover"
-                />
-              ),
-            )}
-          </div>
-        )}
+        <SharedMedia
+          media={shared.media}
+          alt={`Shared by ${shared.household}`}
+        />
 
         <p className="mt-5 border-t border-border pt-4 font-mono text-[0.62rem] leading-relaxed text-muted">
           {SHARE_WORDS.trustFoot}

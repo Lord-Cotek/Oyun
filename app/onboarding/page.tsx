@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { PROMISE_CONSENT } from "@/lib/promise";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
@@ -250,9 +251,7 @@ export default async function Onboarding({
                   className="mt-0.5 h-4 w-4 accent-[color:var(--accent)]"
                 />
                 <span className="prose-serif-xs text-muted">
-                  I understand Oyun and Agbebi offer spiritual companionship and
-                  encouragement — not medical advice — and I&rsquo;ll consult my
-                  doctor or midwife for health decisions.
+                  {PROMISE_CONSENT}
                 </span>
               </label>
 

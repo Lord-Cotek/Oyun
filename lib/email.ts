@@ -1,4 +1,5 @@
 import { type Role } from "@prisma/client";
+import { PROMISE_SHORT } from "@/lib/promise";
 
 /**
  * Email via the Resend HTTP API (uses RESEND_API_KEY directly — no SMTP).
@@ -66,8 +67,7 @@ const shell = (inner: string) => `
       ${inner}
       <div style="height:1px;background:#232833;margin:24px 0 16px;"></div>
       <div style="font-size:11px;line-height:1.6;color:#8A9099;">
-        Oyun and Agbebi offer spiritual companionship and encouragement — not
-        medical advice. Always consult your doctor or midwife for health decisions.
+        ${PROMISE_SHORT}
       </div>
     </div>
   </div>`;
