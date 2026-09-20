@@ -23,6 +23,11 @@ import { FirstStep, FirstStepFocus } from "@/components/ui/FirstStep";
 import { Avatar } from "@/components/ui/Avatar";
 import { isIosNativeShell } from "@/lib/shell";
 import { FAMILY_ONLY } from "@/lib/post-visibility";
+import {
+  ShareOutside,
+  type SharePostFn,
+  type RevokeShareFn,
+} from "@/components/feed/ShareOutside";
 
 type CreateFn = (input: {
   kind: string;
@@ -57,6 +62,9 @@ interface Actions {
   onReactToComment: ReactCommentFn;
   /** Change who an existing post is for. See lib/post-visibility.ts. */
   onSetAudience: AudienceFn;
+  /** Put one post on a link anybody can open. See lib/post-share.ts. */
+  onSharePost: SharePostFn;
+  onRevokeShare: RevokeShareFn;
 }
 
 export function Feed({
@@ -814,6 +822,8 @@ function PostItem({
   onReact,
   onReactToComment,
   onSetAudience,
+  onSharePost,
+  onRevokeShare,
 }: { post: FeedPost; canKeepToFamily: boolean } & Actions) {
   const [pending, start] = useTransition();
   const [editing, setEditing] = useState(false);
@@ -978,6 +988,17 @@ function PostItem({
               />
             )}
           </>
+        )}
+        {/* Not inside `post.mine`: the household may share a post the other
+            one wrote, which is the common case — she writes it, he sends it
+            to his mother. The server decides; see FeedPost.canShare. */}
+        {post.canShare && (
+          <ShareOutside
+            postId={post.id}
+            live={post.share}
+            onShare={onSharePost}
+            onRevoke={onRevokeShare}
+          />
         )}
       </div>
 

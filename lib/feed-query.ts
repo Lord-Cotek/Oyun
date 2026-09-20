@@ -1,6 +1,8 @@
 import { yearBounds } from "./story";
 import { prisma } from "./prisma";
 import { postScope } from "./post-visibility";
+import { isHousehold } from "./roles";
+import { canSharePost, sharePath } from "./post-share";
 import { type Role } from "@prisma/client";
 
 export interface FeedComment {
@@ -49,6 +51,15 @@ export interface FeedPost {
    * be able to tell at a glance that it took, rather than trusting it.
    */
   familyOnly: boolean;
+  /**
+   * May this viewer put it on a link anybody can open? Decided on the server
+   * by lib/post-share.ts and carried here, rather than the screen working it
+   * out from a role it would have to be handed — a control that appears is a
+   * control the server has already agreed to.
+   */
+  canShare: boolean;
+  /** The live link it already has, for the family's eyes only. */
+  share: { path: string; expiresAt: string | null; views: number } | null;
 }
 
 function relative(d: Date, now = new Date()): string {
@@ -112,6 +123,17 @@ export async function loadFeed(
           reactions: { select: { kind: true, userId: true } },
         },
       },
+      // Only the live ones. A closed or expired link is history, and showing
+      // it beside a post would say the post is out there when it is not.
+      shares: {
+        where: {
+          revokedAt: null,
+          OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
+        },
+        select: { token: true, expiresAt: true, views: true },
+        orderBy: { createdAt: "desc" },
+        take: 1,
+      },
     },
   });
   const now = new Date();
@@ -133,6 +155,18 @@ export async function loadFeed(
       mine: p.authorId === viewerId,
       when: relative(p.createdAt, now),
       familyOnly: p.familyOnly,
+      canShare: canSharePost(isHousehold(role), p, viewerId),
+      // The link is the family's business, not the circle's: somebody who can
+      // see the post but could not have shared it has no need to know it is
+      // out there, and no way to act on it if they did.
+      share:
+        canSharePost(isHousehold(role), p, viewerId) && p.shares[0]
+          ? {
+              path: sharePath(p.shares[0].token),
+              expiresAt: p.shares[0].expiresAt?.toISOString() ?? null,
+              views: p.shares[0].views,
+            }
+          : null,
       reactions: tally(p.reactions, viewerId),
       comments: p.comments.map((c) => ({
         id: c.id,

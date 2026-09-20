@@ -55,6 +55,7 @@ model User {
   createdAt     DateTime       @default(now())
   journeyEvents JourneyEvent[] @relation("JourneyEventCreator")
   letterReplies LetterReply[]
+  postShares    PostShare[]
 }
 
 /// A small emoji reaction on an encouragement or a check-in.
@@ -276,6 +277,7 @@ model Journey {
   posts          Post[]
   appointments   Appointment[]
   journeyEvents  JourneyEvent[]
+  postShares     PostShare[]
 }
 
 /// The family feed — an update, a praise, a prayer, or a milestone that the
@@ -305,8 +307,39 @@ model Post {
 
   comments  PostComment[]
   reactions PostReaction[]
+  shares    PostShare[]
 
   @@index([journeyId, createdAt])
+}
+
+/// One post, on a link anybody can open.
+///
+/// The third and last audience a post can have — see lib/post-share.ts for
+/// what that means and why it is fenced the way it is. A row here is the ONLY
+/// thing that makes a post reachable without signing in; no row, no link.
+model PostShare {
+  id          String    @id @default(cuid())
+  postId      String
+  post        Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  /// Denormalised from the post so a family can list every link they have ever
+  /// made in one query, including for posts that have since been deleted.
+  journeyId   String
+  journey     Journey   @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  createdById String
+  createdBy   User      @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  /// The address itself. Unguessable, and unique so a collision is a database
+  /// error rather than two families quietly sharing one page.
+  token       String    @unique
+  /// Null means "until I close it" — a deliberate choice, never the default.
+  expiresAt   DateTime?
+  /// Set the moment somebody takes it back. The row stays, so the family can
+  /// still see that they once shared it and what happened to it.
+  revokedAt   DateTime?
+  views       Int       @default(0)
+  createdAt   DateTime  @default(now())
+
+  @@index([journeyId, createdAt])
+  @@index([postId])
 }
 
 model PostComment {

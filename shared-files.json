@@ -168,6 +168,8 @@
     },
     "shared-files.json",
     "components/letters/LetterReplies.tsx",
-    "lib/letter-replies.ts"
+    "lib/letter-replies.ts",
+    "components/feed/ShareOutside.tsx",
+    "lib/post-share.ts"
   ]
 }
