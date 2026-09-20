@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useTransition } from "react";
 import { randomId } from "@/lib/rand";
-import { upload } from "@vercel/blob/client";
+import { uploadToBlob } from "@/lib/blob-client";
 import {
   POST_KINDS,
   KIND_LABEL,
@@ -13,7 +13,6 @@ import type { FeedPost, MediaItem } from "@/lib/feed-query";
 import { Lightbox } from "@/components/media/Lightbox";
 import { Pressable } from "@/components/ui/Pressable";
 import { ReactionRow } from "@/components/feed/ReactionRow";
-import { shrinkImage } from "@/lib/shrink-image";
 import { mediaAlt } from "@/lib/alt";
 import { FirstStep, FirstStepFocus } from "@/components/ui/FirstStep";
 import { Avatar } from "@/components/ui/Avatar";
@@ -159,6 +158,16 @@ interface Picked {
   file: File;
   preview: string;
   isVideo: boolean;
+  /**
+   * Where it ended up, once it has gone up.
+   *
+   * Kept on the picked item rather than in a list of its own so that pressing
+   * Share a second time — after one photograph out of five timed out on a
+   * lift, a train, a hospital corridor — sends only the one that did not make
+   * it. Re-uploading four photographs to retry a fifth is how a bad minute
+   * becomes a bad ten minutes.
+   */
+  url?: string;
 }
 
 function Composer({
@@ -182,6 +191,15 @@ function Composer({
   const [picked, setPicked] = useState<Picked[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  /**
+   * "Sent 3 of 5", or a word about one that is being retried.
+   *
+   * A button that says "Uploading…" and nothing else is indistinguishable
+   * from a button that has died, which is exactly what five photographs on a
+   * slow connection looked like. A number that moves is the difference
+   * between waiting and giving up.
+   */
+  const [progress, setProgress] = useState<string | null>(null);
   // Separate inputs for photos and video — a narrow, image-only accept is what
   // makes Android offer the Camera / Files chooser instead of the gallery.
   const photoRef = useRef<HTMLInputElement>(null);
@@ -314,37 +332,96 @@ function Composer({
     resetInputs();
   }
 
+  /**
+   * Share it.
+   *
+   * ── What this used to do, and why the button stuck on "Uploading…" ──────
+   * It ran its own `Promise.all` over every picked file, calling `upload`
+   * directly. No deadline, so a socket that stopped answering — which on a
+   * phone is a lift, a lift door, a hospital basement — hung for ever and the
+   * button said "Uploading…" until the page was closed and the post lost. No
+   * retry, so a blink cost the whole thing. No limit on how many were in
+   * flight, so five request bodies sat in memory together. And `Promise.all`
+   * rejects on the first failure, which threw away every photograph that had
+   * already gone up along with the one that had not.
+   *
+   * All four of those were already solved in lib/blob-client.ts, which was
+   * written for exactly this after fifty-three photographs stalled at
+   * "52 of 53". This screen simply was not using it. Now it is: deadlines, a
+   * second attempt, four at a time, and a failure that costs one photograph
+   * rather than the evening.
+   */
   async function submit() {
     if (!canSend) return;
     setError(null);
-    let urls: string[] = [];
-    if (picked.length > 0) {
+
+    // Where each one ended up this time round. Held here rather than read back
+    // out of `picked`, because a state update set below has not been applied
+    // by the time this function needs the list.
+    const landed = new Map<string, string>();
+
+    // Only what has not already gone up — see Picked.url.
+    const remaining = picked.filter((p) => !p.url);
+    if (remaining.length > 0) {
       setUploading(true);
+      setProgress(
+        picked.length > remaining.length
+          ? `Picking up where it stopped — ${picked.length - remaining.length} of ${picked.length} already sent`
+          : null,
+      );
+      let outcome;
       try {
-        urls = await Promise.all(
-          picked.map(async (p) => {
-            // Photographs shrink before they go; a video is left exactly as it
-            // is — re-encoding one in a browser is a different undertaking and
-            // this is not it.
-            const file = p.isVideo ? p.file : await shrinkImage(p.file);
-            const res = await upload(file.name, file, {
-              access: "public",
-              handleUploadUrl: "/api/blob/upload",
-              contentType: file.type || undefined,
-            });
-            return res.url;
-          }),
+        outcome = await uploadToBlob(
+          remaining.map((p) => p.file),
+          "feed",
+          {
+            max: MAX_FILES,
+            onOne: (i, url) => landed.set(remaining[i].id, url),
+            onProgress: (done, total, note) =>
+              setProgress(
+                note ?? (total > 1 ? `Sent ${done} of ${total}` : null),
+              ),
+          },
         );
       } catch (err) {
+        // Only thrown for "too many" — nothing was uploaded.
         setUploading(false);
+        setProgress(null);
         setError(
           (err as Error)?.message ||
             "Something went wrong uploading. Please try again.",
         );
         return;
       }
+
+      // Whatever landed is remembered before anything else happens, so a
+      // failure below still leaves those photographs banked for the retry.
+      if (landed.size > 0) {
+        setPicked((prev) =>
+          prev.map((p) => (landed.has(p.id) ? { ...p, url: landed.get(p.id) } : p)),
+        );
+      }
+
       setUploading(false);
+      setProgress(null);
+
+      if (outcome.failed.length > 0) {
+        // Nothing is posted and nothing is discarded: the words, the pictures
+        // and the ones already sent all stay on the screen. Pressing Share
+        // again retries only what is still missing.
+        const n = outcome.failed.length;
+        setError(
+          `${n === 1 ? "One photo" : `${n} photos`} didn’t make it — your words and the rest are still here. Tap Share to try ${n === 1 ? "it" : "them"} again.`,
+        );
+        return;
+      }
     }
+
+    // Every picked item now has a url; send them in the order they were chosen.
+    const urls = picked
+      .map((p) => p.url ?? landed.get(p.id))
+      .filter((u): u is string => !!u);
+
     start(async () => {
       await onCreate({ kind, body: body.trim(), mediaUrls: urls, familyOnly });
       setBody("");
@@ -559,6 +636,18 @@ function Composer({
           </button>
         </div>
       </div>
+      {progress && (
+        /* Announced politely, so somebody using a screen reader hears the
+           count move rather than sitting in silence next to a button that
+           will not say anything until it is finished. */
+        <p
+          role="status"
+          aria-live="polite"
+          className="mt-2 font-mono text-[0.62rem] leading-relaxed text-muted"
+        >
+          {progress}
+        </p>
+      )}
       {familyOnly && (
         <p className="mt-2 font-mono text-[0.62rem] leading-relaxed text-muted">
           {FAMILY_ONLY.hint}

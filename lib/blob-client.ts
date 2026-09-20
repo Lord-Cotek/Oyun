@@ -31,6 +31,20 @@ export { MAX_PHOTOS };
 const CONCURRENCY = 4;
 
 /**
+ * Fewer at a time when they are big.
+ *
+ * Four photographs share a phone's uplink happily. Four videos do not: each
+ * gets a quarter of the pipe, each takes four times as long, and all four
+ * walk into their deadline together. Sending two means the first is finished
+ * and banked while the second is still going, which is also what makes a
+ * retry cheap.
+ */
+export function concurrencyFor(files: { size: number }[]): number {
+  const biggest = files.reduce((m, f) => Math.max(m, f.size), 0);
+  return biggest > 20 * 1024 * 1024 ? 2 : CONCURRENCY;
+}
+
+/**
  * ── Why every upload has a deadline ──────────────────────────────────────
  * Fifty-three photographs went up and the screen stopped at "52 of 53" and
  * stayed there. Nothing was broken in a way anything could see: one request
@@ -45,11 +59,37 @@ const CONCURRENCY = 4;
  *
  * And because a stall on a phone is usually the connection blinking rather
  * than anything wrong with the file, a failed one is tried once more before
- * being given up on. The first attempt is the impatient one: most uploads take
- * a second or two, so waiting three-quarters of a minute to discover otherwise
- * is long enough.
+ * being given up on.
+ *
+ * ── Why the deadline is not one number ───────────────────────────────────
+ * It was thirty seconds flat, which is right for a photograph and wrong for
+ * everything else. This uploader also carries the family diary's videos, and
+ * the route that signs them allows two hundred megabytes. A forty-megabyte
+ * clip on a phone in a hospital car park is not stalled at thirty seconds; it
+ * is a third of the way through, and cutting it off there would fail every
+ * single time — reliably, and looking exactly like a bug in the app.
+ *
+ * So the deadline is a floor plus an allowance per megabyte, set at a
+ * pessimistic throughput on purpose: the number is not a guess at how long
+ * this will take, it is the point past which nothing can be going well. The
+ * cap is there so that a genuinely dead socket still ends, eventually,
+ * instead of holding a worker for the rest of the evening.
  */
-const ATTEMPT_MS = [30_000, 45_000];
+const FLOOR_MS = 30_000;
+/** Allowed per MB — roughly a 1 Mbps floor, well below any usable connection. */
+const PER_MB_MS = 8_000;
+/** However large the file, an attempt ends here. */
+const CEILING_MS = 20 * 60_000;
+
+/** The two deadlines this file gets, in order. Exported to be checked. */
+export function attemptsFor(bytes: number): number[] {
+  const first = Math.min(
+    CEILING_MS,
+    FLOOR_MS + (bytes / (1024 * 1024)) * PER_MB_MS,
+  );
+  // The second is more patient than the first: by then we know it is slow.
+  return [first, Math.min(CEILING_MS, first * 1.5)];
+}
 
 /** The most a photograph may take to be decoded and redrawn before we give up
  *  on shrinking it and send the original instead. Same reasoning as the upload
@@ -83,6 +123,18 @@ export type UploadOutcome = {
 };
 
 /**
+ * Called the moment one lands, with the index it was given in.
+ *
+ * `urls` above has the failures filtered out of it, which is the right shape
+ * for a caller that only wants the list — and useless to one that needs to
+ * know WHICH of the files it handed over is now at which address. That caller
+ * is the one that wants to let somebody press Share again after a flaky
+ * minute and not re-send the four photographs that already went. So the index
+ * is offered here, as it happens, rather than reconstructed afterwards.
+ */
+export type OnOne = (index: number, url: string) => void;
+
+/**
  * One photograph, with a deadline and a second try.
  *
  * Throws once both attempts are spent; the caller counts it as lost and moves
@@ -95,7 +147,7 @@ async function sendOne(
 ): Promise<string> {
   const ext = f.name.includes(".") ? f.name.slice(f.name.lastIndexOf(".")) : "";
   let last: unknown;
-  for (const [attempt, ms] of ATTEMPT_MS.entries()) {
+  for (const [attempt, ms] of attemptsFor(f.size).entries()) {
     if (attempt > 0) onRetry?.();
     const control = new AbortController();
     const deadline = setTimeout(() => control.abort(), ms);
@@ -128,6 +180,8 @@ export async function uploadToBlob(
      * look like a page that has died.
      */
     onProgress?: (done: number, total: number, note?: string) => void;
+    /** Each one as it lands, by the index it was passed in at. */
+    onOne?: OnOne;
   } = {},
 ): Promise<UploadOutcome> {
   const max = opts.max ?? MAX_PHOTOS;
@@ -154,13 +208,15 @@ export async function uploadToBlob(
         // soon as its smaller copy is on the wire rather than sixty of them
         // being held at once. Done once, not once per attempt.
         const f = await beforeLongEnough(shrinkImage(chosen), SHRINK_MS, chosen);
-        urls[i] = await sendOne(f, folder, () =>
+        const url = await sendOne(f, folder, () =>
           opts.onProgress?.(
             done,
             real.length,
             `Photo ${i + 1} is taking its time — trying once more…`,
           ),
         );
+        urls[i] = url;
+        opts.onOne?.(i, url);
       } catch {
         // One photograph, not the whole evening.
         failed.push(chosen);
@@ -171,7 +227,10 @@ export async function uploadToBlob(
   }
 
   await Promise.all(
-    Array.from({ length: Math.min(CONCURRENCY, real.length) }, worker),
+    Array.from(
+      { length: Math.min(concurrencyFor(real), real.length) },
+      worker,
+    ),
   );
 
   return { urls: urls.filter((u): u is string => u !== null), failed };
