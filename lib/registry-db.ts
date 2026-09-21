@@ -1,4 +1,5 @@
 import { randomBytes } from "node:crypto";
+import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { type ItemKind } from "@/lib/registry";
 
@@ -94,6 +95,62 @@ export interface PublicRegistry {
  * are written from — and even she may not until the end if she has asked to
  * be surprised. See claimsVisibleToHost in lib/registry.ts.
  */
+/**
+ * Who this browser is, to the registry.
+ *
+ * ── Why a signed-in member is not treated as a guest ─────────────────────
+ * A claim is keyed on a token, and for somebody who followed a link that
+ * token is a cookie. That is right for a stranger and poor for a relative
+ * who is in the app every day: the cookie lives on one browser, so she
+ * claims the cot on her phone and cannot take it back on her tablet, and
+ * the family is told "Someone is getting the cot" unless she remembers to
+ * type her own name.
+ *
+ * So a member of this journey gets a token derived from who they are. It is
+ * the same on every device they sign in to, it survives clearing the
+ * browser, and it lets the notification use the name already on the
+ * account. The "u:" prefix keeps it from ever colliding with a guest token,
+ * which is random base64url.
+ *
+ * Deliberately not a schema change: RegistryClaim.token is a string with a
+ * unique constraint per item, and this is a string. Nothing about the
+ * guest path changes.
+ */
+/**
+ * The token to read a registry with, for whoever is asking.
+ *
+ * The page must resolve this exactly as the claim action does, or a member
+ * would claim something and then be shown it as still unclaimed — the two
+ * would be looking at different tokens for the same person.
+ *
+ * Read-only: no cookie is ever minted here. Someone who only looks at a
+ * registry carries nothing away.
+ */
+export async function readerTokenFor(
+  slug: string,
+  session: { user?: { id?: string | null } } | null,
+): Promise<string | null> {
+  const userId = session?.user?.id;
+  if (userId) {
+    const r = await prisma.registry.findUnique({
+      where: { slug },
+      select: { journeyId: true },
+    });
+    if (r) {
+      const member = await prisma.membership.findFirst({
+        where: { journeyId: r.journeyId, userId },
+        select: { id: true },
+      });
+      if (member) return memberClaimToken(userId);
+    }
+  }
+  return cookies().get(guestCookieName(slug))?.value ?? null;
+}
+
+export function memberClaimToken(userId: string): string {
+  return `u:${userId}`;
+}
+
 export async function getPublicRegistry(
   slug: string,
   guestToken: string | null,

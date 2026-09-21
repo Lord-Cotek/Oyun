@@ -5,6 +5,7 @@ import { Pressable } from "@/components/ui/Pressable";
 import {
   setClosed,
   setShowClaims,
+  setSharedWithCircle,
   updateRegistry,
 } from "@/app/registry/actions";
 import { HOST_MAX, MESSAGE_MAX, TITLE_MAX } from "@/lib/registry";
@@ -26,12 +27,18 @@ export function RegistrySettings({
   message,
   showClaims,
   closed,
+  sharedWithCircle,
+  circleCount,
 }: {
   title: string;
   hostName: string;
   message: string | null;
   showClaims: boolean;
   closed: boolean;
+  /** Whether the list is already open to the people in this journey. */
+  sharedWithCircle: boolean;
+  /** How many people that is, so the button can say who it is telling. */
+  circleCount: number;
 }) {
   const [open, setOpen] = useState(false);
   const [said, setSaid] = useState<string | null>(null);
@@ -140,6 +147,35 @@ export function RegistrySettings({
                 </span>
               </span>
             </label>
+          </div>
+
+          {/* ── The circle ───────────────────────────────────────────────
+              Separate from the public link on purpose. The link is for
+              whoever it is sent to; this is for the people already here,
+              and it is the only notification any of them gets about a
+              registry — see setSharedWithCircle. */}
+          <div className="border-t border-border pt-4">
+            <p className="prose-serif-xs text-muted">
+              {sharedWithCircle
+                ? "Your circle can see this list in Oyun. They were told once, when you opened it — and will not be pestered again as you add things."
+                : circleCount > 0
+                  ? `Open it to your circle and the ${circleCount} ${circleCount === 1 ? "person" : "people"} walking with you will find it in Oyun. They are told once, and never again as you add things.`
+                  : "Nobody is in your circle yet. Invite someone first, and you can open the list to them here."}
+            </p>
+            <Pressable
+              type="button"
+              disabled={pending || closed || (!sharedWithCircle && circleCount === 0)}
+              onClick={() =>
+                start(() =>
+                  setSharedWithCircle(!sharedWithCircle).then((r) => {
+                    if (!r.ok) setError(r.error);
+                  }),
+                )
+              }
+              className="mt-3 rounded-lg border border-border px-3 py-2 font-mono text-xs text-muted transition-colors hover:border-accent hover:text-accent disabled:opacity-50"
+            >
+              {sharedWithCircle ? "Take it back from the circle" : "Open it to your circle"}
+            </Pressable>
           </div>
 
           <div className="border-t border-border pt-4">

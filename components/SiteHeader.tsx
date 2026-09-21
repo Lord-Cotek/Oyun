@@ -9,6 +9,7 @@ import { JourneySwitcher } from "@/components/JourneySwitcher";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getActiveMembership, getMyJourneys } from "@/lib/data";
+import { circleSeesRegistry } from "@/lib/registry";
 
 type ActiveKey =
   | "journey"
@@ -38,6 +39,8 @@ export async function SiteHeader({
   let isMother = false;
   let isHousehold = false;
   let inLoss = false;
+  /** The circle sees the registry only once the family has opened it. */
+  let registryOpen = false;
   let journeys: Awaited<ReturnType<typeof getMyJourneys>> = [];
   let activeJourneyId: string | null = null;
   if (session?.user?.id) {
@@ -50,6 +53,13 @@ export async function SiteHeader({
     isMother = membership?.role === "MOTHER";
     isHousehold = membership?.role === "MOTHER" || membership?.role === "PARTNER";
     inLoss = membership?.journey.status === "LOSS";
+    if (membership) {
+      const reg = await prisma.registry.findUnique({
+        where: { journeyId: membership.journey.id },
+        select: { sharedWithCircleAt: true, closedAt: true },
+      });
+      registryOpen = !!reg && circleSeesRegistry(reg);
+    }
     journeys = myJourneys;
     activeJourneyId = membership?.journey.id ?? null;
   }
@@ -98,11 +108,12 @@ export async function SiteHeader({
     ...(isHousehold
       ? [{ href: "/circle", label: "Circle", current: active === "circle" }]
       : []),
-    // The registry is the two of them deciding what the baby needs, so it
-    // sits with the rooms only they can open. It is never a bottom tab: a
+    // The two of them decide what the baby needs; the circle is who the list
+    // is for, and gets it once the family has opened it to them — /registry
+    // sends them on to the read-only page. Never a bottom tab either way: a
     // gift list is not a daily rhythm, and a thing you do twice should not
     // take a place from a thing you do every morning.
-    ...(isHousehold && !inLoss
+    ...((isHousehold || registryOpen) && !inLoss
       ? [{ href: "/registry", label: "Registry", current: active === "registry" }]
       : []),
     // Under More on purpose. It is a thing you go looking for on the one day

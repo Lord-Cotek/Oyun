@@ -3,6 +3,8 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { notify } from "@/lib/notify";
+import { SUPPORTER_ROLES } from "@/lib/roles";
 import { auth } from "@/lib/auth";
 import { getActiveMembership } from "@/lib/data";
 import { newSlug } from "@/lib/registry-db";
@@ -179,6 +181,77 @@ export async function setClosed(closed: boolean): Promise<Result> {
     where: { id: r.id },
     data: { closedAt: closed ? new Date() : null },
   });
+  refresh();
+  return { ok: true };
+}
+
+/**
+ * Opening the list to the circle, and taking it back.
+ *
+ * ── Why this is a separate act from making the list ──────────────────────
+ * A registry gets its public link the moment it is created, so without this
+ * a list two things long and still being argued about would appear in a
+ * grandmother's nav the same afternoon. This is the family saying it is
+ * ready.
+ *
+ * ── The one notification the circle ever gets about a registry ───────────
+ * Sent here and nowhere else. The obvious alternative — telling everybody
+ * each time something is added — would mean twenty notifications from one
+ * evening of list-making, which turns a family app into a gift-nag and is
+ * exactly the kind of pressure this app is built to avoid. So: one, when
+ * the door opens, and then it is a page they visit when they want to.
+ *
+ * Sharing again after taking it back does not send a second one. Nobody
+ * needs telling twice about the same list.
+ */
+export async function setSharedWithCircle(share: boolean): Promise<Result> {
+  const { journeyId } = await keeper();
+  const r = await prisma.registry.findUnique({
+    where: { journeyId },
+    select: {
+      id: true,
+      title: true,
+      hostName: true,
+      sharedWithCircleAt: true,
+      _count: { select: { items: true } },
+    },
+  });
+  if (!r) return { ok: false, error: "There is no registry yet." };
+  if (share && r._count.items === 0) {
+    return {
+      ok: false,
+      error: "Put something on the list first — an empty one says nothing.",
+    };
+  }
+
+  const firstTime = share && r.sharedWithCircleAt === null;
+  await prisma.registry.update({
+    where: { id: r.id },
+    data: { sharedWithCircleAt: share ? new Date() : null },
+  });
+
+  if (firstTime) {
+    try {
+      const circle = await prisma.membership.findMany({
+        where: { journeyId, role: { in: SUPPORTER_ROLES } },
+        select: { userId: true },
+      });
+      await Promise.all(
+        circle.map((m) =>
+          notify({
+            userId: m.userId,
+            type: "registry",
+            title: `${r.hostName} have put together a registry.`,
+            body: "Have a look when you have a moment — there is no hurry.",
+            href: "/registry",
+          }),
+        ),
+      );
+    } catch {
+      // A missed notice must never fail the sharing itself.
+    }
+  }
+
   refresh();
   return { ok: true };
 }

@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
-import { getPublicRegistry, guestCookieName } from "@/lib/registry-db";
+import { getPublicRegistry, readerTokenFor } from "@/lib/registry-db";
+import { auth } from "@/lib/auth";
 import { OyunMark } from "@/components/ui/OyunMark";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { GuestItem } from "@/components/registry/GuestItem";
@@ -58,7 +59,9 @@ export default async function PublicRegistryPage({
 }: {
   params: { slug: string };
 }) {
-  const token = cookies().get(guestCookieName(params.slug))?.value ?? null;
+  // Resolved the same way the claim action does — a signed-in member is
+  // themselves, everybody else is their browser. See readerTokenFor.
+  const token = await readerTokenFor(params.slug, await auth());
   const r = await getPublicRegistry(params.slug, token);
   if (!r) notFound();
 

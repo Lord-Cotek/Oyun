@@ -4,8 +4,10 @@ import QRCode from "qrcode";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getActiveMembership } from "@/lib/data";
+import { SUPPORTER_ROLES } from "@/lib/roles";
 import {
   canKeepRegistry,
+  circleSeesRegistry,
   canTakeMoney,
   claimsVisibleToHost,
   type ItemKind,
@@ -39,11 +41,36 @@ export default async function RegistryPage() {
   if (!session?.user?.id) redirect("/sign-in?callbackUrl=/registry");
   const active = await getActiveMembership(session.user.id);
   if (!active) redirect("/onboarding");
-  // The registry belongs to the two at the centre. The circle is who it is
-  // for — they get the public link like everybody else.
-  if (!canKeepRegistry(active.role)) redirect("/journey");
+  /**
+   * The circle comes here too, and is sent on.
+   *
+   * ── Why they are redirected rather than shown a read-only version ───────
+   * This page is the management view: add, edit, reorder, the pay details in
+   * an editable form, the share link, closing the list. A read-only twin of
+   * it would mean a second version of every control, and every control added
+   * later would be a new place to leak. The public page at /r/<slug> already
+   * *is* the read-only registry — it claims, it honours the family's choice
+   * about showing who is getting what, and it keeps bank details behind a
+   * tap. One page, one rule, nothing to keep in step.
+   *
+   * They are sent nowhere at all until the family has opened the list to
+   * them, which keeps a half-built list private. See circleSeesRegistry.
+   */
+  if (!canKeepRegistry(active.role)) {
+    const open = await prisma.registry.findUnique({
+      where: { journeyId: active.journey.id },
+      select: { slug: true, sharedWithCircleAt: true, closedAt: true },
+    });
+    if (open && circleSeesRegistry(open)) redirect(`/r/${open.slug}`);
+    redirect("/journey");
+  }
 
   const { journey } = active;
+  // How many people are actually walking with them, so the share control can
+  // say who it would be telling rather than "your circle" in the abstract.
+  const circleCount = await prisma.membership.count({
+    where: { journeyId: journey.id, role: { in: SUPPORTER_ROLES } },
+  });
   const registry = await prisma.registry.findUnique({
     where: { journeyId: journey.id },
     select: {
@@ -53,6 +80,7 @@ export default async function RegistryPage() {
       message: true,
       showClaims: true,
       closedAt: true,
+      sharedWithCircleAt: true,
       payLabel: true,
       payDetails: true,
       payNote: true,
@@ -221,6 +249,8 @@ export default async function RegistryPage() {
                 message={registry.message}
                 showClaims={registry.showClaims}
                 closed={closed}
+                sharedWithCircle={registry.sharedWithCircleAt !== null}
+                circleCount={circleCount}
               />
             </div>
             <div className="mt-3">

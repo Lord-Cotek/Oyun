@@ -116,6 +116,23 @@ export function canKeepRegistry(role: Role | string): boolean {
   return isHousehold(role);
 }
 
+/**
+ * Whether the circle sees this list inside the app.
+ *
+ * ── Why both halves ──────────────────────────────────────────────────────
+ * Shared, and not finished. The share is the family saying the list is ready
+ * for the people who love them; closing it is them saying it is over. A
+ * closed list is still worth reading on a link a year later — somebody
+ * wondering what they gave — but it has no business sitting in a
+ * grandmother's nav asking to be looked at.
+ */
+export function circleSeesRegistry(r: {
+  sharedWithCircleAt: Date | null;
+  closedAt: Date | null;
+}): boolean {
+  return r.sharedWithCircleAt !== null && r.closedAt === null;
+}
+
 /** What is left to take, given what the list asks for and what is spoken for. */
 export function remaining(
   quantity: number,

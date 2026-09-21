@@ -3,8 +3,13 @@
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/lib/auth";
 import { notify } from "@/lib/notify";
-import { guestCookieName, newGuestToken } from "@/lib/registry-db";
+import {
+  guestCookieName,
+  newGuestToken,
+  memberClaimToken,
+} from "@/lib/registry-db";
 import {
   CLAIMS_MAX,
   GUEST_NAME_MAX,
@@ -34,6 +39,52 @@ type Result = { ok: true } | { ok: false; error: string };
  * of text, a five-hundredth claim — each is turned away with a sentence
  * saying which.
  */
+/**
+ * The token this request should claim under, and the name to put on it.
+ *
+ * Signed-in members of this journey are themselves; everybody else is the
+ * browser they are holding. See memberClaimToken for why that matters.
+ *
+ * `mint` is false on a read and true on a write: somebody who only looks at
+ * a registry should not be handed a cookie to carry, exactly as on a shared
+ * post.
+ */
+async function claimerFor(
+  slug: string,
+  journeyId: string,
+  mint: boolean,
+): Promise<{ token: string | null; name: string | null; member: boolean }> {
+  const session = await auth();
+  if (session?.user?.id) {
+    const member = await prisma.membership.findFirst({
+      where: { journeyId, userId: session.user.id },
+      select: { id: true },
+    });
+    if (member) {
+      return {
+        token: memberClaimToken(session.user.id),
+        name: session.user.name ?? null,
+        member: true,
+      };
+    }
+  }
+
+  const jar = cookies();
+  const cookieName = guestCookieName(slug);
+  let token = jar.get(cookieName)?.value ?? null;
+  if (!token && mint) {
+    token = newGuestToken();
+    jar.set(cookieName, token, {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 365,
+    });
+  }
+  return { token, name: null, member: false };
+}
+
 export async function claim(formData: FormData): Promise<Result> {
   const slug = String(formData.get("slug") ?? "");
   const itemId = String(formData.get("itemId") ?? "");
@@ -72,19 +123,11 @@ export async function claim(formData: FormData): Promise<Result> {
     return { ok: false, error: "This one has had a lot of answers already." };
   }
 
-  const jar = cookies();
-  const cookieName = guestCookieName(slug);
-  let token = jar.get(cookieName)?.value ?? null;
-  if (!token) {
-    token = newGuestToken();
-    jar.set(cookieName, token, {
-      httpOnly: true,
-      sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
-      path: "/",
-      maxAge: 60 * 60 * 24 * 365,
-    });
-  }
+  const who = await claimerFor(slug, item.registry.journeyId, true);
+  const token = who.token!;
+  // A member who left the name box alone is not "Someone": the account
+  // already says who they are, and the family would rather read that.
+  const claimName = name || who.name || "";
 
   const mine = item.claims.find((c) => c.token === token);
   const othersHave = item.claims
@@ -110,7 +153,7 @@ export async function claim(formData: FormData): Promise<Result> {
     await prisma.registryClaim.update({
       where: { id: mine.id },
       data: {
-        name: name || null,
+        name: claimName || null,
         note: note || null,
         quantity: item.kind === "LIST" ? 1 : wanted,
       },
@@ -120,12 +163,12 @@ export async function claim(formData: FormData): Promise<Result> {
       data: {
         itemId: item.id,
         token,
-        name: name || null,
+        name: claimName || null,
         note: note || null,
         quantity: item.kind === "LIST" ? 1 : wanted,
       },
     });
-    await tellTheFamily(item.registry, item.title, name);
+    await tellTheFamily(item.registry, item.title, claimName);
   }
 
   revalidatePath(`/r/${slug}`);
@@ -172,14 +215,20 @@ export async function revealPayDetails(slug: string): Promise<
 export async function release(formData: FormData): Promise<Result> {
   const slug = String(formData.get("slug") ?? "");
   const itemId = String(formData.get("itemId") ?? "");
-  const token = cookies().get(guestCookieName(slug))?.value;
-  if (!token) return { ok: false, error: "We cannot tell which was yours." };
-
   const item = await prisma.registryItem.findFirst({
     where: { id: itemId, registry: { slug } },
-    select: { id: true, registry: { select: { closedAt: true } } },
+    select: {
+      id: true,
+      registry: { select: { closedAt: true, journeyId: true } },
+    },
   });
   if (!item) return { ok: false, error: "That is no longer on the list." };
+
+  // Resolved the same way as the claim, so a member can take a thing back
+  // from a different phone than the one they took it on.
+  const who = await claimerFor(slug, item.registry.journeyId, false);
+  const token = who.token;
+  if (!token) return { ok: false, error: "We cannot tell which was yours." };
   if (item.registry.closedAt) {
     return { ok: false, error: "This registry is finished." };
   }

@@ -678,27 +678,27 @@ model LetterReply {
 /// whether her baby has a cot. What it knows is what somebody SAID they were
 /// getting — see RegistryClaim.
 model Registry {
-  id         String    @id @default(cuid())
-  journeyId  String    @unique
-  journey    Journey   @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  id                 String    @id @default(cuid())
+  journeyId          String    @unique
+  journey            Journey   @relation(fields: [journeyId], references: [id], onDelete: Cascade)
   /// The unguessable half of the public address. From node:crypto and long —
   /// see lib/registry-db.ts, and NOT lib/rand.ts, which says of itself that
   /// it is not security-bearing.
-  slug       String    @unique
+  slug               String    @unique
   /// What the page is called: "For Baby Adeyemi". Hers to type.
-  title      String
+  title              String
   /// How it signs itself to a guest — "Amara and Chidi", "The Adeyemis".
   /// Typed, never taken from an account, so she chooses what a stranger is
   /// told about who she is.
-  hostName   String
+  hostName           String
   /// A word to whoever opens it.
-  message    String?
+  message            String?
   /// Whether she is shown who has taken what.
   ///
   /// Off is the surprise: she sees that a thing is spoken for and not by
   /// whom, until she closes the registry — at which point the whole list
   /// appears, because by then she is writing thank-you notes and needs it.
-  showClaims Boolean   @default(true)
+  showClaims         Boolean   @default(true)
   /// ── How somebody sends money, when she wants that offered ────────────
   ///
   /// Her own details, typed by her: a bank account, a mobile-money number, a
@@ -717,13 +717,26 @@ model Registry {
   /// the page, and out of anything a link-preview crawler reads. Anybody
   /// holding the link can still tap. That is said plainly where she types
   /// them: it is friction and a smaller blast radius, not a wall.
-  payLabel   String?
-  payDetails String?
-  payNote    String?
+  payLabel           String?
+  payDetails         String?
+  payNote            String?
   /// Stopped taking claims. The page still reads; it becomes a record.
-  closedAt   DateTime?
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
+  closedAt           DateTime?
+  /// When the family opened this list to their own circle.
+  ///
+  /// ── Why this is a deliberate act and not "does a registry exist" ───────
+  /// A registry gets its link the moment it is created, so a list that is
+  /// two things long and still being thought about would otherwise appear
+  /// in a grandmother's nav the same afternoon. This is the moment the
+  /// family says it is ready, and it is what sends the one notification the
+  /// circle ever gets about it.
+  ///
+  /// Null means the circle sees nothing. Clearing it takes the list back out
+  /// of their nav without touching the public link, which is a different
+  /// thing and stays where it is.
+  sharedWithCircleAt DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
 
   items RegistryItem[]
 }
