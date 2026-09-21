@@ -1,7 +1,12 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
-import { getPublicRegistry, readerTokenFor } from "@/lib/registry-db";
+import {
+  getPublicRegistry,
+  memberClaimToken,
+  readerTokenFor,
+} from "@/lib/registry-db";
 import { auth } from "@/lib/auth";
 import { OyunMark } from "@/components/ui/OyunMark";
 import { Eyebrow } from "@/components/ui/Eyebrow";
@@ -19,6 +24,14 @@ import { GuestItem } from "@/components/registry/GuestItem";
  *     from the journey, no member list, and no link into the app. The
  *     boundary is lib/registry-db.ts, which selects its fields one by one, so
  *     a column added to the schema cannot quietly turn up here.
+ *
+ *     The one exception is the way back, and it is not really an exception:
+ *     once the family opens the list to their circle, this page IS the
+ *     circle's registry — they are sent here from /registry, and without a
+ *     header or a tab bar they arrive at a dead end with only the browser's
+ *     back button. So a single "Back to Oyun" appears, and only when the
+ *     reader is signed in AND already a member of this journey. A stranger
+ *     is told nothing new: no account, no membership, no link. See `insider`.
  *
  *  2. It is never indexed. This page says noindex for itself, app/robots.ts
  *     says so for the whole /r path, and the address is unguessable to start
@@ -61,9 +74,17 @@ export default async function PublicRegistryPage({
 }) {
   // Resolved the same way the claim action does — a signed-in member is
   // themselves, everybody else is their browser. See readerTokenFor.
-  const token = await readerTokenFor(params.slug, await auth());
+  const session = await auth();
+  const token = await readerTokenFor(params.slug, session);
   const r = await getPublicRegistry(params.slug, token);
   if (!r) notFound();
+
+  // Only true for somebody signed in who is already in this journey —
+  // readerTokenFor mints that token after checking the membership, and falls
+  // back to the guest cookie otherwise. Compared rather than sniffed for a
+  // prefix, so a cookie can never be mistaken for a member.
+  const insider =
+    !!session?.user?.id && token === memberClaimToken(session.user.id);
 
   // Every kind gets a section. A kind with no section is an item that exists
   // in her room and nowhere a guest can see it — which is how the first
@@ -76,6 +97,15 @@ export default async function PublicRegistryPage({
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-10 pb-20">
+      {insider && (
+        <Link
+          href="/journey"
+          className="-ml-2 mb-6 inline-flex min-h-11 items-center gap-2 rounded-lg px-2 font-mono text-[0.62rem] uppercase tracking-widest text-muted transition-colors hover:text-ink"
+        >
+          <span aria-hidden="true">&larr;</span> Back to Oyun
+        </Link>
+      )}
+
       <div className="flex items-center gap-2.5">
         <OyunMark size={24} className="text-ink" />
         <span className="font-mono text-[0.62rem] uppercase tracking-widest text-muted">
@@ -193,6 +223,15 @@ export default async function PublicRegistryPage({
           to the shop that sells the thing, and nobody here takes a cut. Your
           name is only ever seen by the family who made this list.
         </p>
+        {/* Again at the bottom: a long list is a long way back to the top. */}
+        {insider && (
+          <Link
+            href="/journey"
+            className="-ml-2 mt-3 inline-flex min-h-11 items-center gap-2 rounded-lg px-2 font-mono text-[0.62rem] uppercase tracking-widest text-muted transition-colors hover:text-ink"
+          >
+            <span aria-hidden="true">&larr;</span> Back to Oyun
+          </Link>
+        )}
       </footer>
     </main>
   );
