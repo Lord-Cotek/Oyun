@@ -67,7 +67,31 @@ export default async function CirclePage() {
     }),
   ]);
 
-  const supporters = members.filter((m) => m.role !== "MOTHER");
+  /**
+   * Everybody, in the order a family would say them.
+   *
+   * ── The bug this replaces ────────────────────────────────────────────────
+   * The first row used to be hard-coded: the *viewer's* name, always labelled
+   * MOTHER, always "You". That was true while this page was hers alone. Once
+   * the partner could open it too, he saw his own name under "Mother" — and
+   * then saw himself again further down, because the list below was every
+   * membership that was not the mother's. Two rows, one of them a lie.
+   *
+   * So there is no invented row any more. Every line comes from a real
+   * membership, the mother first because it is her journey, then the one
+   * beside her, then the circle in the order they joined.
+   */
+  const ROLE_ORDER: Record<string, number> = {
+    MOTHER: 0,
+    PARTNER: 1,
+    ACCOUNTABILITY: 2,
+    FAMILY: 3,
+    FRIEND: 4,
+  };
+  const everyone = [...members].sort(
+    (a, b) => (ROLE_ORDER[a.role] ?? 9) - (ROLE_ORDER[b.role] ?? 9),
+  );
+  const supporters = members.filter((m) => !isHousehold(m.role));
 
   return (
     <>
@@ -84,8 +108,11 @@ export default async function CirclePage() {
           aside={
             <StatCard
               label="Walking with you"
-              value={supporters.length + 1}
-              hint={supporters.length === 0 ? "just you, for now" : "including you"}
+              // Every real membership. It used to be the supporters plus one
+              // invented row, which happened to total the same number while
+              // the mother herself was missing from the list below it.
+              value={everyone.length}
+              hint={everyone.length === 1 ? "just you, for now" : "including you"}
             />
           }
         />
@@ -122,21 +149,24 @@ export default async function CirclePage() {
             <Card>
               <Eyebrow className="mb-4">Walking with you</Eyebrow>
               <ul className="space-y-3">
-                <MemberRow
-                  name={session.user.name ?? "You"}
-                  sub="You"
-                  role="MOTHER"
-                />
-                {supporters.map((m) => (
-                  <MemberRow
-                    key={m.id}
-                    name={m.user.name ?? m.user.email ?? "A supporter"}
-                    sub={m.user.email ?? ""}
-                    role={m.role}
-                    photoUrl={m.user.image}
-                    removeId={m.id}
-                  />
-                ))}
+                {everyone.map((m) => {
+                  const me = m.user.id === session.user!.id;
+                  return (
+                    <MemberRow
+                      key={m.id}
+                      name={m.user.name ?? m.user.email ?? "A supporter"}
+                      // Your own row says so instead of showing you your own
+                      // address, which you already know.
+                      sub={me ? "You" : (m.user.email ?? "")}
+                      role={m.role}
+                      photoUrl={m.user.image}
+                      // Nobody removes themselves here, and nobody removes the
+                      // mother from her own journey — leaving is a different
+                      // act from being taken out, and belongs in settings.
+                      removeId={me || m.role === "MOTHER" ? undefined : m.id}
+                    />
+                  );
+                })}
                 {supporters.length === 0 && (
                   <li className="flex flex-col items-center gap-3 rounded-lg border border-dashed border-border px-4 py-8 text-center">
                     <Icon name="users" size={28} className="text-accent2" />
