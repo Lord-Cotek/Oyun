@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { reply, withdraw } from "@/app/i/[slug]/actions";
+import { ConfirmButton } from "@/components/ui/Confirm";
 import {
   ANSWERS,
   GUEST_NAME_MAX,
@@ -236,18 +237,19 @@ export function GuestReply({
           </span>
         )}
         {mine && (
-          <button
-            type="button"
+          <ConfirmButton
+            press="none"
             disabled={busy}
-            onClick={async () => {
+            word="Take my reply back"
+            sure="Take it back?"
+            describe="your reply, and the address you left with it"
+            onConfirm={async () => {
               setBusy(true);
               await withdraw(slug);
               setBusy(false);
             }}
             className="font-mono text-[0.68rem] text-muted underline underline-offset-4 hover:text-ink"
-          >
-            Take my reply back
-          </button>
+          />
         )}
       </div>
     </form>

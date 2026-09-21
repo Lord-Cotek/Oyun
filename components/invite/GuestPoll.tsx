@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { reply, withdraw } from "@/app/i/[slug]/actions";
 import { GUEST_NAME_MAX, GUEST_NOTE_MAX, longDay, timeRange } from "@/lib/invitations";
+import { ConfirmButton } from "@/components/ui/Confirm";
 
 const inputClass =
   "w-full rounded-lg border border-border bg-bg px-3.5 py-3 font-mono text-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none";
@@ -220,18 +221,19 @@ export function GuestPoll({
           {busy ? "Sending…" : mine ? "Change my answer" : "Send my answer"}
         </button>
         {mine && (
-          <button
-            type="button"
+          <ConfirmButton
+            press="none"
             disabled={busy}
-            onClick={async () => {
+            word="Take my reply back"
+            sure="Take it back?"
+            describe="your reply, and the address you left with it"
+            onConfirm={async () => {
               setBusy(true);
               await withdraw(slug);
               setBusy(false);
             }}
             className="font-mono text-[0.68rem] text-muted underline underline-offset-4 hover:text-ink"
-          >
-            Take my reply back
-          </button>
+          />
         )}
       </div>
     </form>

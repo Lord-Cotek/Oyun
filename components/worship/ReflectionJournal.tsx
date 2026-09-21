@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { ConfirmButton } from "@/components/ui/Confirm";
 
 export interface JournalNote {
   id: string;
@@ -80,14 +81,16 @@ export function ReflectionJournal({
                 >
                   Edit
                 </button>
-                <button
-                  type="button"
+                <ConfirmButton
+                  press="none"
                   disabled={pending}
-                  onClick={() => start(() => onDelete(n.id))}
+                  word="Delete"
+                  describe="this reflection"
+                  onConfirm={async () => {
+                    start(() => onDelete(n.id));
+                  }}
                   className="font-mono text-[0.68rem] text-muted underline underline-offset-4 hover:text-negative disabled:opacity-50"
-                >
-                  Delete
-                </button>
+                />
               </div>
             )}
           </li>

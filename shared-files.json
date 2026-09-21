@@ -4,8 +4,8 @@
     "compares each against its twin in the sibling repository and fails if one",
     "has moved without the other.",
     "",
-    "A file belongs here when the two copies are the same CODE \u2014 the same",
-    "component, the same rules \u2014 even where the wording around it differs.",
+    "A file belongs here when the two copies are the same CODE — the same",
+    "component, the same rules — even where the wording around it differs.",
     "Differences the two apps are entitled to (their names, their nouns) go in",
     "`substitutions`: each pair folds the second spelling onto the first before",
     "comparing, so a deliberate difference is written down once rather than",
@@ -16,19 +16,19 @@
     "",
     "An entry marked `\"code\": true` is compared with its comments stripped. Those",
     "files are the same component but explain themselves to each app's own",
-    "reader \u2014 Oyun's draft-keeping talks about a letter to the baby, \u00ccd\u00edl\u00e9's",
-    "about a letter to a child \u2014 and both are right.",
+    "reader — Oyun's draft-keeping talks about a letter to the baby, Ìdílé's",
+    "about a letter to a child — and both are right.",
     "",
     "The checker and this manifest are themselves on the list. A rule that",
     "only one side is enforcing is not a rule.",
     "",
     "One pair lives under two names: the reminder rules are lib/reminders.ts",
-    "in \u00ccd\u00edl\u00e9 and lib/nudges.ts in Oyun, because each file is named for what",
+    "in Ìdílé and lib/nudges.ts in Oyun, because each file is named for what",
     "its own app calls the thing. `pair` names both."
   ],
   "substitutions": [
     [
-      "\u00ccd\u00edl\u00e9",
+      "Ìdílé",
       "Oyun"
     ],
     [
@@ -175,6 +175,7 @@
     "components/share/AskToJoin.tsx",
     "components/circle/JoinRequests.tsx",
     "components/share/SharedList.tsx",
-    "components/share/SharedMedia.tsx"
+    "components/share/SharedMedia.tsx",
+    "components/ui/Confirm.tsx"
   ]
 }

@@ -8,6 +8,7 @@ import {
 } from "@/app/journey/support-actions";
 import { NUDGE_TEXT_MAX, NUDGE_WHENS } from "@/lib/nudges";
 import { useAttempt } from "@/lib/use-attempt";
+import { ConfirmButton } from "@/components/ui/Confirm";
 
 type NudgeItem = { id: string; text: string; dueAt: string };
 
@@ -114,20 +115,19 @@ export function NudgeList({
                     {day.text}
                   </p>
                 </div>
-                <button
-                  type="button"
-                  aria-label={`Remove: ${n.text}`}
-                  onClick={() =>
-                    put(
+                {/* Armed before it fires — this sits in a scrolling list and
+                    used to go on the first touch. See ConfirmButton. */}
+                <ConfirmButton
+                  describe={`this reminder: ${n.text}`}
+                  onConfirm={async () => {
+                    await put(
                       n.id,
                       () => dropNudge(n.id),
                       "That didn’t come off — it is still here. Try again?",
-                    )
-                  }
+                    );
+                  }}
                   className="shrink-0 font-mono text-[0.68rem] text-muted opacity-0 transition-opacity hover:text-ink focus:opacity-100 group-hover:opacity-100 disabled:opacity-50"
-                >
-                  Remove
-                </button>
+                />
               </li>
             );
           })}

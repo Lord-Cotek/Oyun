@@ -15,6 +15,7 @@ import { InvitePanel } from "@/components/InvitePanel";
 import { revokeInvite, removeMember } from "./actions";
 import { welcomeRequest, declineRequest } from "./join-actions";
 import { JoinRequests } from "@/components/circle/JoinRequests";
+import { ConfirmAction } from "@/components/ui/Confirm";
 
 export const metadata: Metadata = {
   title: "Circle",
@@ -173,15 +174,13 @@ export default async function CirclePage() {
                           </p>
                         </div>
                       </div>
-                      <form action={revokeInvite}>
-                        <input type="hidden" name="inviteId" value={inv.id} />
-                        <button
-                          type="submit"
-                          className="shrink-0 font-mono text-[0.7rem] text-muted underline underline-offset-2 hover:text-negative"
-                        >
-                          Cancel
-                        </button>
-                      </form>
+                      <ConfirmAction
+                        action={revokeInvite}
+                        fields={{ inviteId: inv.id }}
+                        word="Cancel"
+                        describe={`the invitation to ${inv.email}`}
+                        className="shrink-0 font-mono text-[0.7rem] text-muted underline underline-offset-2 hover:text-negative"
+                      />
                     </li>
                   ))}
                 </ul>
@@ -228,16 +227,20 @@ function MemberRow({
           </p>
         </div>
       </div>
+      {/* A dialog: this takes away everything they can still see, and the
+          person losing it is somebody the family invited in. */}
       {removeId && (
-        <form action={removeMember}>
-          <input type="hidden" name="membershipId" value={removeId} />
-          <button
-            type="submit"
-            className="shrink-0 font-mono text-[0.7rem] text-muted underline underline-offset-2 hover:text-negative"
-          >
-            Remove
-          </button>
-        </form>
+        <ConfirmAction
+          action={removeMember}
+          fields={{ membershipId: removeId }}
+          describe={`${name} from the circle`}
+          dialog={{
+            title: `Remove ${name} from the circle?`,
+            body: "They lose everything they can see here — the updates, the photographs, the prayer list — straight away. You can invite them back, but what they wrote stays where it is.",
+            confirmWord: "Remove them",
+          }}
+          className="shrink-0 font-mono text-[0.7rem] text-muted underline underline-offset-2 hover:text-negative"
+        />
       )}
     </li>
   );

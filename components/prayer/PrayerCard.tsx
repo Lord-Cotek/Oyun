@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/Card";
 import { HoldToPray } from "@/components/ui/HoldToPray";
 import { Reactions } from "@/components/Reactions";
 import { type ReactionData } from "@/lib/reaction-emojis";
+import { ConfirmButton } from "@/components/ui/Confirm";
 
 export type PrayerItem = {
   id: string;
@@ -75,15 +76,19 @@ export function PrayerCard({ item }: { item: PrayerItem }) {
           </form>
         )}
         {item.canManage && (
-          <form action={deletePrayerRequest} className="ml-auto">
-            <input type="hidden" name="requestId" value={item.id} />
-            <button
-              type="submit"
+          <div className="ml-auto">
+            {/* Was a bare submit: one tap and the request was gone. */}
+            <ConfirmButton
+              describe={`this prayer request: ${item.title}`}
+              press="none"
+              onConfirm={async () => {
+                const fd = new FormData();
+                fd.set("requestId", item.id);
+                await deletePrayerRequest(fd);
+              }}
               className="font-mono text-[0.7rem] text-muted underline-offset-2 hover:text-negative hover:underline"
-            >
-              Remove
-            </button>
-          </form>
+            />
+          </div>
         )}
       </div>
     </Card>

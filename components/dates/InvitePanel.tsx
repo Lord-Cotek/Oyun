@@ -18,6 +18,7 @@ import {
 } from "@/lib/invitations";
 import { ShareInvite } from "@/components/invite/ShareInvite";
 import { PollPanel, type PollOption } from "@/components/dates/PollPanel";
+import { ConfirmButton } from "@/components/ui/Confirm";
 
 export type InviteRow = {
   slug: string;
@@ -183,14 +184,15 @@ export function InvitePanel({
                           “{r.note}”
                         </span>
                       )}
-                      <button
-                        type="button"
+                      <ConfirmButton
+                        press="none"
                         disabled={busy}
-                        onClick={() => run(() => removeReply(r.id))}
+                        describe={`${r.name}'s reply`}
+                        onConfirm={async () => {
+                          await run(() => removeReply(r.id));
+                        }}
                         className="ml-auto font-mono text-[0.6rem] uppercase tracking-widest text-muted hover:text-negative"
-                      >
-                        Remove
-                      </button>
+                      />
                     </li>
                   ))}
                 </ul>

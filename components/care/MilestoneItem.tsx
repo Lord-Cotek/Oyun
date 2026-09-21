@@ -7,6 +7,7 @@ import { updateMilestone, deleteMilestone } from "@/app/care/actions";
 import { MilestoneFields, milestoneTitle } from "@/components/care/MilestoneFields";
 import { PhotoGallery } from "@/components/ui/PhotoGallery";
 import { sendPhotos } from "@/components/care/send-photos";
+import { ConfirmDialog } from "@/components/ui/Confirm";
 
 export type MilestoneData = {
   id: string;
@@ -27,6 +28,8 @@ export function MilestoneItem({
   children: { id: string; name: string }[];
 }) {
   const [editing, setEditing] = useState(false);
+  const [removing, setRemoving] = useState(false);
+  const [going, setGoing] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const occurred = new Date(m.occurredAt);
@@ -137,10 +140,33 @@ export function MilestoneItem({
           >
             Edit
           </button>
-          <form action={deleteMilestone}>
-            <input type="hidden" name="id" value={m.id} />
-            <DeleteBtn />
-          </form>
+          {/* Was a bare submit inside a form: one tap and a memory, with
+              whatever photographs were on it, was gone for good. */}
+          <button
+            type="button"
+            onClick={() => setRemoving(true)}
+            className="font-mono text-[0.68rem] text-muted hover:text-negative"
+          >
+            Delete
+          </button>
+          <ConfirmDialog
+            open={removing}
+            title={`Delete “${milestoneTitle(m.kind, m.title)}”?`}
+            body={
+              m.photoUrls.length > 0
+                ? `The ${m.photoUrls.length === 1 ? "photograph" : "photographs"} on it go too, and this cannot be undone.`
+                : "This cannot be undone."
+            }
+            confirmWord="Delete it"
+            busy={going}
+            onCancel={() => setRemoving(false)}
+            onConfirm={() => {
+              setGoing(true);
+              const fd = new FormData();
+              fd.set("id", m.id);
+              void deleteMilestone(fd);
+            }}
+          />
         </div>
       </div>
     </li>
@@ -156,20 +182,6 @@ function SaveBtn() {
       className="rounded-lg bg-accent px-4 py-2 font-mono text-sm font-medium text-on-accent transition-colors hover:bg-accent-deep disabled:opacity-50"
     >
       {pending ? "Saving…" : "Save changes"}
-    </button>
-  );
-}
-
-function DeleteBtn() {
-  const { pending } = useFormStatus();
-  return (
-    <button
-      type="submit"
-      disabled={pending}
-      aria-label="Delete"
-      className="font-mono text-[0.68rem] text-muted hover:text-negative disabled:opacity-50"
-    >
-      {pending ? "…" : "Delete"}
     </button>
   );
 }

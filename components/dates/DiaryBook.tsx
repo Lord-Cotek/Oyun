@@ -7,6 +7,7 @@ import { AppointmentForm } from "@/components/appointments/AppointmentForm";
 import { monthStart, ymd } from "@/lib/calendar";
 import { CalendarMonth, type Marked } from "@/components/dates/CalendarMonth";
 import { InvitePanel, type InviteRow } from "@/components/dates/InvitePanel";
+import { ConfirmAction } from "@/components/ui/Confirm";
 
 export type DayRow = {
   key: string;
@@ -549,15 +550,21 @@ export function OwnDays({ days, canEdit }: { days: DayRow[]; canEdit: boolean })
                       >
                         {d.invite ? "Invitation" : "Invite people"}
                       </button>
-                      <form action={removeEvent}>
-                        <input type="hidden" name="id" value={d.sourceId} />
-                        <button
-                          type="submit"
-                          className="font-mono text-[0.68rem] text-muted underline underline-offset-4 hover:text-ink"
-                        >
-                          Remove
-                        </button>
-                      </form>
+                      {/* Was a bare submit. This takes the day, its
+                          invitation and every reply already given. */}
+                      <ConfirmAction
+                        action={removeEvent}
+                        fields={{ id: d.sourceId }}
+                        describe={`${d.label} from the diary`}
+                        dialog={{
+                          title: `Remove “${d.label}”?`,
+                          body: d.invite
+                            ? "The invitation goes with it, and so does every reply already given. Anyone holding the link will find it gone. This cannot be undone."
+                            : "This cannot be undone.",
+                          confirmWord: "Remove the day",
+                        }}
+                        className="font-mono text-[0.68rem] text-muted underline underline-offset-4 hover:text-ink"
+                      />
                     </div>
                   )}
 

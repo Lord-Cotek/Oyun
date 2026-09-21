@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useTransition } from "react";
+import { ConfirmButton, ConfirmDialog } from "@/components/ui/Confirm";
 import { randomId } from "@/lib/rand";
 import {
   uploadToBlob,
@@ -833,6 +834,7 @@ function PostItem({
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(post.body);
   const [removeMedia, setRemoveMedia] = useState(false);
+  const [removing, setRemoving] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [comment, setComment] = useState("");
   const hasMedia = post.media.length > 0;
@@ -975,15 +977,30 @@ function PostItem({
             >
               Edit
             </Pressable>
+            {/* A dialog, not two taps: a post carries its photographs and
+                videos with it, and the family came here to keep those. */}
             <Pressable
               press="none"
               type="button"
               disabled={pending}
-              onClick={() => start(() => onDelete(post.id))}
+              onClick={() => setRemoving(true)}
               className="py-2.5 underline underline-offset-4 hover:text-negative disabled:opacity-50"
             >
               Delete
             </Pressable>
+            <ConfirmDialog
+              open={removing}
+              title="Delete this post?"
+              body={
+                post.media.length > 0
+                  ? `The ${post.media.length === 1 ? "photograph or video" : `${post.media.length} photographs and videos`} on it go too, along with any replies. This cannot be undone.`
+                  : "Any replies go with it, and this cannot be undone."
+              }
+              confirmWord="Delete it"
+              busy={pending}
+              onCancel={() => setRemoving(false)}
+              onConfirm={() => start(() => onDelete(post.id))}
+            />
             {canKeepToFamily && (
               <Audience
                 post={post}
@@ -1018,14 +1035,15 @@ function PostItem({
                   <span className="text-muted">{c.author}</span> · {c.body}
                 </p>
                 {c.mine && (
-                  <button
-                    type="button"
+                  <ConfirmButton
+                    press="none"
                     disabled={pending}
-                    onClick={() => start(() => onDeleteComment(c.id))}
+                    describe="your reply"
+                    onConfirm={async () => {
+                      start(() => onDeleteComment(c.id));
+                    }}
                     className="shrink-0 font-mono text-[0.62rem] text-muted underline underline-offset-4 hover:text-negative disabled:opacity-50"
-                  >
-                    Remove
-                  </button>
+                  />
                 )}
               </div>
               <ReactionRow

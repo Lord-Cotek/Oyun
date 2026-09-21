@@ -10,6 +10,7 @@ import {
   shareWindowLabel,
 } from "@/lib/post-share";
 import type { SharedRow } from "@/lib/post-share-db";
+import { ConfirmButton } from "@/components/ui/Confirm";
 
 export type CloseOneFn = (shareId: string) => Promise<{ ok: boolean }>;
 export type CloseAllFn = () => Promise<{ ok: boolean; closed: number }>;
@@ -44,7 +45,6 @@ export function SharedList({
 }) {
   const [closed, setClosed] = useState<string[]>([]);
   const [allDone, setAllDone] = useState(false);
-  const [armed, setArmed] = useState(false);
   const [pending, start] = useTransition();
 
   const isClosed = (r: SharedRow) =>
@@ -59,25 +59,19 @@ export function SharedList({
     <div>
       {openCount > 0 && canCloseAll && (
         <div className="mb-5 flex flex-wrap items-center gap-3">
-          <button
-            type="button"
+          <ConfirmButton
+            press="none"
             disabled={pending}
-            onClick={() => {
-              if (!armed) {
-                setArmed(true);
-                setTimeout(() => setArmed(false), 4000);
-                return;
-              }
-              start(async () => {
-                const r = await onCloseAll();
-                if (r.ok) setAllDone(true);
-                setArmed(false);
-              });
+            word={SHARED_WORDS.closeAll}
+            sure={SHARED_WORDS.closeAllSure}
+            describe="every link this family has made"
+            onConfirm={async () => {
+              const r = await onCloseAll();
+              if (!r.ok) return { ok: false };
+              setAllDone(true);
             }}
             className="rounded-lg border border-border px-4 py-2 font-mono text-[0.68rem] text-muted transition-colors hover:border-negative hover:text-negative disabled:opacity-50"
-          >
-            {armed ? SHARED_WORDS.closeAllSure : SHARED_WORDS.closeAll}
-          </button>
+          />
           <p className="font-mono text-[0.62rem] text-muted">
             {openCount} {openCount === 1 ? "link is" : "links are"} open
           </p>
@@ -127,19 +121,19 @@ export function SharedList({
 
               {!shut && (
                 <div className="mt-3 flex flex-wrap items-center gap-2">
-                  <button
-                    type="button"
+                  <ConfirmButton
+                    press="none"
                     disabled={pending}
-                    onClick={() =>
-                      start(async () => {
-                        const res = await onClose(r.id);
-                        if (res.ok) setClosed((c) => [...c, r.id]);
-                      })
-                    }
+                    word="Close this link"
+                    sure="Close it?"
+                    describe="this link, for everybody holding it"
+                    onConfirm={async () => {
+                      const res = await onClose(r.id);
+                      if (!res.ok) return { ok: false };
+                      setClosed((c) => [...c, r.id]);
+                    }}
                     className="rounded-lg border border-border px-3 py-2 font-mono text-[0.68rem] text-muted transition-colors hover:border-negative hover:text-negative disabled:opacity-50"
-                  >
-                    Close this link
-                  </button>
+                  />
                   <a
                     href={r.path}
                     target="_blank"

@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Pressable } from "@/components/ui/Pressable";
+import { ConfirmButton } from "@/components/ui/Confirm";
 import {
   moveItem,
   removeItem,
@@ -289,20 +290,19 @@ function Row({
                   Down
                 </Pressable>
               )}
-              <Pressable
+              <ConfirmButton
                 press="none"
-                type="button"
                 disabled={pending}
-                onClick={() =>
-                  start(async () => {
-                    const res = await removeItem(item.id);
-                    if (!res.ok) setError(res.error);
-                  })
-                }
+                describe={`${item.title} from the registry`}
+                onConfirm={async () => {
+                  const res = await removeItem(item.id);
+                  if (!res.ok) {
+                    setError(res.error);
+                    return { ok: false };
+                  }
+                }}
                 className="py-2 underline underline-offset-4 hover:text-negative disabled:opacity-50"
-              >
-                Remove
-              </Pressable>
+              />
             </>
           )
         )}

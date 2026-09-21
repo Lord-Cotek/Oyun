@@ -6,6 +6,7 @@ import { Avatar } from "@/components/ui/Avatar";
 import { Icon } from "@/components/ui/Icon";
 import { ChildForm } from "@/components/child/ChildForm";
 import { deleteChild } from "@/app/child/actions";
+import { ConfirmDialog } from "@/components/ui/Confirm";
 
 type Child = {
   id: string;
@@ -20,6 +21,8 @@ type Child = {
 
 export function ChildCard({ child }: { child: Child }) {
   const [editing, setEditing] = useState(false);
+  const [removing, setRemoving] = useState(false);
+  const [going, setGoing] = useState(false);
 
   if (editing) {
     return (
@@ -67,15 +70,29 @@ export function ChildCard({ child }: { child: Child }) {
         >
           Edit
         </button>
-        <form action={deleteChild}>
-          <input type="hidden" name="id" value={child.id} />
-          <button
-            type="submit"
-            className="font-mono text-xs text-muted underline-offset-2 hover:text-negative hover:underline"
-          >
-            Remove
-          </button>
-        </form>
+        {/* A dialog rather than two taps: removing a child takes the whole
+            record with them, and nobody should find that out afterwards. */}
+        <button
+          type="button"
+          onClick={() => setRemoving(true)}
+          className="font-mono text-xs text-muted underline-offset-2 hover:text-negative hover:underline"
+        >
+          Remove
+        </button>
+        <ConfirmDialog
+          open={removing}
+          title={`Remove ${child.name || "this child"}?`}
+          body="Everything kept under their name goes with them — their firsts, their measurements, the milestones written about them. It cannot be undone."
+          confirmWord="Remove them"
+          busy={going}
+          onCancel={() => setRemoving(false)}
+          onConfirm={() => {
+            setGoing(true);
+            const fd = new FormData();
+            fd.set("id", child.id);
+            void deleteChild(fd);
+          }}
+        />
       </div>
     </Card>
   );

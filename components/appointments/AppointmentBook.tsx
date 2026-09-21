@@ -24,6 +24,7 @@ import {
 } from "@/app/appointments/actions";
 
 import { type Appt, dateValue, timeValue } from "@/components/appointments/shared";
+import { ConfirmButton } from "@/components/ui/Confirm";
 import { AppointmentForm } from "@/components/appointments/AppointmentForm";
 
 type Res = { ok: boolean; error?: string };
@@ -359,13 +360,16 @@ function Row({
                 It was cancelled
               </button>
             )}
-            <button
-              type="button"
-              onClick={() => run(() => deleteAppointment(a.id))}
+            {/* Armed first. "It was cancelled" above is reversible and stays
+                one tap; this one takes the appointment out of the book. */}
+            <ConfirmButton
+              press="none"
+              describe={`${a.title} from the book`}
+              onConfirm={async () => {
+                await run(() => deleteAppointment(a.id));
+              }}
               className="font-mono text-[0.64rem] text-muted underline underline-offset-4 hover:text-negative"
-            >
-              Remove
-            </button>
+            />
           </div>
         </div>
       )}
