@@ -23,6 +23,30 @@ function cleanMediaUrls(urls: unknown): string[] {
     .slice(0, 10);
 }
 
+/**
+ * Poster frames, lined up with the media they belong to.
+ *
+ * Padded and trimmed to exactly the length of mediaUrls, because the two
+ * arrays are read by index. An entry that is not a blob URL becomes an empty
+ * string rather than being dropped — dropping one would shunt every poster
+ * after it onto the wrong video, which is worse than having none.
+ */
+function cleanPosterUrls(urls: unknown, mediaCount: number): string[] {
+  const raw = Array.isArray(urls) ? urls : [];
+  const out: string[] = [];
+  for (let i = 0; i < mediaCount; i++) {
+    const u = raw[i];
+    out.push(
+      typeof u === "string" &&
+        u.startsWith("https://") &&
+        u.includes("vercel-storage.com")
+        ? u
+        : "",
+    );
+  }
+  return out;
+}
+
 async function member() {
   const session = await auth();
   if (!session?.user?.id) redirect("/sign-in?callbackUrl=/life");
@@ -42,11 +66,14 @@ export async function createPost(input: {
   kind: string;
   body: string;
   mediaUrls?: string[];
+  /** One per mediaUrl, same order; "" where there is none. */
+  posterUrls?: string[];
   familyOnly?: boolean;
 }) {
   const { userId, journeyId, role } = await member();
   const body = (input.body ?? "").trim();
   const mediaUrls = cleanMediaUrls(input.mediaUrls);
+  const posterUrls = cleanPosterUrls(input.posterUrls, mediaUrls.length);
   // Media on its own (no words) is a perfectly good moment to share.
   if (!body && mediaUrls.length === 0) return;
   const kind = isPostKind(input.kind) ? input.kind : "UPDATE";
@@ -60,6 +87,7 @@ export async function createPost(input: {
       kind,
       body: body.slice(0, 4000),
       mediaUrls,
+      posterUrls,
       familyOnly,
     },
   });
@@ -126,7 +154,9 @@ export async function editPost(input: {
     data: {
       body: body.slice(0, 4000),
       editedAt: new Date(),
-      ...(input.removeMedia ? { imageUrl: null, mediaUrls: [] } : {}),
+      ...(input.removeMedia
+        ? { imageUrl: null, mediaUrls: [], posterUrls: [] }
+        : {}),
     },
   });
   revalidatePath("/life");

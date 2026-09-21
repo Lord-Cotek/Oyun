@@ -26,6 +26,14 @@ export type MediaType = "image" | "video";
 export interface MediaItem {
   url: string;
   type: MediaType;
+  /**
+   * A still to show before a video has loaded a frame of its own.
+   *
+   * Absent for every photograph, for a video uploaded by a browser that
+   * could not make one, and for everything posted before posters existed.
+   * Treat it as an ordinary absence, never as a fault.
+   */
+  poster?: string;
 }
 
 /** Infer whether a blob URL points at a video from its file extension. */
@@ -162,7 +170,14 @@ export async function loadFeed(
       body: p.body,
       media:
         p.mediaUrls.length > 0
-          ? p.mediaUrls.map((url) => ({ url, type: mediaTypeFromUrl(url) }))
+          ? p.mediaUrls.map((url, i) => {
+              const poster = p.posterUrls?.[i];
+              return {
+                url,
+                type: mediaTypeFromUrl(url),
+                ...(poster ? { poster } : {}),
+              };
+            })
           : p.imageUrl
             ? [{ url: p.imageUrl, type: "image" as const }]
             : [],

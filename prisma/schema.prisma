@@ -296,6 +296,18 @@ model Post {
   body       String
   imageUrl   String? // legacy single image; new posts use mediaUrls
   mediaUrls  String[]  @default([]) // images and videos, in order
+  /// One poster frame per entry in mediaUrls, at the same index.
+  ///
+  /// A still lifted from a video in the browser before it was uploaded, so a
+  /// clip looks like the moment it holds instead of a black rectangle while
+  /// the browser fetches enough of it to draw one.
+  ///
+  /// Index-aligned rather than a map because both arrays are written in the
+  /// same breath by the same action. Empty string where there is no poster —
+  /// every photograph, every video from a browser that could not make one,
+  /// and every post that existed before this column did. Readers must treat
+  /// a missing or empty entry as normal, never as an error.
+  posterUrls String[]  @default([])
   /// Kept to the family: the mother, the one beside her, and the relatives on
   /// this journey. An accountability partner or a friend in the circle never
   /// sees it, anywhere — not in the diary, not in search, not in the export,

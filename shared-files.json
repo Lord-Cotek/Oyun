@@ -176,6 +176,7 @@
     "components/circle/JoinRequests.tsx",
     "components/share/SharedList.tsx",
     "components/share/SharedMedia.tsx",
-    "components/ui/Confirm.tsx"
+    "components/ui/Confirm.tsx",
+    "lib/video-prep.ts"
   ]
 }

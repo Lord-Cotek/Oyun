@@ -27,7 +27,7 @@ export function newShareToken(): string {
 export interface SharedPostView {
   kind: string;
   body: string;
-  media: { url: string; type: "image" | "video" }[];
+  media: { url: string; type: "image" | "video"; poster?: string }[];
   /** A first name only — "Amara", never a surname and never an email. */
   sharedBy: string;
   /** Whose family it is, in the guest's words: "Amara and Chidi". */
@@ -73,6 +73,7 @@ export async function getSharedPost(
           body: true,
           imageUrl: true,
           mediaUrls: true,
+          posterUrls: true,
           createdAt: true,
           familyOnly: true,
           journey: {
@@ -108,10 +109,18 @@ export async function getSharedPost(
   return {
     kind: share.post.kind,
     body: share.post.body,
-    media: urls.map((url) => ({
-      url,
-      type: isVideo(url) ? ("video" as const) : ("image" as const),
-    })),
+    // Posters line up with mediaUrls by index. The legacy single-image path
+    // above has none, which is right: it is never a video.
+    media: urls.map((url, i) => {
+      const poster = share.post.mediaUrls.length
+        ? share.post.posterUrls?.[i]
+        : undefined;
+      return {
+        url,
+        type: isVideo(url) ? ("video" as const) : ("image" as const),
+        ...(poster ? { poster } : {}),
+      };
+    }),
     sharedBy: firstName(share.createdBy.name),
     household,
     postedAt: share.post.createdAt.toISOString(),

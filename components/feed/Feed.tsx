@@ -2,6 +2,14 @@
 
 import { useEffect, useRef, useState, useTransition } from "react";
 import { ConfirmButton, ConfirmDialog } from "@/components/ui/Confirm";
+import {
+  SHRINK_OVER_BYTES,
+  canShrink,
+  posterFor,
+  shrinkVideo,
+  shrinkLeft,
+  type PrepProgress,
+} from "@/lib/video-prep";
 import { randomId } from "@/lib/rand";
 import {
   uploadToBlob,
@@ -35,6 +43,8 @@ type CreateFn = (input: {
   kind: string;
   body: string;
   mediaUrls?: string[];
+  /** One per mediaUrl, in the same order; "" where there is none. */
+  posterUrls?: string[];
   familyOnly?: boolean;
 }) => Promise<void>;
 type AudienceFn = (input: {
@@ -185,6 +195,17 @@ interface Picked {
    * becomes a bad ten minutes.
    */
   url?: string;
+  /**
+   * A still lifted from a video before it was sent.
+   *
+   * Made at pick time, not at send time, so the thumbnail on the composer is
+   * already the right frame and the poster is ready the instant the upload
+   * finishes. Undefined for photographs and for videos the browser could not
+   * read a frame from.
+   */
+  poster?: Blob;
+  /** Where the poster ended up. Empty string means "there isn't one". */
+  posterUrl?: string;
 }
 
 /**
@@ -299,6 +320,10 @@ function Composer({
    * giving up.
    */
   const [watch, setWatch] = useState<UploadWatch | null>(null);
+  /** Set only while a big clip is being made smaller. */
+  const [shrinking, setShrinking] = useState<
+    (PrepProgress & { name: string }) | null
+  >(null);
   /** When this upload started, for an honest estimate of what is left. */
   const startedAt = useRef(0);
   /** The stop button's other half. Held so the X can reach it mid-flight. */
@@ -386,6 +411,50 @@ function Composer({
   const busy = pending || uploading;
   const canSend = (!!body.trim() || picked.length > 0) && !busy;
 
+  /**
+   * Make a video smaller and lift a poster from it, before it goes anywhere.
+   *
+   * Runs at pick time, on purpose: it is the one moment the person is looking
+   * at the screen and expecting something to happen. Doing it at Share would
+   * add a silent pause between pressing the button and anything moving.
+   *
+   * Neither step is allowed to stop a post — see lib/video-prep. If the
+   * browser cannot shrink, the original goes up; if it cannot draw a frame,
+   * the video goes up without a poster and behaves exactly as it does today.
+   */
+  async function prepare(item: Picked) {
+    if (!item.isVideo) return;
+
+    if (item.file.size > SHRINK_OVER_BYTES && canShrink()) {
+      setShrinking({ name: item.file.name, ratio: null, done: 0, total: 0 });
+      const smaller = await shrinkVideo(item.file, {
+        onProgress: (pr) => setShrinking({ name: item.file.name, ...pr }),
+      });
+      setShrinking(null);
+      if (smaller) {
+        setPicked((prev) =>
+          prev.map((p) => {
+            if (p.id !== item.id) return p;
+            URL.revokeObjectURL(p.preview);
+            return {
+              ...p,
+              file: smaller,
+              preview: URL.createObjectURL(smaller),
+            };
+          }),
+        );
+        item = { ...item, file: smaller };
+      }
+    }
+
+    const poster = await posterFor(item.file);
+    if (poster) {
+      setPicked((prev) =>
+        prev.map((p) => (p.id === item.id ? { ...p, poster } : p)),
+      );
+    }
+  }
+
   function addFiles(list: FileList | null) {
     setError(null);
     if (!list || list.length === 0) return;
@@ -414,6 +483,11 @@ function Composer({
     }
     setPicked((p) => [...p, ...next]);
     resetInputs();
+    // One at a time: shrinking is heavy, and two at once on a phone is slower
+    // than two in a row as well as being unreadable on the bar.
+    void (async () => {
+      for (const item of next) await prepare(item);
+    })();
   }
 
   function resetInputs() {
@@ -544,13 +618,51 @@ function Composer({
       }
     }
 
+    /**
+     * The posters, sent after the media and never in its way.
+     *
+     * A poster is a 100 kB thumbnail for something that was just tens of
+     * megabytes, so it costs nothing next to what has already gone. It is
+     * also entirely expendable: if this fails the post still goes, with the
+     * videos behaving exactly as they did before posters existed.
+     */
+    const withPosters = picked.filter((p) => p.poster && !p.posterUrl);
+    const posterLanded = new Map<string, string>();
+    if (withPosters.length > 0) {
+      try {
+        const out = await uploadToBlob(
+          withPosters.map(
+            (p) => new File([p.poster!], `${p.id}-poster.jpg`, { type: "image/jpeg" }),
+          ),
+          "feed",
+          {
+            max: MAX_FILES,
+            onOne: (i, url) => posterLanded.set(withPosters[i].id, url),
+          },
+        );
+        void out;
+      } catch {
+        // No poster is a cosmetic loss. Never a reason not to post.
+      }
+    }
+
     // Every picked item now has a url; send them in the order they were chosen.
-    const urls = picked
-      .map((p) => p.url ?? landed.get(p.id))
-      .filter((u): u is string => !!u);
+    const sendable = picked
+      .map((p) => ({ p, url: p.url ?? landed.get(p.id) }))
+      .filter((x): x is { p: Picked; url: string } => !!x.url);
+    const urls = sendable.map((x) => x.url);
+    const posters = sendable.map(
+      (x) => x.p.posterUrl ?? posterLanded.get(x.p.id) ?? "",
+    );
 
     start(async () => {
-      await onCreate({ kind, body: body.trim(), mediaUrls: urls, familyOnly });
+      await onCreate({
+        kind,
+        body: body.trim(),
+        mediaUrls: urls,
+        posterUrls: posters,
+        familyOnly,
+      });
       setBody("");
       setKind("UPDATE");
       setFamilyOnly(false);
@@ -763,6 +875,7 @@ function Composer({
           </button>
         </div>
       </div>
+      {shrinking && <ShrinkBar at={shrinking} />}
       {uploading && <UploadBar watch={watch} startedAt={startedAt.current} onStop={stopUpload} />}
       {familyOnly && (
         <p className="mt-2 font-mono text-[0.62rem] leading-relaxed text-muted">
@@ -1158,6 +1271,7 @@ function MediaGallery({
               <>
                 <video
                   src={m.url}
+                  poster={m.poster}
                   muted
                   playsInline
                   preload="metadata"
@@ -1200,5 +1314,44 @@ function MediaGallery({
         />
       )}
     </>
+  );
+}
+
+/**
+ * What is happening while a big clip is being made smaller.
+ *
+ * ── Why this is said out loud ────────────────────────────────────────────
+ * Shrinking runs at about the speed of the clip, so a two-minute video is
+ * two minutes of the phone apparently doing nothing. Silence there would
+ * read as a hang — which is exactly the complaint the uploading bar was
+ * built to answer, and it would be a poor joke to reintroduce it one step
+ * earlier in the same flow.
+ *
+ * It also says why, in one line, because "making this smaller so it sends
+ * quickly" turns a wait into a reason.
+ */
+function ShrinkBar({ at }: { at: PrepProgress & { name: string } }) {
+  const left = shrinkLeft(at);
+  const pct = at.ratio === null ? null : Math.round(at.ratio * 100);
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      className="mt-3 rounded-xl border border-border bg-bg/60 p-4"
+    >
+      <p className="font-mono text-xs text-ink">
+        Making this video smaller so it sends quickly
+        {pct !== null ? ` — ${pct}%` : "…"}
+      </p>
+      <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-border">
+        <div
+          className="h-full rounded-full bg-accent transition-[width] duration-300"
+          style={{ width: `${pct ?? 8}%` }}
+        />
+      </div>
+      <p className="mt-2 font-mono text-[0.62rem] leading-relaxed text-muted">
+        {left ? `${left}. ` : ""}The original stays on your phone untouched.
+      </p>
+    </div>
   );
 }

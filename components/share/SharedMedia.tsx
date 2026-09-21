@@ -47,6 +47,7 @@ export function SharedMedia({
             <div key={i} className="relative overflow-hidden rounded-xl bg-bg">
               <video
                 src={m.url}
+                poster={m.poster}
                 controls
                 playsInline
                 preload="metadata"
