@@ -134,52 +134,15 @@ export function ListControls({
         visible cards is worse than no number, and the alternative is asking
         React to recount on every tap.
       */}
-      <p className="mb-2 font-mono text-[0.62rem] uppercase tracking-widest text-muted">
-        <span className="reg-count-all">
-          {total} {total === 1 ? "thing" : "things"} on the list
-        </span>
-        <span className="reg-count-left">
-          {stillNeeded} still wanted of {total}
-        </span>
-      </p>
-
-      {/* The toggle holds the right-hand end even when the controls beside it
-          wrap onto a second line, so it does not slide under the select. */}
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex min-w-0 flex-wrap items-center gap-2">
-          <label className="sr-only" htmlFor="reg-sort">
-            What order to show them in
-          </label>
-          <select
-            id="reg-sort"
-            value={sort ?? "needed"}
-            onChange={(e) => {
-              const v = e.target.value;
-              if (isRegistrySort(v)) chooseSort(v);
-            }}
-            className="min-h-11 rounded-lg border border-border bg-bg px-3 font-mono text-[0.62rem] uppercase tracking-widest text-muted focus:border-accent focus:outline-none"
-          >
-            {sorts.map((s) => (
-              <option key={s} value={s}>
-                {SORT_LABEL[s]}
-              </option>
-            ))}
-          </select>
-
-          <Pressable
-            press="none"
-            type="button"
-            onClick={toggleTaken}
-            aria-pressed={hideTaken === null ? undefined : hideTaken}
-            className={`inline-flex min-h-11 items-center rounded-lg border px-3 font-mono text-[0.62rem] uppercase tracking-widest transition-colors ${
-              hideTaken
-                ? "border-accent/50 bg-accent/[0.08] text-accent"
-                : "border-border text-muted hover:text-ink"
-            }`}
-          >
-            Hide what&rsquo;s taken
-          </Pressable>
-        </div>
+      <div className="flex items-center justify-between gap-3">
+        <p className="font-mono text-[0.62rem] uppercase tracking-widest text-muted">
+          <span className="reg-count-all">
+            {total} {total === 1 ? "thing" : "things"} on the list
+          </span>
+          <span className="reg-count-left">
+            {stillNeeded} still wanted of {total}
+          </span>
+        </p>
 
         <div
           role="group"
@@ -208,6 +171,47 @@ export function ListControls({
             );
           })}
         </div>
+      </div>
+
+      {/* Two rows on purpose, measured rather than guessed. On a 393px phone
+          the sort and the filter want 330px; sharing a line with the toggle
+          left them 241px, so the filter dropped half-way onto a second line
+          and read as an accident. The toggle sits with the count instead — it
+          describes the whole list, as the count does — and the two controls
+          that act on the list get the width to sit together. */}
+      <div className="mt-2 flex flex-wrap items-center gap-2">
+        <label className="sr-only" htmlFor="reg-sort">
+          What order to show them in
+        </label>
+        <select
+          id="reg-sort"
+          value={sort ?? "needed"}
+          onChange={(e) => {
+            const v = e.target.value;
+            if (isRegistrySort(v)) chooseSort(v);
+          }}
+          className="min-h-11 rounded-lg border border-border bg-bg px-3 font-mono text-[0.62rem] uppercase tracking-widest text-muted focus:border-accent focus:outline-none"
+        >
+          {sorts.map((s) => (
+            <option key={s} value={s}>
+              {SORT_LABEL[s]}
+            </option>
+          ))}
+        </select>
+
+        <Pressable
+          press="none"
+          type="button"
+          onClick={toggleTaken}
+          aria-pressed={hideTaken === null ? undefined : hideTaken}
+          className={`inline-flex min-h-11 items-center rounded-lg border px-3 font-mono text-[0.62rem] uppercase tracking-widest transition-colors ${
+            hideTaken
+              ? "border-accent/50 bg-accent/[0.08] text-accent"
+              : "border-border text-muted hover:text-ink"
+          }`}
+        >
+          Only what&rsquo;s left
+        </Pressable>
       </div>
 
       {/* Said where the choice is made, not buried in a help page. A list

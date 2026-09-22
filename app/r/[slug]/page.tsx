@@ -17,12 +17,10 @@ import { priceValue, remaining } from "@/lib/registry";
 import type { PublicItem } from "@/lib/registry-db";
 
 /**
- * What each card needs in order to be moved or hidden without being touched
- * by React: where it sits in every order the reader can ask for, and whether
- * it is spoken for.
+ * Whether nobody can take this any more.
  *
- * What counts as gone is isGone above, used by the count as well, so the
- * number over the list and the cards under it can never disagree.
+ * Used by the cards that get hidden AND by the count above them, so the
+ * number and the list can never disagree.
  */
 function isGone(item: PublicItem): boolean {
   // Neither a whole list nor a fund is ever "taken" — several people may give
@@ -34,6 +32,20 @@ function isGone(item: PublicItem): boolean {
   return remaining(item.quantity, item.claimed) <= 0;
 }
 
+/**
+ * A section holding one card is not laid out as a grid — see .reg-items--one
+ * in globals.css. Decided here, where the length is already known, rather
+ * than asked of CSS with :has().
+ */
+function listClass(items: PublicItem[]): string {
+  return items.length === 1 ? "reg-items reg-items--one" : "reg-items";
+}
+
+/**
+ * What each card needs in order to be moved or hidden without being touched
+ * by React: where it sits in every order the reader can ask for, and whether
+ * it is spoken for.
+ */
 function rowProps(item: PublicItem) {
   return {
     ...(isGone(item) ? { "data-gone": "" } : {}),
@@ -237,7 +249,7 @@ export default async function PublicRegistryPage({
       {things.length > 0 && (
         <section className="reg-section mt-10">
           <Eyebrow className="mb-4">Things</Eyebrow>
-          <ul className="reg-items">
+          <ul className={listClass(things)}>
             {things.map((i) => (
               <li key={i.id} {...rowProps(i)}>
                 <GuestItem
@@ -259,7 +271,7 @@ export default async function PublicRegistryPage({
           <p className="mb-4 prose-serif-sm text-muted">
             Not things, and usually the ones remembered longest.
           </p>
-          <ul className="reg-items">
+          <ul className={listClass(help)}>
             {help.map((i) => (
               <li key={i.id} {...rowProps(i)}>
                 <GuestItem
@@ -282,7 +294,7 @@ export default async function PublicRegistryPage({
             Sent straight to the family. Nothing is paid through this page, and
             nobody here takes a cut. Any amount at all, and nothing is expected.
           </p>
-          <ul className="reg-items">
+          <ul className={listClass(funds)}>
             {funds.map((i) => (
               <li key={i.id} {...rowProps(i)}>
                 <GuestItem
@@ -305,7 +317,7 @@ export default async function PublicRegistryPage({
             Whole lists that live on another site. The shop keeps its own
             record of what has been bought from them.
           </p>
-          <ul className="reg-items">
+          <ul className={listClass(lists)}>
             {lists.map((i) => (
               <li key={i.id} {...rowProps(i)}>
                 <GuestItem

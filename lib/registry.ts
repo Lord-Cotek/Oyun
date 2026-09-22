@@ -96,7 +96,7 @@ export function canTakeMoney(r: {
  * for. List is for the long registry somebody is scanning for a price.
  *
  * The choice lives in the reader's own browser and never reaches the server —
- * see components/registry/ViewToggle.tsx and the .reg-items rules in
+ * see components/registry/ListControls.tsx and the .reg-items rules in
  * globals.css.
  */
 export const REGISTRY_VIEWS = ["grid", "list"] as const;
@@ -114,9 +114,9 @@ export const REGISTRY_SORTS = ["needed", "low", "high", "recent"] as const;
 export type RegistrySort = (typeof REGISTRY_SORTS)[number];
 
 export const SORT_LABEL: Record<RegistrySort, string> = {
-  needed: "What they need most",
-  low: "Price: low to high",
-  high: "Price: high to low",
+  needed: "Most needed first",
+  low: "Cheapest first",
+  high: "Dearest first",
   recent: "Just added",
 };
 

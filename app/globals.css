@@ -538,17 +538,26 @@
    the cards are never re-rendered to change shape, and the choice cannot
    arrive late. With no JavaScript at all the attribute is never set and
    every rule below sits out, leaving the single column the page has always
-   had — which is the honest fallback, not a degraded one. */
+   had — which is the honest fallback, not a degraded one.
+
+   ── The exception, seen on a real registry ────────────────────────────
+   A section holding ONE thing is not laid out as a grid at all. Two columns
+   put the card in the left half with a card's worth of nothing beside it;
+   one full-width column gave it a picture the width of the screen. Neither
+   is what anybody would draw by hand for a single item — a row is. So the
+   grid rules below are all scoped away from .reg-items--one, which keeps
+   every piece of the list treatment rather than restating it. The page adds
+   that class; it is not guesswork in CSS. */
 .reg-items {
   display: grid;
   gap: 0.75rem;
   grid-template-columns: minmax(0, 1fr);
 }
-[data-rview="grid"] .reg-items {
+[data-rview="grid"] .reg-items:not(.reg-items--one) {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 @media (min-width: 640px) {
-  [data-rview="grid"] .reg-items {
+  [data-rview="grid"] .reg-items:not(.reg-items--one) {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
@@ -563,25 +572,26 @@
   width: 5rem;
   flex-shrink: 0;
 }
-[data-rview="grid"] .reg-card__head {
+[data-rview="grid"] .reg-items:not(.reg-items--one) .reg-card__head {
   flex-direction: column;
   gap: 0.75rem;
 }
-[data-rview="grid"] .reg-card__tile {
+[data-rview="grid"] .reg-items:not(.reg-items--one) .reg-card__tile {
   height: auto;
   width: 100%;
   aspect-ratio: 1 / 1;
 }
+
 /* In a grid column the facts under a title — price, how many are still
    wanted, whether it is taken — wrap, and a wrapped line was starting with
    the separator dot that belonged to the line above. Narrow enough that they
    were always going to wrap, so they stack instead and the dots go. */
-[data-rview="grid"] .reg-facts {
+[data-rview="grid"] .reg-items:not(.reg-items--one) .reg-facts {
   flex-direction: column;
   align-items: flex-start;
   gap: 0.15rem;
 }
-[data-rview="grid"] .reg-facts [data-sep] {
+[data-rview="grid"] .reg-items:not(.reg-items--one) .reg-facts [data-sep] {
   display: none;
 }
 
