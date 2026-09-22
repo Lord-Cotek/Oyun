@@ -87,6 +87,21 @@ export function canTakeMoney(r: {
   return (r.payDetails ?? "").trim().length > 0;
 }
 
+/**
+ * How the public list is laid out, which is the reader's choice rather than
+ * the family's.
+ *
+ * Grid first because it is the default: a registry is mostly pictures of
+ * things, and a picture is how somebody recognises the cot they were asked
+ * for. List is for the long registry somebody is scanning for a price.
+ *
+ * The choice lives in the reader's own browser and never reaches the server —
+ * see components/registry/ViewToggle.tsx and the .reg-items rules in
+ * globals.css.
+ */
+export const REGISTRY_VIEWS = ["grid", "list"] as const;
+export type RegistryView = (typeof REGISTRY_VIEWS)[number];
+
 /** How long an address may be, all of it checked on the server. */
 export const SHIP_NAME_MAX = 80;
 export const SHIP_ADDRESS_MAX = 400;

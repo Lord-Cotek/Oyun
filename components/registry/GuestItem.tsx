@@ -70,12 +70,22 @@ export function GuestItem({
 
   return (
     <div
-      className={`surface-premium rounded-2xl border p-4 ${
+      // flex column + h-full so that in a grid, where every card in a row is
+      // stretched to the tallest, the claim button can sit on the bottom edge
+      // instead of wherever the title happened to stop wrapping. In a list
+      // there is no spare height, so none of it does anything.
+      className={`surface-premium flex h-full flex-col rounded-2xl border p-4 ${
         taken ? "border-accent/40 bg-accent/[0.04]" : "border-border"
       }`}
     >
-      <div className="flex gap-3.5">
-        {item.imageUrl && (
+      {/*
+        The picture beside the words in a list, above them in a grid. Which of
+        those is happening is CSS reading an attribute on <html> — see
+        .reg-card__head in globals.css — so the card is not re-rendered, and
+        not re-measured, when the reader changes their mind.
+      */}
+      <div className="reg-card__head">
+        {item.imageUrl ? (
           // A background rather than an <img>: this picture is on a shop's
           // server, not ours, and a shop that takes it down should leave a
           // quiet empty square on a guest's screen, not a broken icon.
@@ -88,20 +98,37 @@ export function GuestItem({
               target="_blank"
               rel="noopener noreferrer nofollow"
               aria-label={shopLabel(item.kind, item.url)}
-              className="h-20 w-20 shrink-0 rounded-lg border border-border bg-bg bg-cover bg-center transition-opacity hover:opacity-90"
+              className="reg-card__tile rounded-lg border border-border bg-bg bg-cover bg-center transition-opacity hover:opacity-90"
               style={{ backgroundImage: `url(${JSON.stringify(item.imageUrl)})` }}
             />
           ) : (
             <span
               aria-hidden
-              className="h-20 w-20 shrink-0 rounded-lg border border-border bg-bg bg-cover bg-center"
+              className="reg-card__tile rounded-lg border border-border bg-bg bg-cover bg-center"
               style={{ backgroundImage: `url(${JSON.stringify(item.imageUrl)})` }}
             />
           )
+        ) : (
+          // ── Why a tile is drawn for things that have no picture ─────────
+          // Plenty of items are typed by hand, and plenty more are pasted
+          // from a shop whose preview could not be read. In a list those used
+          // to sit flush left while their neighbours were indented, and in a
+          // grid a row of them would be a row of blank cards. So every item
+          // gets a tile, and one without a photograph gets its own initial —
+          // which at least tells the eye one card from the next while
+          // scrolling, and never pretends to be a photograph of anything.
+          <span
+            aria-hidden
+            className="reg-card__tile flex items-center justify-center rounded-lg border border-border bg-surface"
+          >
+            <span className="font-serif text-2xl text-muted/70">
+              {initialOf(item.title)}
+            </span>
+          </span>
         )}
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <p className="prose-serif-sm font-medium text-ink">{item.title}</p>
+            <p className="break-words prose-serif-sm font-medium text-ink">{item.title}</p>
             {item.mostNeeded && (
               <span className="rounded-full border border-accent/40 bg-accent/[0.08] px-2 py-0.5 font-mono text-[0.56rem] uppercase tracking-widest text-accent">
                 Most needed
@@ -123,7 +150,7 @@ export function GuestItem({
             <p className="mt-1 prose-serif-xs text-muted">{item.note}</p>
           )}
 
-          <p className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-[0.62rem] uppercase tracking-widest text-muted">
+          <p className="reg-facts mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-[0.62rem] uppercase tracking-widest text-muted">
             <Facts>
               {[
                 item.price,
@@ -185,7 +212,7 @@ export function GuestItem({
               // money this IS the "take me to where I actually do it" step,
               // and leaving it as the quietest control on the card repeated
               // exactly the mistake that hid the shop links.
-              className="btn-primary inline-flex min-h-11 w-full items-center justify-center rounded-lg px-4 font-mono text-sm font-medium text-on-accent disabled:opacity-50 sm:w-auto"
+              className="reg-card__act btn-primary inline-flex min-h-11 w-full items-center justify-center rounded-lg px-4 font-mono text-sm font-medium text-on-accent disabled:opacity-50 sm:w-auto"
             >
               {asking ? "One moment…" : "Show how to send"}
             </Pressable>
@@ -215,12 +242,12 @@ export function GuestItem({
             // told which page sent this person, and that page is a private
             // link.
             rel="noopener noreferrer nofollow"
-            className="btn-primary inline-flex min-h-11 w-full items-center justify-center gap-1.5 rounded-lg px-4 font-mono text-sm font-medium text-on-accent sm:w-auto"
+            className="reg-card__act btn-primary inline-flex min-h-11 w-full items-center justify-center gap-1.5 rounded-lg px-4 font-mono text-sm font-medium text-on-accent sm:w-auto"
           >
             {shopLabel(item.kind, item.url)}
             <span aria-hidden>↗</span>
           </a>
-          <p className="mt-2 font-mono text-[0.58rem] leading-relaxed text-muted">
+          <p className="reg-card__hint mt-2 font-mono text-[0.58rem] leading-relaxed text-muted">
             {/* The address in full, under the button. Some people will not tap
                 a button until they can see where it goes, and some want to
                 send it on to whoever is actually doing the shopping. */}
@@ -232,7 +259,7 @@ export function GuestItem({
       {error && <p className="mt-2 prose-serif-xs text-negative">{error}</p>}
 
       {!closed && (
-        <div className="mt-3 border-t border-border/70 pt-3">
+        <div className="mt-auto border-t border-border/70 pt-3">
           {taken ? (
             <>
               {/*
@@ -320,7 +347,7 @@ export function GuestItem({
               type="button"
               disabled={gone || pending}
               onClick={() => start(() => setOpen(true))}
-              className="inline-flex min-h-11 w-full items-center justify-center rounded-lg border border-accent/50 px-4 font-mono text-sm text-accent transition-colors hover:bg-accent/[0.06] disabled:border-border disabled:text-muted disabled:opacity-60 sm:w-auto"
+              className="reg-card__act inline-flex min-h-11 w-full items-center justify-center rounded-lg border border-accent/50 px-4 font-mono text-sm text-accent transition-colors hover:bg-accent/[0.06] disabled:border-border disabled:text-muted disabled:opacity-60 sm:w-auto"
             >
               {gone ? "Already taken" : copy.claim}
             </Pressable>
@@ -329,6 +356,18 @@ export function GuestItem({
       )}
     </div>
   );
+}
+
+/**
+ * The letter drawn on a card that has no photograph.
+ *
+ * The first letter of the first word that starts with one, so "3 muslin
+ * squares" reads as M rather than 3, and a title made entirely of digits or
+ * punctuation falls back to a dot rather than rendering an empty tile.
+ */
+function initialOf(title: string): string {
+  const letter = title.match(/\p{L}/u);
+  return letter ? letter[0].toUpperCase() : "·";
 }
 
 /**
@@ -345,7 +384,11 @@ function Facts({ children }: { children: (React.ReactNode | null | false)[] }) {
     <>
       {kept.map((node, i) => (
         <span key={i} className="flex items-center gap-2">
-          {i > 0 && <span aria-hidden>·</span>}
+          {i > 0 && (
+            <span data-sep aria-hidden>
+              ·
+            </span>
+          )}
           {node}
         </span>
       ))}

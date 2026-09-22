@@ -527,3 +527,71 @@
 @media (prefers-reduced-motion: reduce) {
   .notif-target:target { animation: none; box-shadow: 0 0 0 2px var(--accent); }
 }
+
+/* ── The public registry, as a grid or as a list ─────────────────────────
+   Which one is the reader's choice, kept in their own browser and applied by
+   an attribute on <html> before the page paints — the same trick as the
+   theme, for the same reason: a list that reflows into a grid one frame
+   after it appears looks broken.
+
+   Because it is CSS reading an attribute rather than React reading state,
+   the cards are never re-rendered to change shape, and the choice cannot
+   arrive late. With no JavaScript at all the attribute is never set and
+   every rule below sits out, leaving the single column the page has always
+   had — which is the honest fallback, not a degraded one. */
+.reg-items {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: minmax(0, 1fr);
+}
+[data-rview="grid"] .reg-items {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+@media (min-width: 640px) {
+  [data-rview="grid"] .reg-items {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* The picture sits beside the words in a list and above them in a grid. */
+.reg-card__head {
+  display: flex;
+  gap: 0.875rem;
+}
+.reg-card__tile {
+  height: 5rem;
+  width: 5rem;
+  flex-shrink: 0;
+}
+[data-rview="grid"] .reg-card__head {
+  flex-direction: column;
+  gap: 0.75rem;
+}
+[data-rview="grid"] .reg-card__tile {
+  height: auto;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+}
+/* In a narrow grid column every control takes the full width — two buttons
+   sharing a 170px column leaves neither of them readable. */
+[data-rview="grid"] .reg-card__act {
+  width: 100%;
+}
+/* The address under the shop button earns its room in a list, where there is
+   room. In a grid column the button already carries the shop's name, and the
+   line underneath turns three stacked controls into four. */
+[data-rview="grid"] .reg-card__hint {
+  display: none;
+}
+/* In a grid column the facts under a title — price, how many are still
+   wanted, whether it is taken — wrap, and a wrapped line was starting with
+   the separator dot that belonged to the line above. Narrow enough that they
+   were always going to wrap, so they stack instead and the dots go. */
+[data-rview="grid"] .reg-facts {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+}
+[data-rview="grid"] .reg-facts [data-sep] {
+  display: none;
+}

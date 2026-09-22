@@ -12,6 +12,22 @@ import { OyunMark } from "@/components/ui/OyunMark";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { GuestItem } from "@/components/registry/GuestItem";
 import { ShipReveal } from "@/components/registry/ShipReveal";
+import { ViewToggle } from "@/components/registry/ViewToggle";
+
+/**
+ * Grid or list, settled before the page paints.
+ *
+ * The same device as the theme in app/layout.tsx and for the same reason: the
+ * reader's choice lives in their own browser, the server cannot know it, and a
+ * list that rearranges itself into a grid one frame after it appears looks
+ * broken. A blocking script at the top of the page puts the answer on <html>
+ * and the CSS in globals.css does the rest.
+ *
+ * It is here rather than in the root layout because this is the only page it
+ * means anything on, and every other page in the app should not be paying for
+ * it. Grid is the default: a registry is mostly pictures of things.
+ */
+const viewInit = `(function(){try{var v=localStorage.getItem('oyun-registry-view');document.documentElement.setAttribute('data-rview',v==='list'?'list':'grid');}catch(e){document.documentElement.setAttribute('data-rview','grid');}})();`;
 
 /**
  * The registry, as somebody who is not in this app sees it.
@@ -98,6 +114,7 @@ export default async function PublicRegistryPage({
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-10 pb-20">
+      <script dangerouslySetInnerHTML={{ __html: viewInit }} />
       {insider && (
         <Link
           href="/journey"
@@ -150,6 +167,21 @@ export default async function PublicRegistryPage({
       )}
 
       {/*
+        Only worth offering once there is enough on the list for the shape to
+        matter. Two cards look the same either way, and a control that changes
+        nothing visible is a control that makes a reader doubt they pressed it.
+      */}
+      {r.items.length > 2 && (
+        <div className="mt-6 flex items-center justify-between gap-3">
+          <p className="font-mono text-[0.62rem] uppercase tracking-widest text-muted">
+            {r.items.length} {r.items.length === 1 ? "thing" : "things"} on the
+            list
+          </p>
+          <ViewToggle />
+        </div>
+      )}
+
+      {/*
         Near the top, because somebody who came here to buy a cot wants the
         address before they start, not after they have scrolled past forty
         cards. Only when there is something to post: a list of nothing but
@@ -170,7 +202,7 @@ export default async function PublicRegistryPage({
       {things.length > 0 && (
         <section className="mt-10">
           <Eyebrow className="mb-4">Things</Eyebrow>
-          <ul className="space-y-3">
+          <ul className="reg-items">
             {things.map((i) => (
               <li key={i.id}>
                 <GuestItem
@@ -192,7 +224,7 @@ export default async function PublicRegistryPage({
           <p className="mb-4 prose-serif-sm text-muted">
             Not things, and usually the ones remembered longest.
           </p>
-          <ul className="space-y-3">
+          <ul className="reg-items">
             {help.map((i) => (
               <li key={i.id}>
                 <GuestItem
@@ -215,7 +247,7 @@ export default async function PublicRegistryPage({
             Sent straight to the family. Nothing is paid through this page, and
             nobody here takes a cut. Any amount at all, and nothing is expected.
           </p>
-          <ul className="space-y-3">
+          <ul className="reg-items">
             {funds.map((i) => (
               <li key={i.id}>
                 <GuestItem
@@ -238,7 +270,7 @@ export default async function PublicRegistryPage({
             Whole lists that live on another site. The shop keeps its own
             record of what has been bought from them.
           </p>
-          <ul className="space-y-3">
+          <ul className="reg-items">
             {lists.map((i) => (
               <li key={i.id}>
                 <GuestItem
