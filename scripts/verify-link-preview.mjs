@@ -143,6 +143,18 @@ if (pass !== cases.length) process.exitCode = 1;
 console.log("\n  a name guessed from the address, for shops that will not open:");
 for (const [u, want] of [
   ["https://www.centrepointstores.com/ae/en/juniors-twin-stroller/p/MDAxNTc4NDQ", "Juniors Twin Stroller"],
+  // The real one a family pasted. The slug is a search-engine sentence: a
+  // "buy" on the front and the whole specification after it.
+  [
+    "https://www.centrepointstores.com/ae/en/buy-giggles-ray-stroller-with-push-button-folding-system-metal-frame-and-wheel-lock/p/166304798",
+    "Giggles Ray Stroller",
+  ],
+  // Short slugs keep every word — "with" is part of the name here, not the
+  // start of a specification.
+  // Capitalisation is by word length, not a list of joining words:
+  // anything over two letters gets a capital. She edits it anyway.
+  ["https://shop.example.com/cot-with-drop-side", "Cot With Drop Side"],
+  ["https://shop.example.com/buy-cot", "Cot"],
   // Short words stay lowercase: "Next to me" reads like a name somebody
   // wrote, "Next To Me" reads like a machine capitalised it.
   ["https://www.mumzworld.com/ae-en/chicco-next-to-me-bedside-crib", "Chicco Next to me Bedside Crib"],

@@ -63,6 +63,53 @@ const BROWSER_UA =
  */
 const ACCEPT_LANGUAGE = "en-AE,en-GB;q=0.9,en;q=0.8,ar;q=0.6";
 
+/**
+ * The second way of asking, when the first is refused.
+ *
+ * ── Why this is not a trick ──────────────────────────────────────────────
+ * A CDN that turns away a browser from a datacentre will usually still serve
+ * a link-preview crawler, on purpose: it is how the shop's own links come out
+ * with a picture when somebody pastes one into WhatsApp or Messenger. Those
+ * crawlers are allowlisted so that previews work.
+ *
+ * Building a link preview is exactly what this is doing, so asking the way a
+ * preview crawler asks is the honest description of the request rather than a
+ * disguise — and it is the one the shop has already decided to answer. Still
+ * one GET of a public product page, still nothing kept.
+ *
+ * It is only ever the second attempt, after a refusal, so a shop that answers
+ * a browser is never asked twice.
+ */
+const PREVIEW_UA =
+  "facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)";
+
+function browserHeaders(): Record<string, string> {
+  return {
+    // Shops serve their social tags to anything that looks like a browser
+    // and a stub to anything that does not.
+    "user-agent": BROWSER_UA,
+    accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "accept-language": ACCEPT_LANGUAGE,
+    // A CDN's bot check reads the whole set of headers, not the user-agent
+    // alone: a browser string arriving without any of the fetch-metadata a
+    // browser always sends is exactly the pattern it looks for. These are
+    // what Chrome sends when a person types an address and presses enter.
+    "sec-fetch-dest": "document",
+    "sec-fetch-mode": "navigate",
+    "sec-fetch-site": "none",
+    "sec-fetch-user": "?1",
+    "upgrade-insecure-requests": "1",
+  };
+}
+
+function previewHeaders(): Record<string, string> {
+  return {
+    "user-agent": PREVIEW_UA,
+    accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "accept-language": ACCEPT_LANGUAGE,
+  };
+}
+
 export interface LinkPreview {
   url: string;
   title: string | null;
@@ -131,7 +178,7 @@ export function nameFromUrl(raw: string): string | null {
     .sort((a, b) => b.length - a.length)[0];
   if (!best) return null;
 
-  const words = best
+  let words = best
     .replace(/[-_+]+/g, " ")
     .replace(/\s+/g, " ")
     .trim()
@@ -140,6 +187,25 @@ export function nameFromUrl(raw: string): string | null {
   if (words.length === 0) return null;
   // One long unbroken token is a slug we have not understood, not a name.
   if (words.length === 1 && !/[-_]/.test(best) && best.length > 24) return null;
+
+  // "buy-giggles-ray-stroller-…" is an instruction to a search engine, not
+  // the first word of the thing's name.
+  while (words.length > 1 && /^(buy|shop|order|get|the|a)$/i.test(words[0])) {
+    words = words.slice(1);
+  }
+
+  // A shop's slug carries the whole specification — "…-stroller-with-push-
+  // button-folding-system-metal-frame-and-wheel-lock" — because it is
+  // written for a search engine. The name is the front of it. Cut at the
+  // first joining word, but only on a slug long enough that there plainly IS
+  // a specification: "cot-with-drop-side" is three words and stays whole.
+  if (words.length > 5) {
+    const joint = words.findIndex(
+      (w, i) => i >= 2 && /^(with|for|and|plus|featuring|includes|including|in|by)$/i.test(w),
+    );
+    if (joint > 0) words = words.slice(0, joint);
+  }
+  if (words.length > 8) words = words.slice(0, 8);
 
   const name = words
     .map((w) => (w.length > 2 ? w[0].toUpperCase() + w.slice(1) : w))
@@ -600,32 +666,27 @@ export async function readLink(raw: string): Promise<LinkPreview> {
   try {
     let current = url;
     let html = "";
+    let triedAsPreview = false;
     for (let hop = 0; hop <= MAX_REDIRECTS; hop++) {
       if (!(await reachable(current))) {
         return { ...bare, failed: "That address could not be opened." };
       }
-      const res = await fetch(current.toString(), {
+      let res = await fetch(current.toString(), {
         redirect: "manual",
         signal: controller.signal,
-        headers: {
-          // Shops serve their social tags to anything that looks like a
-          // browser and a stub to anything that does not.
-          "user-agent": BROWSER_UA,
-          accept:
-            "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-          "accept-language": ACCEPT_LANGUAGE,
-          // A CDN's bot check reads the whole set of headers, not the
-          // user-agent alone: a browser string arriving without any of the
-          // fetch-metadata a browser always sends is exactly the pattern it
-          // looks for. These are what Chrome sends when a person types an
-          // address and presses enter.
-          "sec-fetch-dest": "document",
-          "sec-fetch-mode": "navigate",
-          "sec-fetch-site": "none",
-          "sec-fetch-user": "?1",
-          "upgrade-insecure-requests": "1",
-        },
+        headers: browserHeaders(),
       });
+
+      // Refused as a browser — ask again the way the shop expects a link
+      // preview to ask. See PREVIEW_UA. Once, and only for a refusal.
+      if ((res.status === 403 || res.status === 429) && !triedAsPreview) {
+        triedAsPreview = true;
+        res = await fetch(current.toString(), {
+          redirect: "manual",
+          signal: controller.signal,
+          headers: previewHeaders(),
+        });
+      }
 
       if (res.status >= 300 && res.status < 400) {
         const next = res.headers.get("location");
@@ -636,11 +697,11 @@ export async function readLink(raw: string): Promise<LinkPreview> {
         continue;
       }
       if (!res.ok) {
-        // 403 and 429 are a shop's bot protection turning us away, which no
-        // amount of dressing up the request reliably gets past — and chasing
-        // it is an arms race a family app should stay out of. Said plainly,
-        // with the name guessed from the address so she is not left with an
-        // empty form.
+        // Refused twice: as a browser and as a preview crawler. That is a
+        // shop that does not want to be read, and chasing it further is an
+        // arms race a family app should stay out of. Said plainly, with the
+        // name guessed from the address so she is not left with an empty
+        // form.
         const refused = res.status === 403 || res.status === 429;
         return {
           ...bare,
