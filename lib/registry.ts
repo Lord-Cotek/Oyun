@@ -87,6 +87,52 @@ export function canTakeMoney(r: {
   return (r.payDetails ?? "").trim().length > 0;
 }
 
+/** How long an address may be, all of it checked on the server. */
+export const SHIP_NAME_MAX = 80;
+export const SHIP_ADDRESS_MAX = 400;
+export const SHIP_PHONE_MAX = 40;
+export const SHIP_NOTE_MAX = 300;
+
+/**
+ * Who may ask for the address. See Registry.shipReach in the schema for what
+ * each one means and why CIRCLE is the default.
+ */
+export const SHIP_REACHES = ["CIRCLE", "LINK"] as const;
+export type ShipReach = (typeof SHIP_REACHES)[number];
+
+export function isShipReach(v: string): v is ShipReach {
+  return (SHIP_REACHES as readonly string[]).includes(v);
+}
+
+/**
+ * An unrecognised value reads as the narrow one.
+ *
+ * The column is a string, so a typo, a half-finished migration or a row
+ * written by a future version of this app all arrive here. Every one of those
+ * should fail towards telling a stranger less, never more.
+ */
+export function shipReachOf(r: { shipReach: string }): ShipReach {
+  return isShipReach(r.shipReach) ? r.shipReach : "CIRCLE";
+}
+
+/** Whether there is an address to ask for at all. */
+export function hasShipping(r: { shipAddress: string | null }): boolean {
+  return (r.shipAddress ?? "").trim().length > 0;
+}
+
+/**
+ * Which sorts of gift get posted.
+ *
+ * Only a thing. A week of meals is not put in the post, money is sent the way
+ * the pay details say, and a whole list kept at a shop is checked out at that
+ * shop, which asks for the address itself. Offering it on those three would
+ * put the address in front of guests who have no use for it, which is the one
+ * thing this feature must not do.
+ */
+export function kindTakesPost(kind: ItemKind): boolean {
+  return kind === "THING";
+}
+
 /** Limits, all of them checked on the server. */
 export const TITLE_MAX = 120;
 export const NOTE_MAX = 500;

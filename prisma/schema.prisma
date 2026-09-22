@@ -720,6 +720,39 @@ model Registry {
   payLabel           String?
   payDetails         String?
   payNote            String?
+  /// ── Where a parcel goes, when they want that offered ──────────────────
+  ///
+  /// The most dangerous thing that can be put on a registry. Bank details
+  /// cost money; a home address costs safety, and a registry link travels
+  /// through family group chats until nobody can say who is holding it.
+  ///
+  /// So it is treated like payDetails above — never rendered into the public
+  /// page, fetched only when somebody taps to ask, which keeps it out of the
+  /// first paint, out of a screenshot and out of anything a link-preview
+  /// crawler reads — and then one step further, because of shipReach.
+  ///
+  /// Null until they fill it in. There is one address per registry: a family
+  /// having a parcel sent to a grandmother's house says so in shipNote
+  /// rather than keeping two addresses the app would have to choose between.
+  shipName           String?
+  shipAddress        String?
+  shipPhone          String?
+  shipNote           String?
+  /// Who may ask for the address at all.
+  ///
+  ///   CIRCLE — the default. Only people signed in to this journey. A
+  ///            stranger holding the link is told the family posts things
+  ///            and to ask them for the address, and nothing more.
+  ///   LINK   — the family deciding, in as many words, that whoever holds
+  ///            the link may read it.
+  ///
+  /// It defaults to the narrow one because a safe default is worth more than
+  /// a saved tap, and widening it is one switch they press on purpose.
+  ///
+  /// A string rather than an enum, for the same reason as RegistryItem.kind:
+  /// a third reach later must not be a migration that rewrites a column
+  /// other rows are sitting in. Parsed by isShipReach in lib/registry.ts.
+  shipReach          String    @default("CIRCLE")
   /// Stopped taking claims. The page still reads; it becomes a record.
   closedAt           DateTime?
   /// When the family opened this list to their own circle.

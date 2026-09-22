@@ -7,6 +7,7 @@ import { auth } from "@/lib/auth";
 import { notify } from "@/lib/notify";
 import {
   guestCookieName,
+  isJourneyMember,
   newGuestToken,
   memberClaimToken,
 } from "@/lib/registry-db";
@@ -16,6 +17,7 @@ import {
   GUEST_NOTE_MAX,
   QUANTITY_MAX,
   remaining,
+  shipReachOf,
 } from "@/lib/registry";
 import { HOUSEHOLD_ROLES } from "@/lib/roles";
 
@@ -208,6 +210,70 @@ export async function revealPayDetails(slug: string): Promise<
     label: (r?.payLabel ?? "").trim() || "Transfer",
     details,
     note: (r?.payNote ?? "").trim() || null,
+  };
+}
+
+/**
+ * Handing somebody the address a parcel goes to, when they ask for it.
+ *
+ * ── Why this is stricter than the transfer details above ─────────────────
+ * Because it is where the family sleeps. The reveal-on-tap reasoning from
+ * revealPayDetails applies here too and is not repeated; what is added is
+ * that a tap is not enough on its own.
+ *
+ * CIRCLE, the default, means the answer is given only to somebody signed in
+ * and in this journey. A stranger holding a forwarded link is refused — and
+ * refused with `reason: "circle"`, so the page can tell them to ask the
+ * family rather than leaving them staring at a dead button.
+ *
+ * LINK means the family has pressed a switch that says, in as many words,
+ * that whoever holds the link may read it. Then a tap is enough, exactly as
+ * it is for the bank details.
+ *
+ * ── What it will not do ──────────────────────────────────────────────────
+ * It refuses a registry with no address at all with the same shape it refuses
+ * everything else, so it cannot be used to work out whether a slug exists, or
+ * which of two slugs belongs to a family that posts things.
+ */
+export async function revealShipping(slug: string): Promise<
+  | {
+      ok: true;
+      name: string | null;
+      address: string;
+      phone: string | null;
+      note: string | null;
+    }
+  | { ok: false; reason: "none" | "circle" }
+> {
+  const r = await prisma.registry.findUnique({
+    where: { slug },
+    select: {
+      journeyId: true,
+      shipName: true,
+      shipAddress: true,
+      shipPhone: true,
+      shipNote: true,
+      shipReach: true,
+    },
+  });
+  const address = (r?.shipAddress ?? "").trim();
+  if (!r || !address) return { ok: false, reason: "none" };
+
+  if (shipReachOf(r) !== "LINK") {
+    const member = await isJourneyMember(r.journeyId, await auth());
+    if (!member) return { ok: false, reason: "circle" };
+  }
+
+  const tidy = (v: string | null) => {
+    const s = (v ?? "").trim();
+    return s.length > 0 ? s : null;
+  };
+  return {
+    ok: true,
+    name: tidy(r.shipName),
+    address,
+    phone: tidy(r.shipPhone),
+    note: tidy(r.shipNote),
   };
 }
 

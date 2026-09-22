@@ -10,6 +10,7 @@ import {
   circleSeesRegistry,
   canTakeMoney,
   claimsVisibleToHost,
+  shipReachOf,
   type ItemKind,
 } from "@/lib/registry";
 import { registryUrl } from "@/lib/registry-db";
@@ -25,6 +26,7 @@ import { ItemList, type HostItem } from "@/components/registry/ItemList";
 import { ShareRegistry } from "@/components/registry/ShareRegistry";
 import { RegistrySettings } from "@/components/registry/RegistrySettings";
 import { PayDetails } from "@/components/registry/PayDetails";
+import { ShipTo } from "@/components/registry/ShipTo";
 import { ThankYous, ThankAll, type ThankYou } from "@/components/registry/ThankYous";
 
 export const metadata: Metadata = {
@@ -84,6 +86,11 @@ export default async function RegistryPage() {
       payLabel: true,
       payDetails: true,
       payNote: true,
+      shipName: true,
+      shipAddress: true,
+      shipPhone: true,
+      shipNote: true,
+      shipReach: true,
       items: {
         orderBy: [{ mostNeeded: "desc" }, { position: "asc" }, { createdAt: "asc" }],
         select: {
@@ -258,6 +265,15 @@ export default async function RegistryPage() {
                 payLabel={registry.payLabel}
                 payDetails={registry.payDetails}
                 payNote={registry.payNote}
+              />
+            </div>
+            <div className="mt-3">
+              <ShipTo
+                shipName={registry.shipName}
+                shipAddress={registry.shipAddress}
+                shipPhone={registry.shipPhone}
+                shipNote={registry.shipNote}
+                shipReach={shipReachOf(registry)}
               />
             </div>
           </Card>

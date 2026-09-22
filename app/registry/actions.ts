@@ -13,9 +13,14 @@ import {
   canKeepRegistry,
   canTakeMoney,
   isItemKind,
+  isShipReach,
   PAY_DETAILS_MAX,
   PAY_LABEL_MAX,
   PAY_NOTE_MAX,
+  SHIP_ADDRESS_MAX,
+  SHIP_NAME_MAX,
+  SHIP_NOTE_MAX,
+  SHIP_PHONE_MAX,
   HOST_MAX,
   ITEMS_MAX,
   MESSAGE_MAX,
@@ -52,8 +57,19 @@ async function mine(journeyId: string) {
   });
 }
 
+/**
+ * Trimmed, capped, and with the line endings settled.
+ *
+ * A browser submits a textarea with CRLF, so an address or a set of transfer
+ * details typed over three lines is stored carrying stray carriage returns —
+ * which travel on into whatever a guest copies out of the page and pastes
+ * into a courier's form.
+ */
 const clean = (v: FormDataEntryValue | null, max: number): string =>
-  String(v ?? "").trim().slice(0, max);
+  String(v ?? "")
+    .replace(/\r\n?/g, "\n")
+    .trim()
+    .slice(0, max);
 
 function refresh(): void {
   revalidatePath("/registry");
@@ -142,6 +158,57 @@ export async function setPayDetails(formData: FormData): Promise<Result> {
       payDetails: details || null,
       payNote: details ? clean(formData.get("payNote"), PAY_NOTE_MAX) || null : null,
     },
+  });
+  refresh();
+  return { ok: true };
+}
+
+/**
+ * Where a parcel goes.
+ *
+ * ── What is checked here, and why it is checked here ─────────────────────
+ * The address is the whole of it: a name, a phone and a note with no address
+ * to attach them to is four sensitive strings sitting in a table for nothing,
+ * so an empty address clears all four. Emptying it is how the family takes
+ * the address down altogether, the same way an empty payDetails takes the
+ * transfer details down.
+ *
+ * Clearing also puts the reach back to CIRCLE. If they ever type an address
+ * again it starts narrow, rather than silently inheriting a decision they
+ * made about a different address months ago.
+ *
+ * An unrecognised reach is refused outright rather than quietly narrowed.
+ * Narrowing would be safe but silent, and a family who meant to open it and
+ * were not told would find out from a guest who could not post them a cot.
+ */
+export async function setShipping(formData: FormData): Promise<Result> {
+  const { journeyId } = await keeper();
+  const r = await mine(journeyId);
+  if (!r) return { ok: false, error: "There is no registry yet." };
+
+  const address = clean(formData.get("shipAddress"), SHIP_ADDRESS_MAX);
+  const reachRaw = String(formData.get("shipReach") ?? "CIRCLE");
+  if (!isShipReach(reachRaw)) {
+    return { ok: false, error: "Say who is allowed to see the address." };
+  }
+
+  await prisma.registry.update({
+    where: { id: r.id },
+    data: address
+      ? {
+          shipAddress: address,
+          shipName: clean(formData.get("shipName"), SHIP_NAME_MAX) || null,
+          shipPhone: clean(formData.get("shipPhone"), SHIP_PHONE_MAX) || null,
+          shipNote: clean(formData.get("shipNote"), SHIP_NOTE_MAX) || null,
+          shipReach: reachRaw,
+        }
+      : {
+          shipAddress: null,
+          shipName: null,
+          shipPhone: null,
+          shipNote: null,
+          shipReach: "CIRCLE",
+        },
   });
   refresh();
   return { ok: true };

@@ -7,12 +7,15 @@ import {
   GUEST_NAME_MAX,
   GUEST_NOTE_MAX,
   KIND_COPY,
+  kindTakesPost,
   remaining,
   type ItemKind,
+  type ShipReach,
   shopLabel,
   shopHost,
 } from "@/lib/registry";
 import type { PublicItem } from "@/lib/registry-db";
+import { ShipReveal } from "@/components/registry/ShipReveal";
 
 const field =
   "w-full rounded-lg border border-border bg-bg px-3 py-2.5 prose-serif-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none";
@@ -37,10 +40,15 @@ export function GuestItem({
   slug,
   item,
   closed,
+  shipsTo = false,
+  shipReach = "CIRCLE",
 }: {
   slug: string;
   item: PublicItem;
   closed: boolean;
+  /** Whether the family has left an address at all. Never the address. */
+  shipsTo?: boolean;
+  shipReach?: ShipReach;
 }) {
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -226,23 +234,36 @@ export function GuestItem({
       {!closed && (
         <div className="mt-3 border-t border-border/70 pt-3">
           {taken ? (
-            <form
-              action={async (fd) => {
-                setError(null);
-                const res = await release(fd);
-                if (!res.ok) setError(res.error);
-              }}
-            >
-              <input type="hidden" name="slug" value={slug} />
-              <input type="hidden" name="itemId" value={item.id} />
-              <Pressable
-                press="none"
-                type="submit"
-                className="font-mono text-[0.62rem] uppercase tracking-widest text-muted underline underline-offset-4 hover:text-accent"
+            <>
+              {/*
+                The moment they need it: they have said they are getting this,
+                and the next thing they do is stand at a checkout being asked
+                where it goes. The page also offers it once near the top, for
+                whoever wants it before they start — same component, same
+                rules, and the server decides whether to answer.
+              */}
+              {shipsTo && kindTakesPost(item.kind) && (
+                <ShipReveal slug={slug} reach={shipReach} tone="inline" />
+              )}
+              <form
+                className="mt-2"
+                action={async (fd) => {
+                  setError(null);
+                  const res = await release(fd);
+                  if (!res.ok) setError(res.error);
+                }}
               >
-                Actually, I can&rsquo;t
-              </Pressable>
-            </form>
+                <input type="hidden" name="slug" value={slug} />
+                <input type="hidden" name="itemId" value={item.id} />
+                <Pressable
+                  press="none"
+                  type="submit"
+                  className="font-mono text-[0.62rem] uppercase tracking-widest text-muted underline underline-offset-4 hover:text-accent"
+                >
+                  Actually, I can&rsquo;t
+                </Pressable>
+              </form>
+            </>
           ) : open ? (
             <form
               action={async (fd) => {

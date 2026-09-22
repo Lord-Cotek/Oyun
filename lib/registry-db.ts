@@ -1,7 +1,7 @@
 import { randomBytes } from "node:crypto";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
-import { type ItemKind } from "@/lib/registry";
+import { shipReachOf, type ItemKind, type ShipReach } from "@/lib/registry";
 
 /**
  * ── Why these are not `randomId()` ───────────────────────────────────────
@@ -73,6 +73,20 @@ export interface PublicRegistry {
    * to render and is not worth hiding.
    */
   takesMoney: boolean;
+  /**
+   * Whether there is an address to ask for, NOT what it is.
+   *
+   * Exactly the same bargain as takesMoney above, for something more
+   * dangerous: the address itself never travels with the page. All the page
+   * learns is whether to offer the control — see revealShipping.
+   */
+  shipsTo: boolean;
+  /**
+   * Who may ask. The page needs this to know whether to offer a button or to
+   * tell a stranger to ask the family, and it says nothing about them beyond
+   * how careful they have chosen to be.
+   */
+  shipReach: ShipReach;
   items: PublicItem[];
 }
 
@@ -151,6 +165,31 @@ export function memberClaimToken(userId: string): string {
   return `u:${userId}`;
 }
 
+/**
+ * Whether whoever is reading is actually in this family's journey.
+ *
+ * Asked by revealShipping, which will not hand a home address to a stranger
+ * unless the family has said it may. Takes the session rather than calling
+ * auth() so this file stays free of the auth layer, exactly as readerTokenFor
+ * above does — and so a caller cannot accidentally ask on behalf of nobody.
+ *
+ * Membership in ANY role counts: a grandmother posting a cot is the case this
+ * exists for, and the address is the one thing on the registry the circle
+ * needs more than the family does.
+ */
+export async function isJourneyMember(
+  journeyId: string,
+  session: { user?: { id?: string | null } } | null,
+): Promise<boolean> {
+  const userId = session?.user?.id;
+  if (!userId) return false;
+  const member = await prisma.membership.findFirst({
+    where: { journeyId, userId },
+    select: { id: true },
+  });
+  return member !== null;
+}
+
 export async function getPublicRegistry(
   slug: string,
   guestToken: string | null,
@@ -166,6 +205,11 @@ export async function getPublicRegistry(
       // Selected only to answer "is there one" — see takesMoney below. The
       // string itself is dropped before anything leaves this function.
       payDetails: true,
+      // The same, and it matters more: this is somebody's home address. It is
+      // read here to answer a yes-or-no and never returned. Everything that
+      // hands it out is revealShipping, which checks who is asking.
+      shipAddress: true,
+      shipReach: true,
       items: {
         orderBy: [
           { mostNeeded: "desc" },
@@ -196,6 +240,8 @@ export async function getPublicRegistry(
     message: r.message,
     closed: r.closedAt !== null,
     takesMoney: (r.payDetails ?? "").trim().length > 0,
+    shipsTo: (r.shipAddress ?? "").trim().length > 0,
+    shipReach: shipReachOf(r),
     items: r.items.map((i) => ({
       id: i.id,
       kind: i.kind as ItemKind,

@@ -11,6 +11,7 @@ import { auth } from "@/lib/auth";
 import { OyunMark } from "@/components/ui/OyunMark";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { GuestItem } from "@/components/registry/GuestItem";
+import { ShipReveal } from "@/components/registry/ShipReveal";
 
 /**
  * The registry, as somebody who is not in this app sees it.
@@ -148,6 +149,18 @@ export default async function PublicRegistryPage({
         </p>
       )}
 
+      {/*
+        Near the top, because somebody who came here to buy a cot wants the
+        address before they start, not after they have scrolled past forty
+        cards. Only when there is something to post: a list of nothing but
+        meals and a fund has no parcel in it, and the address should not be
+        offered to guests who have no use for it. Not on a finished registry
+        either — by then nothing more is coming.
+      */}
+      {!r.closed && r.shipsTo && things.length > 0 && (
+        <ShipReveal slug={r.slug} reach={r.shipReach} />
+      )}
+
       {r.items.length === 0 && (
         <p className="mt-8 prose-serif-sm text-muted">
           Nothing on the list yet. Do check back.
@@ -160,7 +173,13 @@ export default async function PublicRegistryPage({
           <ul className="space-y-3">
             {things.map((i) => (
               <li key={i.id}>
-                <GuestItem slug={r.slug} item={i} closed={r.closed} />
+                <GuestItem
+                  slug={r.slug}
+                  item={i}
+                  closed={r.closed}
+                  shipsTo={r.shipsTo}
+                  shipReach={r.shipReach}
+                />
               </li>
             ))}
           </ul>
@@ -176,7 +195,13 @@ export default async function PublicRegistryPage({
           <ul className="space-y-3">
             {help.map((i) => (
               <li key={i.id}>
-                <GuestItem slug={r.slug} item={i} closed={r.closed} />
+                <GuestItem
+                  slug={r.slug}
+                  item={i}
+                  closed={r.closed}
+                  shipsTo={r.shipsTo}
+                  shipReach={r.shipReach}
+                />
               </li>
             ))}
           </ul>
@@ -193,7 +218,13 @@ export default async function PublicRegistryPage({
           <ul className="space-y-3">
             {funds.map((i) => (
               <li key={i.id}>
-                <GuestItem slug={r.slug} item={i} closed={r.closed} />
+                <GuestItem
+                  slug={r.slug}
+                  item={i}
+                  closed={r.closed}
+                  shipsTo={r.shipsTo}
+                  shipReach={r.shipReach}
+                />
               </li>
             ))}
           </ul>
@@ -210,7 +241,13 @@ export default async function PublicRegistryPage({
           <ul className="space-y-3">
             {lists.map((i) => (
               <li key={i.id}>
-                <GuestItem slug={r.slug} item={i} closed={r.closed} />
+                <GuestItem
+                  slug={r.slug}
+                  item={i}
+                  closed={r.closed}
+                  shipsTo={r.shipsTo}
+                  shipReach={r.shipReach}
+                />
               </li>
             ))}
           </ul>
