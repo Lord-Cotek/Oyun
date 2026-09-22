@@ -70,11 +70,18 @@ export function GuestItem({
 
   return (
     <div
-      // flex column + h-full so that in a grid, where every card in a row is
-      // stretched to the tallest, the claim button can sit on the bottom edge
-      // instead of wherever the title happened to stop wrapping. In a list
-      // there is no spare height, so none of it does anything.
-      className={`surface-premium flex h-full flex-col rounded-2xl border p-4 ${
+      // ── Why this does NOT fill its cell ──────────────────────────────────
+      // It used to: h-full and a flex column, so the claim button could sit on
+      // the bottom edge and line up with its neighbour's. That reads well on
+      // a row of similar cards and badly on a real one — a card with a short
+      // note beside a card with a badge and two lines gets a hole between its
+      // last word and its buttons, which is what a family saw on their own
+      // registry.
+      //
+      // Ragged bottoms are the cheaper fault. A gap inside a card looks like
+      // something failed to load; a card that ends where its words end looks
+      // like a card.
+      className={`surface-premium rounded-2xl border p-4 ${
         taken ? "border-accent/40 bg-accent/[0.04]" : "border-border"
       }`}
     >
@@ -184,7 +191,7 @@ export function GuestItem({
         reader, on aria-label, which is where it was always most useful.
       */}
       {(item.url || !closed) && (
-        <div className="mt-auto border-t border-border/70 pt-3">
+        <div className="mt-3 border-t border-border/70 pt-3">
           <div className="flex flex-wrap items-center gap-2">
             {item.url && (
               <a
