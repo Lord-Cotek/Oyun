@@ -5,6 +5,7 @@ import { Pressable } from "@/components/ui/Pressable";
 import { ConfirmButton } from "@/components/ui/Confirm";
 import {
   moveItem,
+  previewLink,
   removeItem,
   setMostNeeded,
   updateItem,
@@ -96,8 +97,12 @@ function Row({
   const [note, setNote] = useState(item.note ?? "");
   const [price, setPrice] = useState(item.price ?? "");
   const [quantity, setQuantity] = useState(item.quantity);
+  const [url, setUrl] = useState(item.url ?? "");
+  const [imageUrl, setImageUrl] = useState(item.imageUrl ?? "");
   const [error, setError] = useState<string | null>(null);
+  const [said, setSaid] = useState<string | null>(null);
   const [pending, start] = useTransition();
+  const [reading, startReading] = useTransition();
 
   const left = remaining(item.quantity, item.claimed);
 
@@ -148,10 +153,81 @@ function Row({
                     max={QUANTITY_MAX}
                     value={quantity}
                     onChange={(e) => setQuantity(Number(e.target.value) || 1)}
+                    aria-label="How many are wanted"
                     className={`${field} w-24 shrink-0`}
                   />
                 )}
               </div>
+
+              {/*
+                ── The two fields that used to be unreachable ───────────────
+                lib/link-preview.ts opens by promising that everything it
+                reads is a suggestion she can change. That was true for
+                thirty seconds and then never again: the link and the picture
+                were fixed at the moment of adding, so a whole list could be
+                renamed but not re-pointed, and an item whose shop published
+                no photograph stayed without one for good.
+
+                They are the two the reader most often gets wrong, so they
+                are the two that most needed a way back.
+              */}
+              <input
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                placeholder="Link to the shop, or to the whole list"
+                inputMode="url"
+                aria-label="Link"
+                className={field}
+              />
+              <input
+                value={imageUrl}
+                onChange={(e) => setImageUrl(e.target.value)}
+                placeholder="Picture address (optional)"
+                inputMode="url"
+                aria-label="Picture address"
+                className={field}
+              />
+              {url.trim() && (
+                <Pressable
+                  press="none"
+                  type="button"
+                  disabled={reading}
+                  onClick={() =>
+                    startReading(async () => {
+                      setError(null);
+                      setSaid(null);
+                      const p = await previewLink(url.trim());
+                      // Only ever fills what is empty or was found. She has
+                      // typed in this form; a "read it again" that wipes her
+                      // own wording is not a help.
+                      let filled = 0;
+                      if (p.title && !title.trim()) {
+                        setTitle(p.title);
+                        filled++;
+                      }
+                      if (p.imageUrl) {
+                        setImageUrl(p.imageUrl);
+                        filled++;
+                      }
+                      if (p.price && !price.trim()) {
+                        setPrice(p.price);
+                        filled++;
+                      }
+                      setSaid(
+                        p.failed
+                          ? p.failed
+                          : filled > 0
+                            ? "Read it. Have a look, then save."
+                            : "Nothing new came back — what you have is what the shop gives.",
+                      );
+                    })
+                  }
+                  className="self-start py-2 font-mono text-[0.62rem] uppercase tracking-widest text-muted underline underline-offset-4 hover:text-accent disabled:opacity-50"
+                >
+                  {reading ? "Reading the link…" : "Read the link again"}
+                </Pressable>
+              )}
+              {said && <p className="prose-serif-xs text-muted">{said}</p>}
             </div>
           ) : (
             <>
@@ -219,6 +295,8 @@ function Row({
                     note,
                     price,
                     quantity,
+                    url,
+                    imageUrl,
                   });
                   if (res.ok) setEditing(false);
                   else setError(res.error);
@@ -237,7 +315,10 @@ function Row({
                 setNote(item.note ?? "");
                 setPrice(item.price ?? "");
                 setQuantity(item.quantity);
+                setUrl(item.url ?? "");
+                setImageUrl(item.imageUrl ?? "");
                 setError(null);
+                setSaid(null);
               }}
               className="py-2 underline underline-offset-4 hover:text-ink"
             >

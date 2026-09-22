@@ -392,18 +392,45 @@ export async function addItem(input: {
   return { ok: true };
 }
 
+/**
+ * Changing something already on the list.
+ *
+ * ── Why the link and the picture are editable ────────────────────────────
+ * Because lib/link-preview.ts opens by promising that everything it reads is
+ * a suggestion she can change — and until now that was only true in the
+ * thirty seconds before she pressed Add. Afterwards the two fields the reader
+ * most often gets wrong were the two she could not touch: a whole list could
+ * be renamed but not re-pointed, and an item whose shop published no picture
+ * was stuck without one for good.
+ *
+ * Both go through safeUrl, the same guard the add path uses, because the
+ * picture is rendered as a CSS background and the link is put in front of
+ * guests. A value that is not http(s) is stored as nothing rather than
+ * refused: she is clearing the field, which is a thing she is allowed to do.
+ */
 export async function updateItem(input: {
   id: string;
   title: string;
   note?: string;
   price?: string;
   quantity?: number;
+  url?: string;
+  imageUrl?: string;
 }): Promise<Result> {
   const { journeyId } = await keeper();
   const r = await mine(journeyId);
   if (!r) return { ok: false, error: "There is no registry yet." };
   const title = (input.title ?? "").trim().slice(0, TITLE_MAX);
   if (!title) return { ok: false, error: "It needs a name." };
+
+  // A link that was typed but cannot be used is worth saying out loud. The
+  // picture is not: an unreadable one simply leaves the card without a
+  // photograph, which the card already handles.
+  const typedUrl = (input.url ?? "").trim();
+  const url = safeUrl(input.url);
+  if (typedUrl && !url) {
+    return { ok: false, error: "That link does not look like a web address." };
+  }
 
   await prisma.registryItem.updateMany({
     where: { id: input.id, registryId: r.id },
@@ -412,6 +439,8 @@ export async function updateItem(input: {
       note: (input.note ?? "").trim().slice(0, NOTE_MAX) || null,
       price: (input.price ?? "").trim().slice(0, PRICE_MAX) || null,
       quantity: clampQuantity(input.quantity),
+      url,
+      imageUrl: safeUrl(input.imageUrl),
     },
   });
   refresh();

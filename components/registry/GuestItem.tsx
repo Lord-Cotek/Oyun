@@ -314,16 +314,37 @@ export function GuestItem({
             >
               <input type="hidden" name="slug" value={slug} />
               <input type="hidden" name="itemId" value={item.id} />
+              {/*
+                ── Taking some of them, not all ─────────────────────────────
+                This has always worked — the server clamps what is asked to
+                what is left — but it was a bare number box with no label
+                beside it, so people did not know they could take two of the
+                twelve and leave the rest. It says so now.
+              */}
               {item.kind !== "LIST" && item.kind !== "CASH" && left > 1 && (
-                <input
-                  type="number"
-                  name="quantity"
-                  min={1}
-                  max={left}
-                  defaultValue={1}
-                  aria-label="How many you are getting"
-                  className={`${field} w-28`}
-                />
+                <div>
+                  <label
+                    htmlFor={`qty-${item.id}`}
+                    className="mb-1 block font-mono text-[0.62rem] uppercase tracking-widest text-muted"
+                  >
+                    How many are you getting?
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      id={`qty-${item.id}`}
+                      type="number"
+                      name="quantity"
+                      min={1}
+                      max={left}
+                      defaultValue={1}
+                      className={`${field} w-24`}
+                    />
+                    <span className="prose-serif-xs text-muted">
+                      of {left} still wanted — take some and leave the rest for
+                      somebody else.
+                    </span>
+                  </div>
+                </div>
               )}
               <input
                 name="name"

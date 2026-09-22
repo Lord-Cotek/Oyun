@@ -156,8 +156,10 @@ export default async function PublicRegistryPage({
   const funds = r.items.filter((i) => i.kind === "CASH");
   const lists = r.items.filter((i) => i.kind === "LIST");
   const mine = r.items.filter((i) => i.mine > 0).length;
-  // Offering "cheapest first" on a list where one thing has a price is a
-  // control that cannot do anything. See ListControls.
+  // Offering "cheapest first" where nothing has a price is a control that
+  // cannot do anything. One price is enough for it to mean something: that
+  // item goes to the front, the rest keep their order. Requiring two hid the
+  // control on a real registry that had four things and one price on them.
   const pricedItems = r.items.filter((i) => priceValue(i.price) !== null).length;
   // The same rule the cards are hidden by, so the number and the list can
   // never disagree.
@@ -223,7 +225,7 @@ export default async function PublicRegistryPage({
         nothing visible is a control that makes a reader doubt they pressed it.
       */}
       {r.items.length > 2 && <ListControls
-          canSortByPrice={pricedItems > 1}
+          canSortByPrice={pricedItems > 0}
           total={r.items.length}
           stillNeeded={stillNeeded}
         />}
