@@ -19,7 +19,7 @@ import path from "node:path";
 const require = createRequire(import.meta.url);
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const jiti = require("jiti")(root, { alias: { "@": root } });
-const { previewFromHtml, looksLikeWholeList } = jiti(
+const { previewFromHtml, looksLikeWholeList, nameFromUrl } = jiti(
   path.join(root, "lib/link-preview.ts"),
 );
 
@@ -139,6 +139,25 @@ for (const c of cases) {
 }
 console.log(`\n  ${pass}/${cases.length} passed`);
 if (pass !== cases.length) process.exitCode = 1;
+
+console.log("\n  a name guessed from the address, for shops that will not open:");
+for (const [u, want] of [
+  ["https://www.centrepointstores.com/ae/en/juniors-twin-stroller/p/MDAxNTc4NDQ", "Juniors Twin Stroller"],
+  // Short words stay lowercase: "Next to me" reads like a name somebody
+  // wrote, "Next To Me" reads like a machine capitalised it.
+  ["https://www.mumzworld.com/ae-en/chicco-next-to-me-bedside-crib", "Chicco Next to me Bedside Crib"],
+  ["https://www.noon.com/uae-en/baby-changing-mat-grey/N53379982A/p/", "Baby Changing Mat Grey"],
+  ["https://shop.example.com/p/12345", null],
+  ["https://shop.example.com/", null],
+  ["https://www.amazon.ae/dp/B07XYZ1234", null],
+  ["https://shop.example.com/products/cot-bed.html", "Cot Bed"],
+  ["not a url", null],
+]) {
+  const got = nameFromUrl(u);
+  const ok = got === want;
+  if (!ok) process.exitCode = 1;
+  console.log(`   ${ok ? "ok  " : "FAIL"} ${u}\n          -> ${JSON.stringify(got)}${ok ? "" : ` (wanted ${JSON.stringify(want)})`}`);
+}
 
 console.log("\n  whole-list detection:");
 for (const [u, want] of [

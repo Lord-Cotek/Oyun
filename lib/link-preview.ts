@@ -90,6 +90,64 @@ const LIST_PATTERNS: { host: RegExp; path: RegExp }[] = [
   { host: /(^|\.)myregistry\.com$/i, path: /./ },
 ];
 
+/**
+ * A product's name, read out of its own address.
+ *
+ * ── Why this is worth having ─────────────────────────────────────────────
+ * Some shops will not be read at all. A large retailer behind bot protection
+ * answers a request from a datacentre with a refusal no matter how the
+ * request is dressed, and trying harder than this becomes an arms race that
+ * a family app has no business being in.
+ *
+ * But the address itself usually carries the name — /juniors-twin-stroller/p/
+ * — because shops put it there for search engines. So a link that cannot be
+ * opened still arrives with something in the box, and she corrects a word
+ * instead of typing the lot. It is offered as a guess and said to be one.
+ *
+ * Deliberately conservative: it takes the longest word-like segment, ignores
+ * the parts that are plainly machinery, and gives back nothing rather than
+ * something silly.
+ */
+const PATH_NOISE =
+  /^(p|product|products|item|items|dp|gp|shop|store|buy|c|cat|category|en|ar|ae|uae|sa|ksa|qa|kw|bh|om|eg|us|uk|gb|en-ae|en-gb|en-us|ar-ae|home|index)$/i;
+
+export function nameFromUrl(raw: string): string | null {
+  let u: URL;
+  try {
+    u = new URL(raw);
+  } catch {
+    return null;
+  }
+  const best = u.pathname
+    .split("/")
+    .map((s) => decodeURIComponent(s).trim())
+    .filter(Boolean)
+    .filter((s) => !PATH_NOISE.test(s))
+    // Machinery: ids, SKUs, anything that is mostly not letters.
+    .filter((s) => /[a-z]{3}/i.test(s))
+    .filter((s) => !/^[0-9a-f]{16,}$/i.test(s))
+    .filter((s) => (s.match(/\d/g)?.length ?? 0) < s.length / 2)
+    .map((s) => s.replace(/\.(html?|php|aspx?)$/i, ""))
+    .sort((a, b) => b.length - a.length)[0];
+  if (!best) return null;
+
+  const words = best
+    .replace(/[-_+]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .split(" ")
+    .filter(Boolean);
+  if (words.length === 0) return null;
+  // One long unbroken token is a slug we have not understood, not a name.
+  if (words.length === 1 && !/[-_]/.test(best) && best.length > 24) return null;
+
+  const name = words
+    .map((w) => (w.length > 2 ? w[0].toUpperCase() + w.slice(1) : w))
+    .join(" ")
+    .slice(0, 120);
+  return name.length >= 3 ? name : null;
+}
+
 export function looksLikeWholeList(raw: string): boolean {
   try {
     const u = new URL(raw);
@@ -556,6 +614,16 @@ export async function readLink(raw: string): Promise<LinkPreview> {
           accept:
             "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
           "accept-language": ACCEPT_LANGUAGE,
+          // A CDN's bot check reads the whole set of headers, not the
+          // user-agent alone: a browser string arriving without any of the
+          // fetch-metadata a browser always sends is exactly the pattern it
+          // looks for. These are what Chrome sends when a person types an
+          // address and presses enter.
+          "sec-fetch-dest": "document",
+          "sec-fetch-mode": "navigate",
+          "sec-fetch-site": "none",
+          "sec-fetch-user": "?1",
+          "upgrade-insecure-requests": "1",
         },
       });
 
@@ -568,24 +636,53 @@ export async function readLink(raw: string): Promise<LinkPreview> {
         continue;
       }
       if (!res.ok) {
-        return { ...bare, failed: "That shop did not answer." };
+        // 403 and 429 are a shop's bot protection turning us away, which no
+        // amount of dressing up the request reliably gets past — and chasing
+        // it is an arms race a family app should stay out of. Said plainly,
+        // with the name guessed from the address so she is not left with an
+        // empty form.
+        const refused = res.status === 403 || res.status === 429;
+        return {
+          ...bare,
+          title: nameFromUrl(current.toString()),
+          failed: refused
+            ? "That shop would not let us read the page. We have guessed the name from the address — change it, and add a picture if you like."
+            : "That shop did not answer. Type the name in yourself?",
+        };
       }
       const type = res.headers.get("content-type") ?? "";
       if (!type.includes("html")) {
-        return { ...bare, failed: "There was no page to read there." };
+        return {
+          ...bare,
+          title: nameFromUrl(current.toString()),
+          failed: "There was no page to read there.",
+        };
       }
       html = await readDocument(res);
       break;
     }
 
-    if (!html) return { ...bare, failed: "Nothing could be read from that link." };
+    if (!html) {
+      return {
+        ...bare,
+        title: nameFromUrl(current.toString()),
+        failed: "Nothing could be read from that link.",
+      };
+    }
 
-    return { ...bare, ...previewFromHtml(html, current) };
+    const read = previewFromHtml(html, current);
+    // A page that opened but said nothing useful about itself still has an
+    // address, and the address usually has the name in it.
+    return { ...bare, ...read, title: read.title ?? nameFromUrl(current.toString()) };
   } catch {
     // A timeout, a refused connection, a shop behind a wall. None of these is
     // an error a person needs explaining — she types the name herself and the
     // item is just as good.
-    return { ...bare, failed: "That link could not be read. Type it in yourself?" };
+    return {
+      ...bare,
+      title: nameFromUrl(trimmed),
+      failed: "That link could not be read. We have guessed the name from the address.",
+    };
   } finally {
     clearTimeout(timer);
   }

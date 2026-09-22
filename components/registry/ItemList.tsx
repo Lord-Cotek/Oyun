@@ -38,6 +38,8 @@ export interface HostItem {
 
 const field =
   "w-full rounded-lg border border-border bg-bg px-3 py-2 prose-serif-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none";
+const label =
+  "mb-1.5 block font-mono text-[0.62rem] uppercase tracking-widest text-muted";
 
 /**
  * The list, as she keeps it.
@@ -121,43 +123,84 @@ function Row({
         )}
         <div className="min-w-0 flex-1">
           {editing ? (
-            <div className="space-y-2.5">
-              <input
-                value={title}
-                maxLength={TITLE_MAX}
-                onChange={(e) => setTitle(e.target.value)}
-                className={field}
-              />
-              <textarea
-                value={note}
-                rows={2}
-                maxLength={NOTE_MAX}
-                onChange={(e) => setNote(e.target.value)}
-                placeholder="A word about it"
-                className={`${field} resize-none`}
-              />
-              <div className="flex gap-2">
-                {item.kind === "THING" && (
-                  <input
-                    value={price}
-                    maxLength={PRICE_MAX}
-                    onChange={(e) => setPrice(e.target.value)}
-                    placeholder="About how much"
-                    className={field}
-                  />
-                )}
-                {item.kind !== "LIST" && (
-                  <input
-                    type="number"
-                    min={1}
-                    max={QUANTITY_MAX}
-                    value={quantity}
-                    onChange={(e) => setQuantity(Number(e.target.value) || 1)}
-                    aria-label="How many are wanted"
-                    className={`${field} w-24 shrink-0`}
-                  />
-                )}
+            <div className="space-y-4">
+              {/*
+                ── Why every box has a label over it now ────────────────────
+                This was six unlabelled boxes in a stack, and one of them was
+                broken: the price and the quantity shared a flex row, both
+                carried `field` (which is w-full), and the quantity added
+                `w-24 shrink-0`. Tailwind emits .w-full after .w-24, so the
+                quantity won the width AND refused to shrink — the price
+                field was crushed to a sliver on a real registry.
+
+                Fixed the way the Add form already did it: the width belongs
+                to the wrapper, never to an input that also carries `field`.
+                The labels are the same words as the Add form uses, so the
+                two forms read as one thing rather than two.
+              */}
+              <div>
+                <label htmlFor={`t-${item.id}`} className={label}>
+                  What it is
+                </label>
+                <input
+                  id={`t-${item.id}`}
+                  value={title}
+                  maxLength={TITLE_MAX}
+                  onChange={(e) => setTitle(e.target.value)}
+                  className={field}
+                />
               </div>
+
+              <div>
+                <label htmlFor={`n-${item.id}`} className={label}>
+                  A word about it <span className="normal-case">(optional)</span>
+                </label>
+                <textarea
+                  id={`n-${item.id}`}
+                  value={note}
+                  rows={2}
+                  maxLength={NOTE_MAX}
+                  onChange={(e) => setNote(e.target.value)}
+                  className={`${field} resize-none`}
+                />
+              </div>
+
+              {/* A whole list has neither a single price nor a count. */}
+              {item.kind !== "LIST" && (
+                <div className="flex flex-wrap gap-3">
+                  {item.kind !== "HELP" && (
+                    <div className="min-w-[8rem] flex-1">
+                      <label htmlFor={`p-${item.id}`} className={label}>
+                        {item.kind === "CASH" ? "A suggested amount" : "About how much"}
+                      </label>
+                      <input
+                        id={`p-${item.id}`}
+                        value={price}
+                        maxLength={PRICE_MAX}
+                        onChange={(e) => setPrice(e.target.value)}
+                        placeholder="AED 249"
+                        className={field}
+                      />
+                    </div>
+                  )}
+                  {item.kind !== "CASH" && (
+                    <div className="w-28">
+                      <label htmlFor={`q-${item.id}`} className={label}>
+                        How many
+                      </label>
+                      <input
+                        id={`q-${item.id}`}
+                        type="number"
+                        min={1}
+                        max={QUANTITY_MAX}
+                        value={quantity}
+                        onChange={(e) => setQuantity(Number(e.target.value) || 1)}
+                        className={field}
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/*
                 ── The two fields that used to be unreachable ───────────────
@@ -167,66 +210,75 @@ function Row({
                 were fixed at the moment of adding, so a whole list could be
                 renamed but not re-pointed, and an item whose shop published
                 no photograph stayed without one for good.
-
-                They are the two the reader most often gets wrong, so they
-                are the two that most needed a way back.
               */}
-              <input
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-                placeholder="Link to the shop, or to the whole list"
-                inputMode="url"
-                aria-label="Link"
-                className={field}
-              />
-              <input
-                value={imageUrl}
-                onChange={(e) => setImageUrl(e.target.value)}
-                placeholder="Picture address (optional)"
-                inputMode="url"
-                aria-label="Picture address"
-                className={field}
-              />
-              {url.trim() && (
-                <Pressable
-                  press="none"
-                  type="button"
-                  disabled={reading}
-                  onClick={() =>
-                    startReading(async () => {
-                      setError(null);
-                      setSaid(null);
-                      const p = await previewLink(url.trim());
-                      // Only ever fills what is empty or was found. She has
-                      // typed in this form; a "read it again" that wipes her
-                      // own wording is not a help.
-                      let filled = 0;
-                      if (p.title && !title.trim()) {
-                        setTitle(p.title);
-                        filled++;
-                      }
-                      if (p.imageUrl) {
-                        setImageUrl(p.imageUrl);
-                        filled++;
-                      }
-                      if (p.price && !price.trim()) {
-                        setPrice(p.price);
-                        filled++;
-                      }
-                      setSaid(
-                        p.failed
-                          ? p.failed
-                          : filled > 0
-                            ? "Read it. Have a look, then save."
-                            : "Nothing new came back — what you have is what the shop gives.",
-                      );
-                    })
-                  }
-                  className="self-start py-2 font-mono text-[0.62rem] uppercase tracking-widest text-muted underline underline-offset-4 hover:text-accent disabled:opacity-50"
-                >
-                  {reading ? "Reading the link…" : "Read the link again"}
-                </Pressable>
-              )}
+              <div>
+                <label htmlFor={`u-${item.id}`} className={label}>
+                  {item.kind === "LIST" ? "The list's address" : "Link from the shop"}
+                </label>
+                <input
+                  id={`u-${item.id}`}
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
+                  placeholder="https://…"
+                  inputMode="url"
+                  className={field}
+                />
+              </div>
+
+              <div>
+                <label htmlFor={`i-${item.id}`} className={label}>
+                  Picture address <span className="normal-case">(optional)</span>
+                </label>
+                <input
+                  id={`i-${item.id}`}
+                  value={imageUrl}
+                  onChange={(e) => setImageUrl(e.target.value)}
+                  placeholder="https://…"
+                  inputMode="url"
+                  className={field}
+                />
+                {url.trim() && (
+                  <Pressable
+                    press="none"
+                    type="button"
+                    disabled={reading}
+                    onClick={() =>
+                      startReading(async () => {
+                        setError(null);
+                        setSaid(null);
+                        const p = await previewLink(url.trim());
+                        // Only ever fills what is empty or was found. She has
+                        // typed in this form; a "read it again" that wipes
+                        // her own wording is not a help.
+                        let filled = 0;
+                        if (p.title && !title.trim()) {
+                          setTitle(p.title);
+                          filled++;
+                        }
+                        if (p.imageUrl) {
+                          setImageUrl(p.imageUrl);
+                          filled++;
+                        }
+                        if (p.price && !price.trim()) {
+                          setPrice(p.price);
+                          filled++;
+                        }
+                        setSaid(
+                          p.failed
+                            ? p.failed
+                            : filled > 0
+                              ? "Read it. Have a look, then save."
+                              : "Nothing new came back — what you have is what the shop gives.",
+                        );
+                      })
+                    }
+                    className="mt-2 inline-flex min-h-11 items-center font-mono text-[0.62rem] uppercase tracking-widest text-muted underline underline-offset-4 hover:text-accent disabled:opacity-50"
+                  >
+                    {reading ? "Reading the link…" : "Read the link again"}
+                  </Pressable>
+                )}
+              </div>
+
               {said && <p className="prose-serif-xs text-muted">{said}</p>}
             </div>
           ) : (
