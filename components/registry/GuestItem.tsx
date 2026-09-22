@@ -167,20 +167,115 @@ export function GuestItem({
       </div>
 
       {/*
-        ── Why the details are asked for rather than printed ────────────────
-        These are somebody's bank details. Rendering them into the page would
-        put them in front of everybody who ever opens the link, in every
-        screenshot of it, and in whatever fetches the page to build a preview
-        card. Fetched on a tap they reach only the people who meant to give.
+        ── One row of actions, and anything that opens goes under it ────────
+        A card used to stack three bordered blocks: the shop, then a line
+        saying where the shop was, then the claim. On a phone that is most of
+        a screen for one cot, and readers said as much.
 
-        Anybody holding the link can still tap, and the family is told exactly
-        that where they type them in. It is a smaller blast radius, not a wall,
-        and the wording here does not pretend otherwise.
+        So the things a person can DO sit on one line — go and look at it, say
+        you are getting it — with a single rule above them, and anything that
+        expands (the transfer details, the address, the claim form) opens
+        underneath rather than adding another block.
+
+        The shop button carries the shop's name and nothing else. It used to
+        read "Open the full list on amazon.ae", which wrapped to two lines in
+        a grid column and said in six words what the arrow and the hostname
+        say between them. The full sentence is still there for a screen
+        reader, on aria-label, which is where it was always most useful.
       */}
-      {item.kind === "CASH" && (
-        <div className="mt-3 border-t border-border/70 pt-3">
-          {pay ? (
-            <div className="rounded-xl border border-border bg-bg p-3">
+      {(item.url || !closed) && (
+        <div className="mt-auto border-t border-border/70 pt-3">
+          <div className="flex flex-wrap items-center gap-2">
+            {item.url && (
+              <a
+                href={item.url}
+                target="_blank"
+                // noreferrer as well as noopener: the shop has no business
+                // being told which page sent this person, and that page is a
+                // private link.
+                rel="noopener noreferrer nofollow"
+                aria-label={shopLabel(item.kind, item.url)}
+                // Still filled, and still 44px for a thumb — looking at the
+                // thing is the step BEFORE saying you will get it, and the
+                // card should read in the order a person actually moves. It
+                // is the words that got smaller, not the target.
+                className="btn-primary inline-flex min-h-11 items-center justify-center gap-1.5 rounded-lg px-3.5 font-mono text-xs font-medium text-on-accent"
+              >
+                {shopHost(item.url)}
+                <span aria-hidden>↗</span>
+              </a>
+            )}
+
+            {item.kind === "CASH" && !pay && (
+              <Pressable
+                type="button"
+                disabled={asking}
+                onClick={() =>
+                  startAsking(async () => {
+                    const res = await revealPayDetails(slug);
+                    if (res.ok) {
+                      setPay({
+                        label: res.label,
+                        details: res.details,
+                        note: res.note,
+                      });
+                    } else {
+                      setError("They have not left a way to send money.");
+                    }
+                  })
+                }
+                className="btn-primary inline-flex min-h-11 items-center justify-center rounded-lg px-3.5 font-mono text-xs font-medium text-on-accent disabled:opacity-50"
+              >
+                {asking ? "One moment…" : "How to send it"}
+              </Pressable>
+            )}
+
+            {!closed && !taken && !open && (
+              <Pressable
+                type="button"
+                disabled={gone || pending}
+                onClick={() => start(() => setOpen(true))}
+                className="inline-flex min-h-11 items-center justify-center rounded-lg border border-accent/50 px-3.5 font-mono text-xs text-accent transition-colors hover:bg-accent/[0.06] disabled:border-border disabled:text-muted disabled:opacity-60"
+              >
+                {gone ? "Already taken" : copy.claim}
+              </Pressable>
+            )}
+
+            {!closed && taken && (
+              <form
+                action={async (fd) => {
+                  setError(null);
+                  const res = await release(fd);
+                  if (!res.ok) setError(res.error);
+                }}
+              >
+                <input type="hidden" name="slug" value={slug} />
+                <input type="hidden" name="itemId" value={item.id} />
+                <Pressable
+                  press="none"
+                  type="submit"
+                  className="inline-flex min-h-11 items-center rounded-lg px-1 font-mono text-[0.62rem] uppercase tracking-widest text-muted underline underline-offset-4 hover:text-accent"
+                >
+                  Actually, I can&rsquo;t
+                </Pressable>
+              </form>
+            )}
+          </div>
+
+          {/*
+            ── Why the details are asked for rather than printed ────────────
+            These are somebody's bank details. Rendering them into the page
+            would put them in front of everybody who ever opens the link, in
+            every screenshot of it, and in whatever fetches the page to build
+            a preview card. Fetched on a tap they reach only the people who
+            meant to give.
+
+            Anybody holding the link can still tap, and the family is told
+            exactly that where they type them in. It is a smaller blast
+            radius, not a wall, and the wording does not pretend otherwise.
+          */}
+          {pay && (
+            <div className="mt-3 rounded-xl border border-border bg-bg p-3">
               <p className="font-mono text-[0.58rem] uppercase tracking-widest text-muted">
                 {pay.label}
               </p>
@@ -194,104 +289,20 @@ export function GuestItem({
                 Send it to them directly — nothing is paid through this page.
               </p>
             </div>
-          ) : (
-            <Pressable
-              type="button"
-              disabled={asking}
-              onClick={() =>
-                startAsking(async () => {
-                  const res = await revealPayDetails(slug);
-                  if (res.ok) {
-                    setPay({ label: res.label, details: res.details, note: res.note });
-                  } else {
-                    setError("They have not left a way to send money.");
-                  }
-                })
-              }
-              // The same weight as the shop button one card up: for a gift of
-              // money this IS the "take me to where I actually do it" step,
-              // and leaving it as the quietest control on the card repeated
-              // exactly the mistake that hid the shop links.
-              className="reg-card__act btn-primary inline-flex min-h-11 w-full items-center justify-center rounded-lg px-4 font-mono text-sm font-medium text-on-accent disabled:opacity-50 sm:w-auto"
-            >
-              {asking ? "One moment…" : "Show how to send"}
-            </Pressable>
           )}
-        </div>
-      )}
 
-      {/*
-        ── Why this is a real button and why it is here ─────────────────────
-        It used to be a 0.62rem line of muted text inside the description,
-        styled exactly like every other control on the card — and people could
-        not find it. Which is the whole point of a registry: somebody opens
-        the link to go and buy the cot, and the way to the cot was the
-        quietest thing on the screen.
+          {/*
+            The moment they need it: they have said they are getting this, and
+            the next thing they do is stand at a checkout being asked where it
+            goes. The page also offers it once near the top, for whoever wants
+            it before they start — same component, same rules, and the server
+            decides whether to answer.
+          */}
+          {!closed && taken && shipsTo && kindTakesPost(item.kind) && (
+            <ShipReveal slug={slug} reach={shipReach} tone="inline" />
+          )}
 
-        So it is the first thing in the action row, at a size a thumb can hit,
-        and it is filled rather than outlined — because looking at the item is
-        the step that comes BEFORE saying you will get it, and the card should
-        read in the order the person actually moves.
-      */}
-      {item.url && (
-        <div className="mt-3 border-t border-border/70 pt-3">
-          <a
-            href={item.url}
-            target="_blank"
-            // noreferrer as well as noopener: the shop has no business being
-            // told which page sent this person, and that page is a private
-            // link.
-            rel="noopener noreferrer nofollow"
-            className="reg-card__act btn-primary inline-flex min-h-11 w-full items-center justify-center gap-1.5 rounded-lg px-4 font-mono text-sm font-medium text-on-accent sm:w-auto"
-          >
-            {shopLabel(item.kind, item.url)}
-            <span aria-hidden>↗</span>
-          </a>
-          <p className="reg-card__hint mt-2 font-mono text-[0.58rem] leading-relaxed text-muted">
-            {/* The address in full, under the button. Some people will not tap
-                a button until they can see where it goes, and some want to
-                send it on to whoever is actually doing the shopping. */}
-            Opens {shopHost(item.url)} in a new tab
-          </p>
-        </div>
-      )}
-
-      {error && <p className="mt-2 prose-serif-xs text-negative">{error}</p>}
-
-      {!closed && (
-        <div className="mt-auto border-t border-border/70 pt-3">
-          {taken ? (
-            <>
-              {/*
-                The moment they need it: they have said they are getting this,
-                and the next thing they do is stand at a checkout being asked
-                where it goes. The page also offers it once near the top, for
-                whoever wants it before they start — same component, same
-                rules, and the server decides whether to answer.
-              */}
-              {shipsTo && kindTakesPost(item.kind) && (
-                <ShipReveal slug={slug} reach={shipReach} tone="inline" />
-              )}
-              <form
-                className="mt-2"
-                action={async (fd) => {
-                  setError(null);
-                  const res = await release(fd);
-                  if (!res.ok) setError(res.error);
-                }}
-              >
-                <input type="hidden" name="slug" value={slug} />
-                <input type="hidden" name="itemId" value={item.id} />
-                <Pressable
-                  press="none"
-                  type="submit"
-                  className="font-mono text-[0.62rem] uppercase tracking-widest text-muted underline underline-offset-4 hover:text-accent"
-                >
-                  Actually, I can&rsquo;t
-                </Pressable>
-              </form>
-            </>
-          ) : open ? (
+          {!closed && open && (
             <form
               action={async (fd) => {
                 setError(null);
@@ -299,7 +310,7 @@ export function GuestItem({
                 if (res.ok) setOpen(false);
                 else setError(res.error);
               }}
-              className="space-y-2.5"
+              className="mt-3 space-y-2.5"
             >
               <input type="hidden" name="slug" value={slug} />
               <input type="hidden" name="itemId" value={item.id} />
@@ -342,16 +353,9 @@ export function GuestItem({
                 </Pressable>
               </div>
             </form>
-          ) : (
-            <Pressable
-              type="button"
-              disabled={gone || pending}
-              onClick={() => start(() => setOpen(true))}
-              className="reg-card__act inline-flex min-h-11 w-full items-center justify-center rounded-lg border border-accent/50 px-4 font-mono text-sm text-accent transition-colors hover:bg-accent/[0.06] disabled:border-border disabled:text-muted disabled:opacity-60 sm:w-auto"
-            >
-              {gone ? "Already taken" : copy.claim}
-            </Pressable>
           )}
+
+          {error && <p className="mt-2 prose-serif-xs text-negative">{error}</p>}
         </div>
       )}
     </div>
@@ -384,12 +388,16 @@ function Facts({ children }: { children: (React.ReactNode | null | false)[] }) {
     <>
       {kept.map((node, i) => (
         <span key={i} className="flex items-center gap-2">
-          {i > 0 && (
+          {node}
+          {/* The separator trails its own fact rather than leading the next
+              one. When these wrap — and in a narrow card they do — a line that
+              begins with a stray "·" reads as a mistake, where a line that
+              ends with one reads as "there is more below". */}
+          {i < kept.length - 1 && (
             <span data-sep aria-hidden>
               ·
             </span>
           )}
-          {node}
         </span>
       ))}
     </>

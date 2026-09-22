@@ -572,17 +572,6 @@
   width: 100%;
   aspect-ratio: 1 / 1;
 }
-/* In a narrow grid column every control takes the full width — two buttons
-   sharing a 170px column leaves neither of them readable. */
-[data-rview="grid"] .reg-card__act {
-  width: 100%;
-}
-/* The address under the shop button earns its room in a list, where there is
-   room. In a grid column the button already carries the shop's name, and the
-   line underneath turns three stacked controls into four. */
-[data-rview="grid"] .reg-card__hint {
-  display: none;
-}
 /* In a grid column the facts under a title — price, how many are still
    wanted, whether it is taken — wrap, and a wrapped line was starting with
    the separator dot that belonged to the line above. Narrow enough that they
@@ -595,3 +584,29 @@
 [data-rview="grid"] .reg-facts [data-sep] {
   display: none;
 }
+
+/* ── Which order, and whether to show what is gone ───────────────────────
+   Same arrangement as the grid/list choice above, for the same reasons: the
+   server hands each card four positions as custom properties, an attribute on
+   <html> says which of them counts, and CSS does the moving. No card is
+   re-rendered to change places, nothing is fetched again, and with no
+   JavaScript the attributes are never set and the list keeps the order the
+   family arranged it in. */
+[data-sort="low"] .reg-items > li { order: var(--o-low); }
+[data-sort="high"] .reg-items > li { order: var(--o-high); }
+[data-sort="recent"] .reg-items > li { order: var(--o-recent); }
+
+/* "Hide what is taken" — a long list read by somebody who only wants to know
+   what is still needed. A card the reader took themselves stays: it is the
+   one they may want to hand back. */
+[data-taken="hide"] .reg-items > li[data-gone] { display: none; }
+/* And a section with nothing left in it goes too, rather than leaving a
+   heading over an empty space. */
+[data-taken="hide"] .reg-section:not(:has(> .reg-items > li:not([data-gone]))) {
+  display: none;
+}
+/* Two counts, one shown: "9 things on the list" while everything is visible,
+   "6 still wanted of 9" once what is taken has been hidden. */
+.reg-count-left { display: none; }
+[data-taken="hide"] .reg-count-all { display: none; }
+[data-taken="hide"] .reg-count-left { display: inline; }

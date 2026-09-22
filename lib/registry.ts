@@ -102,6 +102,57 @@ export function canTakeMoney(r: {
 export const REGISTRY_VIEWS = ["grid", "list"] as const;
 export type RegistryView = (typeof REGISTRY_VIEWS)[number];
 
+/**
+ * And the order it is read in — also the reader's, not the family's.
+ *
+ * "needed" is the order the family arranged: the handful they marked as most
+ * needed, then their own arrangement. It is the default because it is the one
+ * order that carries a judgement from the people who know what the baby
+ * needs; every other one here is the guest sorting a shop.
+ */
+export const REGISTRY_SORTS = ["needed", "low", "high", "recent"] as const;
+export type RegistrySort = (typeof REGISTRY_SORTS)[number];
+
+export const SORT_LABEL: Record<RegistrySort, string> = {
+  needed: "What they need most",
+  low: "Price: low to high",
+  high: "Price: high to low",
+  recent: "Just added",
+};
+
+export function isRegistrySort(v: string): v is RegistrySort {
+  return (REGISTRY_SORTS as readonly string[]).includes(v);
+}
+
+/**
+ * The number written in a price, or null when there is not one.
+ *
+ * ── Why this is a best effort and says so ────────────────────────────────
+ * The price is text on purpose — see RegistryItem.price — because "AED 249",
+ * "about ₦40,000" and "whatever you like" are all real answers, and a decimal
+ * column would force a currency and a precision onto a note meant for a
+ * guest. The cost of that is here: sorting by price means reading a number
+ * out of a sentence.
+ *
+ * So it reads the first number it finds, drops the separators inside it, and
+ * returns null for anything it cannot make a number of. Null sorts to the end
+ * whichever direction is chosen, rather than pretending to be zero and
+ * putting "whatever you like" at the top of a cheapest-first list.
+ *
+ * It does NOT convert currencies, and nothing here pretends it can. A list
+ * holding both dirhams and naira sorted by this is sorted by the digits, and
+ * the page says so where the choice is made.
+ */
+export function priceValue(price: string | null): number | null {
+  if (!price) return null;
+  // 1,200 and 1 200 are one number; 1,200.50 keeps its decimal point.
+  const flat = price.replace(/[, \s](?=\d{3}(?!\d))/g, "");
+  const found = flat.match(/\d+(?:\.\d+)?/);
+  if (!found) return null;
+  const n = Number(found[0]);
+  return Number.isFinite(n) ? n : null;
+}
+
 /** How long an address may be, all of it checked on the server. */
 export const SHIP_NAME_MAX = 80;
 export const SHIP_ADDRESS_MAX = 400;

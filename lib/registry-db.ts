@@ -1,7 +1,13 @@
 import { randomBytes } from "node:crypto";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
-import { shipReachOf, type ItemKind, type ShipReach } from "@/lib/registry";
+import {
+  priceValue,
+  shipReachOf,
+  type ItemKind,
+  type RegistrySort,
+  type ShipReach,
+} from "@/lib/registry";
 
 /**
  * ── Why these are not `randomId()` ───────────────────────────────────────
@@ -56,6 +62,20 @@ export interface PublicItem {
   claimed: number;
   /** How many this guest has taken, recognised by their own token. */
   mine: number;
+  /**
+   * Where this item sits in each order the reader can choose — see
+   * REGISTRY_SORTS. Ordinals only.
+   *
+   * ── Why positions and not the values they were worked out from ──────────
+   * Because "recently added" would otherwise mean sending every item's
+   * timestamp to a public page, and a date an item was added is a fact about
+   * the family nobody needs in order to read a list. A position says where
+   * the card goes and nothing about when it was typed.
+   *
+   * They become CSS `order` on the page, so choosing an order moves the cards
+   * without re-rendering one of them and without asking the server again.
+   */
+  ranks: Record<RegistrySort, number>;
 }
 
 export interface PublicRegistry {
@@ -226,12 +246,17 @@ export async function getPublicRegistry(
           price: true,
           quantity: true,
           mostNeeded: true,
+          // Read to work out "just added" and dropped immediately after —
+          // see PublicItem.ranks. No timestamp leaves this function.
+          createdAt: true,
           claims: { select: { quantity: true, token: true } },
         },
       },
     },
   });
   if (!r) return null;
+
+  const ranks = rankItems(r.items);
 
   return {
     slug: r.slug,
@@ -258,6 +283,66 @@ export async function getPublicRegistry(
             .filter((c) => c.token === guestToken)
             .reduce((n, c) => n + c.quantity, 0)
         : 0,
+      ranks: ranks[i.id],
     })),
   };
+}
+
+/**
+ * Where each item sits in every order a reader can ask for.
+ *
+ * Worked out once, here, so the page can hand the browser four numbers per
+ * card and let CSS do the moving. See PublicItem.ranks.
+ *
+ * Ties keep the family's own arrangement: two things at AED 120 stay in the
+ * order they were put on the list, rather than swapping about whenever the
+ * page is opened.
+ */
+function rankItems(
+  items: {
+    id: string;
+    price: string | null;
+    mostNeeded: boolean;
+    createdAt: Date;
+  }[],
+): Record<string, Record<RegistrySort, number>> {
+  const base = items.map((it, i) => ({ ...it, i }));
+
+  const order = (
+    compare: (a: (typeof base)[number], b: (typeof base)[number]) => number,
+  ): Record<string, number> => {
+    const out: Record<string, number> = {};
+    [...base].sort((a, b) => compare(a, b) || a.i - b.i)
+      .forEach((it, at) => {
+        out[it.id] = at;
+      });
+    return out;
+  };
+
+  // A price nobody can read a number out of goes last, whichever way round
+  // the list is being sorted — never to the top of "cheapest first".
+  const byPrice = (dir: 1 | -1) => (a: (typeof base)[number], b: (typeof base)[number]) => {
+    const x = priceValue(a.price);
+    const y = priceValue(b.price);
+    if (x === null && y === null) return 0;
+    if (x === null) return 1;
+    if (y === null) return -1;
+    return (x - y) * dir;
+  };
+
+  const needed = order(() => 0); // the arrangement the query already made
+  const low = order(byPrice(1));
+  const high = order(byPrice(-1));
+  const recent = order((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+
+  const out: Record<string, Record<RegistrySort, number>> = {};
+  for (const it of base) {
+    out[it.id] = {
+      needed: needed[it.id],
+      low: low[it.id],
+      high: high[it.id],
+      recent: recent[it.id],
+    };
+  }
+  return out;
 }
