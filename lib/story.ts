@@ -46,7 +46,11 @@ export async function diaryYears(
     SELECT EXTRACT(YEAR FROM "createdAt")::int AS year, COUNT(*) AS n
     FROM "Post"
     WHERE "journeyId" = ${journeyId}
-      AND (${all} OR "householdOnly" = false)
+      -- The COLUMN, not the Prisma field. They differ: the field is
+      -- householdOnly and the column is still familyOnly behind an @map, and
+      -- raw SQL goes straight to the database where @map means nothing. This
+      -- exact line took the diary down in production once.
+      AND (${all} OR "familyOnly" = false)
     GROUP BY 1
     ORDER BY 1 DESC
   `;
