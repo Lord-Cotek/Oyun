@@ -6,7 +6,7 @@ import { loadFeed } from "@/lib/feed-query";
 import { YearStrip } from "@/components/feed/YearStrip";
 import { StorySoFar } from "@/components/journey/StorySoFar";
 import { diaryYears, storySoFar } from "@/lib/story";
-import { seesFamilyOnly } from "@/lib/post-visibility";
+import { seesHouseholdOnly } from "@/lib/post-visibility";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Arches } from "@/components/ui/Marks";
 import { Feed } from "@/components/feed/Feed";
@@ -111,7 +111,7 @@ export default async function LifePage({
             onSharePost={sharePost}
             onRevokeShare={revokeShare}
             onHideHello={hideHello}
-            canKeepToFamily={seesFamilyOnly(active.role)}
+            canKeepToHousehold={seesHouseholdOnly(active.role)}
             composerPlaceholder="Share something with your circle…"
           />
         </div>

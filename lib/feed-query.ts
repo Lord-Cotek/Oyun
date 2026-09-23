@@ -58,7 +58,7 @@ export interface FeedPost {
    * circle cannot see says so — somebody who chose a smaller audience should
    * be able to tell at a glance that it took, rather than trusting it.
    */
-  familyOnly: boolean;
+  householdOnly: boolean;
   /**
    * May this viewer put it on a link anybody can open? Decided on the server
    * by lib/post-share.ts and carried here, rather than the screen working it
@@ -186,7 +186,7 @@ export async function loadFeed(
       authorImage: p.author.image ?? null,
       mine: p.authorId === viewerId,
       when: relative(p.createdAt, now),
-      familyOnly: p.familyOnly,
+      householdOnly: p.householdOnly,
       canShare: canSharePost(isHousehold(role), p, viewerId),
       // The link is the family's business, not the circle's: somebody who can
       // see the post but could not have shared it has no need to know it is

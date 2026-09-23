@@ -73,11 +73,11 @@ export async function setJourneyCover(
 /** Is this picture already one of the journey's own? */
 async function belongsToJourney(journeyId: string, url: string) {
   return (
-    // familyOnly excluded for the same reason the picker excludes it: the
+    // householdOnly excluded for the same reason the picker excludes it: the
     // cover is what the circle sees first, and this is the check a pasted
     // URL has to get past.
     (await prisma.post.count({
-      where: { journeyId, familyOnly: false, mediaUrls: { has: url } },
+      where: { journeyId, householdOnly: false, mediaUrls: { has: url } },
     })) > 0
   );
 }

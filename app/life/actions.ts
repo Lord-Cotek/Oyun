@@ -8,7 +8,7 @@ import { getActiveMembership } from "@/lib/data";
 import { isPostKind, isReactionKind, reactionGlyph, REACTIONS } from "@/lib/feed";
 import { mediaTypeFromUrl } from "@/lib/feed-query";
 import { notify } from "@/lib/notify";
-import { postScope, seesFamilyOnly } from "@/lib/post-visibility";
+import { postScope, seesHouseholdOnly } from "@/lib/post-visibility";
 
 /** Keep only well-formed Vercel Blob URLs, in order, capped. */
 function cleanMediaUrls(urls: unknown): string[] {
@@ -68,7 +68,7 @@ export async function createPost(input: {
   mediaUrls?: string[];
   /** One per mediaUrl, same order; "" where there is none. */
   posterUrls?: string[];
-  familyOnly?: boolean;
+  householdOnly?: boolean;
 }) {
   const { userId, journeyId, role } = await member();
   const body = (input.body ?? "").trim();
@@ -79,7 +79,7 @@ export async function createPost(input: {
   const kind = isPostKind(input.kind) ? input.kind : "UPDATE";
   // Only somebody who can read family-only posts can write one. A friend in
   // the circle ticking the box would be posting into a room they cannot see.
-  const familyOnly = input.familyOnly === true && seesFamilyOnly(role);
+  const householdOnly = input.householdOnly === true && seesHouseholdOnly(role);
   await prisma.post.create({
     data: {
       journeyId,
@@ -88,7 +88,7 @@ export async function createPost(input: {
       body: body.slice(0, 4000),
       mediaUrls,
       posterUrls,
-      familyOnly,
+      householdOnly,
     },
   });
 
@@ -104,8 +104,8 @@ export async function createPost(input: {
     // A notification carries the opening words of the post in it. Telling the
     // circle about a post they cannot open would be the leak the toggle
     // exists to prevent, said out loud on their lock screen.
-    const told = familyOnly
-      ? others.filter((o) => seesFamilyOnly(o.role))
+    const told = householdOnly
+      ? others.filter((o) => seesHouseholdOnly(o.role))
       : others;
     if (told.length) {
       const hasVideo = mediaUrls.some((u) => mediaTypeFromUrl(u) === "video");
@@ -185,15 +185,15 @@ export async function deletePost(id: string) {
  */
 export async function setPostAudience(input: {
   id: string;
-  familyOnly: boolean;
+  householdOnly: boolean;
 }): Promise<{ ok: boolean }> {
   const { userId, journeyId, role } = await member();
   // Only somebody who can see family-only posts may put one out of reach —
   // otherwise a friend could hide their own post from themselves.
-  if (input.familyOnly && !seesFamilyOnly(role)) return { ok: false };
+  if (input.householdOnly && !seesHouseholdOnly(role)) return { ok: false };
   const done = await prisma.post.updateMany({
     where: { id: input.id, journeyId, authorId: userId, ...postScope(role) },
-    data: { familyOnly: input.familyOnly },
+    data: { householdOnly: input.householdOnly },
   });
   revalidatePath("/life");
   revalidatePath("/journey");

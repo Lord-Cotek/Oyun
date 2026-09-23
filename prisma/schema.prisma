@@ -317,7 +317,13 @@ model Post {
   /// existed was. Nothing a family has already shared changes audience
   /// underneath them. Who counts as family is decided in one place,
   /// lib/post-visibility.ts, and every query that reads a post asks it.
-  familyOnly Boolean   @default(false)
+  /// Kept to the two at the centre of the journey — see lib/post-visibility.ts.
+  ///
+  /// The column is still spelled familyOnly because renaming one means
+  /// dropping and recreating it, and nothing on a family's diary is worth
+  /// that. The @map keeps the database exactly as it is while the code says
+  /// what the flag actually does: relatives are NOT included.
+  householdOnly Boolean @default(false) @map("familyOnly")
   createdAt  DateTime  @default(now())
   editedAt   DateTime?
 

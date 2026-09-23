@@ -153,7 +153,7 @@ export default async function JourneyPage() {
   const coverChoices = Array.from(
     new Set(
       familyPosts
-        .filter((p) => !p.familyOnly)
+        .filter((p) => !p.householdOnly)
         .flatMap((p) => p.media)
         .filter((m) => m.type === "image")
         .map((m) => m.url),

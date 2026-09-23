@@ -39,7 +39,7 @@ export interface ShareResult {
  * The caller sends a post id and a number of days, and nothing else about it
  * is believed. The post is fetched from this journey — `journeyId` in the
  * where clause, not just the id — so a post id belonging to another family
- * cannot be shared by anybody, however the request was made. Its `familyOnly`
+ * cannot be shared by anybody, however the request was made. Its `householdOnly`
  * and its author are read from the row, not from the client, because those
  * two fields are the whole of the permission and a screen is not a source of
  * truth about them.
@@ -58,12 +58,12 @@ export async function sharePost(input: {
 
   const post = await prisma.post.findFirst({
     where: { id: input.postId, journeyId },
-    select: { id: true, authorId: true, familyOnly: true },
+    select: { id: true, authorId: true, householdOnly: true },
   });
   if (!post) throw new Error("That post is not here any more.");
   if (!canSharePost(isHousehold(role), post, userId)) {
     throw new Error(
-      post.familyOnly
+      post.householdOnly
         ? "This one is kept to the family. Change who it is for first, if you mean to share it."
         : "Only the two of you, or whoever wrote it, can share a post.",
     );
@@ -126,13 +126,13 @@ export async function revokeShare(postId: string): Promise<{ ok: boolean }> {
 
   const post = await prisma.post.findFirst({
     where: { id: postId, journeyId },
-    select: { id: true, authorId: true, familyOnly: true },
+    select: { id: true, authorId: true, householdOnly: true },
   });
   if (!post) return { ok: false };
 
   const mayClose =
     isHousehold(role) ||
-    canSharePost(isHousehold(role), { ...post, familyOnly: false }, userId);
+    canSharePost(isHousehold(role), { ...post, householdOnly: false }, userId);
   if (!mayClose) return { ok: false };
 
   await prisma.postShare.updateMany({

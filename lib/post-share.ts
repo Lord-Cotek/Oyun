@@ -82,7 +82,7 @@ export const SHARE_WORDS = {
 /** What `canSharePost` needs to know about a post. */
 export interface ShareablePost {
   authorId: string;
-  familyOnly: boolean;
+  householdOnly: boolean;
 }
 
 /**
@@ -117,7 +117,7 @@ export function canSharePost(
   post: ShareablePost,
   viewerId: string,
 ): boolean {
-  if (post.familyOnly) return false;
+  if (post.householdOnly) return false;
   if (post.authorId === viewerId) return true;
   return isKeeper;
 }

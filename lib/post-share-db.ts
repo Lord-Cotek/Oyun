@@ -75,7 +75,7 @@ export async function getSharedPost(
           mediaUrls: true,
           posterUrls: true,
           createdAt: true,
-          familyOnly: true,
+          householdOnly: true,
           journey: {
             select: {
               owner: { select: { name: true } },
@@ -94,7 +94,7 @@ export async function getSharedPost(
   if (!share || !share.post) return null;
   if (!shareIsLive(share)) return null;
   // The audience switch outranks the link. See the note above.
-  if (share.post.familyOnly) return null;
+  if (share.post.householdOnly) return null;
 
   const urls = share.post.mediaUrls.length
     ? share.post.mediaUrls
@@ -177,10 +177,10 @@ export async function liveShare(token: string): Promise<{
       journeyId: true,
       expiresAt: true,
       revokedAt: true,
-      post: { select: { familyOnly: true } },
+      post: { select: { householdOnly: true } },
     },
   });
-  if (!s || !shareIsLive(s) || s.post.familyOnly) return null;
+  if (!s || !shareIsLive(s) || s.post.householdOnly) return null;
   return { id: s.id, postId: s.postId, journeyId: s.journeyId };
 }
 

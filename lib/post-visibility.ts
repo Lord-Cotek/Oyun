@@ -2,22 +2,31 @@ import { type Role } from "@prisma/client";
 import { isHousehold } from "@/lib/roles";
 
 /**
- * Who sees a post that has been kept to the family.
+ * Who sees a post that has been kept back.
  *
  * ── Why the toggle exists ────────────────────────────────────────────────
  * The diary was one room with one audience: everybody invited onto this
  * journey saw everything in it. That is right for most of what a family
  * writes down, and wrong for some of it. A journey with an accountability
  * partner, a friend from church and two grandmothers on it will sooner or
- * later want to put something in the diary for the grandmothers and not for
- * everyone — a hard week, a scan photograph, a body that is not behaving.
- * Without somewhere to put it people do the thing they always do, which is
- * stop writing it down at all.
+ * later want to put something in the diary that is not for all of them — a
+ * hard week, a scan photograph, a body that is not behaving. Without
+ * somewhere to put it people do the thing they always do, which is stop
+ * writing it down at all.
  *
  * ── The line, and why it falls here ──────────────────────────────────────
- * Family is the mother, the one beside her, and the relatives invited onto
- * the journey. An accountability partner and a friend are the circle:
- * welcome to everything the family shares, and not in this.
+ * The two at the centre of the journey, and nobody else.
+ *
+ * It used to include relatives invited onto the journey — the FAMILY role —
+ * on the reading that "family only" naturally meant the family. It does not.
+ * A mother writing about her marriage, her body or a fear she has not said
+ * out loud means her husband, and a grandmother is exactly one of the people
+ * she is keeping it from. Reading it the other way made the private room the
+ * least private thing in the app, because it was the one room a person
+ * trusted.
+ *
+ * So: the household. Everybody else on the journey — relatives, an
+ * accountability partner, a friend — is outside it.
  *
  * It is deliberately ONE line rather than a picker with names on it. A
  * per-person audience list is the beginning of a social network, and it makes
@@ -32,29 +41,40 @@ import { isHousehold } from "@/lib/roles";
  * so there is one rule and adding a sixth reader is a one-line job.
  */
 
-/** Family: the two at the centre, and the relatives on this journey. */
-export function seesFamilyOnly(role: Role | string): boolean {
-  return isHousehold(role) || role === "FAMILY";
+/** The two who are having this baby. Nobody else, however close. */
+export function seesHouseholdOnly(role: Role | string): boolean {
+  return isHousehold(role);
 }
 
 /**
  * The `where` fragment every post query carries.
  *
- * Empty for family — they see everything — and `familyOnly: false` for the
- * circle, which also reads as what it means at the call site.
+ * Empty for the household — they see everything — and `householdOnly: false`
+ * for everybody else, which also reads as what it means at the call site.
+ *
+ * The column behind it is still named `familyOnly` in the database: renaming
+ * a column means dropping and recreating it, and nothing on a family's diary
+ * is worth that. See the @map in the schema.
  */
-export function postScope(role: Role | string): { familyOnly?: false } {
-  return seesFamilyOnly(role) ? {} : { familyOnly: false };
+export function postScope(role: Role | string): { householdOnly?: false } {
+  return seesHouseholdOnly(role) ? {} : { householdOnly: false };
 }
 
-/** What the toggle and the marker say. Written once so they agree. */
-export const FAMILY_ONLY = {
+/**
+ * What the toggle and the marker say. Written once so they agree.
+ *
+ * "Family only" was the old wording and it was the mistake in a phrase: a
+ * grandmother reading "family only" on a post would reasonably think it
+ * included her, and a mother writing under it would reasonably think it did
+ * not. The words now name the two people they mean.
+ */
+export const JUST_US = {
   /** On the post itself, for everybody who can see it. */
-  badge: "Family only",
+  badge: "Just us",
   /** The toggle when it is off — the diary as it has always been. */
   offLabel: "Everyone here",
   /** The toggle when it is on. */
-  onLabel: "Family only",
+  onLabel: "Just us",
   /** One line under the toggle, said in terms of people rather than roles. */
-  hint: "Kept to your family. An accountability partner or a friend in your circle will not see it.",
+  hint: "Only the two of you. Nobody else on the journey sees it — not the relatives you have invited, and not your circle.",
 } as const;

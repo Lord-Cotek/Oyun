@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { postScope, seesFamilyOnly } from "@/lib/post-visibility";
+import { postScope, seesHouseholdOnly } from "@/lib/post-visibility";
 import { type Role } from "@prisma/client";
 
 /**
@@ -41,12 +41,12 @@ export async function diaryYears(
   // The strip is a promise about what a year holds, and the feed behind it is
   // scoped to who is looking — so this has to be too, or somebody in the
   // circle taps "2019 · 40" and is shown thirty-one.
-  const all = seesFamilyOnly(role);
+  const all = seesHouseholdOnly(role);
   const rows = await prisma.$queryRaw<{ year: number; n: bigint }[]>`
     SELECT EXTRACT(YEAR FROM "createdAt")::int AS year, COUNT(*) AS n
     FROM "Post"
     WHERE "journeyId" = ${journeyId}
-      AND (${all} OR "familyOnly" = false)
+      AND (${all} OR "householdOnly" = false)
     GROUP BY 1
     ORDER BY 1 DESC
   `;
