@@ -29,6 +29,15 @@ model User {
   notifyDiary  Boolean @default(true)
   notifyHouse  Boolean @default(true)
 
+  /// Set when an operator has suspended this account — see the admin centre.
+  ///
+  /// A suspension has to bite on a session that is ALREADY open, not only at
+  /// the next sign-in: the reason to suspend an account is usually something
+  /// happening now. So lib/auth.ts checks this on every session read as well
+  /// as refusing the password. Null is the ordinary state.
+  suspendedAt     DateTime?
+  suspendedReason String?
+
   accounts          Account[]
   sessions          Session[]
   memberships       Membership[]

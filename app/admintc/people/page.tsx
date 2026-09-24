@@ -1,5 +1,6 @@
 import { findPerson } from "@/lib/admin-db";
 import { PersonActions } from "@/components/admin/PersonActions";
+import { CarefulActions } from "@/components/admin/CarefulActions";
 
 const when = (d: Date) => d.toLocaleDateString("en-GB", { dateStyle: "medium" });
 
@@ -14,16 +15,36 @@ const when = (d: Date) => d.toLocaleDateString("en-GB", { dateStyle: "medium" })
  * in, in what role, how many people and how many entries each holds. Never
  * what any of those entries say.
  */
+/**
+ * What just happened, said after the fact.
+ *
+ * A code rather than the message itself: the panel that ran the action
+ * unmounts when the account it belongs to moves or is deleted, so the news
+ * has to survive a navigation — and a sentence carried in a URL is a sentence
+ * somebody can put words into. These are fixed here.
+ */
+const DONE: Record<string, string> = {
+  changed: "Address changed. Both the old and the new one have been told.",
+  deleted: "Deleted. There is nothing left to restore.",
+};
+
 export default async function AdminPeoplePage({
   searchParams,
 }: {
-  searchParams: { q?: string };
+  searchParams: { q?: string; done?: string };
 }) {
   const q = (searchParams.q ?? "").trim();
+  const done = DONE[searchParams.done ?? ""] ?? null;
   const person = q ? await findPerson(q) : null;
 
   return (
     <div className="space-y-6">
+      {done && (
+        <p className="rounded border border-emerald-400/30 bg-emerald-400/[0.06] px-4 py-3 font-mono text-xs text-emerald-300">
+          {done}
+        </p>
+      )}
+
       <form className="flex flex-wrap gap-2">
         <input
           name="q"
@@ -60,6 +81,10 @@ export default async function AdminPeoplePage({
                 ["Joined", when(person.createdAt)],
                 ["Email verified", person.emailVerified ? when(person.emailVerified) : "no"],
                 ["Password set", person.hasPassword ? "yes" : "no"],
+                [
+                  "Suspended",
+                  person.suspendedAt ? when(person.suspendedAt) : "no",
+                ],
               ].map(([k, v]) => (
                 <div key={k}>
                   <dt className="font-mono text-[0.58rem] uppercase tracking-widest text-white/35">
@@ -105,6 +130,14 @@ export default async function AdminPeoplePage({
               when: when(p.createdAt),
             }))}
           />
+
+          {person.email && (
+            <CarefulActions
+              email={person.email}
+              suspendedAt={person.suspendedAt ? when(person.suspendedAt) : null}
+              suspendedReason={person.suspendedReason}
+            />
+          )}
         </div>
       )}
     </div>

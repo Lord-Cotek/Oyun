@@ -460,3 +460,44 @@ export async function sendInvitationEmail({
     text,
   });
 }
+
+/**
+ * The address on an account has changed.
+ *
+ * ── Why both addresses are told ──────────────────────────────────────────
+ * The address IS the account: whoever holds it can reset the password and
+ * walk in. So the OLD one is written to as well, and that message matters
+ * most — if this was not asked for, it is the only warning its owner will
+ * get, and it needs to say plainly what to do about it.
+ */
+export async function sendAddressChangedEmail({
+  to,
+  from,
+  next,
+  wasOld,
+}: {
+  to: string;
+  from: string;
+  next: string;
+  /** True for the message going to the address being left behind. */
+  wasOld: boolean;
+}): Promise<boolean> {
+  const line = wasOld
+    ? `Your Oyun account has been moved from ${escapeHtml(from)} to ${escapeHtml(next)} at your request.`
+    : `Your Oyun account now uses this address. It was moved here from ${escapeHtml(from)}.`;
+  const warn = wasOld
+    ? "If you did not ask for this, reply to this email straight away — whoever holds the new address can reset the password on your account."
+    : "If you were not expecting this, reply to this email straight away.";
+
+  const html = shell(`
+    <p style="font-size:16px;line-height:1.6;color:#ECE8DE;">${line}</p>
+    <p style="font-size:14px;line-height:1.7;color:#ECE8DE;">
+      You will sign in with ${escapeHtml(next)} from now on. Your password has
+      not changed, and nothing in your journey has moved.
+    </p>
+    <p style="font-size:12px;line-height:1.6;color:#8A9099;">${warn}</p>
+  `);
+  const text = [line, "", `You will sign in with ${next} from now on.`, "", warn].join("\n");
+
+  return sendEmail({ to, subject: "The address on your Oyun account has changed", html, text });
+}

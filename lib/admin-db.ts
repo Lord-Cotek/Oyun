@@ -79,6 +79,8 @@ export interface FoundPerson {
   emailVerified: Date | null;
   hasPassword: boolean;
   createdAt: Date;
+  suspendedAt: Date | null;
+  suspendedReason: string | null;
   memberships: {
     role: string;
     journeyId: string;
@@ -112,6 +114,8 @@ export async function findPerson(rawEmail: string): Promise<FoundPerson | null> 
       email: true,
       emailVerified: true,
       createdAt: true,
+      suspendedAt: true,
+      suspendedReason: true,
       memberships: {
         select: {
           role: true,
@@ -150,6 +154,8 @@ export async function findPerson(rawEmail: string): Promise<FoundPerson | null> 
     emailVerified: user.emailVerified,
     hasPassword,
     createdAt: user.createdAt,
+    suspendedAt: user.suspendedAt,
+    suspendedReason: user.suspendedReason,
     memberships: user.memberships.map((m) => ({
       role: String(m.role),
       journeyId: m.journeyId,
