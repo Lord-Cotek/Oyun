@@ -7,6 +7,7 @@ import { YearStrip } from "@/components/feed/YearStrip";
 import { StorySoFar } from "@/components/journey/StorySoFar";
 import { diaryYears, storySoFar } from "@/lib/story";
 import { seesHouseholdOnly } from "@/lib/post-visibility";
+import { isHousehold } from "@/lib/roles";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Arches } from "@/components/ui/Marks";
 import { Feed } from "@/components/feed/Feed";
@@ -44,10 +45,25 @@ export default async function LifePage({
   const year =
     Number.isInteger(asked) && asked > 1900 && asked < 2200 ? asked : undefined;
 
+  // ── Why "Our story so far" is the household's alone ───────────────────
+  // Six numbers, and only one of them — the diary count — was ever scoped to
+  // who was reading. The other five counted rooms a supporter cannot open:
+  // an accountability partner was told "33 letters written to keep" about
+  // letters they cannot read, and "1 appointment been to" about a room they
+  // cannot enter. Not content, but the volume and rhythm of a family's life,
+  // handed to somebody under a heading that says "Our story" — which, from
+  // their side of it, was not true either.
+  //
+  // Not computed at all for them, rather than computed and hidden: six counts
+  // nobody will see is six queries nobody needs.
+  const ours = isHousehold(active.role);
+
   const [posts, years, story] = await Promise.all([
     loadFeed(active.journey.id, session.user.id, active.role, 40, year),
     diaryYears(active.journey.id, active.role),
-    storySoFar(active.journey.id, active.journey.createdAt, active.role),
+    ours
+      ? storySoFar(active.journey.id, active.journey.createdAt, active.role)
+      : null,
   ]);
 
   return (
@@ -78,7 +94,7 @@ export default async function LifePage({
 
         <YearStrip years={years} active={year} />
 
-        {story.worthTelling && (
+        {story?.worthTelling && (
           <div className="mt-5 max-w-2xl">
             <StorySoFar story={story} />
           </div>
