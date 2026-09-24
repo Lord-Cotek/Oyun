@@ -24,7 +24,7 @@ export function Disclaimer() {
   // The admin centre is not one of the family's rooms and is not offered to
   // anybody: a promise about what Oyun is for, and a row of marketing links,
   // belong in front of families rather than in a back office.
-  if (pathname === "/admin" || pathname.startsWith("/admin/")) return null;
+  if (pathname === "/admintc" || pathname.startsWith("/admintc/")) return null;
 
   const full = showsFullPromise(pathname);
 

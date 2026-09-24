@@ -1,3 +1,5 @@
+import { createHmac, timingSafeEqual } from "node:crypto";
+import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
@@ -36,6 +38,20 @@ import { auth } from "@/lib/auth";
  * exists because somebody with access to the deployment put their address in
  * an environment variable.
  *
+ * ── Being signed in is not enough ────────────────────────────────────────
+ * Opening the centre asks for the password again, and the confirmation lasts
+ * UNLOCK_MINUTES. That is not theatre: the thing an admin can do that
+ * outlasts them is add another admin, so somebody who reaches an unlocked
+ * laptop with a live session could leave themselves a way back in that
+ * survives the owner changing their password. Asking once, briefly, closes
+ * that door and costs the operator four seconds a day.
+ *
+ * The confirmation is a signed cookie rather than a row: it is a fact about
+ * this browser in this hour, not about the account, and it should die with
+ * the browser rather than linger in a table. It is bound to the email it was
+ * issued for, so it cannot be carried to another account, and to
+ * NEXTAUTH_SECRET, so it cannot be forged.
+ *
  * ── Why 404 and not "you are not allowed" ────────────────────────────────
  * Because a page that says "forbidden" has told a stranger that there is
  * something here. The admin centre is in no navigation, linked from nowhere
@@ -47,6 +63,48 @@ export interface Admin {
   email: string;
   /** From the environment. May manage other admins; cannot be removed here. */
   isSuper: boolean;
+}
+
+/** How long a confirmed password holds the centre open. */
+export const UNLOCK_MINUTES = 30;
+const UNLOCK_COOKIE = "oyun_admintc";
+
+function unlockSecret(): string {
+  return process.env.NEXTAUTH_SECRET ?? "";
+}
+
+/** `<expiry>.<signature>` — the signature covers the email and the expiry. */
+export function mintUnlock(email: string): { value: string; expires: Date } {
+  const expires = new Date(Date.now() + UNLOCK_MINUTES * 60_000);
+  const at = String(expires.getTime());
+  const sig = createHmac("sha256", unlockSecret())
+    .update(`${email}:${at}`)
+    .digest("base64url");
+  return { value: `${at}.${sig}`, expires };
+}
+
+export const UNLOCK_COOKIE_NAME = UNLOCK_COOKIE;
+
+/**
+ * Whether this browser confirmed the password recently enough.
+ *
+ * Compared with timingSafeEqual, and the expiry is checked before the
+ * signature is even looked at, so an expired cookie costs nothing.
+ */
+export function unlockedFor(email: string): boolean {
+  if (!unlockSecret()) return false;
+  const raw = cookies().get(UNLOCK_COOKIE)?.value;
+  if (!raw) return false;
+  const [at, sig] = raw.split(".");
+  const when = Number(at);
+  if (!Number.isFinite(when) || when < Date.now() || !sig) return false;
+
+  const want = createHmac("sha256", unlockSecret())
+    .update(`${email}:${at}`)
+    .digest("base64url");
+  const a = Buffer.from(sig);
+  const b = Buffer.from(want);
+  return a.length === b.length && timingSafeEqual(a, b);
 }
 
 /** The addresses named in the environment, lower-cased and de-duplicated. */
@@ -82,10 +140,30 @@ export async function currentAdmin(): Promise<Admin | null> {
   return row ? { email, isSuper: false } : null;
 }
 
-/** Every admin page and action begins with this. */
+/**
+ * Every admin page and action begins with this.
+ *
+ * It answers "may this person be here at all", which is the 404 question. It
+ * deliberately does NOT check the unlock: the layout needs to know an admin
+ * has arrived in order to show them the password box rather than a 404.
+ */
 export async function requireAdmin(): Promise<Admin> {
   const admin = await currentAdmin();
   if (!admin) notFound();
+  return admin;
+}
+
+/**
+ * Every admin ACTION begins with this instead.
+ *
+ * A page may render behind a password box; an action must never run from
+ * behind one. Treated as a 404 rather than an error because by this point
+ * something is wrong that a message would not help with — the cookie expired
+ * mid-session, and the answer is to open the centre again.
+ */
+export async function requireUnlockedAdmin(): Promise<Admin> {
+  const admin = await requireAdmin();
+  if (!unlockedFor(admin.email)) notFound();
   return admin;
 }
 

@@ -36,7 +36,7 @@ export const GUEST_ROUTES = [
   // companion somebody forgets they are being watched by. The name of this
   // list is now a little narrow for what it holds; the rule it encodes is
   // "everywhere Agbebi does not appear", which the file's own title says.
-  "/admin",
+  "/admintc",
   "/p",
   "/r",
   "/i",

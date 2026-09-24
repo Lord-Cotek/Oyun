@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { resendInvite, sendReset } from "@/app/admin/actions";
+import { resendInvite, sendReset } from "@/app/admintc/actions";
 
 const btn =
   "rounded border border-white/20 px-3 py-2 font-mono text-[0.62rem] uppercase tracking-widest text-white/80 transition-colors hover:border-white/50 hover:text-white disabled:opacity-40";

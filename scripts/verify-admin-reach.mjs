@@ -49,6 +49,27 @@ const CONTENT = [
 const FILE = "lib/admin-db.ts";
 
 const problems = [];
+const allowed = [];
+
+/**
+ * A file may allow ONE named column, with a reason, by carrying a line like:
+ *
+ *   // admin-reach: allow passwordHash — compared against the admin's own
+ *
+ * There has to be a way to say "this one is different", or the first time
+ * somebody needs it they will delete the check instead. The rule is that an
+ * allowance is written next to the code, names the column, gives a reason,
+ * and is PRINTED on every run — so it can be argued with, and cannot quietly
+ * become normal.
+ */
+function allowancesIn(src, where) {
+  const out = new Map();
+  for (const m of src.matchAll(/admin-reach:\s*allow\s+(\w+)\s*[-—:]*\s*(.*)/g)) {
+    out.set(m[1], (m[2] || "").trim());
+    allowed.push(`${where}: ${m[1]} — ${(m[2] || "no reason given").trim()}`);
+  }
+  return out;
+}
 const full = path.join(root, FILE);
 if (!existsSync(full)) {
   console.error(`  ${FILE} is missing — the admin centre has no data layer.`);
@@ -56,12 +77,14 @@ if (!existsSync(full)) {
 }
 
 const src = readFileSync(full, "utf8");
+const dbAllows = allowancesIn(src, FILE);
 // Comments explain the rule and naturally name the things it forbids.
 const code = src
   .replace(/\/\*[\s\S]*?\*\//g, "")
   .replace(/^\s*\/\/.*$/gm, "");
 
 for (const bad of CONTENT) {
+  if (dbAllows.has(bad.split(":")[0])) continue;
   // `passwordHash: true` is listed as a pair because reading whether a
   // password EXISTS is legitimate; reading the hash is not. The select below
   // takes the field and the file converts it to a boolean immediately.
@@ -88,7 +111,7 @@ if (/\$queryRaw|\$executeRaw/.test(code)) {
 // is allowed the client, and held to the same rule about what it may READ.
 const { execSync } = await import("node:child_process");
 
-const pagesDir = path.join(root, "app/admin");
+const pagesDir = path.join(root, "app/admintc");
 if (existsSync(pagesDir)) {
   const hits = execSync(
     `grep -rn "prisma\\." ${JSON.stringify(pagesDir)} --include=page.tsx --include=layout.tsx || true`,
@@ -102,16 +125,19 @@ if (existsSync(pagesDir)) {
     }
   }
 
-  // Every other file under app/admin gets the content scan.
+  // Every other file under app/admintc gets the content scan.
   const others = execSync(
     `find ${JSON.stringify(pagesDir)} -name "*.ts" -o -name "*.tsx" | grep -v "page.tsx" | grep -v "layout.tsx" || true`,
     { encoding: "utf8" },
   ).trim();
   for (const f of others ? others.split("\n") : []) {
-    const body = readFileSync(f, "utf8")
+    const raw = readFileSync(f, "utf8");
+    const allows = allowancesIn(raw, path.relative(root, f));
+    const body = raw
       .replace(/\/\*[\s\S]*?\*\//g, "")
       .replace(/^\s*\/\/.*$/gm, "");
     for (const bad of CONTENT) {
+      if (allows.has(bad.split(":")[0])) continue;
       const needle = bad.includes(":") ? bad.replace(":", ":\\s*") : `${bad}:\\s*true`;
       if (new RegExp(needle).test(body)) {
         problems.push(`${path.relative(root, f)} selects "${bad.split(":")[0]}"`);
@@ -121,6 +147,12 @@ if (existsSync(pagesDir)) {
       problems.push(`${path.relative(root, f)} uses raw SQL`);
     }
   }
+}
+
+if (allowed.length > 0) {
+  console.log(`  ${allowed.length} allowance(s) in force:`);
+  for (const a of allowed) console.log(`   ·  ${a}`);
+  console.log("");
 }
 
 if (problems.length === 0) {
