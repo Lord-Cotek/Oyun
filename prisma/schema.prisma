@@ -287,15 +287,15 @@ model Journey {
 /// The family feed — an update, a praise, a prayer, or a milestone that the
 /// circle (mother, partner, and supporters) shares and carries together.
 model Post {
-  id         String    @id @default(cuid())
-  journeyId  String
-  journey    Journey   @relation(fields: [journeyId], references: [id], onDelete: Cascade)
-  authorId   String
-  author     User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  kind       String    @default("UPDATE") // UPDATE | PRAISE | PRAYER | MILESTONE
-  body       String
-  imageUrl   String? // legacy single image; new posts use mediaUrls
-  mediaUrls  String[]  @default([]) // images and videos, in order
+  id            String    @id @default(cuid())
+  journeyId     String
+  journey       Journey   @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  authorId      String
+  author        User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  kind          String    @default("UPDATE") // UPDATE | PRAISE | PRAYER | MILESTONE
+  body          String
+  imageUrl      String? // legacy single image; new posts use mediaUrls
+  mediaUrls     String[]  @default([]) // images and videos, in order
   /// One poster frame per entry in mediaUrls, at the same index.
   ///
   /// A still lifted from a video in the browser before it was uploaded, so a
@@ -307,7 +307,7 @@ model Post {
   /// every photograph, every video from a browser that could not make one,
   /// and every post that existed before this column did. Readers must treat
   /// a missing or empty entry as normal, never as an error.
-  posterUrls String[]  @default([])
+  posterUrls    String[]  @default([])
   /// Kept to the family: the mother, the one beside her, and the relatives on
   /// this journey. An accountability partner or a friend in the circle never
   /// sees it, anywhere — not in the diary, not in search, not in the export,
@@ -323,9 +323,9 @@ model Post {
   /// dropping and recreating it, and nothing on a family's diary is worth
   /// that. The @map keeps the database exactly as it is while the code says
   /// what the flag actually does: relatives are NOT included.
-  householdOnly Boolean @default(false) @map("familyOnly")
-  createdAt  DateTime  @default(now())
-  editedAt   DateTime?
+  householdOnly Boolean   @default(false) @map("familyOnly")
+  createdAt     DateTime  @default(now())
+  editedAt      DateTime?
 
   comments  PostComment[]
   reactions PostReaction[]
@@ -1181,4 +1181,51 @@ model Appointment {
 
   @@index([journeyId, at])
   @@index([at])
+}
+
+// ── The admin centre ─────────────────────────────────────────────────────
+// Reached only at /admin, which is in no navigation, linked from nowhere and
+// returns 404 to everybody else. See lib/admin.ts for the rule.
+
+/// Somebody allowed into the admin centre.
+///
+/// ── Why this is its own table and not a flag on User ─────────────────────
+/// Because a flag on User is one careless `update` away from being granted by
+/// a code path that had no business granting it, and because a family must
+/// never be able to hand it out. Nothing in the app writes here except the
+/// admin centre itself, and the first admin does not come from here at all —
+/// it comes from an environment variable, so there is no bootstrap endpoint
+/// to find.
+model AdminUser {
+  id         String    @id @default(cuid())
+  /// Lower-cased on write. Matched against the signed-in account's email.
+  email      String    @unique
+  /// A word for the operator's own benefit: "support", "on call".
+  label      String?
+  /// Who let them in, kept as an email rather than a relation: an admin
+  /// removed from the table should not take the record of what they did.
+  addedBy    String?
+  createdAt  DateTime  @default(now())
+  lastSeenAt DateTime?
+}
+
+/// Everything an admin does, written down.
+///
+/// Append-only by convention and by the absence of any delete path: the admin
+/// centre can read this and add to it, and offers no way to remove a line.
+/// The point is not to catch a stranger — it is so that an operator can say,
+/// months later and to somebody who is entitled to ask, exactly what was done
+/// to an account and by whom.
+model AdminAudit {
+  id         String   @id @default(cuid())
+  actorEmail String
+  /// A short verb: "signed in", "sent a password reset", "resent an invite".
+  action     String
+  /// What it was done to, in a form a person can read — usually an email.
+  subject    String?
+  detail     String?
+  createdAt  DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([subject])
 }

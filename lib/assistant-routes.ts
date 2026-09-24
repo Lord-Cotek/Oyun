@@ -30,6 +30,13 @@
  * This is not a drift-tracked file: the two apps have different doors.
  */
 export const GUEST_ROUTES = [
+  // The admin centre. Not a door — the opposite, a back office — but it
+  // belongs on the same list for the same practical reason: it is not one of
+  // the family's rooms, and a floating companion in a back office is a
+  // companion somebody forgets they are being watched by. The name of this
+  // list is now a little narrow for what it holds; the rule it encodes is
+  // "everywhere Agbebi does not appear", which the file's own title says.
+  "/admin",
   "/p",
   "/r",
   "/i",

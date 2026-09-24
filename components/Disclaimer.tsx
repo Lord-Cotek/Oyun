@@ -20,6 +20,12 @@ import { PROMISE_FULL, showsFullPromise } from "@/lib/promise";
  */
 export function Disclaimer() {
   const pathname = usePathname() ?? "";
+
+  // The admin centre is not one of the family's rooms and is not offered to
+  // anybody: a promise about what Oyun is for, and a row of marketing links,
+  // belong in front of families rather than in a back office.
+  if (pathname === "/admin" || pathname.startsWith("/admin/")) return null;
+
   const full = showsFullPromise(pathname);
 
   return (

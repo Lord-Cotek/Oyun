@@ -16,6 +16,10 @@ export default function robots(): MetadataRoute.Robots {
         "/onboarding",
         "/reset-password",
         "/api",
+        // The admin centre. It already 404s for everybody who is not an
+        // admin and says noindex for itself; this is for the crawler that
+        // would otherwise record that the address exists at all.
+        "/admin",
         // An invitation is for the people it was handed to. The link is
         // unguessable and each page says noindex for itself, but a crawler
         // that finds one pasted in a public forum should be told plainly too.

@@ -11,6 +11,7 @@
     "typecheck": "tsc --noEmit",
     "verify:scripture": "node scripts/verify-scripture.js",
     "verify:links": "node scripts/verify-link-preview.mjs",
+    "verify:admin": "node scripts/verify-admin-reach.mjs",
     "db:push": "prisma db push",
     "db:generate": "prisma generate",
     "db:baseline": "prisma migrate diff --from-empty --to-schema-datamodel prisma/schema.prisma --script",
