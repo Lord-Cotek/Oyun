@@ -182,6 +182,16 @@
     "app/admintc/broadcast-actions.ts",
     "app/admintc/broadcast/page.tsx",
     "components/admin/BroadcastDesk.tsx",
-    "components/admin/PersonActions.tsx"
+    "components/admin/PersonActions.tsx",
+    "lib/concerns.ts",
+    "app/admintc/concern-actions.ts",
+    "app/admintc/flag-actions.ts",
+    "app/admintc/concerns/page.tsx",
+    "app/admintc/emails/page.tsx",
+    "app/admintc/flags/page.tsx",
+    "app/settings/concern-actions.ts",
+    "components/admin/ConcernQueue.tsx",
+    "components/admin/FlagList.tsx",
+    "components/settings/RaiseConcern.tsx"
   ]
 }
