@@ -1,18 +1,19 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { resendInvite, sendReset } from "@/app/admintc/actions";
+import { resendInvite, sendExportLink, sendReset } from "@/app/admintc/actions";
 
 const btn =
   "rounded border border-white/20 px-3 py-2 font-mono text-[0.62rem] uppercase tracking-widest text-white/80 transition-colors hover:border-white/50 hover:text-white disabled:opacity-40";
 
 /**
- * The two things support actually needs to do for somebody.
+ * The everyday things support actually needs to do for somebody.
  *
- * Both send the person an email and neither shows the admin anything: the
- * reset link goes to the address on the account and is never rendered here,
- * so this cannot be used to take an account over — only to help somebody back
- * into their own.
+ * Every one of them sends the person an email and none shows the admin
+ * anything: the reset link goes to the address on the account and is never
+ * rendered here, so this cannot be used to take an account over — only to
+ * help somebody back into their own. The export is the same shape on purpose:
+ * a signpost to Settings, where the family downloads it themselves.
  */
 export function PersonActions({
   email,
@@ -50,7 +51,20 @@ export function PersonActions({
         >
           {busy ? "Working…" : "Send a password reset"}
         </button>
+        <button
+          type="button"
+          disabled={busy || !email}
+          onClick={() => run(() => sendExportLink(email))}
+          className={btn}
+        >
+          Send them their own copy
+        </button>
       </div>
+      <p className="mt-2 font-mono text-[0.58rem] leading-relaxed text-white/30">
+        &ldquo;Their own copy&rdquo; emails them the way to Settings, where the
+        download is. It does not make the file and it does not work for anybody
+        who is not signed in as them.
+      </p>
 
       {pending.length > 0 && (
         <div className="mt-5">

@@ -238,3 +238,43 @@ export async function listAdmins(): Promise<
     },
   });
 }
+
+export interface BroadcastRow {
+  id: string;
+  subject: string;
+  body: string;
+  audience: string;
+  createdBy: string;
+  createdAt: Date;
+  startedAt: Date | null;
+  finishedAt: Date | null;
+  sentCount: number;
+  failedCount: number;
+}
+
+/**
+ * What has been sent to everybody, and what is waiting.
+ *
+ * admin-reach: allow body — the broadcast's OWN text, typed by an operator in
+ * this centre and about to be sent to everybody. It is the one body in this
+ * file that is not a family's words, and the whole point of keeping it is
+ * that somebody can ask months later what we told people.
+ */
+export async function listBroadcasts(take = 25): Promise<BroadcastRow[]> {
+  return prisma.broadcast.findMany({
+    orderBy: { createdAt: "desc" },
+    take,
+    select: {
+      id: true,
+      subject: true,
+      body: true,
+      audience: true,
+      createdBy: true,
+      createdAt: true,
+      startedAt: true,
+      finishedAt: true,
+      sentCount: true,
+      failedCount: true,
+    },
+  });
+}

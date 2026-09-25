@@ -30,6 +30,7 @@ export const dynamic = "force-dynamic";
 const tabs = [
   { href: "/admintc", label: "Overview" },
   { href: "/admintc/people", label: "Find a person" },
+  { href: "/admintc/broadcast", label: "Broadcast" },
   { href: "/admintc/audit", label: "What was done" },
   { href: "/admintc/admins", label: "Admins" },
 ];

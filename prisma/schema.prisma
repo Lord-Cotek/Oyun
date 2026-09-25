@@ -1238,3 +1238,41 @@ model AdminAudit {
   @@index([createdAt])
   @@index([subject])
 }
+
+/// An email the operator sent to everybody.
+///
+/// ── Why it is written down rather than just sent ─────────────────────────
+/// Because it cannot be unsent. Months later somebody will ask "what did we
+/// tell people in September", and the answer has to be the words themselves,
+/// with who sent them, to how many, and whether it finished. A broadcast that
+/// leaves no record is a broadcast nobody can be held to.
+///
+/// It also makes sending RESUMABLE. A few thousand emails will not go out
+/// inside one request, so the send walks the accounts in order of id and
+/// remembers where it got to; pressing on again picks up from the cursor
+/// rather than starting over and writing to the same people twice.
+model Broadcast {
+  id        String   @id @default(cuid())
+  subject   String
+  /// Plain text, written by a person. Not HTML: an operator composing markup
+  /// in a back office at midnight is how a broken email reaches everybody.
+  body      String
+  /// "ALL" — every account, for the things everyone must be told.
+  /// "OPTED_IN" — only those who accept email from us. The default.
+  audience  String   @default("OPTED_IN")
+  createdBy String
+  createdAt DateTime @default(now())
+
+  /// Set the moment sending begins, so a second press cannot start it twice.
+  startedAt DateTime?
+  /// Set when the last batch went.
+  finishedAt DateTime?
+  /// How many it has actually been handed to the mail provider for.
+  sentCount Int @default(0)
+  /// How many the provider refused.
+  failedCount Int @default(0)
+  /// Where the walk got to. Null before it starts.
+  cursor String?
+
+  @@index([createdAt])
+}

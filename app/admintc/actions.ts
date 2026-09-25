@@ -13,6 +13,7 @@ import {
 import { journeyOwnerName, pendingInvite } from "@/lib/admin-db";
 import {
   sendAddressChangedEmail,
+  sendExportLinkEmail,
   sendInviteEmail,
   sendPasswordResetEmail,
 } from "@/lib/email";
@@ -196,6 +197,52 @@ export async function removeAdmin(id: string): Promise<Result> {
  * speak to the family before the person knows. Telling them is a decision for
  * a human, not a side effect.
  */
+/**
+ * Point somebody at their own copy of everything.
+ *
+ * ── Why this is a signpost and not a download ────────────────────────────
+ * Because the export is a family's whole diary, and this centre does not read
+ * a family's content. The temptation, when somebody writes in asking for
+ * their data, is to build an admin button that produces the file — and that
+ * button would be the one hole in the wall, because the operator pressing it
+ * has the file in their hands.
+ *
+ * So the family exports their own from Settings, as they always could, and
+ * the only thing an admin can do is send them the way there. No token, no
+ * file, nothing that works without signing in. The audit line records that
+ * the signpost was sent, which is all that happened.
+ */
+export async function sendExportLink(email: string): Promise<Result> {
+  const admin = await requireUnlockedAdmin();
+  const to = email.trim().toLowerCase();
+
+  const user = await prisma.user.findFirst({
+    where: { email: { equals: to, mode: "insensitive" } },
+    select: { email: true, name: true },
+  });
+  if (!user?.email) {
+    await audit(admin.email, "tried to send an export link", to, "no such account");
+    return { ok: false, error: "No account with that address." };
+  }
+
+  const sent = await sendExportLinkEmail({
+    to: user.email,
+    name: user.name,
+    link: `${SITE}/settings`,
+  }).catch(() => false);
+
+  await audit(
+    admin.email,
+    "sent the link to their own copy",
+    user.email,
+    sent ? "email accepted" : "email did not send",
+  );
+  revalidatePath("/admintc/audit");
+  return sent
+    ? { ok: true, said: "Sent. They download it themselves from Settings." }
+    : { ok: false, error: "The email did not send." };
+}
+
 export async function suspendAccount(
   email: string,
   reason: string,

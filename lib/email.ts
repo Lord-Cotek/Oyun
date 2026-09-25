@@ -501,3 +501,104 @@ export async function sendAddressChangedEmail({
 
   return sendEmail({ to, subject: "The address on your Oyun account has changed", html, text });
 }
+
+/**
+ * "Here is where your own copy lives."
+ *
+ * ── Why this mails a signpost and not a file ─────────────────────────────
+ * Because an export is the family's whole diary, and the one promise the
+ * admin centre makes is that it never touches a family's content. A link
+ * that produced the file on its own would break that promise twice over: an
+ * admin would be causing content to move, and the link itself would be a way
+ * into a journey for anyone who came across the email.
+ *
+ * So this points at Settings. It needs signing in, the download is built for
+ * whoever is signed in, and the admin who sent it is no nearer the contents
+ * than they were before. What it saves the person is the hunt for the button.
+ */
+export async function sendExportLinkEmail({
+  to,
+  name,
+  link,
+}: {
+  to: string;
+  name: string | null;
+  link: string;
+}): Promise<boolean> {
+  const hello = name?.trim() ? `${escapeHtml(name.trim().split(/\s+/)[0])},` : "Hello,";
+
+  const html = shell(`
+    <p style="font-size:16px;line-height:1.6;color:#ECE8DE;">${hello}</p>
+    <p style="font-size:14px;line-height:1.7;color:#ECE8DE;">
+      You asked for a copy of everything you have kept in Oyun. It is waiting
+      for you in Settings — sign in, and the download is at
+      &ldquo;Take everything with you&rdquo;.
+    </p>
+    <p style="font-size:14px;line-height:1.7;">
+      <a href="${escapeHtml(link)}" style="color:#C9A227;">Open Settings</a>
+    </p>
+    <p style="font-size:12px;line-height:1.6;color:#8A9099;">
+      The file is made for whoever is signed in, so this link is no use to
+      anybody else. Nobody here has read it, and nobody here can.
+    </p>
+  `);
+  const text = [
+    hello,
+    "",
+    "You asked for a copy of everything you have kept in Oyun. It is waiting for you in Settings — sign in, and the download is at “Take everything with you”.",
+    "",
+    link,
+    "",
+    "The file is made for whoever is signed in, so this link is no use to anybody else. Nobody here has read it, and nobody here can.",
+  ].join("\n");
+
+  return sendEmail({ to, subject: "Your own copy of everything in Oyun", html, text });
+}
+
+/**
+ * A word from the people who keep Oyun, to everybody.
+ *
+ * ── Why the body is plain text and escaped ───────────────────────────────
+ * Because it is typed into a box in a back office, often at the end of a
+ * long day, and an operator composing HTML there is how a broken email
+ * reaches three thousand people at once. Paragraphs are made from blank
+ * lines and everything else is escaped, so the worst a typo can do is look
+ * like a typo.
+ */
+export async function sendBroadcastEmail({
+  to,
+  name,
+  subject,
+  body,
+}: {
+  to: string;
+  name: string | null;
+  subject: string;
+  body: string;
+}): Promise<boolean> {
+  const hello = name?.trim() ? `${escapeHtml(name.trim().split(/\s+/)[0])}, ` : "";
+  const paragraphs = body
+    .replace(/\r\n?/g, "\n")
+    .split(/\n{2,}/)
+    .map((p) => p.trim())
+    .filter(Boolean)
+    .map(
+      (p) =>
+        `<p style="font-size:14px;line-height:1.7;color:#ECE8DE;">${escapeHtml(p).replace(/\n/g, "<br/>")}</p>`,
+    )
+    .join("");
+
+  const html = shell(`
+    ${hello ? `<p style="font-size:16px;line-height:1.6;color:#ECE8DE;">${hello.trim().replace(/,$/, "")},</p>` : ""}
+    ${paragraphs}
+    <p style="font-size:12px;line-height:1.6;color:#8A9099;">
+      You are getting this because you have an Oyun account. You can turn
+      emails off in Settings.
+    </p>
+  `);
+  const text = [hello ? `${hello.trim().replace(/,$/, "")},` : "", "", body, "", "You are getting this because you have an Oyun account. You can turn emails off in Settings."]
+    .filter((s, i) => !(i === 0 && !s))
+    .join("\n");
+
+  return sendEmail({ to, subject, html, text });
+}
