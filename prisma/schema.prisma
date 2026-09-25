@@ -1276,3 +1276,95 @@ model Broadcast {
 
   @@index([createdAt])
 }
+
+/// One email, and what became of it.
+///
+/// ── What it deliberately does NOT hold ───────────────────────────────────
+/// The subject and the body. A subject can carry a family's words — a child's
+/// name, the first line of an entry — and a log an operator reads all day is
+/// the last place those belong. So the record is: an email OF THIS KIND went
+/// to THIS ADDRESS at THIS TIME, and the provider either took it or gave this
+/// reason. That answers the only question support is ever actually asked —
+/// "did she get it?" — without opening anything.
+///
+/// Writing it must never be able to break a send. The recorder swallows its
+/// own errors: a log that takes the sign-up email down with it is worse than
+/// no log.
+model EmailDelivery {
+  id        String   @id @default(cuid())
+  /// Which template. Named in code, never free text from a user.
+  kind      String
+  to        String
+  ok        Boolean
+  /// The provider's own words when it refused. Truncated, never the body.
+  error     String?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([to, createdAt])
+}
+
+/// A switch that can be thrown without a deploy.
+///
+/// ── Why the keys live in code ────────────────────────────────────────────
+/// Because the failure mode of free-form flags is a typo: somebody adds
+/// "new-registry" in the admin centre while the code asks for
+/// "new_registry", the flag reads as off for ever, and the feature is
+/// silently dead with no error anywhere. So lib/flags.ts declares the flags
+/// that exist, the centre can only toggle those, and a key the code does not
+/// know about cannot be created at all.
+///
+/// Every flag also declares what it does when nothing is stored, so a fresh
+/// database and a fresh deploy behave the same way.
+model FeatureFlag {
+  key       String   @id
+  on        Boolean
+  /// Who last moved it, and when — the same accountability as everything
+  /// else in the centre.
+  changedBy String
+  changedAt DateTime @updatedAt
+
+  @@index([changedAt])
+}
+
+/// Somebody asked for help, from inside the app.
+///
+/// ── The hard part, and how it is settled ─────────────────────────────────
+/// A queue of reports is the obvious place for the wall between an admin and
+/// a family's words to come down: somebody reports an entry, and the queue
+/// helpfully shows the entry. Then the promise is over, and it ended for the
+/// best possible reason, which is how these promises always end.
+///
+/// So a concern carries the REPORTER'S OWN WORDS and nothing else. They chose
+/// to write them to us; that is the whole difference. There is no pointer to
+/// an entry, no copy of what upset them, no way to open anything from here.
+/// An admin reads what the person chose to say and answers it the way any
+/// human would — by writing back, or, where it is serious, by suspending an
+/// account and picking up the phone.
+///
+/// If that is not enough to resolve something, the answer is to talk to the
+/// family, not to widen the queue.
+model Concern {
+  id     String @id @default(cuid())
+  /// The account that raised it. Null if they were signed out.
+  userId String?
+  /// The address to write back to.
+  email  String
+  /// One of the kinds offered on the form — not free text, so the queue can
+  /// be triaged without reading every one.
+  kind   String
+  /// What they chose to tell us. Their words, written to us on purpose.
+  said   String
+
+  /// "OPEN", "ANSWERED", "CLOSED".
+  state     String   @default("OPEN")
+  createdAt DateTime @default(now())
+
+  /// Who picked it up, and the note they left for the next person.
+  handledBy String?
+  handledAt DateTime?
+  outcome   String?
+
+  @@index([state, createdAt])
+  @@index([email])
+}

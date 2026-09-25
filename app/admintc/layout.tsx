@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { requireAdmin, audit, unlockedFor, UNLOCK_MINUTES } from "@/lib/admin";
+import { openConcernCount } from "@/lib/admin-db";
 import { Unlock } from "@/components/admin/Unlock";
 import { LockButton } from "@/components/admin/LockButton";
 
@@ -27,10 +28,18 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
+/**
+ * Ordered by how often somebody standing here needs each one: the queue and
+ * the search first, the occasional jobs next, the record and the housekeeping
+ * last. Not alphabetically, and not in the order they happened to be built.
+ */
 const tabs = [
   { href: "/admintc", label: "Overview" },
   { href: "/admintc/people", label: "Find a person" },
+  { href: "/admintc/concerns", label: "Concerns" },
   { href: "/admintc/broadcast", label: "Broadcast" },
+  { href: "/admintc/emails", label: "Emails" },
+  { href: "/admintc/flags", label: "Switches" },
   { href: "/admintc/audit", label: "What was done" },
   { href: "/admintc/admins", label: "Admins" },
 ];
@@ -57,6 +66,11 @@ export default async function AdminLayout({
   }
 
   await audit(admin.email, "opened the admin centre");
+
+  // A concern nobody has answered should be visible before anybody clicks
+  // anything. Somebody frightened enough to write to us should not be waiting
+  // behind a tab that looks like every other tab.
+  const waiting = await openConcernCount().catch(() => 0);
 
   return (
     <div className="min-h-dvh bg-[#0f0f10] text-[#e7e5e2]">
@@ -86,15 +100,23 @@ export default async function AdminLayout({
           </div>
         </div>
         <nav className="mx-auto flex max-w-5xl flex-wrap gap-1 px-5 pb-3">
-          {tabs.map((t) => (
-            <Link
-              key={t.href}
-              href={t.href}
-              className="rounded border border-white/10 px-3 py-2 font-mono text-[0.62rem] uppercase tracking-widest text-white/60 transition-colors hover:border-white/30 hover:text-white"
-            >
-              {t.label}
-            </Link>
-          ))}
+          {tabs.map((t) => {
+            const flag = t.href === "/admintc/concerns" && waiting > 0;
+            return (
+              <Link
+                key={t.href}
+                href={t.href}
+                className={`rounded border px-3 py-2 font-mono text-[0.62rem] uppercase tracking-widest transition-colors ${
+                  flag
+                    ? "border-red-400/50 text-red-300 hover:border-red-400"
+                    : "border-white/10 text-white/60 hover:border-white/30 hover:text-white"
+                }`}
+              >
+                {t.label}
+                {flag && <span className="ml-1.5">{waiting}</span>}
+              </Link>
+            );
+          })}
         </nav>
       </header>
 

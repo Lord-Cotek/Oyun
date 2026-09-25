@@ -9,6 +9,7 @@ import { auth } from "@/lib/auth";
 import { getActiveMembership } from "@/lib/data";
 import { newSlug } from "@/lib/registry-db";
 import { readLink, type LinkPreview } from "@/lib/link-preview";
+import { isOn } from "@/lib/flags";
 import {
   canKeepRegistry,
   canTakeMoney,
@@ -334,6 +335,20 @@ export async function setSharedWithCircle(share: boolean): Promise<Result> {
  */
 export async function previewLink(url: string): Promise<LinkPreview> {
   await keeper();
+  // Switched off from the admin centre when a retailer starts refusing us and
+  // the wait becomes worse than the missing picture. She can still type the
+  // name herself, which is what the message says.
+  if (!(await isOn("link-preview"))) {
+    return {
+      url,
+      title: null,
+      imageUrl: null,
+      price: null,
+      wholeList: false,
+      failed:
+        "Reading shop links is paused just now — type the name yourself and it will work the same.",
+    };
+  }
   return readLink(url);
 }
 

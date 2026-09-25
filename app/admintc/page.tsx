@@ -1,8 +1,12 @@
-import { overview } from "@/lib/admin-db";
+import { deliveryHealth, openConcernCount, overview } from "@/lib/admin-db";
 
 /** The shape of things. Numbers only — nothing here can name a person. */
 export default async function AdminOverviewPage() {
-  const o = await overview();
+  const [o, waiting, mail] = await Promise.all([
+    overview(),
+    openConcernCount(),
+    deliveryHealth(),
+  ]);
 
   const groups: { heading: string; rows: [string, number][] }[] = [
     {
@@ -24,8 +28,18 @@ export default async function AdminOverviewPage() {
       ],
     },
     {
+      heading: "Waiting on somebody here",
+      rows: [
+        ["Concerns not yet answered", waiting],
+        ["Emails refused in the last day", mail.failed],
+      ],
+    },
+    {
       heading: "This centre",
-      rows: [["Admins added here", o.admins]],
+      rows: [
+        ["Admins added here", o.admins],
+        ["Emails that went in the last day", mail.sent],
+      ],
     },
   ];
 

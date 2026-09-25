@@ -278,3 +278,95 @@ export async function listBroadcasts(take = 25): Promise<BroadcastRow[]> {
     },
   });
 }
+
+export interface DeliveryRow {
+  id: string;
+  kind: string;
+  to: string;
+  ok: boolean;
+  error: string | null;
+  createdAt: Date;
+}
+
+/**
+ * What we have tried to send, and what became of it.
+ *
+ * There is no subject and no body here to select, because the table does not
+ * hold them — see the note on EmailDelivery. This reads the kind, the
+ * address, and whether the provider took it.
+ */
+export async function recentDeliveries(take = 100): Promise<DeliveryRow[]> {
+  return prisma.emailDelivery.findMany({
+    orderBy: { createdAt: "desc" },
+    take,
+    select: { id: true, kind: true, to: true, ok: true, error: true, createdAt: true },
+  });
+}
+
+/** The same, for one address — so "did she get it?" is answered in one place. */
+export async function deliveriesFor(email: string, take = 20): Promise<DeliveryRow[]> {
+  return prisma.emailDelivery.findMany({
+    where: { to: { equals: email, mode: "insensitive" } },
+    orderBy: { createdAt: "desc" },
+    take,
+    select: { id: true, kind: true, to: true, ok: true, error: true, createdAt: true },
+  });
+}
+
+/** How the last day went, for the overview. */
+export async function deliveryHealth(): Promise<{ sent: number; failed: number }> {
+  const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  const [sent, failed] = await Promise.all([
+    prisma.emailDelivery.count({ where: { createdAt: { gte: since }, ok: true } }),
+    prisma.emailDelivery.count({ where: { createdAt: { gte: since }, ok: false } }),
+  ]);
+  return { sent, failed };
+}
+
+export interface ConcernRow {
+  id: string;
+  email: string;
+  kind: string;
+  said: string;
+  state: string;
+  createdAt: Date;
+  handledBy: string | null;
+  handledAt: Date | null;
+  outcome: string | null;
+}
+
+/**
+ * The queue of people who have written to us.
+ *
+ * admin-reach: allow said — the reporter's OWN words, written to this centre
+ * on purpose because they wanted an answer. It is the one thing in this file
+ * a person addressed TO us, which is the whole difference between reading a
+ * concern and reading a diary. Nothing here points at anything they wrote
+ * anywhere else, and there is no way to open one from this screen.
+ *
+ * admin-reach: allow outcome — the ADMIN'S own note about how it was
+ * settled, typed in this centre by the person reading it.
+ */
+export async function listConcerns(state: string | null, take = 50): Promise<ConcernRow[]> {
+  return prisma.concern.findMany({
+    where: state ? { state } : {},
+    orderBy: { createdAt: "desc" },
+    take,
+    select: {
+      id: true,
+      email: true,
+      kind: true,
+      said: true,
+      state: true,
+      createdAt: true,
+      handledBy: true,
+      handledAt: true,
+      outcome: true,
+    },
+  });
+}
+
+/** How many are waiting, for the overview and the tab. */
+export async function openConcernCount(): Promise<number> {
+  return prisma.concern.count({ where: { state: "OPEN" } });
+}

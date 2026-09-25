@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { computePosition } from "@/lib/stage";
 import { MOOD_META } from "@/lib/moods";
 import { sendWeeklyDigest, type DigestSection } from "@/lib/email";
+import { isOn } from "@/lib/flags";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -17,6 +18,13 @@ export async function GET(req: Request) {
   const authz = req.headers.get("authorization");
   if (!secret || authz !== `Bearer ${secret}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // Checked before any work, so turning it off in the admin centre stops the
+  // next one going out without waiting for a deploy. Reported rather than
+  // silent, so a cron run that did nothing says why.
+  if (!(await isOn("weekly-digest"))) {
+    return NextResponse.json({ skipped: "the weekly email is switched off" });
   }
 
   const weekAgo = new Date();

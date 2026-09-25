@@ -1,4 +1,4 @@
-import { findPerson } from "@/lib/admin-db";
+import { deliveriesFor, findPerson } from "@/lib/admin-db";
 import { PersonActions } from "@/components/admin/PersonActions";
 import { CarefulActions } from "@/components/admin/CarefulActions";
 
@@ -36,6 +36,9 @@ export default async function AdminPeoplePage({
   const q = (searchParams.q ?? "").trim();
   const done = DONE[searchParams.done ?? ""] ?? null;
   const person = q ? await findPerson(q) : null;
+  // "She says she never got it" is the commonest support question there is,
+  // and the answer belongs on the screen where somebody is already standing.
+  const sent = person?.email ? await deliveriesFor(person.email) : [];
 
   return (
     <div className="space-y-6">
@@ -121,6 +124,40 @@ export default async function AdminPeoplePage({
               </ul>
             )}
           </section>
+
+          {person.email && (
+            <section className="rounded border border-white/10 bg-[#141416] p-4">
+              <h2 className="font-mono text-[0.62rem] uppercase tracking-widest text-white/40">
+                What we have sent them
+              </h2>
+              {sent.length === 0 ? (
+                <p className="mt-2 font-mono text-xs text-white/40">
+                  Nothing on record.
+                </p>
+              ) : (
+                <ul className="mt-2 space-y-1.5">
+                  {sent.map((d) => (
+                    <li key={d.id} className="font-mono text-[0.62rem]">
+                      <span className={d.ok ? "text-emerald-300" : "text-red-300"}>
+                        {d.ok ? "went" : "refused"}
+                      </span>
+                      <span className="text-white/70"> · {d.kind} · </span>
+                      <span className="text-white/40">{when(d.createdAt)}</span>
+                      {d.error && (
+                        <span className="mt-0.5 block break-words text-white/30">
+                          {d.error}
+                        </span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <p className="mt-3 font-mono text-[0.58rem] leading-relaxed text-white/30">
+                Which email and whether the provider took it. Never the subject
+                or the words.
+              </p>
+            </section>
+          )}
 
           <PersonActions
             email={person.email ?? ""}

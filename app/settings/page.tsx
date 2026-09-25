@@ -24,6 +24,8 @@ import { PushToggle } from "@/components/PushToggle";
 import { MarkLoss } from "@/components/settings/MarkLoss";
 import { DeleteAccount } from "@/components/settings/DeleteAccount";
 import { ExportButton } from "@/components/settings/ExportButton";
+import { RaiseConcern } from "@/components/settings/RaiseConcern";
+import { isOn } from "@/lib/flags";
 
 export const metadata: Metadata = {
   title: "Settings",
@@ -39,9 +41,10 @@ export default async function SettingsPage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/sign-in?callbackUrl=/settings");
 
-  const [user, active] = await Promise.all([
+  const [user, active, canWrite] = await Promise.all([
     prisma.user.findUnique({ where: { id: session.user.id } }),
     getActiveMembership(session.user.id),
+    isOn("concerns"),
   ]);
   if (!user) redirect("/sign-in");
 
@@ -138,6 +141,26 @@ export default async function SettingsPage() {
                   Manage your circle &rarr;
                 </Link>
               </div>
+            </Card>
+          )}
+
+          {/*
+            Somewhere to turn.
+            Placed above the dangerous heading and below the everyday ones,
+            because the person who needs it is not browsing — they came here
+            looking for a way to reach a human, and found one.
+          */}
+          {canWrite && (
+            <Card className="p-8">
+              <Eyebrow className="mb-3">Something is wrong</Eyebrow>
+              <p className="mb-5 prose-serif-xs text-muted">
+                If you are worried about somebody, or somebody in your circle
+                should not be here, or anything at all has gone wrong — tell us
+                and a person will read it. We only ever see what you write
+                here; we cannot read your diary, your letters, or anything else
+                your family has kept.
+              </p>
+              <RaiseConcern />
             </Card>
           )}
 

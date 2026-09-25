@@ -21,15 +21,45 @@ function fromAddress(): string {
   return process.env.EMAIL_FROM ?? "Agbebi <agbebi@oyun.cotek.app>";
 }
 
+/**
+ * Write down that an email happened.
+ *
+ * ── What is kept, and what is deliberately not ───────────────────────────
+ * The kind, the address, whether the provider took it, and why not. NOT the
+ * subject and NOT the body: a subject carries a child's name or the first
+ * line of an entry, and a log an operator reads all day is the last place
+ * those belong. "An invitation went to this address at 14:02 and Resend
+ * refused it: domain not verified" answers the only question support is ever
+ * actually asked, without opening anything.
+ *
+ * ── It must never be able to break a send ────────────────────────────────
+ * Everything here is inside a catch that does nothing. A logging table that
+ * takes the sign-up email down with it when the database is busy is worse
+ * than having no log at all — so if this fails, the email still went.
+ */
+async function recordDelivery(kind: string, to: string, ok: boolean, error?: string) {
+  try {
+    const { prisma } = await import("@/lib/prisma");
+    await prisma.emailDelivery.create({
+      data: { kind, to, ok, error: error ? error.slice(0, 300) : null },
+    });
+  } catch {
+    // Deliberately silent. See above.
+  }
+}
+
 async function sendEmail(opts: {
   to: string;
   subject: string;
   html: string;
   text: string;
+  /** Which template this is. Named in code — never anything a user typed. */
+  kind: string;
 }): Promise<boolean> {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
     console.warn("[email] RESEND_API_KEY not set — skipping send.");
+    await recordDelivery(opts.kind, opts.to, false, "no mail provider configured");
     return false;
   }
   try {
@@ -48,12 +78,16 @@ async function sendEmail(opts: {
       }),
     });
     if (!res.ok) {
-      console.error("[email] Resend error", res.status, await res.text());
+      const said = await res.text();
+      console.error("[email] Resend error", res.status, said);
+      await recordDelivery(opts.kind, opts.to, false, `${res.status} ${said}`);
       return false;
     }
+    await recordDelivery(opts.kind, opts.to, true);
     return true;
   } catch (err) {
     console.error("[email] send failed", err);
+    await recordDelivery(opts.kind, opts.to, false, String(err));
     return false;
   }
 }
@@ -105,7 +139,7 @@ export async function sendWelcomeEmail({
     '"For you formed my inward parts; you knitted me together in my mother\'s womb." — Psalm 139:13',
   ].join("\n");
 
-  return sendEmail({ to, subject: "Welcome to Oyun", html, text });
+  return sendEmail({ to, subject: "Welcome to Oyun", html, text, kind: "welcome" });
 }
 
 export async function sendPasswordResetEmail({
@@ -137,7 +171,7 @@ export async function sendPasswordResetEmail({
     "If you didn't ask for this, you can safely ignore this email.",
   ].join("\n");
 
-  return sendEmail({ to, subject: "Reset your Oyun password", html, text });
+  return sendEmail({ to, subject: "Reset your Oyun password", html, text, kind: "password-reset" });
 }
 
 export async function sendInviteEmail({
@@ -179,7 +213,7 @@ export async function sendInviteEmail({
     `Accept the invite: ${link}`,
   ].join("\n");
 
-  return sendEmail({ to, subject: `${motherName} invited you to walk with them on Oyun`, html, text });
+  return sendEmail({ to, subject: `${motherName} invited you to walk with them on Oyun`, html, text, kind: "invite" });
 }
 
 export async function sendNotificationEmail({
@@ -205,7 +239,7 @@ export async function sendNotificationEmail({
     </p>
   `);
   const text = `${title}\n${body ?? ""}\n\nOpen Oyun: ${link}`;
-  return sendEmail({ to, subject: title, html, text });
+  return sendEmail({ to, subject: title, html, text, kind: "notification" });
 }
 
 export interface DigestSection {
@@ -273,7 +307,7 @@ export async function sendWeeklyDigest({
     `\n${ctaLabel}: ${link}`,
   ].join("\n");
 
-  return sendEmail({ to, subject, html, text });
+  return sendEmail({ to, subject, html, text, kind: "weekly-digest" });
 }
 
 function escapeHtml(s: string): string {
@@ -373,7 +407,7 @@ export async function sendGuestDayEmail({
     .filter((l): l is string => l !== null)
     .join("\n");
 
-  return sendEmail({ to, subject: `${lead} — ${title}`, html, text });
+  return sendEmail({ to, subject: `${lead} — ${title}`, html, text, kind: "guest-day" });
 }
 
 
@@ -454,6 +488,7 @@ export async function sendInvitationEmail({
     .join("\n");
 
   return sendEmail({
+    kind: "invitation",
     to,
     subject: `An invitation from ${hostName} — ${title}`,
     html,
@@ -499,7 +534,7 @@ export async function sendAddressChangedEmail({
   `);
   const text = [line, "", `You will sign in with ${next} from now on.`, "", warn].join("\n");
 
-  return sendEmail({ to, subject: "The address on your Oyun account has changed", html, text });
+  return sendEmail({ to, subject: "The address on your Oyun account has changed", html, text, kind: "address-changed" });
 }
 
 /**
@@ -552,7 +587,7 @@ export async function sendExportLinkEmail({
     "The file is made for whoever is signed in, so this link is no use to anybody else. Nobody here has read it, and nobody here can.",
   ].join("\n");
 
-  return sendEmail({ to, subject: "Your own copy of everything in Oyun", html, text });
+  return sendEmail({ to, subject: "Your own copy of everything in Oyun", html, text, kind: "export-link" });
 }
 
 /**
@@ -600,5 +635,5 @@ export async function sendBroadcastEmail({
     .filter((s, i) => !(i === 0 && !s))
     .join("\n");
 
-  return sendEmail({ to, subject, html, text });
+  return sendEmail({ to, subject, html, text, kind: "broadcast" });
 }
