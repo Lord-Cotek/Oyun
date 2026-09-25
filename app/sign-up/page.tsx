@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { PROMISE_SHORT } from "@/lib/promise";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
@@ -29,7 +30,7 @@ export default async function SignUpPage({
       <ThemeToggle className="fixed right-5 top-5 z-30" />
 
       {/* Brand & Scripture — desktop */}
-      <aside className="relative hidden overflow-hidden bg-gradient-to-br from-accent/[0.12] via-surface to-accent2/[0.10] p-12 md:flex md:flex-col md:justify-between">
+      <aside className="relative hidden overflow-hidden bg-surface p-12 md:flex md:flex-col md:justify-between">
         <Link href="/" className="inline-flex items-center gap-3">
           <OyunMark size={44} className="animate-breathe text-ink" />
           <span className="font-serif text-xl text-ink">Oyun</span>
@@ -37,13 +38,12 @@ export default async function SignUpPage({
         <div className="max-w-sm">
           <Verse
             size="lg"
-            text="For you formed my inward parts; you knitted me together in my mother's womb."
+            text="For you formed my inmost being. You knit me together in my mother’s womb."
             reference="Psalm 139:13"
           />
         </div>
-        <p className="max-w-xs font-mono text-[0.68rem] leading-relaxed text-muted">
-          Oyun and Agbebi offer spiritual companionship — not medical advice.
-          Always consult your doctor or midwife for health decisions.
+        <p className="prose-serif-xs max-w-xs text-muted">
+          {PROMISE_SHORT}
         </p>
       </aside>
 
@@ -62,7 +62,7 @@ export default async function SignUpPage({
             <h1 className="font-serif text-3xl leading-snug text-ink">
               {invited ? "Create your account to join." : "Create your account."}
             </h1>
-            <p className="mt-3 font-mono text-sm leading-relaxed text-muted">
+            <p className="mt-3 prose-serif-sm text-muted">
               {invited
                 ? "Set a name and password below. Once you're in, you'll accept the invitation and step into how to support and pray for her."
                 : "We'll send you a warm welcome, then set you where you are on the journey. No account is ever a promise of outcome — only a companion for the road."}
@@ -73,8 +73,8 @@ export default async function SignUpPage({
             />
           </div>
 
-          <p className="mt-6 font-mono text-[0.68rem] leading-relaxed text-muted md:hidden">
-            Oyun and Agbebi offer spiritual companionship — not medical advice.
+          <p className="prose-serif-xs mt-6 text-muted md:hidden">
+            {PROMISE_SHORT}
           </p>
         </div>
       </div>

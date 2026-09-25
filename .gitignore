@@ -34,3 +34,6 @@ yarn-error.log*
 *.tsbuildinfo
 .env.local
 .tmp-nav/
+
+# Local verification scratch — harnesses and seed scripts, never shipped.
+.tmp-mig/

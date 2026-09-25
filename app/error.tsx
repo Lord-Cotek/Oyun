@@ -38,7 +38,7 @@ export default function Error({
         <h1 className="font-serif text-3xl leading-snug text-ink">
           Something didn&rsquo;t go through.
         </h1>
-        <p className="mx-auto mt-3 max-w-sm font-mono text-sm leading-relaxed text-muted">
+        <p className="mx-auto mt-3 max-w-sm prose-serif-sm text-muted">
           The step you tried didn&rsquo;t complete. It&rsquo;s not you — try
           again, or head home and pick the journey back up.
         </p>

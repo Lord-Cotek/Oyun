@@ -1,0 +1,348 @@
+import { randomBytes } from "node:crypto";
+import { cookies } from "next/headers";
+import { prisma } from "@/lib/prisma";
+import {
+  priceValue,
+  shipReachOf,
+  type ItemKind,
+  type RegistrySort,
+  type ShipReach,
+} from "@/lib/registry";
+
+/**
+ * ── Why these are not `randomId()` ───────────────────────────────────────
+ * lib/rand.ts says of itself, in its own comment, that its ids are "never
+ * security-bearing" and that it falls back to `Math.random`. That is fine for
+ * keying a React list. It is not fine for the only thing standing between a
+ * guessed URL and a list of what a family owns, what they cannot afford, and
+ * who their friends are.
+ *
+ * So these come from `node:crypto`, server-side, and they are long. The same
+ * reasoning, and the same numbers, as lib/invitations-db.ts.
+ */
+const SLUG_BYTES = 18;
+const TOKEN_BYTES = 24;
+
+function secret(bytes: number): string {
+  return randomBytes(bytes).toString("base64url");
+}
+
+export function newSlug(): string {
+  return secret(SLUG_BYTES);
+}
+
+export function newGuestToken(): string {
+  return secret(TOKEN_BYTES);
+}
+
+/** The cookie a guest's browser keeps, so they can release their own claim. */
+export function guestCookieName(slug: string): string {
+  return `oyun_gift_${slug}`;
+}
+
+/** Where a registry lives, for sharing and for the QR code. */
+export function registryUrl(slug: string): string {
+  const site =
+    process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/+$/, "") ??
+    "https://oyun.cotek.app";
+  return `${site}/r/${slug}`;
+}
+
+export interface PublicItem {
+  id: string;
+  kind: ItemKind;
+  title: string;
+  note: string | null;
+  url: string | null;
+  imageUrl: string | null;
+  price: string | null;
+  quantity: number;
+  mostNeeded: boolean;
+  /** How many are spoken for. Never who by — see below. */
+  claimed: number;
+  /** How many this guest has taken, recognised by their own token. */
+  mine: number;
+  /**
+   * Where this item sits in each order the reader can choose — see
+   * REGISTRY_SORTS. Ordinals only.
+   *
+   * ── Why positions and not the values they were worked out from ──────────
+   * Because "recently added" would otherwise mean sending every item's
+   * timestamp to a public page, and a date an item was added is a fact about
+   * the family nobody needs in order to read a list. A position says where
+   * the card goes and nothing about when it was typed.
+   *
+   * They become CSS `order` on the page, so choosing an order moves the cards
+   * without re-rendering one of them and without asking the server again.
+   */
+  ranks: Record<RegistrySort, number>;
+}
+
+export interface PublicRegistry {
+  slug: string;
+  title: string;
+  hostName: string;
+  message: string | null;
+  closed: boolean;
+  /**
+   * Whether there is a way to send money, NOT what it is.
+   *
+   * The details themselves never travel with the page — a guest asks for them
+   * and `revealPayDetails` fetches them then. All this says is whether the
+   * card should offer to show anything, which is what the page needs in order
+   * to render and is not worth hiding.
+   */
+  takesMoney: boolean;
+  /**
+   * Whether there is an address to ask for, NOT what it is.
+   *
+   * Exactly the same bargain as takesMoney above, for something more
+   * dangerous: the address itself never travels with the page. All the page
+   * learns is whether to offer the control — see revealShipping.
+   */
+  shipsTo: boolean;
+  /**
+   * Who may ask. The page needs this to know whether to offer a button or to
+   * tell a stranger to ask the family, and it says nothing about them beyond
+   * how careful they have chosen to be.
+   */
+  shipReach: ShipReach;
+  items: PublicItem[];
+}
+
+/**
+ * The registry as somebody without an account sees it.
+ *
+ * ── This function is the boundary ────────────────────────────────────────
+ * Everything a stranger can learn about this family is in the shape below,
+ * and every field of it was typed onto the registry on purpose. There is no
+ * due date here, no baby's name unless she put one in the title, no
+ * photograph from the journey, no member list, and no id that leads anywhere
+ * else. The fields are selected one by one rather than spread, so adding a
+ * column to the schema cannot quietly add it to a public page.
+ *
+ * ── What one guest may learn about another ───────────────────────────────
+ * That a thing is taken, and nothing else. Not who took it. A registry that
+ * shows the names makes a competition out of a gift, and a friend who can
+ * only afford the muslin squares should not be reading that the cot came from
+ * somebody else. The host may see the names — that is what thank-you notes
+ * are written from — and even she may not until the end if she has asked to
+ * be surprised. See claimsVisibleToHost in lib/registry.ts.
+ */
+/**
+ * Who this browser is, to the registry.
+ *
+ * ── Why a signed-in member is not treated as a guest ─────────────────────
+ * A claim is keyed on a token, and for somebody who followed a link that
+ * token is a cookie. That is right for a stranger and poor for a relative
+ * who is in the app every day: the cookie lives on one browser, so she
+ * claims the cot on her phone and cannot take it back on her tablet, and
+ * the family is told "Someone is getting the cot" unless she remembers to
+ * type her own name.
+ *
+ * So a member of this journey gets a token derived from who they are. It is
+ * the same on every device they sign in to, it survives clearing the
+ * browser, and it lets the notification use the name already on the
+ * account. The "u:" prefix keeps it from ever colliding with a guest token,
+ * which is random base64url.
+ *
+ * Deliberately not a schema change: RegistryClaim.token is a string with a
+ * unique constraint per item, and this is a string. Nothing about the
+ * guest path changes.
+ */
+/**
+ * The token to read a registry with, for whoever is asking.
+ *
+ * The page must resolve this exactly as the claim action does, or a member
+ * would claim something and then be shown it as still unclaimed — the two
+ * would be looking at different tokens for the same person.
+ *
+ * Read-only: no cookie is ever minted here. Someone who only looks at a
+ * registry carries nothing away.
+ */
+export async function readerTokenFor(
+  slug: string,
+  session: { user?: { id?: string | null } } | null,
+): Promise<string | null> {
+  const userId = session?.user?.id;
+  if (userId) {
+    const r = await prisma.registry.findUnique({
+      where: { slug },
+      select: { journeyId: true },
+    });
+    if (r) {
+      const member = await prisma.membership.findFirst({
+        where: { journeyId: r.journeyId, userId },
+        select: { id: true },
+      });
+      if (member) return memberClaimToken(userId);
+    }
+  }
+  return cookies().get(guestCookieName(slug))?.value ?? null;
+}
+
+export function memberClaimToken(userId: string): string {
+  return `u:${userId}`;
+}
+
+/**
+ * Whether whoever is reading is actually in this family's journey.
+ *
+ * Asked by revealShipping, which will not hand a home address to a stranger
+ * unless the family has said it may. Takes the session rather than calling
+ * auth() so this file stays free of the auth layer, exactly as readerTokenFor
+ * above does — and so a caller cannot accidentally ask on behalf of nobody.
+ *
+ * Membership in ANY role counts: a grandmother posting a cot is the case this
+ * exists for, and the address is the one thing on the registry the circle
+ * needs more than the family does.
+ */
+export async function isJourneyMember(
+  journeyId: string,
+  session: { user?: { id?: string | null } } | null,
+): Promise<boolean> {
+  const userId = session?.user?.id;
+  if (!userId) return false;
+  const member = await prisma.membership.findFirst({
+    where: { journeyId, userId },
+    select: { id: true },
+  });
+  return member !== null;
+}
+
+export async function getPublicRegistry(
+  slug: string,
+  guestToken: string | null,
+): Promise<PublicRegistry | null> {
+  const r = await prisma.registry.findUnique({
+    where: { slug },
+    select: {
+      slug: true,
+      title: true,
+      hostName: true,
+      message: true,
+      closedAt: true,
+      // Selected only to answer "is there one" — see takesMoney below. The
+      // string itself is dropped before anything leaves this function.
+      payDetails: true,
+      // The same, and it matters more: this is somebody's home address. It is
+      // read here to answer a yes-or-no and never returned. Everything that
+      // hands it out is revealShipping, which checks who is asking.
+      shipAddress: true,
+      shipReach: true,
+      items: {
+        orderBy: [
+          { mostNeeded: "desc" },
+          { position: "asc" },
+          { createdAt: "asc" },
+        ],
+        select: {
+          id: true,
+          kind: true,
+          title: true,
+          note: true,
+          url: true,
+          imageUrl: true,
+          price: true,
+          quantity: true,
+          mostNeeded: true,
+          // Read to work out "just added" and dropped immediately after —
+          // see PublicItem.ranks. No timestamp leaves this function.
+          createdAt: true,
+          claims: { select: { quantity: true, token: true } },
+        },
+      },
+    },
+  });
+  if (!r) return null;
+
+  const ranks = rankItems(r.items);
+
+  return {
+    slug: r.slug,
+    title: r.title,
+    hostName: r.hostName,
+    message: r.message,
+    closed: r.closedAt !== null,
+    takesMoney: (r.payDetails ?? "").trim().length > 0,
+    shipsTo: (r.shipAddress ?? "").trim().length > 0,
+    shipReach: shipReachOf(r),
+    items: r.items.map((i) => ({
+      id: i.id,
+      kind: i.kind as ItemKind,
+      title: i.title,
+      note: i.note,
+      url: i.url,
+      imageUrl: i.imageUrl,
+      price: i.price,
+      quantity: i.quantity,
+      mostNeeded: i.mostNeeded,
+      claimed: i.claims.reduce((n, c) => n + c.quantity, 0),
+      mine: guestToken
+        ? i.claims
+            .filter((c) => c.token === guestToken)
+            .reduce((n, c) => n + c.quantity, 0)
+        : 0,
+      ranks: ranks[i.id],
+    })),
+  };
+}
+
+/**
+ * Where each item sits in every order a reader can ask for.
+ *
+ * Worked out once, here, so the page can hand the browser four numbers per
+ * card and let CSS do the moving. See PublicItem.ranks.
+ *
+ * Ties keep the family's own arrangement: two things at AED 120 stay in the
+ * order they were put on the list, rather than swapping about whenever the
+ * page is opened.
+ */
+function rankItems(
+  items: {
+    id: string;
+    price: string | null;
+    mostNeeded: boolean;
+    createdAt: Date;
+  }[],
+): Record<string, Record<RegistrySort, number>> {
+  const base = items.map((it, i) => ({ ...it, i }));
+
+  const order = (
+    compare: (a: (typeof base)[number], b: (typeof base)[number]) => number,
+  ): Record<string, number> => {
+    const out: Record<string, number> = {};
+    [...base].sort((a, b) => compare(a, b) || a.i - b.i)
+      .forEach((it, at) => {
+        out[it.id] = at;
+      });
+    return out;
+  };
+
+  // A price nobody can read a number out of goes last, whichever way round
+  // the list is being sorted — never to the top of "cheapest first".
+  const byPrice = (dir: 1 | -1) => (a: (typeof base)[number], b: (typeof base)[number]) => {
+    const x = priceValue(a.price);
+    const y = priceValue(b.price);
+    if (x === null && y === null) return 0;
+    if (x === null) return 1;
+    if (y === null) return -1;
+    return (x - y) * dir;
+  };
+
+  const needed = order(() => 0); // the arrangement the query already made
+  const low = order(byPrice(1));
+  const high = order(byPrice(-1));
+  const recent = order((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+
+  const out: Record<string, Record<RegistrySort, number>> = {};
+  for (const it of base) {
+    out[it.id] = {
+      needed: needed[it.id],
+      low: low[it.id],
+      high: high[it.id],
+      recent: recent[it.id],
+    };
+  }
+  return out;
+}

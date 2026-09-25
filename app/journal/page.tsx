@@ -33,13 +33,28 @@ export default async function JournalPage() {
   if (!session?.user?.id) redirect("/sign-in?callbackUrl=/journal");
   const active = await getActiveMembership(session.user.id);
   if (!active) redirect("/onboarding");
-  // The reflections journal belongs to the household, not the wider circle.
-  if (!isHousehold(active.role)) redirect("/journey");
+  /**
+   * The household's journal, and the circle's own.
+   *
+   * ── Why the circle is let in, and what it changes ────────────────────────
+   * This page used to turn them away entirely, which was right while the
+   * circle had no reading of its own. Now that they do, they need somewhere
+   * to find what they have written — but "the household's journal" is still
+   * the household's. So a keeper sees the family's shared notes plus their
+   * own private ones, exactly as before, and somebody in the circle sees
+   * only what they wrote themselves.
+   *
+   * The wall is this query, not the gate above it: there is no route a
+   * supporter can take to a note that is not theirs.
+   */
+  const keeper = isHousehold(active.role);
 
   const rows = await prisma.readingNote.findMany({
     where: {
       journeyId: active.journey.id,
-      OR: [{ isPrivate: false }, { authorId: session.user.id }],
+      ...(keeper
+        ? { OR: [{ isPrivate: false }, { authorId: session.user.id }] }
+        : { authorId: session.user.id }),
     },
     include: { author: { select: { id: true, name: true } } },
     orderBy: { createdAt: "desc" },
@@ -58,7 +73,7 @@ export default async function JournalPage() {
   return (
     <>
       <SiteHeader active="worship" />
-      <main className="mx-auto max-w-shell px-6 py-10">
+      <main className="mx-auto max-w-shell px-6 pb-10">
         <PageHero
           eyebrow="Reflection journal"
           title="What God has shown you."
@@ -78,7 +93,7 @@ export default async function JournalPage() {
             />
           ) : (
             <div className="surface-premium rounded-2xl border border-border p-8 text-center">
-              <p className="font-mono text-sm leading-relaxed text-muted">
+              <p className="prose-serif-sm text-muted">
                 No reflections yet. Open{" "}
                 <Link
                   href="/worship"

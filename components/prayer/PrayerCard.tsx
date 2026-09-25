@@ -3,6 +3,9 @@
 import { prayForRequest, markAnswered, deletePrayerRequest } from "@/app/prayer/actions";
 import { Card } from "@/components/ui/Card";
 import { HoldToPray } from "@/components/ui/HoldToPray";
+import { Reactions } from "@/components/Reactions";
+import { type ReactionData } from "@/lib/reaction-emojis";
+import { ConfirmButton } from "@/components/ui/Confirm";
 
 export type PrayerItem = {
   id: string;
@@ -15,6 +18,7 @@ export type PrayerItem = {
   prayerCount: number;
   didIPray: boolean;
   canManage: boolean;
+  reactions: ReactionData;
 };
 
 export function PrayerCard({ item }: { item: PrayerItem }) {
@@ -30,7 +34,7 @@ export function PrayerCard({ item }: { item: PrayerItem }) {
           )}
           <p className="font-serif text-lg leading-snug text-ink">{item.title}</p>
           {item.body && (
-            <p className="mt-1.5 font-mono text-xs leading-relaxed text-muted">
+            <p className="mt-1.5 prose-serif-xs text-muted">
               {item.body}
             </p>
           )}
@@ -43,6 +47,13 @@ export function PrayerCard({ item }: { item: PrayerItem }) {
             {item.prayerCount > 0 && ` · ${item.prayerCount} praying`}
           </p>
         </div>
+      </div>
+
+      {/* Its own line, above the controls: this is a reply to what was
+          written, not another button to press. It stays on an answered
+          request too — a 🙌 on an answer is the point of keeping them. */}
+      <div className="mt-3">
+        <Reactions targetType="PRAYER" targetId={item.id} initial={item.reactions} />
       </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-3 border-t border-border pt-3">
@@ -65,15 +76,19 @@ export function PrayerCard({ item }: { item: PrayerItem }) {
           </form>
         )}
         {item.canManage && (
-          <form action={deletePrayerRequest} className="ml-auto">
-            <input type="hidden" name="requestId" value={item.id} />
-            <button
-              type="submit"
+          <div className="ml-auto">
+            {/* Was a bare submit: one tap and the request was gone. */}
+            <ConfirmButton
+              describe={`this prayer request: ${item.title}`}
+              press="none"
+              onConfirm={async () => {
+                const fd = new FormData();
+                fd.set("requestId", item.id);
+                await deletePrayerRequest(fd);
+              }}
               className="font-mono text-[0.7rem] text-muted underline-offset-2 hover:text-negative hover:underline"
-            >
-              Remove
-            </button>
-          </form>
+            />
+          </div>
         )}
       </div>
     </Card>

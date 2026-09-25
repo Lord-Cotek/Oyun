@@ -25,13 +25,9 @@ export function UpcomingStrip({ items }: { items: UpcomingItem[] }) {
           <div
             key={u.id}
             className="flex w-44 shrink-0 flex-col rounded-xl border border-border bg-bg/50 p-4"
-            style={{
-              borderColor: `color-mix(in srgb, var(--tone-${u.tone}) 35%, transparent)`,
-            }}
           >
             <span
-              className="font-mono text-[0.58rem] uppercase tracking-widest"
-              style={{ color: `var(--tone-${u.tone})` }}
+              className="font-mono text-[0.58rem] uppercase tracking-widest text-accent"
             >
               {awayLabel(u.daysAway)}
             </span>

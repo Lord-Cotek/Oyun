@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 export default function TermsPage() {
   return (
     <LegalShell title="Terms &amp; Conditions" updated="1 August 2026">
-      <p className="font-mono text-sm leading-relaxed text-muted">
+      <p className="prose-serif-sm text-muted">
         These terms govern your use of Oyun (the &ldquo;app&rdquo;), owned and
         operated by <span className="text-ink">cotek app FZ-LLC</span>{" "}
         (&ldquo;we&rdquo;, &ldquo;us&rdquo;). By creating an account or using the
@@ -26,11 +26,13 @@ export default function TermsPage() {
 
       <LegalSection heading="Not medical, legal, or professional advice">
         <p>
-          Oyun and the Agbebi guide offer spiritual companionship, Scripture, and
-          encouragement — they are <span className="text-ink">not</span> medical,
-          clinical, legal, or professional advice, and are not a substitute for
-          your doctor or midwife. Always seek qualified care for health
-          decisions, and call your local emergency services in an emergency.
+          Oyun and the Agbebi guide offer Scripture, prayer, and encouragement
+          — they are <span className="text-ink">not</span> medical, clinical,
+          legal, or professional advice, and are not a substitute for your
+          doctor or midwife. Take anything to do with your health, or your
+          baby&rsquo;s, to them, and call your local emergency services in an
+          emergency. Oyun is likewise never a replacement for your church,
+          those who shepherd you, or the friends who keep you honest.
         </p>
         <p>
           Agbebi is an AI companion. Its replies may be imperfect or inaccurate;

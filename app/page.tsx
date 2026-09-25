@@ -7,6 +7,7 @@ import { Verse } from "@/components/ui/Verse";
 import { Icon, type IconName } from "@/components/ui/Icon";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { InstallButton } from "@/components/InstallButton";
+import { Screens } from "@/components/marketing/Screens";
 
 export const metadata: Metadata = {
   title: "Christian Pregnancy App & Devotional for Couples",
@@ -104,7 +105,7 @@ export default function Landing() {
       />
       <ThemeToggle className="fixed right-5 top-5 z-30" />
       {/* Hero */}
-      <section className="flex min-h-[88dvh] flex-col justify-center py-20">
+      <section className="flex min-h-[76dvh] flex-col justify-center py-16">
         <div className="animate-fade-up">
           <div className="mb-10 flex items-center gap-4">
             <OyunMark size={64} className="animate-breathe text-ink" />
@@ -116,9 +117,9 @@ export default function Landing() {
 
           <Eyebrow className="mb-5">A COTEK companion</Eyebrow>
           <h1 className="max-w-3xl font-serif text-4xl leading-[1.08] text-ink sm:text-5xl md:text-6xl">
-            Walk the whole journey — together — with Scripture at the center.
+            Walk the whole journey — together — with Scripture at the centre.
           </h1>
-          <p className="mt-6 max-w-prose font-mono text-sm leading-relaxed text-muted">
+          <p className="mt-6 max-w-prose prose-serif-sm text-muted">
             From the first quiet weeks of the womb through a child's earliest
             years, Oyun keeps you where you actually are: what's unfolding this
             stage, a word from Scripture, one thing to do, and a way for a
@@ -132,15 +133,27 @@ export default function Landing() {
             </Button>
             <InstallButton />
           </div>
+
+          {/* The two questions a stranger actually has, answered before they
+              have to go looking. */}
+          <p className="prose-serif-xs mt-6 max-w-prose text-muted">
+            Free, with no plans to charge — no ads, no subscription, nothing
+            sold on.{" "}
+            <span className="text-ink">Your journey is yours.</span> Nothing you
+            write is public, there is no feed of strangers, and the circle you
+            invite only ever sees what you choose to share with them.
+          </p>
         </div>
       </section>
+
+      <Screens />
 
       {/* Verse rest */}
       <section className="border-t border-border py-20">
         <div className="mx-auto max-w-prose text-center">
           <Verse
             size="lg"
-            text="For you formed my inward parts; you knitted me together in my mother's womb."
+            text="For you formed my inmost being. You knit me together in my mother’s womb."
             reference="Psalm 139:13"
           />
         </div>
@@ -169,7 +182,7 @@ export default function Landing() {
                 {p.eyebrow}
               </Eyebrow>
               <h3 className="font-serif text-2xl leading-snug text-ink">{p.title}</h3>
-              <p className="mt-3 font-mono text-xs leading-relaxed text-muted">
+              <p className="mt-3 prose-serif-xs text-muted">
                 {p.body}
               </p>
             </Card>
@@ -186,7 +199,7 @@ export default function Landing() {
               Restraint is the point.
             </h2>
           </div>
-          <div className="space-y-4 font-mono text-sm leading-relaxed text-muted">
+          <div className="space-y-4 prose-serif-sm text-muted">
             <p>
               Most apps for this season are loud with charts, comparisons, and
               worry. Oyun is spare on purpose. It gives you a little, faithfully,

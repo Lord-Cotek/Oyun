@@ -39,7 +39,7 @@ export default async function ResetPasswordPage({
               <h1 className="font-serif text-3xl leading-snug text-ink">
                 Choose a new password.
               </h1>
-              <p className="mt-3 font-mono text-sm leading-relaxed text-muted">
+              <p className="mt-3 prose-serif-sm text-muted">
                 Pick something you&rsquo;ll remember. You&rsquo;ll use it to sign
                 in from now on.
               </p>
@@ -51,7 +51,7 @@ export default async function ResetPasswordPage({
               <h1 className="font-serif text-3xl leading-snug text-ink">
                 This reset link is no longer valid.
               </h1>
-              <p className="mt-3 font-mono text-sm leading-relaxed text-muted">
+              <p className="mt-3 prose-serif-sm text-muted">
                 Reset links last one hour and can be used once. Request a fresh
                 one and we&rsquo;ll send it right over.
               </p>

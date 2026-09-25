@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useKeptDraft, RESTORED_NOTE } from "@/lib/use-draft";
 import Link from "next/link";
 import { Eyebrow } from "@/components/ui/Eyebrow";
+import { ConfirmButton } from "@/components/ui/Confirm";
 import { ShareButton } from "@/components/ShareButton";
 
 export interface NoteView {
@@ -27,6 +29,7 @@ export function Reflections({
   onAdd,
   onUpdate,
   onDelete,
+  privateOnly = false,
 }: {
   passageRef: string;
   bookSlug: string;
@@ -44,9 +47,27 @@ export function Reflections({
     isPrivate: boolean;
   }) => Promise<void>;
   onDelete: (id: string) => Promise<void>;
+  /**
+   * These notes cannot be shared — they are this reader's own.
+   *
+   * True for somebody in the circle. "Shared" here has always meant shared
+   * with the household, and a supporter reads their own plan, so a shared
+   * note of theirs would land in a family's journal against a chapter the
+   * family is not even on. The server forces it either way; this hides a
+   * control that could only ever disappoint.
+   */
+  privateOnly?: boolean;
 }) {
-  const [body, setBody] = useState("");
-  const [isPrivate, setPrivate] = useState(false);
+  // Not a <form>, so the hook goes in directly rather than through
+  // DraftTextarea. Keyed on the chapter: a reflection half-written on Psalm 23
+  // must not turn up under Psalm 24.
+  const {
+    value: body,
+    setValue: setBody,
+    clear: clearDraft,
+    restored,
+  } = useKeptDraft(`reflection:${bookSlug}:${chapter}`);
+  const [isPrivate, setPrivate] = useState(privateOnly);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [pending, start] = useTransition();
 
@@ -54,9 +75,9 @@ export function Reflections({
     const text = body.trim();
     if (!text || pending) return;
     start(async () => {
-      await onAdd({ bookSlug, chapter, body: text, isPrivate });
-      setBody("");
-      setPrivate(false);
+      await onAdd({ bookSlug, chapter, body: text, isPrivate: privateOnly || isPrivate });
+      clearDraft();
+      setPrivate(privateOnly);
     });
   }
 
@@ -76,9 +97,10 @@ export function Reflections({
           </Link>
         </div>
       </div>
-      <p className="mt-2 font-mono text-xs leading-relaxed text-muted">
-        What is God showing your family here? Notes are shared with your circle
-        unless you keep them private.
+      <p className="mt-2 prose-serif-xs text-muted">
+        {privateOnly
+          ? "What is God showing you here? These notes are yours alone — nobody else in this circle can read them."
+          : "What is God showing your family here? Notes are shared with the rest of your household unless you keep them private."}
       </p>
 
       {/* existing reflections */}
@@ -89,6 +111,7 @@ export function Reflections({
               <li key={n.id}>
                 <EditRow
                   note={n}
+                  privateOnly={privateOnly}
                   pending={pending}
                   onCancel={() => setEditingId(null)}
                   onSave={(text, priv) =>
@@ -114,7 +137,7 @@ export function Reflections({
                     </span>
                   )}
                 </div>
-                <p className="whitespace-pre-line font-mono text-sm leading-relaxed text-ink/90">
+                <p className="whitespace-pre-line prose-serif-sm text-ink/90">
                   {n.body}
                 </p>
                 <div className="mt-2 flex items-center gap-3">
@@ -127,14 +150,16 @@ export function Reflections({
                       >
                         Edit
                       </button>
-                      <button
-                        type="button"
+                      <ConfirmButton
+                        press="none"
                         disabled={pending}
-                        onClick={() => start(() => onDelete(n.id))}
+                        word="Delete"
+                        describe="this reflection"
+                        onConfirm={async () => {
+                          start(() => onDelete(n.id));
+                        }}
                         className="font-mono text-[0.68rem] text-muted underline underline-offset-4 hover:text-negative disabled:opacity-50"
-                      >
-                        Delete
-                      </button>
+                      />
                     </>
                   )}
                   <ShareButton
@@ -157,18 +182,27 @@ export function Reflections({
           onChange={(e) => setBody(e.target.value)}
           rows={3}
           placeholder="Write a reflection…"
-          className="w-full resize-y rounded-xl border border-border bg-bg px-4 py-3 font-mono text-sm leading-relaxed text-ink placeholder:text-muted focus:border-accent focus:outline-none"
+          className="w-full resize-y rounded-xl border border-border bg-bg px-4 py-3 prose-serif-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none"
         />
+        {restored && (
+          <p className="prose-serif-xs mt-2 text-muted" role="status">
+            {RESTORED_NOTE}
+          </p>
+        )}
         <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-          <label className="flex items-center gap-2 font-mono text-xs text-muted">
-            <input
-              type="checkbox"
-              checked={isPrivate}
-              onChange={(e) => setPrivate(e.target.checked)}
-              className="h-4 w-4 accent-[color:var(--accent)]"
-            />
-            Keep private (just me)
-          </label>
+          {privateOnly ? (
+            <p className="font-mono text-xs text-muted">Private to you</p>
+          ) : (
+            <label className="flex items-center gap-2 font-mono text-xs text-muted">
+              <input
+                type="checkbox"
+                checked={isPrivate}
+                onChange={(e) => setPrivate(e.target.checked)}
+                className="h-4 w-4 accent-[color:var(--accent)]"
+              />
+              Keep private (just me)
+            </label>
+          )}
           <button
             type="button"
             disabled={pending || !body.trim()}
@@ -188,32 +222,39 @@ function EditRow({
   pending,
   onCancel,
   onSave,
+  privateOnly = false,
 }: {
   note: NoteView;
   pending: boolean;
   onCancel: () => void;
   onSave: (body: string, isPrivate: boolean) => void;
+  /** See Reflections. Editing must not be the way round the same wall. */
+  privateOnly?: boolean;
 }) {
   const [text, setText] = useState(note.body);
-  const [priv, setPriv] = useState(note.isPrivate);
+  const [priv, setPriv] = useState(privateOnly ? true : note.isPrivate);
   return (
     <div className="rounded-xl border border-accent/30 bg-bg/60 p-4">
       <textarea
         value={text}
         onChange={(e) => setText(e.target.value)}
         rows={3}
-        className="w-full resize-y rounded-lg border border-border bg-bg px-3 py-2 font-mono text-sm leading-relaxed text-ink focus:border-accent focus:outline-none"
+        className="w-full resize-y rounded-lg border border-border bg-bg px-3 py-2 prose-serif-sm text-ink focus:border-accent focus:outline-none"
       />
       <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-        <label className="flex items-center gap-2 font-mono text-xs text-muted">
-          <input
-            type="checkbox"
-            checked={priv}
-            onChange={(e) => setPriv(e.target.checked)}
-            className="h-4 w-4 accent-[color:var(--accent)]"
-          />
-          Private
-        </label>
+        {privateOnly ? (
+          <p className="font-mono text-xs text-muted">Private to you</p>
+        ) : (
+          <label className="flex items-center gap-2 font-mono text-xs text-muted">
+            <input
+              type="checkbox"
+              checked={priv}
+              onChange={(e) => setPriv(e.target.checked)}
+              className="h-4 w-4 accent-[color:var(--accent)]"
+            />
+            Private
+          </label>
+        )}
         <div className="flex gap-2">
           <button
             type="button"
@@ -225,7 +266,7 @@ function EditRow({
           <button
             type="button"
             disabled={pending || !text.trim()}
-            onClick={() => onSave(text.trim(), priv)}
+            onClick={() => onSave(text.trim(), privateOnly || priv)}
             className="btn-primary rounded-lg px-4 py-2 font-mono text-xs font-medium text-on-accent disabled:opacity-40"
           >
             Save
