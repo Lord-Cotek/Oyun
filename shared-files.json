@@ -177,6 +177,11 @@
     "components/share/SharedList.tsx",
     "components/share/SharedMedia.tsx",
     "components/ui/Confirm.tsx",
-    "lib/video-prep.ts"
+    "lib/video-prep.ts",
+    "lib/broadcast.ts",
+    "app/admintc/broadcast-actions.ts",
+    "app/admintc/broadcast/page.tsx",
+    "components/admin/BroadcastDesk.tsx",
+    "components/admin/PersonActions.tsx"
   ]
 }
