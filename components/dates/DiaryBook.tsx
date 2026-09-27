@@ -1,6 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { Linked } from "@/components/ui/Linked";
+import { plainLinks } from "@/lib/linkify";
 import { addEvent, editEvent, removeEvent } from "@/app/appointments/event-actions";
 import { addAppointment } from "@/app/appointments/actions";
 import { AppointmentForm } from "@/components/appointments/AppointmentForm";
@@ -204,7 +206,7 @@ export function DiaryBook({ rows: days, canEdit }: { rows: DayRow[]; canEdit: bo
                   )}
                   {d.where && (
                     <span className="font-mono text-[0.66rem] text-muted">
-                      {d.where}
+                      {plainLinks(d.where)}
                     </span>
                   )}
                 </li>
@@ -513,12 +515,12 @@ export function OwnDays({ days, canEdit }: { days: DayRow[]; canEdit: boolean })
                   </p>
                   {d.where && (
                     <p className="mt-0.5 font-mono text-[0.7rem] text-muted">
-                      {d.where}
+                      <Linked text={d.where} />
                     </p>
                   )}
                   {d.note && (
                     <p className="mt-2 whitespace-pre-wrap prose-serif-xs text-muted">
-                      {d.note}
+                      <Linked text={d.note} />
                     </p>
                   )}
 

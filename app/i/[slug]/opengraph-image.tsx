@@ -1,4 +1,5 @@
 import { ImageResponse } from "next/og";
+import { plainLinks } from "@/lib/linkify";
 import { getPublicInvitation } from "@/lib/invitations-db";
 import { longDay, timeRange } from "@/lib/invitations";
 
@@ -30,7 +31,10 @@ export default async function Image({ params }: { params: { slug: string } }) {
   const title = i ? truncate(i.event.title, 80) : "An invitation";
   const day = i ? longDay(i.event.at) : "";
   const hours = i ? timeRange(i.event.at, i.event.hasTime, i.event.endsAt) : "";
-  const where = i?.event.where ? truncate(i.event.where, 60) : "";
+  // A link in the location reads as a wall of characters on a picture
+  // nobody can tap, so it is shortened to the host-and-path form the page
+  // shows. The card is for recognising the invitation, not for using it.
+  const where = i?.event.where ? truncate(plainLinks(i.event.where), 60) : "";
   const from = i ? `From ${truncate(i.hostName, 40)}` : "";
 
   return new ImageResponse(

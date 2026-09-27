@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Linked } from "@/components/ui/Linked";
 import {
   saveInvitation,
   setInvitationClosed,
@@ -181,7 +182,7 @@ export function InvitePanel({
                       </span>
                       {r.note && (
                         <span className="w-full prose-serif-xs text-muted">
-                          “{r.note}”
+                          “<Linked text={r.note} />”
                         </span>
                       )}
                       <ConfirmButton
@@ -313,6 +314,10 @@ export function InvitePanel({
               placeholder="Come and eat with us. Bring nothing but yourselves."
               className={inputClass}
             />
+            <span className="mt-1 block font-mono text-[0.6rem] text-muted">
+              Paste a link — a map, a shop, anything — and it will be tappable
+              for whoever opens the invitation.
+            </span>
           </label>
 
           <div className="grid gap-3 sm:grid-cols-2">

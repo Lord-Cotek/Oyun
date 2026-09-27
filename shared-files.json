@@ -192,6 +192,8 @@
     "app/settings/concern-actions.ts",
     "components/admin/ConcernQueue.tsx",
     "components/admin/FlagList.tsx",
-    "components/settings/RaiseConcern.tsx"
+    "components/settings/RaiseConcern.tsx",
+    "lib/linkify.ts",
+    "components/ui/Linked.tsx"
   ]
 }

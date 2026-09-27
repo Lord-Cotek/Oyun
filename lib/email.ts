@@ -1,4 +1,5 @@
 import { type Role } from "@prisma/client";
+import { autolinkHtml } from "@/lib/linkify";
 import { PROMISE_SHORT } from "@/lib/promise";
 
 /**
@@ -365,7 +366,7 @@ export async function sendGuestDayEmail({
     <p style="font-family:Georgia,'Times New Roman',serif;font-size:26px;line-height:1.25;color:#ECE9DF;margin:0 0 12px;">${escapeHtml(title)}</p>
     <p style="font-size:15px;line-height:1.7;color:#ECE9DF;margin:0;">${escapeHtml(when)}</p>
     ${where ? `<p style="font-size:14px;line-height:1.7;color:#8B9086;margin:4px 0 0;">${escapeHtml(where)}</p>` : ""}
-    ${note ? `<p style="font-size:14px;line-height:1.7;color:#ECE9DF;margin-top:16px;">${escapeHtml(note)}</p>` : ""}
+    ${note ? `<p style="font-size:14px;line-height:1.7;color:#ECE9DF;margin-top:16px;">${autolinkHtml(note, "#E6A94E")}</p>` : ""}
     ${
       url
         ? `<p style="margin:24px 0;">
@@ -459,7 +460,7 @@ export async function sendInvitationEmail({
     <p style="font-family:Georgia,'Times New Roman',serif;font-size:26px;line-height:1.25;color:#ECE9DF;margin:0 0 12px;">${escapeHtml(title)}</p>
     <p style="font-size:15px;line-height:1.7;color:#ECE9DF;margin:0;">${escapeHtml(when)}</p>
     ${where ? `<p style="font-size:14px;line-height:1.7;color:#8B9086;margin:4px 0 0;">${escapeHtml(where)}</p>` : ""}
-    ${message ? `<p style="font-size:15px;line-height:1.7;color:#ECE9DF;margin-top:18px;">${escapeHtml(message)}</p>` : ""}
+    ${message ? `<p style="font-size:15px;line-height:1.7;color:#ECE9DF;margin-top:18px;">${autolinkHtml(message, "#E6A94E")}</p>` : ""}
     <p style="margin:24px 0;">
       <a href="${url}" style="display:inline-block;background:#CF7D43;color:#120D08;text-decoration:none;font-weight:600;padding:12px 20px;border-radius:8px;font-size:14px;">See it and reply</a>
     </p>

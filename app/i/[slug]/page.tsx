@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Linked } from "@/components/ui/Linked";
 import Link from "next/link";
 import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
@@ -148,13 +149,18 @@ export default async function InvitationPage({
               </p>
             )}
             {i.event.where && (
-              <p className="prose-serif-sm text-muted">{i.event.where}</p>
+              <p className="prose-serif-sm text-muted">
+                <Linked text={i.event.where} />
+              </p>
             )}
           </div>
 
+          {/* Whatever the host wrote, with any link in it clickable — a map,
+              a shop, a page about the venue. Bare links only, shown as the
+              address they actually go to; see lib/linkify.ts for why. */}
           {i.message && (
             <p className="mt-6 whitespace-pre-wrap border-l-2 border-accent/40 pl-5 prose-serif-sm text-ink/90">
-              {i.message}
+              <Linked text={i.message} />
             </p>
           )}
 
