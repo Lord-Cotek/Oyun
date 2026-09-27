@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { getActiveMembership } from "@/lib/data";
@@ -34,11 +35,23 @@ export default async function AppointmentsPage() {
   if (active.role !== "MOTHER" && active.role !== "PARTNER") {
     redirect("/journey");
   }
+  // Everybody in this journey, so a surprise can be planned with one of them.
+  // Names only — this is a picker, not a directory.
+  const housemates = (
+    await prisma.membership.findMany({
+      where: { journeyId: active.journey.id },
+      select: { userId: true, user: { select: { name: true, email: true } } },
+    })
+  ).map((m: { userId: string; user: { name: string | null; email: string | null } | null }) => ({
+    userId: m.userId,
+    name: m.user?.name?.trim() || m.user?.email || "Somebody",
+  }));
+
 
   const [upcoming, past, diary, invitations] = await Promise.all([
     getUpcomingAppointments(active.journey.id, session.user.id),
     getPastAppointments(active.journey.id, session.user.id),
-    getDiary(active.journey.id),
+    getDiary(active.journey.id, session.user.id),
     getHostInvitations(active.journey.id),
   ]);
 
@@ -88,6 +101,11 @@ export default async function AppointmentsPage() {
     note: d.note,
     kind: d.kind,
     editable: d.editable,
+    surprise: d.surprise,
+    // Everyone in on it except whoever thought of it, which the row keeps
+    // separately so they cannot be taken out of their own surprise.
+    inOnIt: (d.onlyFor ?? []).filter((id) => id !== d.createdById),
+    createdById: d.createdById,
     daysAway: d.daysAway,
     // Only a day she wrote down can be invited to. Nobody RSVPs to a scan.
     invite: d.source === "event" ? (byEvent.get(d.sourceId) ?? null) : null,
@@ -123,7 +141,7 @@ export default async function AppointmentsPage() {
         </Card>
 
         <Card className="mt-6 p-8">
-          <OwnDays days={rows} canEdit />
+          <OwnDays days={rows} canEdit housemates={housemates} />
         </Card>
 
         <div className="mt-6 rounded-2xl border border-border bg-surface/60 p-6">

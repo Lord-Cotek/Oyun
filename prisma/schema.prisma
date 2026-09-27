@@ -63,6 +63,7 @@ model User {
 
   createdAt     DateTime       @default(now())
   journeyEvents JourneyEvent[] @relation("JourneyEventCreator")
+  surprisesInOn     SurprisePlanner[]
   letterReplies LetterReply[]
   postShares    PostShare[]
 
@@ -1000,6 +1001,17 @@ model JourneyEvent {
   /// When it finishes, where anybody said. Optional for the same reason.
   endsAt           DateTime?
   where            String?
+  /// Kept from the rest of the household until the day itself has passed —
+  /// the surprise the person it is for must not see coming. Meanwhile only
+  /// the people in on it see it anywhere: not in the diary, not on the home
+  /// page, not in a reminder. The morning after, it simply joins the journey
+  /// like any other day.
+  ///
+  /// The whole rule lives in lib/surprise.ts, checked by
+  /// `npm run verify:surprise`.
+  surprise         Boolean          @default(false)
+  /// The others who are in on it. Empty for an ordinary day.
+  planners         SurprisePlanner[]
   note             String?
   cancelledAt      DateTime?
   /// Where this day came from, when somebody who already uses Oyun copied an
@@ -1367,4 +1379,30 @@ model Concern {
 
   @@index([state, createdAt])
   @@index([email])
+}
+
+
+/// Somebody else who is in on a surprise.
+///
+/// ── Why a table and not a list of ids ────────────────────────────────────
+/// Because the rule that hides a surprise is a database query, and it has to
+/// ask "is this person in on it" in the same breath as everything else. A
+/// column of ids would push that test into application code, and the point of
+/// lib/surprise.ts is that there is ONE test which the database applies — a
+/// read path that forgets a join fails loudly, a read path that forgets an
+/// array check quietly shows somebody their own party.
+///
+/// The creator is never in here. They are `createdById` on the event and
+/// cannot be removed from their own surprise.
+model SurprisePlanner {
+  eventId String
+  event   JourneyEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  userId  String
+  user    User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// Who let them in, so the day has a small history of its own.
+  addedBy String
+  addedAt DateTime     @default(now())
+
+  @@id([eventId, userId])
+  @@index([userId])
 }

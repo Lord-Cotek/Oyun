@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { surprisesImHelpingWith } from "@/lib/events-db";
+import { HelpingWith } from "@/components/dates/HelpingWith";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -77,6 +79,37 @@ export default async function JourneyPage() {
   if (!active) return <EmptyState />;
 
   const { role, journey } = active;
+
+  // The surprises this person is in on — for a sister or a friend, the only
+  // way they ever see one, since Oyun's appointment book is the household's.
+  // Names alongside, so the picker on each one has somebody to offer.
+  const [helpingRows, housemates] = await Promise.all([
+    surprisesImHelpingWith(journey.id, session.user.id),
+    prisma.membership
+      .findMany({
+        where: { journeyId: journey.id },
+        select: { userId: true, user: { select: { name: true, email: true } } },
+      })
+      .then((rows) =>
+        rows.map((m) => ({
+          userId: m.userId,
+          name: m.user?.name?.trim() || m.user?.email || "Somebody",
+        })),
+      ),
+  ]);
+  const helping = helpingRows.map((d) => ({
+    id: d.id,
+    title: d.title,
+    when: d.at.toLocaleDateString("en-GB", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+    }),
+    where: d.where,
+    note: d.note,
+    createdById: d.createdById,
+    inOnIt: d.planners.map((x) => x.userId),
+  }));
 
   const todayLabel = new Date().toLocaleDateString("en-GB", {
     weekday: "long",
@@ -491,6 +524,14 @@ export default async function JourneyPage() {
     return (
       <>
         <SiteHeader active="journey" />
+        {/* Above the hero on purpose: for somebody helping with a shower,
+            this is the one thing on the page with a date they are
+            responsible for, and Oyun's diary is not theirs to open. */}
+        {helping.length > 0 && (
+          <div className="mx-auto max-w-shell px-6 pt-6">
+            <HelpingWith days={helping} housemates={housemates} />
+          </div>
+        )}
         <AccountabilityView
           journeyId={journey.id}
           userId={session.user.id}
@@ -638,6 +679,14 @@ export default async function JourneyPage() {
             </div>
           </div>
         </section>
+
+        {/* Near the top for whoever is helping with something: it is the
+            one thing on this page with a date they are responsible for. */}
+        {helping.length > 0 && (
+          <div className="mt-6">
+            <HelpingWith days={helping} housemates={housemates} />
+          </div>
+        )}
 
         <div className="mt-6 overflow-hidden rounded-2xl border border-border bg-surface">
           <WeekMark

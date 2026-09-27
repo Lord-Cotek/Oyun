@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { PLANNERS_MAX, maySee } from "@/lib/surprise";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
@@ -81,6 +82,7 @@ function readEvent(formData: FormData) {
     kind: toEventKind(String(formData.get("kind") ?? "")),
     where: where ? where.slice(0, WHERE_MAX) : null,
     note: note ? note.slice(0, TEXT_MAX) : null,
+    surprise: formData.get("surprise") === "on",
   };
 }
 
@@ -96,6 +98,15 @@ export async function addEvent(formData: FormData): Promise<Result> {
     data: { journeyId: who.journeyId, createdById: who.userId, ...e, ...when },
     select: { id: true, title: true },
   });
+
+  // A surprise tells nobody. The notification is the loudest way this could
+  // have leaked — "A day went in the diary: her shower" reaching her is the
+  // end of it before anything else has a chance.
+  if (e.surprise) {
+    revalidatePath("/appointments");
+    revalidatePath("/journey");
+    return { ok: true };
+  }
 
   // Tell the other one quietly — never the person who just wrote it.
   const others = await prisma.membership.findMany({
@@ -131,9 +142,19 @@ export async function editEvent(formData: FormData): Promise<Result> {
 
   const existing = await prisma.journeyEvent.findFirst({
     where: { id, journeyId: who.journeyId },
-    select: { at: true },
+    select: {
+      at: true,
+      surprise: true,
+      createdById: true,
+      planners: { select: { userId: true } },
+    },
   });
   if (!existing) return { ok: false, error: "That day is no longer here." };
+  // A surprise somebody is not in on is not theirs to change. They cannot see
+  // it, so this is not the lock — it is the bolt behind the lock.
+  if (!maySee(existing, who.userId)) {
+    return { ok: false, error: "That day is no longer here." };
+  }
   const moved = existing.at.getTime() !== when.at.getTime();
 
   await prisma.journeyEvent.updateMany({
@@ -155,6 +176,19 @@ export async function removeEvent(formData: FormData) {
   const who = await requireHouse();
   if (!who) return;
   const id = String(formData.get("id") ?? "");
+
+  // The same bolt as editing: somebody else's surprise is not theirs to call
+  // off, and calling it off writes to every guest.
+  const standing = await prisma.journeyEvent.findFirst({
+    where: { id, journeyId: who.journeyId },
+    select: {
+      at: true,
+      surprise: true,
+      createdById: true,
+      planners: { select: { userId: true } },
+    },
+  });
+  if (!standing || !maySee(standing, who.userId)) return;
 
   // Before it goes, and while the guests are still readable: somebody who has
   // said they are coming must not find out by arriving. Deleting the event
@@ -693,4 +727,111 @@ async function tellGuestsItIsOff(eventId: string, journeyId: string) {
   } catch (err) {
     console.error("[invitation] could not tell the guests it is off", err);
   }
+}
+
+
+/**
+ * Let somebody else in on a surprise.
+ *
+ * ── Why they are told, and told alone ────────────────────────────────────
+ * Because a person cannot help plan something they do not know about, and
+ * planning it together is the whole point. The notification goes to them and
+ * to nobody else — the one message that must never go out is the one that
+ * reaches the person the day is for.
+ *
+ * Anyone already in on it may ask another, and nobody may remove the one who
+ * thought of it. Co-conspirators, not an owner and their guests.
+ */
+export async function letThemIn(
+  eventId: string,
+  userId: string,
+): Promise<Result> {
+  const who = await requireHouse();
+  if (!who) return { ok: false, error: "This is the household's diary." };
+
+  const event = await prisma.journeyEvent.findFirst({
+    where: { id: eventId, journeyId: who.journeyId },
+    select: {
+      at: true,
+      title: true,
+      surprise: true,
+      createdById: true,
+      planners: { select: { userId: true } },
+    },
+  });
+  if (!event || !maySee(event, who.userId)) {
+    return { ok: false, error: "That day is no longer here." };
+  }
+  if (!event.surprise) {
+    return { ok: false, error: "That day is not a surprise — everyone can see it." };
+  }
+  if (event.planners.length >= PLANNERS_MAX) {
+    return {
+      ok: false,
+      error: `That is as many as can be in on one surprise — ${PLANNERS_MAX}.`,
+    };
+  }
+  if (userId === event.createdById) {
+    return { ok: false, error: "They thought of it — they are already in on it." };
+  }
+
+  // They must be in this journey. Otherwise this is a way to show somebody a
+  // day they were never entitled to.
+  const member = await prisma.membership.findFirst({
+    where: { journeyId: who.journeyId, userId },
+    select: { userId: true },
+  });
+  if (!member) return { ok: false, error: "They are not in this circle." };
+
+  await prisma.surprisePlanner.upsert({
+    where: { eventId_userId: { eventId, userId } },
+    update: {},
+    create: { eventId, userId, addedBy: who.userId },
+  });
+
+  const asker = await prisma.user.findUnique({
+    where: { id: who.userId },
+    select: { name: true },
+  });
+  const askerName = asker?.name?.trim().split(/\s+/)[0] || "Someone";
+  await notify({
+    userId,
+    type: "appointment",
+    title: `${askerName} has let you in on a surprise: ${event.title}`,
+    body: "Nobody else can see it. Keep it that way.",
+    href: "/appointments",
+  });
+
+  revalidatePath("/appointments");
+  revalidatePath("/journey");
+  return { ok: true };
+}
+
+/** Take somebody back out. The one who thought of it cannot be removed. */
+export async function letThemOut(
+  eventId: string,
+  userId: string,
+): Promise<Result> {
+  const who = await requireHouse();
+  if (!who) return { ok: false, error: "This is the household's diary." };
+  const event = await prisma.journeyEvent.findFirst({
+    where: { id: eventId, journeyId: who.journeyId },
+    select: {
+      at: true,
+      surprise: true,
+      createdById: true,
+      planners: { select: { userId: true } },
+    },
+  });
+  if (!event || !maySee(event, who.userId)) {
+    return { ok: false, error: "That day is no longer here." };
+  }
+  if (userId === event.createdById) {
+    return { ok: false, error: "They thought of it — they stay." };
+  }
+
+  await prisma.surprisePlanner.deleteMany({ where: { eventId, userId } });
+  revalidatePath("/appointments");
+  revalidatePath("/journey");
+  return { ok: true };
 }

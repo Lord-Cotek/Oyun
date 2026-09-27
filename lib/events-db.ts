@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { inOnIt, stillASurprise, surpriseScope } from "@/lib/surprise";
 import { type JourneyEventKind } from "@prisma/client";
 
 /**
@@ -26,6 +27,12 @@ export type DiaryDay = {
   kind: string | null;
   /** Only days she wrote down herself can be edited or invited to here. */
   editable: boolean;
+  /** True while nobody outside the ones planning it can see this day. */
+  surprise: boolean;
+  /** Everybody in on it, and null for an ordinary day. */
+  onlyFor: string[] | null;
+  /** Who wrote it down. Null for an appointment. */
+  createdById: string | null;
   daysAway: number;
 };
 
@@ -63,6 +70,8 @@ export function toEventKind(v: string): JourneyEventKind {
  */
 export async function getDiary(
   journeyId: string,
+  /** Whose diary this is. Somebody else's surprise is not in it. */
+  viewerId: string,
   opts: { now?: Date } = {},
 ): Promise<DiaryDay[]> {
   const now = opts.now ?? new Date();
@@ -83,7 +92,12 @@ export async function getDiary(
       },
     }),
     prisma.journeyEvent.findMany({
-      where: { journeyId, cancelledAt: null, at: { gte: from, lte: to } },
+      where: {
+        journeyId,
+        cancelledAt: null,
+        at: { gte: from, lte: to },
+        AND: [surpriseScope(viewerId, now)],
+      },
       select: {
         id: true,
         kind: true,
@@ -93,6 +107,9 @@ export async function getDiary(
         endsAt: true,
         where: true,
         note: true,
+        surprise: true,
+        createdById: true,
+        planners: { select: { userId: true } },
       },
     }),
   ]);
@@ -112,6 +129,10 @@ export async function getDiary(
       note: a.notes,
       kind: a.kind,
       editable: false,
+      // An appointment is hers and the household's; it is never a surprise.
+      surprise: false,
+      onlyFor: null,
+      createdById: null,
       daysAway: daysUntil(a.at, now),
     });
   }
@@ -129,6 +150,9 @@ export async function getDiary(
       note: e.note,
       kind: e.kind,
       editable: true,
+      surprise: stillASurprise(e, now),
+      onlyFor: stillASurprise(e, now) ? inOnIt(e) : null,
+      createdById: e.createdById,
       daysAway: daysUntil(e.at, now),
     });
   }
@@ -150,4 +174,53 @@ function appointmentWord(kind: string): string {
     OTHER: "Appointment",
   };
   return words[kind] ?? "Appointment";
+}
+
+/**
+ * The surprises this person is helping with.
+ *
+ * ── Why this exists at all ───────────────────────────────────────────────
+ * Because Oyun's appointment book belongs to the mother and the one beside
+ * her — a scan date is health information and the circle has no business in
+ * it. But the people you would actually ask to help with a shower are exactly
+ * the ones NOT in that room: her sister, her mother, the friend doing the
+ * food. Without this, letting them in on a surprise would put a row in a
+ * table they could never see, which is a feature that does nothing.
+ *
+ * So a supporter sees the days they were explicitly let in on, and those days
+ * only. It is not the diary opening up to them; it is one day at a time, each
+ * one by a deliberate invitation from somebody who is already in the room.
+ */
+export async function surprisesImHelpingWith(
+  journeyId: string,
+  viewerId: string,
+  now = new Date(),
+) {
+  // surprise-ok: the opposite of the scope — this returns ONLY the surprises
+  // this person is in on, and is how somebody outside the household comes to
+  // see one at all. Every row is one they were deliberately let in on.
+  return prisma.journeyEvent.findMany({
+    where: {
+      journeyId,
+      cancelledAt: null,
+      surprise: true,
+      at: { gte: startOfToday(now) },
+      OR: [{ createdById: viewerId }, { planners: { some: { userId: viewerId } } }],
+    },
+    orderBy: { at: "asc" },
+    select: {
+      id: true,
+      title: true,
+      at: true,
+      hasTime: true,
+      where: true,
+      note: true,
+      createdById: true,
+      planners: { select: { userId: true } },
+    },
+  });
+}
+
+function startOfToday(d: Date): Date {
+  return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
 }

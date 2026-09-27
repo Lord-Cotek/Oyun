@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { InOnIt, type Housemate } from "@/components/dates/InOnIt";
 import { Linked } from "@/components/ui/Linked";
 import { plainLinks } from "@/lib/linkify";
 import { addEvent, editEvent, removeEvent } from "@/app/appointments/event-actions";
@@ -23,6 +24,12 @@ export type DayRow = {
   note: string | null;
   kind: string | null;
   editable: boolean;
+  /** True while only the people planning it can see this day. */
+  surprise: boolean;
+  /** Ids in on it besides whoever thought of it. */
+  inOnIt: string[];
+  /** Who thought of it, so they cannot be taken out of their own surprise. */
+  createdById: string | null;
   daysAway: number;
   /** Set only where somebody made this day shareable. */
   invite: InviteRow | null;
@@ -405,6 +412,30 @@ function EventForm({
         className={inputClass}
       />
 
+      {/*
+        A shower she is not supposed to know about. Nothing is forced by this
+        besides never reaching the wider circle — the rule already hides the
+        day from everybody not in on it, so her own choice about who sees it
+        afterwards is left alone.
+      */}
+      <label className="flex items-start gap-2.5">
+        <input
+          type="checkbox"
+          name="surprise"
+          defaultChecked={day?.surprise ?? false}
+          className="mt-0.5 h-4 w-4 shrink-0 accent-[var(--accent)]"
+        />
+        <span className="prose-serif-xs text-muted">
+          Keep it a surprise
+          <span className="block text-[0.66rem] text-muted/80">
+            Nobody else sees this day &mdash; not in the diary, not on the home
+            page, not in a reminder. You can still send an invitation and take
+            replies, and you can let somebody in to help you plan it. The
+            morning after, it joins the journey like any other day.
+          </span>
+        </span>
+      </label>
+
       {error && <p className="font-mono text-xs text-negative">{error}</p>}
 
       <div className="flex items-center gap-3">
@@ -436,7 +467,16 @@ function EventForm({
  * both — that is the whole point of a calendar — but here they are separated,
  * and only these can carry an invitation.
  */
-export function OwnDays({ days, canEdit }: { days: DayRow[]; canEdit: boolean }) {
+export function OwnDays({
+  days,
+  canEdit,
+  housemates,
+}: {
+  days: DayRow[];
+  canEdit: boolean;
+  /** Everybody in this journey, so a surprise can be planned with one of them. */
+  housemates: Housemate[];
+}) {
   const [adding, setAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [invitingId, setInvitingId] = useState<string | null>(null);
@@ -513,6 +553,15 @@ export function OwnDays({ days, canEdit }: { days: DayRow[]; canEdit: boolean })
                   <p className="mt-1 font-serif text-xl leading-snug text-ink">
                     {d.label}
                   </p>
+                  {/* First thing after the name, because it is what somebody
+                      needs reminding of before they mention it at dinner. */}
+                  {d.surprise && (
+                    <p className="mt-1 inline-block rounded-md border border-accent/40 px-1.5 py-0.5 font-mono text-[0.56rem] uppercase tracking-widest text-accent">
+                      {d.inOnIt.length > 0
+                        ? `A surprise — ${d.inOnIt.length + 1} of you`
+                        : "A surprise — only you"}
+                    </p>
+                  )}
                   {d.where && (
                     <p className="mt-0.5 font-mono text-[0.7rem] text-muted">
                       <Linked text={d.where} />
@@ -528,6 +577,21 @@ export function OwnDays({ days, canEdit }: { days: DayRow[]; canEdit: boolean })
                     <p className="mt-1.5 font-mono text-[0.66rem] text-accent">
                       {inviteSummary(d.invite)}
                     </p>
+                  )}
+
+                  {/* Only while it is still being kept: once the day has
+                      passed, who was in on it is nobody's business to manage. */}
+                  {d.surprise && d.createdById && (
+                    <InOnIt
+                      eventId={d.sourceId}
+                      mine={d.inOnIt}
+                      housemates={housemates}
+                      creatorId={d.createdById}
+                      creatorName={
+                        housemates.find((h) => h.userId === d.createdById)?.name ??
+                        "You"
+                      }
+                    />
                   )}
 
                   {canEdit && (
