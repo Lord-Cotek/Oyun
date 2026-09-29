@@ -1,14 +1,20 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { REACTION_EMOJIS, type ReactionData } from "@/lib/reaction-emojis";
 import { toggleReaction } from "@/app/journey/reaction-actions";
 import { type ReactionTarget } from "@/lib/reactions";
+import { useAttempt } from "@/lib/use-attempt";
 
 /**
  * A gentle row of emoji reactions. Both the mother (on encouragements she
- * receives) and her circle (on how she's feeling) can respond here. State is
- * optimistic so a tap feels immediate; the server reconciles behind it.
+ * receives) and her circle (on how she's feeling) can respond here.
+ *
+ * The tap lands at once — waiting on the server for something this small makes
+ * a phone feel broken — and if the server turns out not to have heard, the
+ * emoji goes back to how it was and a line underneath says so. Somebody should
+ * never be left believing they answered a mother's check-in when nothing was
+ * written down.
  */
 export function Reactions({
   targetType,
@@ -25,20 +31,26 @@ export function Reactions({
     () => ({ ...initial.counts }),
   );
   const [mine, setMine] = useState<string[]>(() => [...initial.mine]);
-  const [, startTransition] = useTransition();
+  const { attempt, slipped } = useAttempt();
 
   function toggle(emoji: string) {
     const has = mine.includes(emoji);
-    // Optimistic update.
-    setMine((m) => (has ? m.filter((e) => e !== emoji) : [...m, emoji]));
-    setCounts((c) => {
-      const next = { ...c };
-      next[emoji] = Math.max(0, (next[emoji] ?? 0) + (has ? -1 : 1));
-      return next;
+    const step = (d: number) => (c: Record<string, number>) => ({
+      ...c,
+      [emoji]: Math.max(0, (c[emoji] ?? 0) + d),
     });
-    startTransition(async () => {
-      await toggleReaction(targetType, targetId, emoji);
-    });
+    attempt(
+      () => {
+        setMine((m) => (has ? m.filter((e) => e !== emoji) : [...m, emoji]));
+        setCounts(step(has ? -1 : 1));
+      },
+      () => toggleReaction(targetType, targetId, emoji),
+      () => {
+        setMine((m) => (has ? [...m, emoji] : m.filter((e) => e !== emoji)));
+        setCounts(step(has ? 1 : -1));
+      },
+      "That didn’t reach them. Tap again?",
+    );
   }
 
   return (
@@ -68,6 +80,11 @@ export function Reactions({
           </button>
         );
       })}
+      {slipped && (
+        <p role="status" className="w-full font-mono text-[0.68rem] text-muted">
+          {slipped}
+        </p>
+      )}
     </div>
   );
 }

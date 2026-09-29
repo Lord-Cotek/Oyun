@@ -95,12 +95,12 @@ export function ScriptureJourney({
   // ── Plan picker ────────────────────────────────────────────────────────
   if (picking || !state) {
     return (
-      <div className="rounded-2xl shadow-[var(--shadow-2)] border border-accent/25 bg-gradient-to-br from-accent/[0.08] via-surface to-accent2/[0.07] p-6 md:p-8">
+      <div className="rounded-2xl shadow-[var(--shadow-2)] border border-border bg-surface p-6 md:p-8">
         <Eyebrow className="mb-3">Scripture Journey</Eyebrow>
         <h3 className="font-serif text-2xl leading-snug text-ink">
           {state ? "Choose a new journey." : "Read through the Scriptures."}
         </h3>
-        <p className="mt-2 max-w-xl font-mono text-sm leading-relaxed text-muted">
+        <p className="mt-2 max-w-xl prose-serif-sm text-muted">
           Pick a path through God&rsquo;s Word. It moves forward only when you
           read — miss a day and it simply waits. However long it takes, you
           finish the whole thing.
@@ -130,9 +130,15 @@ export function ScriptureJourney({
             </p>
           </div>
         ) : (
-          <p className="mt-4 rounded-lg border border-border bg-bg/60 px-4 py-3 font-mono text-[0.72rem] leading-relaxed text-muted">
-            The shared journey is set by a parent or guardian — this begins{" "}
-            <span className="text-ink">your own</span>.
+          <p className="mt-4 rounded-lg border border-border bg-bg/60 px-4 py-3 text-[0.72rem] leading-relaxed text-muted">
+            {/* Named no role on purpose. This line is read by anybody who does
+                not keep the shared journey — in Oyun that includes somebody in
+                the circle, who cannot see the family's plan at all, and
+                "a parent or guardian keeps it" told them about a thing that
+                is none of their business and was Ìdílé's wording besides. */}
+            This begins a journey of{" "}
+            <span className="text-ink">your own</span> — yours to read at your
+            own pace.
           </p>
         )}
 
@@ -159,7 +165,7 @@ export function ScriptureJourney({
                       </span>
                     )}
                   </span>
-                  <span className="mt-1 block font-mono text-xs leading-relaxed text-muted">
+                  <span className="mt-1 block prose-serif-xs text-muted">
                     {p.blurb}
                   </span>
                   <span className="mt-2 block font-mono text-[0.65rem] uppercase tracking-widest text-muted/80">
@@ -193,12 +199,12 @@ export function ScriptureJourney({
   // ── Finished ───────────────────────────────────────────────────────────
   if (state.finished) {
     return (
-      <div className="rounded-2xl shadow-[var(--shadow-2)] border border-accent/30 bg-gradient-to-br from-accent/[0.12] via-surface to-accent2/[0.10] p-6 text-center md:p-10">
+      <div className="rounded-2xl shadow-[var(--shadow-2)] border border-accent/30 bg-surface p-6 text-center md:p-10">
         <Eyebrow className="mb-3">Scripture Journey · Complete</Eyebrow>
         <h3 className="font-serif text-3xl leading-snug text-ink">
           You finished {state.title}.
         </h3>
-        <p className="mx-auto mt-3 max-w-md font-mono text-sm leading-relaxed text-muted">
+        <p className="mx-auto mt-3 max-w-md prose-serif-sm text-muted">
           All {state.total} readings, {state.scope} — every chapter, to the end.
           &ldquo;Your word is a lamp to my feet and a light to my path.&rdquo;
         </p>
@@ -215,7 +221,7 @@ export function ScriptureJourney({
 
   // ── Active reading ─────────────────────────────────────────────────────
   return (
-    <div className="rounded-2xl shadow-[var(--shadow-2)] border border-accent/25 bg-gradient-to-br from-accent/[0.07] via-surface to-accent2/[0.06] p-6 md:p-8">
+    <div className="rounded-2xl shadow-[var(--shadow-2)] border border-border bg-surface p-6 md:p-8">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <Eyebrow className="mb-2">Scripture Journey · {trackName}</Eyebrow>
@@ -296,9 +302,9 @@ export function ScriptureJourney({
       {/* action */}
       <div className="mt-5 flex flex-wrap items-center gap-3">
         {!canAdvance ? (
-          <span className="font-mono text-xs text-muted">
-            Read along; a parent or guardian keeps this journey moving — or start
-            your own above.
+          <span className="prose-serif-xs text-muted">
+            Read along; this journey is kept by the household — or start your
+            own above.
           </span>
         ) : (
           <>

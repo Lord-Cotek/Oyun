@@ -3,6 +3,11 @@
  * size of a…" delight, kept warm and reverent (paired in the UI with Psalm
  * 139:14, "fearfully and wonderfully made"). Weeks 1–3 predate a measurable
  * size, so they get a quiet phrase instead of produce.
+ *
+ * The produce is named the way it is named in a British greengrocer's —
+ * swede, aubergine, cos — because the rest of the app is written in British
+ * English and a mother meeting "a rutabaga" on her home screen has been told
+ * the app is speaking to somebody else. Anything added here follows suit.
  */
 const SIZES: Record<number, string> = {
   4: "a poppy seed",
@@ -19,25 +24,25 @@ const SIZES: Record<number, string> = {
   15: "an apple",
   16: "an avocado",
   17: "a pear",
-  18: "a bell pepper",
+  18: "a pepper",
   19: "a mango",
   20: "a banana",
   21: "a carrot",
   22: "a papaya",
   23: "a grapefruit",
-  24: "an ear of corn",
+  24: "a corn on the cob",
   25: "a cauliflower",
-  26: "a head of lettuce",
-  27: "a rutabaga",
-  28: "an eggplant",
+  26: "a lettuce",
+  27: "a swede",
+  28: "an aubergine",
   29: "a butternut squash",
   30: "a cabbage",
   31: "a coconut",
   32: "a squash",
   33: "a pineapple",
-  34: "a cantaloupe",
+  34: "a melon",
   35: "a honeydew melon",
-  36: "a head of romaine",
+  36: "a cos lettuce",
   37: "a bunch of chard",
   38: "a leek",
   39: "a small pumpkin",

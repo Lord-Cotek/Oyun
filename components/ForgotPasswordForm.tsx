@@ -31,7 +31,7 @@ export function ForgotPasswordForm() {
         <h1 className="font-serif text-3xl leading-snug text-ink">
           If that email has an account, a reset link is on its way.
         </h1>
-        <p className="mt-4 font-mono text-sm leading-relaxed text-muted">
+        <p className="mt-4 prose-serif-sm text-muted">
           Open it and choose a new password. The link expires in one hour. Don&rsquo;t
           see it? Check spam, or{" "}
           <button
@@ -59,7 +59,7 @@ export function ForgotPasswordForm() {
       <h1 className="font-serif text-3xl leading-snug text-ink">
         Forgot your password?
       </h1>
-      <p className="mt-3 font-mono text-sm leading-relaxed text-muted">
+      <p className="mt-3 prose-serif-sm text-muted">
         Enter your email and we&rsquo;ll send you a secure link to set a new one.
       </p>
       <form onSubmit={onSubmit} className="mt-6 space-y-3">
@@ -72,7 +72,7 @@ export function ForgotPasswordForm() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@example.com"
-            className="w-full rounded-lg border border-border bg-bg px-4 py-3 font-mono text-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none"
+            className="prose-serif-sm w-full rounded-lg border border-border bg-bg px-4 py-3 text-ink placeholder:text-muted focus:border-accent focus:outline-none"
           />
         </label>
         {error && <p className="font-mono text-xs text-negative">{error}</p>}

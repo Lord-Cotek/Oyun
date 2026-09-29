@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { getActiveMembership, getCoupleLetters } from "@/lib/data";
 import { getReactionsFor } from "@/lib/reactions";
 import { MOOD_META } from "@/lib/moods";
+import { babyWords } from "@/lib/babies";
 import { Reactions } from "@/components/Reactions";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Card } from "@/components/ui/Card";
@@ -30,6 +31,8 @@ export default async function CarePage() {
   if (active.role !== "MOTHER") redirect("/journey");
 
   const journeyId = active.journey.id;
+  // One baby or four, said the same way everywhere — see lib/babies.ts.
+  const bw = babyWords(active.journey.babyCount, active.journey.babyName);
 
   const [checkIns, letters, coupleLetters] = await Promise.all([
     prisma.checkIn.findMany({
@@ -78,7 +81,7 @@ export default async function CarePage() {
   return (
     <>
       <SiteHeader active="care" />
-      <main className="mx-auto max-w-shell px-6 py-10">
+      <main className="mx-auto max-w-shell px-6 pb-10">
         <PageHero
           eyebrow="Care"
           title="Your heart, your letters."
@@ -120,7 +123,7 @@ export default async function CarePage() {
                 <p className="eyebrow mb-2 text-muted">
                   How your circle responded
                 </p>
-                <p className="mb-4 font-mono text-xs leading-relaxed text-muted">
+                <p className="mb-4 prose-serif-xs text-muted">
                   {reactionTotal > 0
                     ? "They saw how you're feeling and left you these — you're not carrying it alone."
                     : "When someone who's walking with you sees your latest check-in, their response will show here."}
@@ -139,6 +142,7 @@ export default async function CarePage() {
           <div className="lg:col-span-2">
             <LettersSummary
               viewerId={session.user.id}
+              babyLabel={`To your ${bw.noun}`}
               couple={
                 coupleLetters.items[0]
                   ? {

@@ -2,12 +2,14 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { getActiveMembership, getPrayerRequests } from "@/lib/data";
+import { getReactionsFor } from "@/lib/reactions";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Card } from "@/components/ui/Card";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { StatCard } from "@/components/ui/StatCard";
 import { PageHero } from "@/components/ui/PageHero";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { FirstStepFocus } from "@/components/ui/FirstStep";
 import { Icon } from "@/components/ui/Icon";
 import { PrayerForm } from "@/components/prayer/PrayerForm";
 import { PrayerCard, type PrayerItem } from "@/components/prayer/PrayerCard";
@@ -28,6 +30,14 @@ export default async function PrayerPage() {
   const requests = await getPrayerRequests(active.journey.id, session.user.id);
   const isMother = active.role === "MOTHER";
 
+  // Praying for something and having a word about it are two different things.
+  // "Hold to pray" says I carried this; a reaction says I read it and I'm here.
+  const reactions = await getReactionsFor(
+    "PRAYER",
+    requests.map((r) => r.id),
+    session.user.id,
+  );
+
   const items: PrayerItem[] = requests.map((r) => ({
     id: r.id,
     title: r.title,
@@ -39,6 +49,7 @@ export default async function PrayerPage() {
     prayerCount: r.prayerCount,
     didIPray: r.didIPray,
     canManage: r.authorId === session.user.id || isMother,
+    reactions: reactions[r.id] ?? { counts: {}, mine: [] },
   }));
 
   const open = items.filter((i) => !i.answered);
@@ -48,7 +59,7 @@ export default async function PrayerPage() {
   return (
     <>
       <SiteHeader active="prayer" />
-      <main className="mx-auto max-w-shell px-6 py-10">
+      <main className="mx-auto max-w-shell px-6 pb-10">
         <PageHero
           eyebrow="Prayer"
           title="Named, specific, shared."
@@ -73,12 +84,17 @@ export default async function PrayerPage() {
                 icon={<Icon name="flame" size={40} />}
                 title="Nothing on the wall right now."
                 verse={{
-                  text: "Do not be anxious about anything, but in everything by prayer and petition, present your requests to God.",
+                  text: "In nothing be anxious, but in everything, by prayer and petition with thanksgiving, let your requests be made known to God.",
                   reference: "Philippians 4:6",
                 }}
+                action={
+                  <FirstStepFocus htmlFor="prayer-title">
+                    Ask them to pray about the next appointment
+                  </FirstStepFocus>
+                }
               >
-                When something is on your heart, ask — no need to carry it
-                silently. Your circle is ready to pray.
+                Nothing needs to be tidy before you ask. Name the thing that is
+                actually on your mind and your circle will carry it by name.
               </EmptyState>
             ) : (
               open.map((item) => <PrayerCard key={item.id} item={item} />)

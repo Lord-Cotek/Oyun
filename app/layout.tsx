@@ -1,15 +1,37 @@
 import type { Metadata, Viewport } from "next";
-import { Playfair_Display, DM_Mono } from "next/font/google";
+import { Playfair_Display, Literata, DM_Mono } from "next/font/google";
 import "./globals.css";
 import { AssistantChat } from "@/components/AssistantChat";
 import { Disclaimer } from "@/components/Disclaimer";
 import { PwaRegister } from "@/components/PwaRegister";
+import { OfflineBanner } from "@/components/OfflineBanner";
 import { NativePush } from "@/components/NativePush";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-playfair",
+});
+
+/**
+ * The reading face.
+ *
+ * Body text used to be set in DM Mono, and the prose helpers escaped it into
+ * Playfair — which is a display face: high contrast, tight, drawn for a
+ * headline at 40px. At 17px on a phone at eleven at night it is thin and hard
+ * work, and a letter to a child is exactly the thing somebody reads then.
+ *
+ * Literata is drawn for long-form reading on a screen (it is what Google Play
+ * Books is set in). Generous x-height so it holds at small sizes, warm without
+ * being decorative, and not one of the pairings — Lora, Merriweather, Source
+ * Serif — that turn up on every second site. Playfair stays for headings,
+ * where it is very good; DM Mono stays for the things monospace is actually
+ * for: eyebrows, counts, timestamps, figures in a column.
+ */
+const literata = Literata({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-literata",
 });
 
 const dmMono = DM_Mono({
@@ -109,14 +131,15 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${playfair.variable} ${dmMono.variable}`}
+      className={`${playfair.variable} ${literata.variable} ${dmMono.variable}`}
       suppressHydrationWarning
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInit }} />
       </head>
-      <body className="grain">
+      <body>
         <div className="tabbar-pad relative z-10 flex min-h-dvh flex-col">
+          <OfflineBanner />
           <div className="flex-1">{children}</div>
           <Disclaimer />
         </div>

@@ -30,7 +30,7 @@ export function EncouragementBox({
         required
         maxLength={1000}
         placeholder={placeholder ?? `A word to carry ${toName} today…`}
-        className="w-full resize-none rounded-lg border border-border bg-bg px-3.5 py-2.5 font-mono text-sm leading-relaxed text-ink placeholder:text-muted focus:border-accent focus:outline-none"
+        className="w-full resize-none rounded-lg border border-border bg-bg px-3.5 py-2.5 prose-serif-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none"
       />
       <div className="flex items-center justify-between gap-3">
         {verseRef ? (

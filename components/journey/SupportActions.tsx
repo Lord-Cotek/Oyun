@@ -49,7 +49,7 @@ export function SupportActions({
           </p>
         </div>
         <div className="h-8 w-px bg-border" aria-hidden />
-        <p className="font-mono text-xs leading-relaxed text-muted">
+        <p className="prose-serif-xs text-muted">
           {prayedLast7 > 0
             ? `You've prayed for ${motherName} ${prayedLast7} of the last 7 days. Steady presence is the gift; there is no run here to keep up.`
             : `Begin today. A single faithful prayer for ${motherName} is not small in God's eyes.`}

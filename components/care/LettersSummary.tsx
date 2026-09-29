@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Pressable } from "@/components/ui/Pressable";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 
 export interface LetterPreview {
@@ -51,25 +52,29 @@ export function LettersSummary({
   couple,
   baby,
   viewerId,
+  babyLabel = "To your baby",
 }: {
   couple: LetterPreview | null;
   baby: LetterPreview | null;
   viewerId: string;
+  /** "To your baby" or "To your babies" — the caller knows how many. */
+  babyLabel?: string;
 }) {
   const empty = !couple && !baby;
   return (
     <div className="surface-premium rounded-2xl border border-border p-6 md:p-7">
       <div className="mb-4 flex items-center justify-between">
         <Eyebrow>Letters</Eyebrow>
-        <Link
+        <Pressable
           href="/letters"
-          className="font-mono text-[0.68rem] uppercase tracking-widest text-accent underline underline-offset-4 hover:text-accent-deep"
+          press="control"
+          className="inline-flex min-h-11 shrink-0 items-center rounded-lg border border-border px-3 font-mono text-[0.68rem] uppercase tracking-widest text-accent hover:border-accent"
         >
           Open letters →
-        </Link>
+        </Pressable>
       </div>
       {empty ? (
-        <p className="font-mono text-sm leading-relaxed text-muted">
+        <p className="prose-serif-sm text-muted">
           No letters yet.{" "}
           <Link
             href="/letters"
@@ -84,7 +89,7 @@ export function LettersSummary({
             <Line label="Between you two" letter={couple} viewerId={viewerId} />
           )}
           {baby && (
-            <Line label="To your baby" letter={baby} viewerId={viewerId} />
+            <Line label={babyLabel} letter={baby} viewerId={viewerId} />
           )}
         </div>
       )}
