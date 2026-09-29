@@ -172,7 +172,15 @@ export async function findPerson(rawEmail: string): Promise<FoundPerson | null> 
   };
 }
 
-/** An invitation nobody has accepted, with what is needed to send it again. */
+/**
+ * An invitation nobody has accepted, with what is needed to send it again.
+ *
+ * admin-reach: allow token — the invitation's own link, which "send it again"
+ * cannot rebuild without. It passes through the action and into the email, to
+ * the address the invitation was made for, and is never rendered on a screen
+ * in this centre. The same shape as a password reset: the operator causes a
+ * link to be sent and never holds one.
+ */
 export async function pendingInvite(
   id: string,
 ): Promise<{ id: string; email: string; role: string; token: string; journeyId: string } | null> {
@@ -369,4 +377,23 @@ export async function listConcerns(state: string | null, take = 50): Promise<Con
 /** How many are waiting, for the overview and the tab. */
 export async function openConcernCount(): Promise<number> {
   return prisma.concern.count({ where: { state: "OPEN" } });
+}
+
+/**
+ * Whether a reset link is still good for this address.
+ *
+ * ── Why the token itself is never selected ───────────────────────────────
+ * Because a reset link IS the account for the hour it lives. An operator who
+ * could read one could walk into somebody's family. What is useful in support
+ * is only whether one is outstanding and until when — "I sent it twenty
+ * minutes ago, it has forty left" answers the question without the answer
+ * being a key.
+ */
+export async function resetPending(email: string): Promise<Date | null> {
+  const row = await prisma.passwordResetToken.findFirst({
+    where: { email: { equals: email, mode: "insensitive" }, expires: { gt: new Date() } },
+    orderBy: { expires: "desc" },
+    select: { expires: true },
+  });
+  return row?.expires ?? null;
 }

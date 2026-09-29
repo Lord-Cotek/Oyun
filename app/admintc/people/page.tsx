@@ -1,4 +1,5 @@
-import { deliveriesFor, findPerson } from "@/lib/admin-db";
+import { deliveriesFor, findPerson, resetPending } from "@/lib/admin-db";
+import { ResetAnyone } from "@/components/admin/ResetAnyone";
 import { PersonActions } from "@/components/admin/PersonActions";
 import { CarefulActions } from "@/components/admin/CarefulActions";
 
@@ -39,6 +40,9 @@ export default async function AdminPeoplePage({
   // "She says she never got it" is the commonest support question there is,
   // and the answer belongs on the screen where somebody is already standing.
   const sent = person?.email ? await deliveriesFor(person.email) : [];
+  // "I sent her one — is it still good?" The expiry answers it; the link
+  // itself is never read here. See lib/admin-db.ts.
+  const linkGoodUntil = person?.email ? await resetPending(person.email) : null;
 
   return (
     <div className="space-y-6">
@@ -47,6 +51,8 @@ export default async function AdminPeoplePage({
           {done}
         </p>
       )}
+
+      <ResetAnyone />
 
       <form className="flex flex-wrap gap-2">
         <input
@@ -84,6 +90,12 @@ export default async function AdminPeoplePage({
                 ["Joined", when(person.createdAt)],
                 ["Email verified", person.emailVerified ? when(person.emailVerified) : "no"],
                 ["Password set", person.hasPassword ? "yes" : "no"],
+                [
+                  "Reset link outstanding",
+                  linkGoodUntil
+                    ? `yes, until ${linkGoodUntil.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}`
+                    : "no",
+                ],
                 [
                   "Suspended",
                   person.suspendedAt ? when(person.suspendedAt) : "no",

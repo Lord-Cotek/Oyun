@@ -39,6 +39,12 @@ const CONTENT = [
   "payLabel",
   "payNote",
   "passwordHash:true",
+  // A reset link IS the account for the hour it lives, and a reader token IS
+  // somebody's registry. Neither is "content" in the diary sense, but an
+  // operator who could read one could walk straight in — so they are refused
+  // on exactly the same footing.
+  "token",
+  "claimToken",
   "mediaUrls",
   "imageUrl",
   "photoUrls",
