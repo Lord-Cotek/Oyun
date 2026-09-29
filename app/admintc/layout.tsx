@@ -131,6 +131,16 @@ export default async function AdminLayout({
           Everything done here is written down under &ldquo;What was
           done&rdquo;.
         </p>
+        <p className="mt-2 font-mono text-[0.58rem] leading-relaxed text-white/30">
+          One thing here reaches further than that, and it is said plainly
+          rather than left to be discovered: a <span className="text-amber-300/70">super
+          admin can take a password reset link by hand</span> to pass on
+          themselves, and whoever holds one can open that family&rsquo;s rooms
+          as them. It lasts fifteen minutes, it is refused for another
+          admin&rsquo;s account, it is written down under its own name, and the
+          account holder is emailed to say it happened. `npm run verify:admin`
+          prints it on every run.
+        </p>
       </footer>
     </div>
   );

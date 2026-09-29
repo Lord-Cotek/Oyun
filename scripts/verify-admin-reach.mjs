@@ -161,6 +161,32 @@ if (allowed.length > 0) {
   console.log("");
 }
 
+/**
+ * Powers that reach PAST this wall, declared and printed.
+ *
+ * The check above is about reading. There is one thing here that is not a
+ * read at all: a super admin can take a password reset link into their own
+ * hands. No static check can stop that, and pretending the wall is total
+ * would be worse than saying plainly where it ends. Declared next to the
+ * code with `// admin-reach: power <name> — <reason>` and printed every run,
+ * so it stays something somebody can argue with.
+ */
+const powers = [];
+for (const f of ["app/admintc/actions.ts"]) {
+  const at = path.join(root, f);
+  if (!existsSync(at)) continue;
+  for (const m of readFileSync(at, "utf8").matchAll(
+    /admin-reach:\s*power\s+([\w-]+)\s*[-—:]*\s*([^\n]*)/g,
+  )) {
+    powers.push(`${f}: ${m[1]} — ${(m[2] || "no reason given").trim()}`);
+  }
+}
+if (powers.length > 0) {
+  console.log(`  ${powers.length} power(s) that reach PAST this wall:`);
+  for (const q of powers) console.log(`   !  ${q}`);
+  console.log("");
+}
+
 if (problems.length === 0) {
   console.log(`  ok — the admin centre reads accounts, never what a family wrote.`);
   console.log(`  (${CONTENT.length} content columns checked in ${FILE})`);

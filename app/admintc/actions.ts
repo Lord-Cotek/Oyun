@@ -14,6 +14,7 @@ import { journeyOwnerName, pendingInvite } from "@/lib/admin-db";
 import {
   sendAddressChangedEmail,
   sendExportLinkEmail,
+  sendResetTakenEmail,
   sendInviteEmail,
   sendPasswordResetEmail,
 } from "@/lib/email";
@@ -212,6 +213,128 @@ export async function removeAdmin(id: string): Promise<Result> {
  * file, nothing that works without signing in. The audit line records that
  * the signpost was sent, which is all that happened.
  */
+/**
+ * How long a link somebody is going to paste into a chat should live.
+ *
+ * Shorter than the hour an emailed one gets, because this one is being
+ * handed over immediately and read immediately. A link sitting in a WhatsApp
+ * thread for an hour is a link somebody can scroll back to.
+ */
+const HAND_CARRIED_MINUTES = 15;
+
+type LinkResult =
+  | { ok: true; said: string; link: string; until: string }
+  | { ok: false; error: string };
+
+/**
+ * Take a reset link into your own hands, to send by some other means.
+ *
+ * ── Be clear about what this is ──────────────────────────────────────────
+ * Everything else in this centre acts on an account without reaching into
+ * it. This reaches into it. Whoever holds this link can set the password and
+ * open that family's diary, their letters, everything — as them. The wall
+ * that lib/admin-db.ts and `npm run verify:admin` hold up stops an admin
+ * READING a family through this centre; it cannot stop somebody who has made
+ * themselves that family.
+ *
+ * It exists because email genuinely fails — a domain not yet warm, a gulf
+ * ISP swallowing the lot, somebody's spam folder — and the operator of a
+ * small app often knows the person and can hand it over. Refusing to build
+ * it would not stop that; it would push it into a database console, where
+ * nothing is written down at all.
+ *
+ * ── So the cost is made explicit rather than hidden ──────────────────────
+ *   · Super admin only. Not every person doing support.
+ *   · Never for another admin's account — that is how one admin becomes all
+ *     of them, and it is the one case with no honest support reason.
+ *   · Fifteen minutes, not an hour.
+ *   · A distinct audit line. Not "sent a password reset" among the others —
+ *     "took a reset link by hand", which reads differently on purpose.
+ *   · THE PERSON IS TOLD. This is the part that matters. It turns a power
+ *     nobody can see into one the person it was used on can ask about.
+ *
+ * The link is returned to the screen once and never stored by the page.
+ *
+ * admin-reach: power hand-carried-reset — a super admin can take a password
+ * reset link and pass it on themselves. It is the one thing here that
+ * reaches INTO an account rather than acting on it; it is fifteen minutes,
+ * refused for another admin, written down under its own name, and the
+ * account holder is emailed to say it happened.
+ */
+export async function takeResetLink(email: string): Promise<LinkResult> {
+  const admin = await requireSuperAdmin();
+  const to = email.trim().toLowerCase();
+
+  const user = await prisma.user.findFirst({
+    where: { email: { equals: to, mode: "insensitive" } },
+    select: { email: true, name: true },
+  });
+  if (!user?.email) {
+    await audit(admin.email, "tried to take a reset link by hand", to, "no such account");
+    return { ok: false, error: "No account with that address." };
+  }
+
+  // Never for another admin. One admin quietly becoming another is the thing
+  // an audit log cannot undo, and there is no support story that needs it —
+  // an admin who is locked out can use the ordinary emailed reset like
+  // anybody else.
+  const others = await prisma.adminUser.count({
+    where: { email: { equals: user.email, mode: "insensitive" } },
+  });
+  const isSuper = superAdminEmails().includes(user.email.toLowerCase());
+  if (others > 0 || isSuper) {
+    await audit(
+      admin.email,
+      "tried to take a reset link by hand",
+      user.email,
+      "refused — that account is an admin",
+    );
+    return {
+      ok: false,
+      error:
+        "That account is an admin. Send them the ordinary link by email — one admin is not handed another's account.",
+    };
+  }
+
+  const token = randomBytes(32).toString("base64url");
+  const expires = new Date(Date.now() + HAND_CARRIED_MINUTES * 60 * 1000);
+  await prisma.$transaction([
+    prisma.passwordResetToken.deleteMany({ where: { email: user.email } }),
+    prisma.passwordResetToken.create({ data: { email: user.email, token, expires } }),
+  ]);
+
+  // Told, not asked. They cannot stop it, but they can see it happened and
+  // say something — which is the whole difference between a power and a
+  // secret. Best effort: a failed notice must not leave the operator without
+  // the link they are standing there waiting for.
+  const toldThem = await sendResetTakenEmail({
+    to: user.email,
+    name: user.name,
+    by: admin.email,
+    minutes: HAND_CARRIED_MINUTES,
+  }).catch(() => false);
+
+  await audit(
+    admin.email,
+    "took a reset link by hand",
+    user.email,
+    toldThem
+      ? `${HAND_CARRIED_MINUTES} minutes — the account holder was told`
+      : `${HAND_CARRIED_MINUTES} minutes — THE ACCOUNT HOLDER COULD NOT BE TOLD`,
+  );
+  revalidatePath("/admintc/audit");
+  revalidatePath("/admintc/people");
+
+  return {
+    ok: true,
+    link: `${SITE}/reset-password?token=${token}`,
+    until: expires.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }),
+    said: toldThem
+      ? `Yours for ${HAND_CARRIED_MINUTES} minutes. They have been emailed to say a link was made.`
+      : `Yours for ${HAND_CARRIED_MINUTES} minutes. They could NOT be told — the notice did not send.`,
+  };
+}
+
 export async function sendExportLink(email: string): Promise<Result> {
   const admin = await requireUnlockedAdmin();
   const to = email.trim().toLowerCase();

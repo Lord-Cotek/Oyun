@@ -552,6 +552,56 @@ export async function sendAddressChangedEmail({
  * whoever is signed in, and the admin who sent it is no nearer the contents
  * than they were before. What it saves the person is the hunt for the button.
  */
+/**
+ * "Somebody here made a reset link for your account."
+ *
+ * ── Why this is sent at all ──────────────────────────────────────────────
+ * Because a link handed over by hand is the one thing anybody here can do
+ * that reaches inside a family's account rather than merely acting on it.
+ * The person it belongs to cannot stop it, but they can be told it happened
+ * and ask why — and that is the whole difference between a power and a
+ * secret. It names who did it, on purpose.
+ *
+ * It says nothing about how the link is being delivered, because that is
+ * between them and whoever is helping them.
+ */
+export async function sendResetTakenEmail({
+  to,
+  name,
+  by,
+  minutes,
+}: {
+  to: string;
+  name: string | null;
+  by: string;
+  minutes: number;
+}): Promise<boolean> {
+  const hello = name?.trim() ? `${escapeHtml(name.trim().split(/\s+/)[0])},` : "Hello,";
+  const line = `Somebody at Oyun (${escapeHtml(by)}) made a password reset link for your account, to pass to you directly. It works for ${minutes} minutes.`;
+  const warn =
+    "If you did not ask anybody for help getting in, reply to this email now. Until you do, change your password as soon as you can get in.";
+
+  const html = shell(`
+    <p style="font-size:16px;line-height:1.6;color:#ECE8DE;">${hello}</p>
+    <p style="font-size:14px;line-height:1.7;color:#ECE8DE;">${line}</p>
+    <p style="font-size:14px;line-height:1.7;color:#ECE8DE;">
+      Nobody here can read your diary, your letters or anything your family
+      has kept. This is the one thing anybody here can do that touches your
+      account itself, which is why you are being told about it.
+    </p>
+    <p style="font-size:12px;line-height:1.6;color:#8A9099;">${warn}</p>
+  `);
+  const text = [hello, "", line, "", warn].join("\n");
+
+  return sendEmail({
+    to,
+    subject: "A reset link was made for your Oyun account",
+    html,
+    text,
+    kind: "reset-taken",
+  });
+}
+
 export async function sendExportLinkEmail({
   to,
   name,

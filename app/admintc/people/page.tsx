@@ -1,5 +1,6 @@
 import { deliveriesFor, findPerson, resetPending } from "@/lib/admin-db";
 import { ResetAnyone } from "@/components/admin/ResetAnyone";
+import { requireAdmin } from "@/lib/admin";
 import { PersonActions } from "@/components/admin/PersonActions";
 import { CarefulActions } from "@/components/admin/CarefulActions";
 
@@ -34,6 +35,9 @@ export default async function AdminPeoplePage({
 }: {
   searchParams: { q?: string; done?: string };
 }) {
+  // The layout has already let them in; this is only to know whether to
+  // offer the one thing a plain admin may not do.
+  const admin = await requireAdmin();
   const q = (searchParams.q ?? "").trim();
   const done = DONE[searchParams.done ?? ""] ?? null;
   const person = q ? await findPerson(q) : null;
@@ -52,7 +56,7 @@ export default async function AdminPeoplePage({
         </p>
       )}
 
-      <ResetAnyone />
+      <ResetAnyone isSuper={admin.isSuper} />
 
       <form className="flex flex-wrap gap-2">
         <input
