@@ -3,8 +3,31 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "@/lib/prisma";
 import { verifyPassword } from "@/lib/password";
 
+/**
+ * How long somebody stays signed in without having to think about it.
+ *
+ * ── Why a year, and not the default thirty days ──────────────────────────
+ * This is a family's own diary on their own phone, not a bank. Nobody opens
+ * it every week: a father checks in around a scan, a grandmother at a
+ * birthday, somebody comes back in March to read what was written in
+ * January. Thirty days of quiet is an ordinary gap here, and being asked for
+ * a password because of it is the app forgetting you, not protecting you.
+ *
+ * It rolls: every visit pushes the year out again, so an account that is
+ * used at all is never signed out by time. Signing out is a thing a person
+ * does on purpose, from the menu.
+ */
+const A_YEAR = 365 * 24 * 60 * 60;
+
 export const authOptions: NextAuthOptions = {
-  session: { strategy: "jwt" },
+  session: {
+    strategy: "jwt",
+    maxAge: A_YEAR,
+    // Re-sign at most daily. The cookie's expiry moves out with it, which is
+    // what makes the year rolling rather than fixed from the first sign-in.
+    updateAge: 24 * 60 * 60,
+  },
+  jwt: { maxAge: A_YEAR },
   pages: {
     signIn: "/sign-in",
   },
@@ -51,10 +74,35 @@ export const authOptions: NextAuthOptions = {
         // Leaving the id off is deliberate: every guard in the app asks for
         // session?.user?.id, so a suspended account lands wherever a signed
         // out one would, with no new code path to get wrong.
-        const live = await prisma.user.findUnique({
-          where: { id: token.id as string },
-          select: { suspendedAt: true },
-        });
+        // ── And why it must FAIL OPEN ─────────────────────────────────────
+        // If this lookup throws, the account has told us nothing about
+        // itself — the database is simply not answering. Treating silence as
+        // "suspended" signs out every family in the app for as long as the
+        // blip lasts, and what they see is the sign-in page, and signing in
+        // fails too because that needs the database as well. The app does
+        // not look poorly; it looks like it threw them out and locked the
+        // door. Some would reset a password they never needed to change.
+        //
+        // Measured, not assumed: before this, stopping the database bounced
+        // a signed-in user straight to /sign-in.
+        //
+        // So a throw keeps the session. The cost of being wrong that way is
+        // that a suspended person keeps reading for another few seconds
+        // until the database answers again; the cost of the other way is
+        // everybody losing their place. A row that comes back NULL is a
+        // different thing — that account is genuinely gone — and still ends
+        // the session.
+        let live: { suspendedAt: Date | null } | null = null;
+        try {
+          live = await prisma.user.findUnique({
+            where: { id: token.id as string },
+            select: { suspendedAt: true },
+          });
+        } catch (err) {
+          console.error("[auth] could not check the account; keeping the session", err);
+          session.user.id = token.id as string;
+          return session;
+        }
         if (!live || live.suspendedAt) {
           // Removed rather than blanked: NextAuth types `user` as always
           // present, and a user object with an empty id is a thing a future
