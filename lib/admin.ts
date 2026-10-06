@@ -69,8 +69,28 @@ export interface Admin {
 export const UNLOCK_MINUTES = 30;
 const UNLOCK_COOKIE = "oyun_admintc";
 
+/**
+ * The key the unlock cookie is signed with.
+ *
+ * ── Why this throws rather than falling back ─────────────────────────────
+ * It used to return "" when NEXTAUTH_SECRET was missing, which meant the
+ * cookie would be signed with an empty key — a signature anybody could
+ * produce. It was never reachable, because NextAuth refuses to start at all
+ * without the secret, and because unlockedFor() has always refused when it
+ * is absent. But it is the wrong shape for a security control: one that goes
+ * quietly weak instead of loudly failing is one you find out about later.
+ *
+ * Now a missing secret stops the thing that would mint a worthless
+ * credential, and says so. Reading is handled differently — see below.
+ */
 function unlockSecret(): string {
-  return process.env.NEXTAUTH_SECRET ?? "";
+  const secret = process.env.NEXTAUTH_SECRET;
+  if (!secret) {
+    throw new Error(
+      "NEXTAUTH_SECRET is not set. The admin centre cannot sign anything without it.",
+    );
+  }
+  return secret;
 }
 
 /** `<expiry>.<signature>` — the signature covers the email and the expiry. */
@@ -92,14 +112,26 @@ export const UNLOCK_COOKIE_NAME = UNLOCK_COOKIE;
  * signature is even looked at, so an expired cookie costs nothing.
  */
 export function unlockedFor(email: string): boolean {
-  if (!unlockSecret()) return false;
+  // Reading fails CLOSED and quietly, where minting fails loudly. This runs
+  // in the layout, for anybody who guesses the address — so a misconfigured
+  // app must still answer them with the ordinary 404 rather than an error
+  // page that tells a stranger there is something here to misconfigure. An
+  // admin who then types their password gets the loud version from
+  // mintUnlock, which is the right person to be told.
+  let secret: string;
+  try {
+    secret = unlockSecret();
+  } catch (err) {
+    console.error("[admin] the centre cannot be unlocked:", err);
+    return false;
+  }
   const raw = cookies().get(UNLOCK_COOKIE)?.value;
   if (!raw) return false;
   const [at, sig] = raw.split(".");
   const when = Number(at);
   if (!Number.isFinite(when) || when < Date.now() || !sig) return false;
 
-  const want = createHmac("sha256", unlockSecret())
+  const want = createHmac("sha256", secret)
     .update(`${email}:${at}`)
     .digest("base64url");
   const a = Buffer.from(sig);
