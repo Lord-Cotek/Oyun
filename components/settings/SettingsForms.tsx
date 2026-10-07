@@ -173,23 +173,47 @@ export function NotificationForm({
   notifyByEmail,
   weeklyDigest,
   categories,
+  morningHour,
 }: {
   notifyByEmail: boolean;
   weeklyDigest: boolean;
   categories: Record<string, boolean>;
+  morningHour: number;
 }) {
   const { busy, result, run } = useAction(updateNotifications);
   return (
     <form action={run} className="space-y-5">
       <div className="space-y-4">
         {CATEGORIES.map((c) => (
-          <Toggle
-            key={c.field}
-            name={c.field}
-            defaultChecked={categories[c.field] !== false}
-            title={c.label}
-            hint={c.hint}
-          />
+          <div key={c.field}>
+            <Toggle
+              name={c.field}
+              defaultChecked={categories[c.field] !== false}
+              title={c.label}
+              hint={c.hint}
+            />
+            {/* The hour belongs beside the switch it governs, not in a
+                settings page of its own. It stays visible when the row is
+                switched off, because somebody turning it off because it came
+                at a bad hour should see that the hour is theirs to move. */}
+            {c.id === "morning" && (
+              <label className="mt-2 flex flex-wrap items-center gap-2 pl-1">
+                <span className="prose-serif-xs text-muted">Send it at</span>
+                <select
+                  name="morningHour"
+                  defaultValue={String(morningHour)}
+                  className="min-h-11 rounded-lg border border-line bg-transparent px-3 font-mono text-xs text-fg focus:border-accent/60 focus:outline-none"
+                >
+                  {Array.from({ length: 24 }, (_, h) => (
+                    <option key={h} value={h}>
+                      {h === 0 ? "midnight" : h === 12 ? "noon" : h < 12 ? `${h}am` : `${h - 12}pm`}
+                    </option>
+                  ))}
+                </select>
+                <span className="prose-serif-xs text-muted">your time</span>
+              </label>
+            )}
+          </div>
         ))}
       </div>
 

@@ -6,6 +6,7 @@ import { Disclaimer } from "@/components/Disclaimer";
 import { PwaRegister } from "@/components/PwaRegister";
 import { OfflineBanner } from "@/components/OfflineBanner";
 import { NativePush } from "@/components/NativePush";
+import { KnowTheHour } from "@/components/KnowTheHour";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -146,6 +147,7 @@ export default function RootLayout({
         <AssistantChat />
         <PwaRegister />
         <NativePush />
+        <KnowTheHour />
       </body>
     </html>
   );

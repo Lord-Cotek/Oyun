@@ -38,7 +38,8 @@ export type NotifyCategory =
   | "her"
   | "dates"
   | "diary"
-  | "house";
+  | "house"
+  | "morning";
 
 /** Which group each notification type belongs to. */
 export const CATEGORY_OF: Record<NotificationType, NotifyCategory> = {
@@ -64,6 +65,9 @@ export const CATEGORY_OF: Record<NotificationType, NotifyCategory> = {
   // notifications are about one thing — one switch should govern both.
   letter_reply: "diary",
 
+  // The one note each morning
+  morning: "morning",
+
   // The journey itself
   invite_accepted: "house",
   // Somebody taking something off the registry. Housekeeping rather than the
@@ -80,7 +84,8 @@ export interface CategoryRow {
     | "notifyHer"
     | "notifyDates"
     | "notifyDiary"
-    | "notifyHouse";
+    | "notifyHouse"
+    | "notifyMorning";
   /** The switch's own words — what happens, not what it is called. */
   label: string;
   /** One line of what actually lands, in the order a person would meet it. */
@@ -115,6 +120,12 @@ export const CATEGORIES: CategoryRow[] = [
     field: "notifyDiary",
     label: "The family diary",
     hint: "New entries, replies and reactions from the people you invited.",
+  },
+  {
+    id: "morning",
+    field: "notifyMorning",
+    label: "One note each morning",
+    hint: "The day's verse, and the one thing worth knowing today — written for your part in this, and sent at the hour you choose. Never more than one a day.",
   },
   {
     id: "house",

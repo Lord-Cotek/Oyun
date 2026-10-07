@@ -112,7 +112,9 @@ export default async function SettingsPage() {
                 notifyDates: user.notifyDates,
                 notifyDiary: user.notifyDiary,
                 notifyHouse: user.notifyHouse,
+                notifyMorning: user.notifyMorning,
               }}
+              morningHour={user.morningHour}
             />
             <div className="mt-6 border-t border-border pt-6">
               <PushToggle />

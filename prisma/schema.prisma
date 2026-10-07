@@ -28,6 +28,22 @@ model User {
   notifyDates  Boolean @default(true)
   notifyDiary  Boolean @default(true)
   notifyHouse  Boolean @default(true)
+  /// The one note each morning, written for the seat this person sits in.
+  /// Its own switch so that turning off a daily devotional does not also turn
+  /// off the reminder about Tuesday's scan.
+  notifyMorning Boolean @default(true)
+
+  /// Where this person actually is, as an IANA name ("Asia/Dubai"). Learned
+  /// from the browser rather than asked for, because nobody wants a dropdown
+  /// of four hundred cities on their first morning.
+  ///
+  /// Null means we have not met them in a browser yet; the sender falls back
+  /// to UTC, which is wrong for most of the world and is why this is captured
+  /// on the very first page they load.
+  timeZone      String?
+  /// The hour, in THEIR day, they would like it. Seven in the morning unless
+  /// they say otherwise.
+  morningHour   Int     @default(7)
 
   /// Set when an operator has suspended this account — see the admin centre.
   ///
@@ -52,6 +68,7 @@ model User {
   appointments      Appointment[]
   prayerPrays       PrayerPray[]
   pushSubscriptions PushSubscription[]
+  morningsSent      MorningSent[]
   nativePushTokens  NativePushToken[]
   remembrances      Remembrance[]
   reactions         Reaction[]
@@ -1405,4 +1422,26 @@ model SurprisePlanner {
 
   @@id([eventId, userId])
   @@index([userId])
+}
+
+
+/// One morning note, to one person, on one day.
+///
+/// ── Why a row and not a timestamp on the user ────────────────────────────
+/// Because the sender runs every hour, and the question it asks is "has this
+/// person already had today's?". A unique key on (userId, day) makes a second
+/// send impossible rather than merely unlikely — a retried cron, two regions
+/// waking at once, a redeploy mid-run, none of them can produce two notes.
+/// A timestamp column would need reading, comparing and writing, and the gap
+/// between the read and the write is exactly where the double send lives.
+model MorningSent {
+  id     String   @id @default(cuid())
+  userId String
+  user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// Midnight UTC of the person's own local day, so "today" means their today.
+  day    DateTime
+  sentAt DateTime @default(now())
+
+  @@unique([userId, day])
+  @@index([day])
 }

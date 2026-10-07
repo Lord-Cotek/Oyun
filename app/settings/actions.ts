@@ -76,7 +76,7 @@ export async function updateNotifications(_prev: unknown, formData: FormData): P
   const userId = await requireUser();
   // An unchecked checkbox sends nothing at all, so every switch has to be read
   // as "absent means off" — which is only safe because the form always renders
-  // all five rows.
+  // every row.
   const on = (name: string) => formData.get(name) === "on";
   await prisma.user.update({
     where: { id: userId },
@@ -84,6 +84,9 @@ export async function updateNotifications(_prev: unknown, formData: FormData): P
       notifyByEmail: on("notifyByEmail"),
       weeklyDigest: on("weeklyDigest"),
       ...Object.fromEntries(CATEGORY_FIELDS.map((f) => [f, on(f)])),
+      // Clamped rather than trusted: this comes from a form, and an hour of
+      // 25 would mean a note that never arrives, silently, for ever.
+      morningHour: Math.min(23, Math.max(0, Number(formData.get("morningHour")) || 7)),
     },
   });
   revalidatePath("/settings");

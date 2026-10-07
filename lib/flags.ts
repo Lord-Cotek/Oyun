@@ -54,6 +54,12 @@ export const FLAGS: FlagSpec[] = [
     fallback: true,
   },
   {
+    key: "morning-note",
+    label: "The morning note",
+    what: "Sends one note a day to each person, at their own chosen hour — the day's verse and the one line written for their part in it. Turn it off to stop the next one going out without waiting for a deploy.",
+    fallback: true,
+  },
+  {
     key: "concerns",
     label: "Raising a concern",
     what: "Shows the way to write to us from Settings. Turn it off only if the queue is being flooded.",

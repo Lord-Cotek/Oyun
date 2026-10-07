@@ -17,7 +17,8 @@ export type NotificationType =
   | "registry"
   | "appointment"
   | "appointment_reminder"
-  | "nudge";
+  | "nudge"
+  | "morning";
 
 interface NotifyInput {
   userId: string;
