@@ -178,9 +178,14 @@ export function InvitePanel({
                   action={(url) => setInvitationCover(eventId, url)}
                   label="Picture"
                 />
+                {/* It says the invitation and not the WhatsApp preview on
+                    purpose. The picture was in that preview card for a while
+                    and would not reach WhatsApp reliably, so the card went
+                    back to the plain one — and a line promising something
+                    that does not happen is worse than no line. */}
                 <p className="mt-1 font-mono text-[0.58rem] leading-relaxed text-muted">
-                  Shown at the top of the invitation, and in the preview when
-                  the link is forwarded.
+                  Shown at the top of the invitation, to everybody who opens
+                  it.
                 </p>
               </div>
             </div>
