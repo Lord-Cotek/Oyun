@@ -2,6 +2,7 @@
 
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
+import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { notify } from "@/lib/notify";
 import {
@@ -162,10 +163,49 @@ export async function askToJoin(
   const share = await liveShare(token);
   if (!share) return { ok: false, error: "This link has been closed." };
 
-  const name = clean(formData.get("name"), HELLO_NAME_MAX);
+  /**
+   * Who is asking, if we happen to know.
+   *
+   * ── Why the account outranks the form ────────────────────────────────
+   * Everything else in this file treats what arrives as a claim, because it
+   * arrives from a URL anybody could be holding. A session is the one thing
+   * here that is not a claim, so when there is one it wins: the name and the
+   * email are read off the account rather than out of the fields, which is
+   * what lets the family be told "this came from an Oyun account" and have
+   * that mean something. Taking the account's id and the form's email would
+   * have been the worst of both — a verified badge on a typed address.
+   *
+   * The account's name can be empty; what they typed is then better than
+   * nothing. The email cannot be, so it is never taken from the form.
+   */
+  const session = await auth();
+  const me = session?.user?.id
+    ? await prisma.user.findUnique({
+        where: { id: session.user.id },
+        select: { id: true, name: true, email: true },
+      })
+    : null;
+  const asker = me?.email ? me : null;
+
+  // Already one of them. They were sent to the post rather than this page, so
+  // this is a stale form in an old tab. Nothing to do, and nothing to say: a
+  // card asking the family to admit somebody already in the circle is worse
+  // than silence.
+  if (asker) {
+    const member = await prisma.membership.count({
+      where: { journeyId: share.journeyId, userId: asker.id },
+    });
+    if (member > 0) return { ok: true };
+  }
+
+  const typedName = clean(formData.get("name"), HELLO_NAME_MAX);
   const relationRaw = clean(formData.get("relation"), 40);
-  const email = clean(formData.get("email"), 160).toLowerCase();
   const note = clean(formData.get("note"), JOIN_NOTE_MAX);
+
+  const name = clean(asker?.name ?? "", HELLO_NAME_MAX) || typedName;
+  const email = asker
+    ? asker.email!.toLowerCase()
+    : clean(formData.get("email"), 160).toLowerCase();
 
   if (!name) return { ok: false, error: "Please put your name." };
   if (!email.includes("@") || email.length < 5) {
@@ -178,11 +218,13 @@ export async function askToJoin(
 
   const guestToken = guestTokenFor(token);
 
+  // Asked already — by this browser, or by this account from any browser.
+  // See alreadyAsked in lib/post-share-db.ts on why the account half matters.
   const already = await prisma.joinRequest.count({
     where: {
       journeyId: share.journeyId,
-      guestToken,
       status: { in: ["PENDING", "INVITED"] },
+      OR: [{ guestToken }, ...(asker ? [{ fromUserId: asker.id }] : [])],
     },
   });
   if (already > 0) return { ok: true };
@@ -201,6 +243,7 @@ export async function askToJoin(
       email,
       note: note || null,
       guestToken,
+      fromUserId: asker?.id ?? null,
     },
   });
 

@@ -200,14 +200,28 @@ export async function myHello(
   return { name: h.name, body: h.body };
 }
 
-/** Whether this guest has already asked to join this journey. */
+/**
+ * Whether this person has already asked to join this journey.
+ *
+ * Identified by the cookie this browser carries, and — when they are signed
+ * in — by their account as well. The account is the better half of that: a
+ * cookie is per browser, so without it somebody who asked from their phone
+ * and then opened the same link on a laptop would be shown the form again as
+ * though the first ask had never happened, and the family would get a second
+ * card about the same person.
+ */
 export async function alreadyAsked(
   journeyId: string,
   guestToken: string,
+  userId?: string | null,
 ): Promise<boolean> {
-  if (!guestToken) return false;
+  const who = [
+    ...(guestToken ? [{ guestToken }] : []),
+    ...(userId ? [{ fromUserId: userId }] : []),
+  ];
+  if (who.length === 0) return false;
   const n = await prisma.joinRequest.count({
-    where: { journeyId, guestToken, status: { in: ["PENDING", "INVITED"] } },
+    where: { journeyId, status: { in: ["PENDING", "INVITED"] }, OR: who },
   });
   return n > 0;
 }

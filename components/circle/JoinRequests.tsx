@@ -11,6 +11,22 @@ export interface JoinAsk {
   email: string;
   note: string | null;
   createdAt: string;
+  /**
+   * They were signed in to Oyun when they asked, so the name and the email
+   * above came off an account rather than out of two text boxes.
+   *
+   * ── What this is worth, and what it is not ───────────────────────────
+   * It is worth something: it means somebody made an account, signed in, and
+   * the address on this card is one they can actually receive mail at. It is
+   * not worth anything about who they are. Anybody can make an account in a
+   * minute under any name, so this says nothing about the "Grandparent" on
+   * the line above, and the rule at the top of this list — add them only if
+   * you know the name — is exactly as true for these as for the others.
+   *
+   * Shown because it IS the difference the family would otherwise have no
+   * way to see, and withheld as a badge of trust it has not earned.
+   */
+  hasAccount: boolean;
   /** The first words of the post that brought them, for context. */
   from: string | null;
 }
@@ -114,6 +130,11 @@ function Ask({
       <p className="mt-1 break-all font-mono text-[0.62rem] text-muted">
         {ask.email}
       </p>
+      {ask.hasAccount && (
+        <p className="mt-1.5 font-mono text-[0.58rem] uppercase tracking-widest text-accent">
+          Asked from an Oyun account
+        </p>
+      )}
       {ask.note && (
         <p className="mt-2 whitespace-pre-wrap prose-serif-sm text-ink/85">
           “{ask.note}”

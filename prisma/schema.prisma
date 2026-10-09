@@ -69,6 +69,7 @@ model User {
   prayerPrays       PrayerPray[]
   pushSubscriptions PushSubscription[]
   morningsSent      MorningSent[]
+  joinRequests      JoinRequest[]
   nativePushTokens  NativePushToken[]
   remembrances      Remembrance[]
   reactions         Reaction[]
@@ -459,6 +460,13 @@ model JoinRequest {
   email      String
   note       String?
   guestToken String
+  /// Set when the person asking was signed in to Oyun as they asked, which
+  /// makes their name and email facts about an account rather than two fields
+  /// a stranger typed. Shown to the family as exactly that much and no more:
+  /// it still buys nothing, and they still decide. SetNull so that closing an
+  /// account never deletes somebody's request to be let in.
+  fromUserId String?
+  fromUser   User?      @relation(fields: [fromUserId], references: [id], onDelete: SetNull)
   /// PENDING | INVITED | DECLINED
   status     String     @default("PENDING")
   decidedAt  DateTime?

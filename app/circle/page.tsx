@@ -62,6 +62,7 @@ export default async function CirclePage() {
         email: true,
         note: true,
         createdAt: true,
+        fromUserId: true,
         share: { select: { post: { select: { body: true } } } },
       },
     }),
@@ -128,6 +129,7 @@ export default async function CirclePage() {
                   email: a.email,
                   note: a.note,
                   createdAt: a.createdAt.toISOString(),
+                  hasAccount: !!a.fromUserId,
                   from:
                     a.share?.post.body.trim().split("\n")[0].slice(0, 80) ??
                     null,

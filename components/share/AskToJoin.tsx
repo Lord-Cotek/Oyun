@@ -7,6 +7,7 @@ import {
   JOIN_WORDS,
   HELLO_NAME_MAX,
   RELATIONS,
+  KNOWN_ASKER_WORDS,
 } from "@/lib/post-share";
 import type { GuestResult } from "@/components/share/GuestHello";
 
@@ -31,6 +32,7 @@ export function AskToJoin({
   token,
   who,
   asked,
+  me,
   onAsk,
 }: {
   token: string;
@@ -38,6 +40,20 @@ export function AskToJoin({
   who: string;
   /** True when this browser has already asked. */
   asked: boolean;
+  /**
+   * The account this person is signed in to, if they are signed in at all —
+   * in which case they are a stranger to THIS family but not to us, since
+   * anybody in this family was taken to the post instead of here.
+   *
+   * ── Why this replaces the two fields rather than filling them in ──────
+   * Because the server reads the name and the email off the account and
+   * ignores whatever is posted — that is what lets the family be told the
+   * request came from a real account. Prefilled boxes somebody could edit
+   * would therefore be a form that quietly discards half of what you typed,
+   * which is worse than no prefill at all. So the fields go, and what is
+   * left says plainly who they are asking as.
+   */
+  me?: { name: string; email: string } | null;
   onAsk: (token: string, fd: FormData) => Promise<GuestResult>;
 }) {
   const [open, setOpen] = useState(false);
@@ -84,18 +100,34 @@ export function AskToJoin({
           }}
           className="mt-5 space-y-4"
         >
-          <label className="block">
-            <span className="mb-1.5 block font-mono text-[0.62rem] uppercase tracking-widest text-muted">
-              {JOIN_WORDS.nameLabel}
-            </span>
-            <input
-              type="text"
-              name="name"
-              required
-              maxLength={HELLO_NAME_MAX}
-              className="w-full rounded-lg border border-border bg-bg px-3.5 py-2.5 prose-serif-sm text-ink focus:border-accent focus:outline-none"
-            />
-          </label>
+          {me ? (
+            <div className="rounded-lg border border-border bg-bg/60 p-3.5">
+              <p className="font-serif text-base leading-snug text-ink">
+                {me.name || me.email}
+              </p>
+              {me.name && (
+                <p className="mt-0.5 font-mono text-[0.62rem] text-muted">
+                  {me.email}
+                </p>
+              )}
+              <p className="mt-2 font-mono text-[0.58rem] leading-relaxed text-muted">
+                {KNOWN_ASKER_WORDS.note(me.name)}
+              </p>
+            </div>
+          ) : (
+            <label className="block">
+              <span className="mb-1.5 block font-mono text-[0.62rem] uppercase tracking-widest text-muted">
+                {JOIN_WORDS.nameLabel}
+              </span>
+              <input
+                type="text"
+                name="name"
+                required
+                maxLength={HELLO_NAME_MAX}
+                className="w-full rounded-lg border border-border bg-bg px-3.5 py-2.5 prose-serif-sm text-ink focus:border-accent focus:outline-none"
+              />
+            </label>
+          )}
 
           <fieldset>
             <legend className="mb-1.5 font-mono text-[0.62rem] uppercase tracking-widest text-muted">
@@ -120,22 +152,24 @@ export function AskToJoin({
             </div>
           </fieldset>
 
-          <label className="block">
-            <span className="mb-1.5 block font-mono text-[0.62rem] uppercase tracking-widest text-muted">
-              {JOIN_WORDS.emailLabel}
-            </span>
-            <input
-              type="email"
-              name="email"
-              required
-              inputMode="email"
-              autoComplete="email"
-              className="w-full rounded-lg border border-border bg-bg px-3.5 py-2.5 prose-serif-sm text-ink focus:border-accent focus:outline-none"
-            />
-            <span className="mt-1 block font-mono text-[0.58rem] leading-relaxed text-muted">
-              {JOIN_WORDS.emailHint}
-            </span>
-          </label>
+          {!me && (
+            <label className="block">
+              <span className="mb-1.5 block font-mono text-[0.62rem] uppercase tracking-widest text-muted">
+                {JOIN_WORDS.emailLabel}
+              </span>
+              <input
+                type="email"
+                name="email"
+                required
+                inputMode="email"
+                autoComplete="email"
+                className="w-full rounded-lg border border-border bg-bg px-3.5 py-2.5 prose-serif-sm text-ink focus:border-accent focus:outline-none"
+              />
+              <span className="mt-1 block font-mono text-[0.58rem] leading-relaxed text-muted">
+                {JOIN_WORDS.emailHint}
+              </span>
+            </label>
+          )}
 
           <label className="block">
             <span className="mb-1.5 block font-mono text-[0.62rem] uppercase tracking-widest text-muted">

@@ -9,11 +9,14 @@ import {
   helloCookieName,
 } from "@/lib/post-share-db";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import { auth } from "@/lib/auth";
+import { inAppPath, knownAsker, openPath } from "@/lib/share-open";
 import { GuestHello } from "@/components/share/GuestHello";
 import { AskToJoin } from "@/components/share/AskToJoin";
 import { SharedMedia } from "@/components/share/SharedMedia";
 import { sayHello, unsayHello, askToJoin } from "@/app/p/[token]/actions";
-import { SHARE_WORDS } from "@/lib/post-share";
+import { SHARE_WORDS, OPEN_WORDS } from "@/lib/post-share";
 import { KIND_LABEL } from "@/lib/feed";
 import { OyunMark } from "@/components/ui/OyunMark";
 import { Eyebrow } from "@/components/ui/Eyebrow";
@@ -73,6 +76,28 @@ export default async function SharedPost({
     );
   }
 
+  const share = await liveShare(params.token);
+  const session = await auth();
+  const viewerId = session?.user?.id ?? null;
+
+  /**
+   * The family never sees this page at all.
+   *
+   * Somebody in this journey, signed in, goes straight to the post in the
+   * diary — where there are real comments and replies, instead of a single
+   * line under a note explaining who this family is. See lib/share-open.ts
+   * for why this turns on membership rather than on having an account.
+   *
+   * ── Why this sits above countOneView and not below it ────────────────
+   * The number beside a link is the only sense a family has of how far it
+   * travelled, and until now the largest thing in it was them: every time
+   * the mother checked her own link, or an aunt in the circle opened it
+   * twice, the count went up. Leaving before counting makes that number
+   * mean what the family always read it as — people outside.
+   */
+  const inApp = await inAppPath(share, viewerId);
+  if (inApp) redirect(inApp);
+
   // Counted, not awaited — see countOneView.
   countOneView(params.token);
 
@@ -83,14 +108,14 @@ export default async function SharedPost({
    * reads the post and leaves is given nothing to carry, and a token appears
    * only when they choose to write something. See guestTokenFor in actions.
    */
-  const share = await liveShare(params.token);
   const guestToken = cookies().get(helloCookieName(params.token))?.value ?? "";
-  const [mine, asked] = share
+  const [mine, asked, me] = share
     ? await Promise.all([
         myHello(share.id, guestToken),
-        alreadyAsked(share.journeyId, guestToken),
+        alreadyAsked(share.journeyId, guestToken, viewerId),
+        knownAsker(viewerId),
       ])
-    : [null, false];
+    : [null, false, null];
 
   const when = new Date(shared.postedAt).toLocaleDateString("en-GB", {
     day: "numeric",
@@ -146,6 +171,31 @@ export default async function SharedPost({
         </p>
       </article>
 
+      {/* ── For the member who is signed out IN THIS BROWSER ──────────────
+          Which is most of them. A link tapped from WhatsApp opens in
+          WhatsApp's own browser, with its own cookies, so somebody signed in
+          on the same phone arrives here as a stranger and no check above can
+          tell. This is the only thing that reaches them — see openPath.
+
+          Directly above the hello box on purpose: it is the alternative to
+          the thing immediately below it, offered at the moment somebody is
+          deciding to write. Shown only when there is no session, because for
+          anybody already signed in it is either unnecessary or untrue. */}
+      {!viewerId && (
+        <section className="mt-6 rounded-2xl border border-accent/30 bg-accent/[0.05] p-5">
+          <p className="font-serif text-lg leading-snug text-ink">
+            {OPEN_WORDS.title}
+          </p>
+          <p className="mt-2 prose-serif-sm text-muted">{OPEN_WORDS.body}</p>
+          <Link
+            href={openPath(params.token)}
+            className="mt-4 inline-flex min-h-11 items-center rounded-lg bg-accent px-4 font-mono text-[0.68rem] uppercase tracking-widest text-on-accent transition-colors hover:bg-accent-deep"
+          >
+            {OPEN_WORDS.cta} →
+          </Link>
+        </section>
+      )}
+
       {/* A word back — read by the family and by nobody else. */}
       <GuestHello
         token={params.token}
@@ -159,6 +209,7 @@ export default async function SharedPost({
         token={params.token}
         who={shared.household}
         asked={asked}
+        me={me}
         onAsk={askToJoin}
       />
 

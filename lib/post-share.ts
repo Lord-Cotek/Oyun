@@ -255,6 +255,45 @@ export const JOIN_WORDS = {
   already: "You have already asked. They will be in touch.",
 } as const;
 
+/**
+ * The door for somebody who is in the family but signed out in this browser.
+ *
+ * ── Why a page for visitors needs a door for the family at all ───────────
+ * Because a link tapped inside WhatsApp opens in WhatsApp's own browser,
+ * which keeps its own cookies. Somebody signed in to Oyun on that very phone
+ * arrives here as a stranger, and nothing on the server can tell. They are
+ * the people this link is sent to most, and without this they would go on
+ * leaving one-line hellos on a post where they could have been replying.
+ *
+ * Addressed to somebody who already knows what Oyun is, so it does not
+ * explain the app. It names the reason to bother — replies — because "open in
+ * the app" with nothing after it reads like an advert for an install.
+ */
+export const OPEN_WORDS = {
+  title: "Already in Oyun?",
+  body: "Open it there instead and you can reply properly, where the family will see it and can answer you.",
+  cta: "Open it in Oyun",
+} as const;
+
+/**
+ * Said to somebody signed in who is not in this family.
+ *
+ * They are a stranger to this journey and the page is right to go on treating
+ * them as one — but they are not a stranger to us, and asking them to type a
+ * name and an email we already hold would be pretending otherwise. So the
+ * form knows them, and this says how, rather than leaving somebody wondering
+ * where the app got their address.
+ *
+ * The second sentence is the one that matters to the family: a request from
+ * an account is a different thing from two fields a passer-by filled in, and
+ * saying so here means the person asking knows what is being passed on about
+ * them.
+ */
+export const KNOWN_ASKER_WORDS = {
+  note: (name: string) =>
+    `You are signed in${name ? ` as ${name}` : ""}, so this is already filled in. They will see that you asked from an Oyun account.`,
+} as const;
+
 /** "Grandparent · asked 2 days ago" — for the card the household reads. */
 export function askedAgo(at: Date | string, now: Date = new Date()): string {
   const ms = now.getTime() - new Date(at).getTime();
