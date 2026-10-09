@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 import { getActiveMembership } from "@/lib/data";
 import { loadFeed } from "@/lib/feed-query";
 import { YearStrip } from "@/components/feed/YearStrip";
@@ -11,7 +12,12 @@ import { isHousehold } from "@/lib/roles";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Arches } from "@/components/ui/Marks";
 import { Feed } from "@/components/feed/Feed";
-import { sharePost, revokeShare, hideHello } from "@/app/life/share-actions";
+import {
+  sharePost,
+  revokeShare,
+  hideHello,
+  attributeHello,
+} from "@/app/life/share-actions";
 import {
   createPost,
   editPost,
@@ -58,11 +64,23 @@ export default async function LifePage({
   // nobody will see is six queries nobody needs.
   const ours = isHousehold(active.role);
 
-  const [posts, years, story] = await Promise.all([
+  const [posts, years, story, circle] = await Promise.all([
     loadFeed(active.journey.id, session.user.id, active.role, 40, year),
     diaryYears(active.journey.id, active.role),
     ours
       ? storySoFar(active.journey.id, active.journey.createdAt, active.role)
+      : null,
+    // ── Who a word from outside could turn out to be ──────────────────
+    // Only for the household: they are the only people shown words from
+    // outside at all, and the only ones who can recognise anybody. For
+    // everybody else this is a list of names with nothing to do, so it is
+    // not fetched rather than fetched and ignored.
+    ours
+      ? prisma.membership.findMany({
+          where: { journeyId: active.journey.id },
+          orderBy: { createdAt: "asc" },
+          select: { user: { select: { id: true, name: true } } },
+        })
       : null,
   ]);
 
@@ -127,6 +145,13 @@ export default async function LifePage({
             onSharePost={sharePost}
             onRevokeShare={revokeShare}
             onHideHello={hideHello}
+            onAttributeHello={ours ? attributeHello : undefined}
+            circle={
+              circle?.map((m) => ({
+                id: m.user.id,
+                name: m.user.name ?? "Someone",
+              })) ?? []
+            }
             canKeepToHousehold={seesHouseholdOnly(active.role)}
             composerPlaceholder="Share something with your circle…"
           />

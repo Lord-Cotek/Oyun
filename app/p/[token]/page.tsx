@@ -12,6 +12,9 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { inAppPath, knownAsker, openPath } from "@/lib/share-open";
+import { claimableHello, claimAskedCookie } from "@/lib/hello-claim";
+import { claimMine, notMine } from "@/app/p/[token]/claim-actions";
+import { ClaimYours } from "@/components/share/ClaimYours";
 import { GuestHello } from "@/components/share/GuestHello";
 import { AskToJoin } from "@/components/share/AskToJoin";
 import { SharedMedia } from "@/components/share/SharedMedia";
@@ -95,12 +98,6 @@ export default async function SharedPost({
    * twice, the count went up. Leaving before counting makes that number
    * mean what the family always read it as — people outside.
    */
-  const inApp = await inAppPath(share, viewerId);
-  if (inApp) redirect(inApp);
-
-  // Counted, not awaited — see countOneView.
-  countOneView(params.token);
-
   /**
    * What this particular browser has already done here.
    *
@@ -109,6 +106,40 @@ export default async function SharedPost({
    * only when they choose to write something. See guestTokenFor in actions.
    */
   const guestToken = cookies().get(helloCookieName(params.token))?.value ?? "";
+
+  const inApp = await inAppPath(share, viewerId);
+  if (inApp) {
+    /**
+     * One question before they go in, and only ever once.
+     *
+     * If this browser wrote a hello on this link, the person now signed in is
+     * almost certainly the one who wrote it — and those words are sitting in
+     * "from outside" when they belong in the replies. This is the only place
+     * that cookie is sent, so it is the only place the question can be asked.
+     * See lib/hello-claim.ts on why it is asked rather than assumed.
+     *
+     * Everybody else — which is nearly everybody, nearly every time — goes
+     * straight through without noticing this exists.
+     */
+    const alreadyAsked = !!cookies().get(claimAskedCookie(params.token))?.value;
+    const toClaim =
+      share && !alreadyAsked
+        ? await claimableHello(share.id, guestToken)
+        : null;
+    if (!toClaim) redirect(inApp);
+    return (
+      <ClaimYours
+        token={params.token}
+        hello={toClaim}
+        to={inApp}
+        onClaim={claimMine}
+        onLeave={notMine}
+      />
+    );
+  }
+
+  // Counted, not awaited — see countOneView.
+  countOneView(params.token);
   const [mine, asked, me] = share
     ? await Promise.all([
         myHello(share.id, guestToken),

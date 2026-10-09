@@ -76,6 +76,7 @@ model User {
   readingNotes      ReadingNote[]
   posts             Post[]
   postComments      PostComment[]
+  attributedComments PostComment[] @relation("CommentAttributedBy")
   postReactions     PostReaction[]
   commentReactions  PostCommentReaction[]
 
@@ -433,6 +434,18 @@ model ShareHello {
   /// cannot simply post it again into an empty slot.
   hiddenAt   DateTime?
 
+  /// When this word was moved into the replies, because the person who wrote
+  /// it turned out to be in the circle.
+  ///
+  /// This column is the lock as well as the record: it is claimed with an
+  /// `UPDATE … WHERE convertedAt IS NULL` before the reply is written, in one
+  /// transaction, so two taps at once produce one reply and the loser changes
+  /// nothing. The row is kept either way — it is still the rate limit for
+  /// that browser, and still the reason the same person cannot post again
+  /// into an empty slot.
+  convertedAt DateTime?
+  replies    PostComment[]
+
   @@unique([shareId, guestToken])
   @@index([journeyId, createdAt])
   @@index([postId, createdAt])
@@ -483,6 +496,30 @@ model PostComment {
   author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
   body      String
   createdAt DateTime @default(now())
+
+  /// This reply began as a word sent back through a share link, before the
+  /// person who wrote it was known to be in the circle.
+  ///
+  /// Deliberately NOT unique. A unique index on a new column is a schema
+  /// change `prisma db push` refuses without --accept-data-loss, and that
+  /// flag must never enter the build of an app with families' diaries in it.
+  /// One hello still becomes one reply: ShareHello.convertedAt is claimed
+  /// first, in the same transaction, which is the same bargain the morning
+  /// note makes with MorningSent.
+  ///
+  /// Kept rather than inferred because the reply SAYS so on the page: a word
+  /// that arrived in month four and carries no reactions needs to explain
+  /// itself, and because a hello is seen only by the household while a reply
+  /// is seen by the whole circle — a real change, and the sort that should
+  /// leave a trace.
+  fromHelloId     String?
+  fromHello       ShareHello?  @relation(fields: [fromHelloId], references: [id], onDelete: SetNull)
+  /// Who matched the hello to this person, when it was not the person
+  /// themselves. Null means they claimed their own words. Stored because this
+  /// is the one place in either app where somebody can put another person's
+  /// words into a room, and that should never be unattributable.
+  attributedById  String?
+  attributedBy    User?        @relation("CommentAttributedBy", fields: [attributedById], references: [id], onDelete: SetNull)
 
   reactions PostCommentReaction[]
 

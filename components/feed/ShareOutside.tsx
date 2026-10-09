@@ -6,6 +6,7 @@ import {
   SHARE_WINDOWS,
   SHARE_WORDS,
   SHARE_DAYS_DEFAULT,
+  ATTRIBUTE_WORDS,
   shareWindowLabel,
   seenLabel,
 } from "@/lib/post-share";
@@ -22,6 +23,16 @@ export type SharePostFn = (input: {
 }) => Promise<{ path: string; expiresAt: string | null }>;
 export type RevokeShareFn = (postId: string) => Promise<{ ok: boolean }>;
 export type HideHelloFn = (helloId: string) => Promise<{ ok: boolean }>;
+export type AttributeHelloFn = (
+  helloId: string,
+  userId: string,
+) => Promise<{ ok: boolean; error?: string }>;
+
+/** Somebody already in the circle, for matching a word to a person. */
+export interface CircleMember {
+  id: string;
+  name: string;
+}
 
 export interface Hello {
   id: string;
@@ -43,14 +54,23 @@ export interface Hello {
  */
 function Hellos({
   hellos,
+  circle = [],
   onHide,
+  onAttribute,
 }: {
   hellos: Hello[];
+  circle?: CircleMember[];
   onHide?: HideHelloFn;
+  onAttribute?: AttributeHelloFn;
 }) {
   const [gone, setGone] = useState<string[]>([]);
+  // Which word is being matched to somebody, if any. One at a time: this is a
+  // decision that deserves looking at, not a row of dropdowns to work down.
+  const [matching, setMatching] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const left = hellos.filter((h) => !gone.includes(h.id));
   if (left.length === 0) return null;
+  const canMatch = !!onAttribute && circle.length > 0;
 
   return (
     <div className="mt-3 w-full rounded-xl border border-accent/25 bg-accent/[0.05] p-4">
@@ -59,7 +79,8 @@ function Hellos({
       </p>
       <ul className="space-y-3">
         {left.map((h) => (
-          <li key={h.id} className="flex items-start justify-between gap-3">
+          <li key={h.id}>
+            <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
               <p className="whitespace-pre-wrap prose-serif-sm text-ink">
                 {h.body}
@@ -68,18 +89,72 @@ function Hellos({
                 {h.name} · {h.when}
               </p>
             </div>
-            {onHide && (
-              <button
-                type="button"
-                onClick={async () => {
-                  const r = await onHide(h.id);
-                  if (r.ok) setGone((g) => [...g, h.id]);
-                }}
-                aria-label={`Take down the word from ${h.name}`}
-                className="shrink-0 font-mono text-[0.58rem] uppercase tracking-widest text-muted underline underline-offset-4 hover:text-negative"
-              >
-                Take down
-              </button>
+            <div className="flex shrink-0 flex-col items-end gap-1">
+              {canMatch && (
+                <button
+                  type="button"
+                  onClick={() =>
+                    setMatching((m) => (m === h.id ? null : h.id))
+                  }
+                  aria-expanded={matching === h.id}
+                  aria-label={`Match the word from ${h.name} to somebody in the circle`}
+                  className="font-mono text-[0.58rem] uppercase tracking-widest text-muted underline underline-offset-4 hover:text-accent"
+                >
+                  {ATTRIBUTE_WORDS.prompt}
+                </button>
+              )}
+              {onHide && (
+                <button
+                  type="button"
+                  onClick={async () => {
+                    const r = await onHide(h.id);
+                    if (r.ok) setGone((g) => [...g, h.id]);
+                  }}
+                  aria-label={`Take down the word from ${h.name}`}
+                  className="font-mono text-[0.58rem] uppercase tracking-widest text-muted underline underline-offset-4 hover:text-negative"
+                >
+                  Take down
+                </button>
+              )}
+            </div>
+            </div>
+
+            {/* ── Matching a word to a person ──────────────────────────
+                The warning is above the names, not below them, because by
+                the time somebody has tapped a name the words are already in
+                front of the circle. See ATTRIBUTE_WORDS. */}
+            {matching === h.id && (
+              <div className="mt-2 w-full rounded-lg border border-border bg-bg p-3">
+                <p className="prose-serif-xs text-muted">
+                  {ATTRIBUTE_WORDS.hint}
+                </p>
+                <div className="mt-2.5 flex flex-wrap gap-1.5">
+                  {circle.map((m) => (
+                    <button
+                      key={m.id}
+                      type="button"
+                      onClick={async () => {
+                        setError(null);
+                        const r = await onAttribute!(h.id, m.id);
+                        if (!r.ok) {
+                          setError(r.error ?? "That did not work.");
+                          return;
+                        }
+                        setMatching(null);
+                        setGone((g) => [...g, h.id]);
+                      }}
+                      className="rounded-full border border-border px-3 py-1.5 font-mono text-[0.68rem] text-muted transition-colors hover:border-accent hover:text-accent"
+                    >
+                      {ATTRIBUTE_WORDS.pick} {m.name}
+                    </button>
+                  ))}
+                </div>
+                {error && (
+                  <p className="mt-2 font-mono text-[0.62rem] text-negative">
+                    {error}
+                  </p>
+                )}
+              </div>
             )}
           </li>
         ))}
@@ -108,18 +183,23 @@ export function ShareOutside({
   postId,
   live,
   hellos = [],
+  circle = [],
   onShare,
   onRevoke,
   onHideHello,
+  onAttributeHello,
 }: {
   postId: string;
   /** The link this post already has, if it has a live one. */
   live: LiveShare | null;
   /** Words sent back through a link. Only ever passed to the family. */
   hellos?: Hello[];
+  /** Everybody in the circle, for matching a word to one of them. */
+  circle?: CircleMember[];
   onShare: SharePostFn;
   onRevoke: RevokeShareFn;
   onHideHello?: HideHelloFn;
+  onAttributeHello?: AttributeHelloFn;
 }) {
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -194,7 +274,12 @@ export function ShareOutside({
         {live ? "Shared ·" : "Share"} {live ? shareWindowLabel({ expiresAt: live.expiresAt, revokedAt: null }) : "outside"}
       </Pressable>
 
-      <Hellos hellos={hellos} onHide={onHideHello} />
+      <Hellos
+        hellos={hellos}
+        circle={circle}
+        onHide={onHideHello}
+        onAttribute={onAttributeHello}
+      />
 
       {open && (
         <div className="mt-2 w-full rounded-xl border border-border bg-bg p-4">

@@ -13,6 +13,16 @@ export interface FeedComment {
   when: string;
   /** A reply can be answered the same way a post can. */
   reactions: FeedReaction[];
+  /**
+   * These words arrived through a share link before the person who wrote them
+   * was known to be in the circle, and were moved in afterwards.
+   *
+   * Shown on the reply, because otherwise it is a reply from a year ago with
+   * no reactions and no explanation — and because a hello is read by the
+   * family alone while a reply is read by everyone, which is a change worth
+   * being able to see. See PostComment.fromHelloId.
+   */
+  fromOutside: boolean;
 }
 
 export interface FeedReaction {
@@ -154,7 +164,11 @@ export async function loadFeed(
       // it, and a family closing a link must not lose the kind words that
       // came through it.
       hellos: {
-        where: { hiddenAt: null },
+        // Not the ones that have become replies. They are still rows — they
+        // remain the rate limit for that browser — but they are now in the
+        // conversation, and showing them in both places would read as the
+        // same person having said it twice.
+        where: { hiddenAt: null, convertedAt: null },
         select: { id: true, name: true, body: true, createdAt: true },
         orderBy: { createdAt: "desc" },
         take: 50,
@@ -215,6 +229,7 @@ export async function loadFeed(
         body: c.body,
         when: relative(c.createdAt, now),
         reactions: tally(c.reactions, viewerId),
+        fromOutside: c.fromHelloId !== null,
       })),
     };
   });

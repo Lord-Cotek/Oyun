@@ -294,6 +294,53 @@ export const KNOWN_ASKER_WORDS = {
     `You are signed in${name ? ` as ${name}` : ""}, so this is already filled in. They will see that you asked from an Oyun account.`,
 } as const;
 
+/**
+ * Asked of somebody in the circle who once left a word from outside.
+ *
+ * ── Why it says who will see it ──────────────────────────────────────────
+ * Because that is the part they cannot guess. A word from outside is read by
+ * the family and nobody else; a reply is read by everyone in the circle. Most
+ * people will want that — it is why they are being offered it — but it is
+ * their sentence being moved into a bigger room, so the sentence that says so
+ * comes before the button and not after it.
+ *
+ * ── Why they are asked at all, when we can prove the browser ─────────────
+ * Because a browser is not a person. On a phone the whole family uses, the
+ * cookie knows which browser wrote the words and not who is holding it now,
+ * and the cost of being wrong is somebody's name on somebody else's words in
+ * front of everybody. One tap is a small price for never doing that.
+ */
+export const CLAIM_WORDS = {
+  title: "You said this from outside",
+  lede: "You left this through the link before you were signed in here. Would you like it moved into the replies, under your name?",
+  audience:
+    "Only the family can see it where it is now. As a reply, everyone in the circle can see it and answer you.",
+  yes: "Yes, move it in",
+  no: "Leave it as it is",
+  /** The post is one tap away either way; nobody is held here. */
+  skip: "Take me to the post",
+} as const;
+
+/**
+ * The household's own way of matching a word to somebody they recognise.
+ *
+ * ── Why the warning is blunt ─────────────────────────────────────────────
+ * This is the one place in either app where a person can put another person's
+ * words into a room. The name on a hello is free text somebody typed, so
+ * "Femi" is not evidence, and the only thing standing between a wrong tap and
+ * a stranger's sentence appearing under a real member's name is whether the
+ * person tapping actually knows. So the copy says that, plainly, instead of
+ * being reassuring.
+ */
+export const ATTRIBUTE_WORDS = {
+  prompt: "Already in the circle?",
+  hint: "If one of these people wrote this, move it into the replies under their name. Only if you are sure — it will be shown to the whole circle as theirs.",
+  pick: "Move it in as",
+  done: "Moved into the replies",
+  /** Said on the reply afterwards, for ever. See PostComment.fromHelloId. */
+  note: "came in from outside the app",
+} as const;
+
 /** "Grandparent · asked 2 days ago" — for the card the household reads. */
 export function askedAgo(at: Date | string, now: Date = new Date()): string {
   const ms = now.getTime() - new Date(at).getTime();

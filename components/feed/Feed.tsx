@@ -32,11 +32,14 @@ import { FirstStep, FirstStepFocus } from "@/components/ui/FirstStep";
 import { Avatar } from "@/components/ui/Avatar";
 import { isIosNativeShell } from "@/lib/shell";
 import { JUST_US } from "@/lib/post-visibility";
+import { ATTRIBUTE_WORDS } from "@/lib/post-share";
 import {
   ShareOutside,
   type SharePostFn,
   type RevokeShareFn,
   type HideHelloFn,
+  type AttributeHelloFn,
+  type CircleMember,
 } from "@/components/feed/ShareOutside";
 
 type CreateFn = (input: {
@@ -79,6 +82,14 @@ interface Actions {
   onRevokeShare: RevokeShareFn;
   /** Take down a word that came in from outside. */
   onHideHello: HideHelloFn;
+  /**
+   * Move a word from outside into the replies, under the name of somebody
+   * already in the circle. Absent for anybody who is not the household — see
+   * attributeHello in app/life/share-actions.ts on why it is theirs alone.
+   */
+  onAttributeHello?: AttributeHelloFn;
+  /** Everybody in the circle, for the above. */
+  circle?: CircleMember[];
 }
 
 export function Feed({
@@ -942,6 +953,8 @@ function PostItem({
   onSharePost,
   onRevokeShare,
   onHideHello,
+  onAttributeHello,
+  circle,
 }: { post: FeedPost; canKeepToHousehold: boolean } & Actions) {
   const [pending, start] = useTransition();
   const [editing, setEditing] = useState(false);
@@ -1134,6 +1147,8 @@ function PostItem({
             onShare={onSharePost}
             onRevoke={onRevokeShare}
             onHideHello={onHideHello}
+            onAttributeHello={onAttributeHello}
+            circle={circle}
           />
         )}
       </div>
@@ -1159,6 +1174,15 @@ function PostItem({
                   />
                 )}
               </div>
+              {/* Said once, quietly, and kept for good: these words came in
+                  through a share link before we knew the person was in the
+                  circle. Without it this is a reply from a year ago with no
+                  reactions and no reason. See PostComment.fromHelloId. */}
+              {c.fromOutside && (
+                <p className="mt-0.5 font-mono text-[0.58rem] uppercase tracking-widest text-muted">
+                  {ATTRIBUTE_WORDS.note}
+                </p>
+              )}
               <ReactionRow
                 compact
                 label="them"

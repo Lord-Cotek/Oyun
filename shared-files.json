@@ -197,6 +197,7 @@
     "components/ui/Linked.tsx",
     "app/time-zone-actions.ts",
     "components/KnowTheHour.tsx",
-    "app/api/cron/morning/route.ts"
+    "app/api/cron/morning/route.ts",
+    "components/share/ClaimYours.tsx"
   ]
 }

@@ -7,6 +7,7 @@ import { auth } from "@/lib/auth";
 import { getActiveMembership } from "@/lib/data";
 import { isHousehold } from "@/lib/roles";
 import { newShareToken } from "@/lib/post-share-db";
+import { convertHello } from "@/lib/hello-claim";
 import {
   canSharePost,
   expiryFor,
@@ -158,6 +159,44 @@ export async function hideHello(helloId: string): Promise<{ ok: boolean }> {
     where: { id: helloId, journeyId },
     data: { hiddenAt: new Date() },
   });
+  revalidatePath("/life");
+  return { ok: true };
+}
+
+/**
+ * "This was Mama Bisi" — move a word from outside into the replies.
+ *
+ * ── Why only the household may do this ───────────────────────────────────
+ * Same gate as taking a word down, and for a stronger reason. The name on a
+ * hello is free text somebody typed, so matching it to an account is an act
+ * of recognition, not a lookup — and the two people whose journey it is are
+ * the only ones who can actually recognise anybody. A member of the circle
+ * doing it would be guessing about somebody else's relative.
+ *
+ * ── Why it records who did it ────────────────────────────────────────────
+ * Because this puts one person's words in another person's name in front of
+ * the whole circle. convertHello stores the matcher in attributedById, and
+ * the reply says on its face that it came in from outside. If a match is ever
+ * wrong, everything needed to see that it was a match — and whose — is there.
+ *
+ * Everything else is checked in convertHello: the hello belonging to this
+ * journey, not being hidden, not already moved, the person being in the
+ * circle, and the post being one they can see.
+ */
+export async function attributeHello(
+  helloId: string,
+  userId: string,
+): Promise<{ ok: boolean; error?: string }> {
+  const me = await requireMember();
+  if (!isHousehold(me.role)) return { ok: false, error: "Not yours to move." };
+
+  const r = await convertHello({
+    helloId,
+    journeyId: me.journeyId,
+    authorId: userId,
+    attributedById: me.userId,
+  });
+  if (!r.ok) return r;
   revalidatePath("/life");
   return { ok: true };
 }
