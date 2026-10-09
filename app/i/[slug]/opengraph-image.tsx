@@ -34,19 +34,43 @@ function truncate(s: string, n: number): string {
 }
 
 /**
- * A second and a half, two megabytes, and an image or nothing.
+ * How long the photograph gets, and how big it may be.
  *
- * Deliberately mean. WhatsApp fetches this card while somebody waits for a
- * message to send, and it gives up quickly — so a card that arrives late is
- * a card that does not arrive, and a link goes out with no picture on it at
- * all. A plain card is a good outcome; no card is the bad one. Every budget
- * here is set so that the worst case is the plain card.
- *
- * Covers that go through the app are shrunk before they are uploaded, so two
- * megabytes is generous for anything chosen the ordinary way.
+ * Six seconds, not the one and a half I tried first. A cold serverless
+ * function doing DNS, TLS and a download is not fast, and the cost of being
+ * mean here is the whole point of the feature quietly disappearing — which is
+ * exactly what happened. The card is cached for a day once it is right, so
+ * almost nobody waits for this.
  */
-const FETCH_MS = 1500;
-const MAX_BYTES = 2 * 1024 * 1024;
+const FETCH_MS = 6000;
+const MAX_BYTES = 5 * 1024 * 1024;
+
+/**
+ * What the bytes actually are, from the bytes themselves.
+ *
+ * Not from content-type. A header is a claim by whoever stored the file, and
+ * when the claim is missing or wrong — `application/octet-stream` is the
+ * usual way — trusting it means silently dropping a photograph that would
+ * have decoded perfectly well. The first four bytes cannot be wrong.
+ *
+ * WebP is deliberately absent: Satori will not draw it, and a photograph it
+ * cannot draw is better refused here than allowed to fail mid-render. Covers
+ * chosen through the app are JPEG — see lib/shrink-image.ts.
+ */
+function sniff(b: Buffer): string | null {
+  if (b.length < 8) return null;
+  if (b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff) return "image/jpeg";
+  if (
+    b[0] === 0x89 && b[1] === 0x50 && b[2] === 0x4e && b[3] === 0x47 &&
+    b[4] === 0x0d && b[5] === 0x0a && b[6] === 0x1a && b[7] === 0x0a
+  ) {
+    return "image/png";
+  }
+  if (b[0] === 0x47 && b[1] === 0x49 && b[2] === 0x46 && b[3] === 0x38) {
+    return "image/gif";
+  }
+  return null;
+}
 
 /**
  * The photograph, as bytes we already hold.
@@ -56,20 +80,32 @@ const MAX_BYTES = 2 * 1024 * 1024;
  * the picture is being drawn, and a slow or missing file there fails the
  * whole route — after the response has begun. The card would not fall back
  * to the plain design; it would simply not arrive, and the invitation would
- * go out as a bare link, which is the one outcome this file exists to
- * prevent.
+ * go out as a bare link.
  *
  * Fetching first makes the failure ordinary: no bytes, no photograph, and
  * the card that worked before this feature existed.
+ *
+ * ── Why every line of this is deliberately unclever ──────────────────────
+ * This worked on a laptop and returned nothing on the real servers, twice,
+ * and I could not reach those servers to watch it fail. So each thing that
+ * could plausibly have been the cause is now gone rather than ruled out:
+ *
+ *   AbortController and a timer, not AbortSignal.timeout — the same
+ *   behaviour out of older and plainer parts.
+ *
+ *   `cache: "no-store"`, because Next replaces global fetch with its own
+ *   caching one, and a multi-megabyte binary is not what that was built for.
+ *   Nothing here wants caching anyway: the finished card is what gets cached.
+ *
+ *   The type read from the bytes rather than the header — see sniff.
  */
 async function photograph(url: string | null): Promise<string | null> {
   if (!url) return null;
+  const stop = new AbortController();
+  const timer = setTimeout(() => stop.abort(), FETCH_MS);
   try {
-    const res = await fetch(url, { signal: AbortSignal.timeout(FETCH_MS) });
+    const res = await fetch(url, { signal: stop.signal, cache: "no-store" });
     if (!res.ok) return null;
-
-    const type = res.headers.get("content-type") ?? "";
-    if (!type.startsWith("image/")) return null;
 
     const declared = Number(res.headers.get("content-length") ?? 0);
     if (declared > MAX_BYTES) return null;
@@ -79,10 +115,15 @@ async function photograph(url: string | null): Promise<string | null> {
     // it would otherwise put the whole file in memory anyway.
     if (buf.byteLength === 0 || buf.byteLength > MAX_BYTES) return null;
 
+    const type = sniff(buf);
+    if (!type) return null;
+
     return `data:${type};base64,${buf.toString("base64")}`;
   } catch {
     // Timed out, refused, deleted, DNS — all the same answer here.
     return null;
+  } finally {
+    clearTimeout(timer);
   }
 }
 
@@ -99,9 +140,17 @@ export default async function Image({ params }: { params: { slug: string } }) {
   const from = i ? `From ${truncate(i.hostName, 40)}` : "";
 
   // Same rule as the page: no photograph above a day that was called off.
-  const cover = await photograph(
-    i && !i.event.cancelled ? i.coverUrl : null,
-  );
+  const wanted = !!i && !i.event.cancelled && !!i.coverUrl;
+  const cover = await photograph(wanted ? i!.coverUrl : null);
+  /**
+   * The host chose a picture and it is not on this card.
+   *
+   * Worth knowing, because it decides how long this is kept. A good card is
+   * worth a day; this one is worth a minute, so that whatever went wrong —
+   * a slow fetch, a blink from storage — is retried shortly rather than
+   * frozen in front of everybody the link reaches.
+   */
+  const missed = wanted && !cover;
 
   return new ImageResponse(
     (
@@ -244,8 +293,11 @@ export default async function Image({ params }: { params: { slug: string } }) {
       // revalidates. A card that is an hour stale is nobody's problem; a
       // card that is a year stale is the bug this replaces.
       headers: {
-        "cache-control":
-          "public, max-age=0, s-maxage=86400, stale-while-revalidate=604800",
+        // A card that came out right keeps for a day. A card that lost its
+        // photograph keeps for a minute — see `missed`.
+        "cache-control": missed
+          ? "public, max-age=0, s-maxage=60, stale-while-revalidate=300"
+          : "public, max-age=0, s-maxage=86400, stale-while-revalidate=604800",
       },
     },
   );
