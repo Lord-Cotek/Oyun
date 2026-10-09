@@ -30,7 +30,7 @@ export function MoodChart({ data }: { data: MoodPoint[] }) {
         >
           <path d="M3 12h4l2-6 4 12 2-6h6" />
         </svg>
-        <p className="max-w-[16rem] font-mono text-xs leading-relaxed text-muted">
+        <p className="max-w-[16rem] prose-serif-xs text-muted">
           Your heart, charted gently over time — the line begins with your first
           check-in.
         </p>

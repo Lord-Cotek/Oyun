@@ -70,7 +70,7 @@ export function SignUpForm({
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="What Agbebi should call you"
-          className="w-full rounded-lg border border-border bg-bg px-4 py-3 font-mono text-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none"
+          className="prose-serif-sm w-full rounded-lg border border-border bg-bg px-4 py-3 text-ink placeholder:text-muted focus:border-accent focus:outline-none"
         />
       </label>
       <label className="block">
@@ -82,7 +82,7 @@ export function SignUpForm({
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="you@example.com"
-          className="w-full rounded-lg border border-border bg-bg px-4 py-3 font-mono text-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none"
+          className="prose-serif-sm w-full rounded-lg border border-border bg-bg px-4 py-3 text-ink placeholder:text-muted focus:border-accent focus:outline-none"
         />
       </label>
       <label className="block">
@@ -95,7 +95,7 @@ export function SignUpForm({
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="At least 8 characters"
-          className="w-full rounded-lg border border-border bg-bg px-4 py-3 font-mono text-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none"
+          className="prose-serif-sm w-full rounded-lg border border-border bg-bg px-4 py-3 text-ink placeholder:text-muted focus:border-accent focus:outline-none"
         />
       </label>
       {error && <p className="font-mono text-xs text-negative">{error}</p>}
@@ -106,7 +106,7 @@ export function SignUpForm({
       >
         {busy ? "Creating your account…" : "Create account"}
       </button>
-      <p className="pt-1 text-center font-mono text-xs text-muted">
+      <p className="prose-serif-xs pt-1 text-center text-muted">
         Already have an account?{" "}
         <Link href={signInHref} className="text-accent underline underline-offset-4">
           Sign in

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { PROMISE_CONSENT } from "@/lib/promise";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
@@ -106,14 +107,14 @@ export default async function Onboarding({
           <h1 className="max-w-md font-serif text-4xl leading-[1.1] text-ink md:text-5xl">
             Walk the whole journey — together.
           </h1>
-          <p className="mt-5 max-w-sm font-mono text-sm leading-relaxed text-muted">
+          <p className="mt-5 max-w-sm prose-serif-sm text-muted">
             From conception through your little one’s first two years — Scripture,
             prayer, and one thing to do each week, for a mother and the one
             walking beside her. Guided by Agbebi.
           </p>
           <div className="mt-8 max-w-sm border-t border-border pt-6">
             <Verse
-              text="Behold, children are a heritage from the LORD, the fruit of the womb a reward."
+              text="Behold, children are a heritage of the LORD. The fruit of the womb is his reward."
               reference="Psalm 127:3"
             />
           </div>
@@ -127,7 +128,7 @@ export default async function Onboarding({
             <h1 className="font-serif text-2xl leading-snug text-ink">
               This invitation was sent to {invite.email}.
             </h1>
-            <p className="mt-3 font-mono text-sm leading-relaxed text-muted">
+            <p className="mt-3 prose-serif-sm text-muted">
               You&rsquo;re signed in with a different account. Sign out and sign in
               (or create an account) using <span className="text-ink">{invite.email}</span>{" "}
               to accept this invitation.
@@ -135,13 +136,13 @@ export default async function Onboarding({
             <WrongAccountSignOut returnTo={`/onboarding?invite=${invite.token}`} />
           </div>
         ) : hasPendingInvite && invite ? (
-          <div className="rounded-2xl border border-accent/25 bg-gradient-to-br from-accent/[0.10] via-surface to-accent2/[0.09] p-8">
+          <div className="rounded-2xl border border-border bg-surface p-8">
             <Eyebrow className="mb-4">You&rsquo;ve been invited</Eyebrow>
             <h1 className="font-serif text-3xl leading-snug text-ink">
               Walk with{" "}
               {invite.journey.owner.name ?? invite.journey.owner.email ?? "her"}.
             </h1>
-            <p className="mt-3 font-mono text-sm leading-relaxed text-muted">
+            <p className="mt-3 prose-serif-sm text-muted">
               You&rsquo;re joining as{" "}
               <span className="text-accent">{ROLE_LABEL[invite.role]}</span>. Your
               part is to support and pray — Oyun will show you how, right where
@@ -169,7 +170,7 @@ export default async function Onboarding({
             <h1 className="font-serif text-2xl text-ink">
               This invite has already been used.
             </h1>
-            <p className="mt-3 font-mono text-sm text-muted">
+            <p className="prose-serif-sm mt-3 text-muted">
               If that was you, just sign in to reach the journey.
             </p>
           </div>
@@ -179,7 +180,7 @@ export default async function Onboarding({
             <h1 className="font-serif text-2xl text-ink">
               We couldn&rsquo;t find that invite.
             </h1>
-            <p className="mt-3 font-mono text-sm leading-relaxed text-muted">
+            <p className="mt-3 prose-serif-sm text-muted">
               The link may be mistyped or expired. Ask whoever invited you to send
               a fresh one — or begin your own journey below.
             </p>
@@ -191,12 +192,12 @@ export default async function Onboarding({
             </Link>
           </div>
         ) : (
-          <div className="rounded-2xl border border-accent/25 bg-gradient-to-br from-accent/[0.10] via-surface to-accent2/[0.09] p-8">
+          <div className="rounded-2xl border border-border bg-surface p-8">
             <Eyebrow className="mb-4">Begin your journey</Eyebrow>
             <h1 className="font-serif text-3xl leading-snug text-ink">
               Tell Agbebi where you are.
             </h1>
-            <p className="mt-3 font-mono text-sm leading-relaxed text-muted">
+            <p className="mt-3 prose-serif-sm text-muted">
               Set your due date — or, if your little one has already arrived,
               their birth date. Oyun will meet you at the right stage.
             </p>
@@ -204,7 +205,7 @@ export default async function Onboarding({
             <div className="mt-6 border-y border-border/70 py-5">
               <Verse
                 size="sm"
-                text="For you formed my inward parts; you knitted me together in my mother's womb."
+                text="For you formed my inmost being. You knit me together in my mother’s womb."
                 reference="Psalm 139:13"
               />
             </div>
@@ -249,10 +250,8 @@ export default async function Onboarding({
                   required
                   className="mt-0.5 h-4 w-4 accent-[color:var(--accent)]"
                 />
-                <span className="font-mono text-[0.7rem] leading-relaxed text-muted">
-                  I understand Oyun and Agbebi offer spiritual companionship and
-                  encouragement — not medical advice — and I&rsquo;ll consult my
-                  doctor or midwife for health decisions.
+                <span className="prose-serif-xs text-muted">
+                  {PROMISE_CONSENT}
                 </span>
               </label>
 
@@ -295,7 +294,7 @@ function Field({
         placeholder={placeholder}
         required={required}
         defaultValue={defaultValue}
-        className="w-full rounded-lg border border-border bg-bg px-4 py-3 font-mono text-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none"
+        className="prose-serif-sm w-full rounded-lg border border-border bg-bg px-4 py-3 text-ink placeholder:text-muted focus:border-accent focus:outline-none"
       />
     </label>
   );

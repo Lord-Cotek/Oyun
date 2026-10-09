@@ -54,7 +54,7 @@ export default async function ChildPage() {
   return (
     <>
       <SiteHeader active="nursery" />
-      <main className="mx-auto max-w-shell px-6 py-10">
+      <main className="mx-auto max-w-shell px-6 pb-10">
         <PageHero
           eyebrow="The nursery"
           title={children.length > 0 ? "Your little ones." : "Meet your little one."}
@@ -68,13 +68,13 @@ export default async function ChildPage() {
         {children.length > 0 && (
           <div className="mt-6 grid grid-cols-3 gap-3">
             <Reveal>
-              <StatPill label="Little ones" value={children.length} hint="in the nursery" tone="amber" />
+              <StatPill label="Little ones" value={children.length} hint="in the nursery" />
             </Reveal>
             <Reveal delay={70}>
-              <StatPill label="Firsts kept" value={firstsKept} hint="across them all" tone="gold" />
+              <StatPill label="Firsts kept" value={firstsKept} hint="across them all" />
             </Reveal>
             <Reveal delay={140}>
-              <StatPill label="Expecting" value={expecting} hint="on your journey" tone="rose" />
+              <StatPill label="Expecting" value={expecting} hint="on your journey" />
             </Reveal>
           </div>
         )}
@@ -85,7 +85,7 @@ export default async function ChildPage() {
               <EmptyState
                 title="A place is ready for them."
                 verse={{
-                  text: "Behold, children are a heritage from the Lord, the fruit of the womb a reward.",
+                  text: "Behold, children are a heritage of the LORD. The fruit of the womb is his reward.",
                   reference: "Psalm 127:3",
                 }}
                 action={

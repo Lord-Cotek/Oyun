@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { notify } from "@/lib/notify";
-import { sendNotificationEmail } from "@/lib/email";
+import { sendNotificationEmail, sendGuestDayEmail } from "@/lib/email";
 import {
   dueStage,
   reminderLead,
@@ -11,6 +11,9 @@ import {
   type ReminderStage,
 } from "@/lib/appointments";
 import { nudgeDueToday } from "@/lib/nudges";
+import { inviteUrl } from "@/lib/invitations-db";
+import { countSentence, headCount, whenWords } from "@/lib/invitations";
+import { HOUSEHOLD_ROLES } from "@/lib/roles";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -198,10 +201,218 @@ export async function GET(req: Request) {
     nudgesSent += 1;
   }
 
+  const guests = await remindGuests(now);
+  const hosts = await tellTheHosts(now);
+
   return NextResponse.json({
     ok: true,
     reminders: sent,
     notified: people,
     nudges: nudgesSent,
+    ...guests,
+    hostDigests: hosts,
   });
+}
+
+/**
+ * A word to the guests, who are not in this app and cannot be notified in it.
+ *
+ * ── Why guests get different days from the household ─────────────────────
+ * The household is reminded a week out, the day before and on the morning,
+ * because they are the ones arranging it.
+ *
+ * A guest is a different person with a different problem. They said yes on a
+ * bus three days ago; what they need is "it is tomorrow" — the one that
+ * changes what they do that evening — and "it is today". Two, and only two:
+ * a reminder every day is how people learn to ignore all of them, and that
+ * does not stop being true because somebody is a guest.
+ *
+ * ── Why it is safe to run twice ──────────────────────────────────────────
+ * Each stage is stamped on the invitation the moment it is sent, the same
+ * shape Appointment already uses. A second run today finds the stamp and sends
+ * nothing. One stamp covers everybody on the invitation, so a single address
+ * that bounces does not hold the rest back and is not retried — the same
+ * bargain the appointment reminders make, and the right one: the cost of a
+ * retry loop here is somebody getting the same email four times.
+ */
+async function remindGuests(now: Date) {
+  const startOfToday = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
+  );
+  const horizon = new Date(startOfToday.getTime() + 2 * 86_400_000);
+
+  const invitations = await prisma.invitation.findMany({
+    where: {
+      revokedAt: null,
+      /**
+       * Nothing that ever asked "which day suits?".
+       *
+       * While it is still a question there is no day to remind anybody of —
+       * the event carries a placeholder, the earliest day offered, so an
+       * unsettled poll whose first option fell tomorrow would email every
+       * guest about a day nobody had chosen. And once it is settled they have
+       * already had the one message that matters: the day, sent the moment it
+       * was decided, which is both the news and the reminder.
+       */
+      options: { none: {} },
+      event: { cancelledAt: null, at: { gte: startOfToday, lt: horizon } },
+    },
+    select: {
+      id: true,
+      slug: true,
+      hostName: true,
+      remindedDayBeforeAt: true,
+      remindedMorningAt: true,
+      event: {
+        select: {
+          id: true,
+          title: true,
+          at: true,
+          hasTime: true,
+          endsAt: true,
+          where: true,
+        },
+      },
+      replies: {
+        // Somebody who said they cannot come is not reminded of it. That is
+        // not a reminder, it is a reproach.
+        where: { answer: { in: ["YES", "MAYBE"] }, email: { not: null } },
+        select: { name: true, email: true, answer: true },
+      },
+    },
+  });
+
+  let stages = 0;
+  let guests = 0;
+
+  for (const inv of invitations) {
+    const away = Math.round(
+      (Date.UTC(
+        inv.event.at.getUTCFullYear(),
+        inv.event.at.getUTCMonth(),
+        inv.event.at.getUTCDate(),
+      ) -
+        startOfToday.getTime()) /
+        86_400_000,
+    );
+    if (away !== 0 && away !== 1) continue;
+    const today = away === 0;
+    if (today ? inv.remindedMorningAt : inv.remindedDayBeforeAt) continue;
+
+    if (inv.replies.length > 0) {
+      const when = whenWords(inv.event.at, inv.event.hasTime, inv.event.endsAt);
+      for (const r of inv.replies) {
+        if (!r.email) continue;
+        await sendGuestDayEmail({
+          to: r.email,
+          name: r.name,
+          lead: today ? "Today" : "Tomorrow",
+          title: inv.event.title,
+          when,
+          where: inv.event.where,
+          hostName: inv.hostName,
+          url: inviteUrl(inv.slug),
+          note:
+            r.answer === "MAYBE"
+              ? "You said you hoped to come. If you now know either way, the invitation still takes a change."
+              : null,
+        });
+        guests += 1;
+      }
+    }
+
+    // Stamped last, so anything that threw above is tried again tomorrow
+    // rather than being silently marked as done.
+    await prisma.invitation.update({
+      where: { id: inv.id },
+      data: today
+        ? { remindedMorningAt: new Date() }
+        : { remindedDayBeforeAt: new Date() },
+    });
+    stages += 1;
+  }
+
+  return { guestReminders: stages, guestsEmailed: guests };
+}
+
+/**
+ * The evening before, to the household whose day it is.
+ *
+ * A guest needs one fact: it is tomorrow. She needs a number, and needs it the
+ * night before rather than on the morning, because that is when the shopping
+ * gets done and the chairs get counted.
+ *
+ * The test here is NOT the guests' one. A settled poll absolutely gets a
+ * digest — somebody who has just chosen a day is exactly who needs the count.
+ * What must not go out is a digest for an invitation whose placeholder date
+ * happens to fall tomorrow while nobody has chosen anything.
+ */
+async function tellTheHosts(now: Date) {
+  const startOfTomorrow = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1),
+  );
+  const endOfTomorrow = new Date(startOfTomorrow.getTime() + 86_400_000);
+
+  const invitations = await prisma.invitation.findMany({
+    where: {
+      revokedAt: null,
+      hostDigestAt: null,
+      OR: [{ options: { none: {} } }, { settledAt: { not: null } }],
+      event: {
+        cancelledAt: null,
+        at: { gte: startOfTomorrow, lt: endOfTomorrow },
+      },
+    },
+    select: {
+      id: true,
+      event: {
+        select: { id: true, journeyId: true, title: true, where: true },
+      },
+      replies: { select: { answer: true, partySize: true, name: true, note: true } },
+    },
+  });
+
+  let sent = 0;
+  for (const inv of invitations) {
+    const c = headCount(inv.replies);
+    const keepers = await prisma.membership.findMany({
+      where: { journeyId: inv.event.journeyId, role: { in: HOUSEHOLD_ROLES } },
+      select: { userId: true },
+    });
+
+    // The things guests actually wrote, which is where "we'll be late" and
+    // "I'm bringing the cake" live. Capped, because this is a nudge.
+    const words = inv.replies
+      .filter((r) => r.note && r.answer !== "NO")
+      .slice(0, 5)
+      .map((r) => `${r.name}: ${r.note}`);
+
+    const body = [
+      c.replied === 0 ? "Nobody has replied to the invitation." : countSentence(c),
+      inv.event.where ? `At ${inv.event.where}.` : null,
+      ...words,
+    ]
+      .filter(Boolean)
+      .join("\n");
+
+    for (const k of keepers) {
+      await notify({
+        userId: k.userId,
+        type: "appointment",
+        title: `Tomorrow: ${inv.event.title} — ${
+          c.coming ? `${c.coming} coming` : "nobody has said yes yet"
+        }`,
+        body,
+        href: `/appointments#day-${inv.event.id}`,
+        email: true,
+      });
+    }
+
+    await prisma.invitation.update({
+      where: { id: inv.id },
+      data: { hostDigestAt: new Date() },
+    });
+    sent += 1;
+  }
+  return sent;
 }

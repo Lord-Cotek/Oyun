@@ -64,7 +64,7 @@ export default async function SharedVerse({
           <Eyebrow className="mb-5">A verse to carry</Eyebrow>
           {verse.wholeChapter ? (
             <div className="surface-premium max-h-[52dvh] overflow-y-auto rounded-2xl border border-border p-6">
-              <p className="whitespace-pre-line font-mono text-sm leading-relaxed text-ink/90">
+              <p className="whitespace-pre-line prose-serif-sm text-ink/90">
                 {verse.text}
               </p>
             </div>
@@ -82,12 +82,12 @@ export default async function SharedVerse({
         </div>
 
         {/* The invitation back to the app */}
-        <div className="surface-raised rounded-2xl border border-accent/25 bg-gradient-to-br from-accent/[0.10] via-surface to-accent2/[0.09] p-6 md:p-8">
+        <div className="surface-raised rounded-2xl border border-border bg-surface p-6 md:p-8">
           <Eyebrow className="mb-3">A COTEK companion</Eyebrow>
           <h2 className="font-serif text-2xl leading-snug text-ink">
             Family worship, every day.
           </h2>
-          <p className="mt-2 max-w-md font-mono text-sm leading-relaxed text-muted">
+          <p className="mt-2 max-w-md prose-serif-sm text-muted">
             Oyun walks a mother and the one beside her from conception through the
             early years — Scripture, prayer, a song, and reflections you keep.
             Read through the whole Bible together, one day at a time.
@@ -100,7 +100,7 @@ export default async function SharedVerse({
           </div>
         </div>
 
-        <p className="mt-6 text-center font-mono text-[0.68rem] text-muted">
+        <p className="prose-serif-xs mt-6 text-center text-muted">
           Shared from Oyun · a COTEK app
         </p>
       </div>

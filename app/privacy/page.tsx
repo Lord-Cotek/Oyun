@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <LegalShell title="Privacy Policy" updated="1 August 2026">
-      <p className="font-mono text-sm leading-relaxed text-muted">
+      <p className="prose-serif-sm text-muted">
         Oyun (&ldquo;Oyun&rdquo;, the &ldquo;app&rdquo;) is owned and operated by{" "}
         <span className="text-ink">cotek app FZ-LLC</span> (&ldquo;we&rdquo;,
         &ldquo;us&rdquo;, &ldquo;our&rdquo;). This policy explains what we

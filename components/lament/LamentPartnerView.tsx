@@ -38,7 +38,7 @@ export async function LamentPartnerView({
         <h1 className="max-w-3xl font-serif text-4xl leading-tight text-ink md:text-5xl">
           {motherName} has lost her baby.
         </h1>
-        <p className="mt-4 max-w-prose font-mono text-sm leading-relaxed text-muted">
+        <p className="mt-4 max-w-prose prose-serif-sm text-muted">
           This is one of the hardest roads. She does not need you to have answers
           — she needs you not to disappear. Come near, stay near, and let God&rsquo;s
           comfort reach her through you.
@@ -53,7 +53,7 @@ export async function LamentPartnerView({
               {HOW_TO_COME_NEAR.map((line, i) => (
                 <li key={i} className="flex gap-3">
                   <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-accent2" />
-                  <span className="font-mono text-sm leading-relaxed text-ink/90">
+                  <span className="prose-serif-sm text-ink/90">
                     {line}
                   </span>
                 </li>
@@ -63,7 +63,7 @@ export async function LamentPartnerView({
 
           <Card className="p-8">
             <Eyebrow className="mb-4">Leave a word of remembrance</Eyebrow>
-            <p className="mb-5 font-mono text-xs leading-relaxed text-muted">
+            <p className="mb-5 prose-serif-xs text-muted">
               Write something for {motherName} to keep — a memory, a promise to
               pray, the baby&rsquo;s name spoken with love. She will see it in her
               own space.
@@ -94,13 +94,13 @@ export async function LamentPartnerView({
           <Card className="p-8">
             <Eyebrow className="mb-4 text-accent2">Pray this today</Eyebrow>
             <Verse text={lament.text} reference={lament.ref} />
-            <p className="mt-6 border-t border-border pt-6 font-mono text-sm leading-relaxed text-muted">
+            <p className="mt-6 border-t border-border pt-6 prose-serif-sm text-muted">
               {lament.reflection}
             </p>
           </Card>
           <Card className="border-accent2/30 bg-accent2/[0.05] p-6">
             <Eyebrow className="mb-3 text-accent2">The simplest step</Eyebrow>
-            <p className="font-mono text-xs leading-relaxed text-muted">
+            <p className="prose-serif-xs text-muted">
               You don&rsquo;t need the right words. Send {motherName} a message right
               now — &ldquo;I&rsquo;m so sorry. I&rsquo;m here. I&rsquo;m praying for you.&rdquo; That
               is enough. Then send another next week.
