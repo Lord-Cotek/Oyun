@@ -6,7 +6,6 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getPublicInvitation, guestCookieName } from "@/lib/invitations-db";
 import {
-  cardStamp,
   countSentence,
   headCount,
   longDay,
@@ -53,29 +52,14 @@ export async function generateMetadata({
   const desc = [when, i.event.where].filter(Boolean).join(" · ");
 
   /**
-   * The card's address, carrying a token for what is on it.
+   * The card's address is left to the opengraph-image file convention.
    *
-   * Written out here rather than left to the opengraph-image file convention,
-   * which gives every invitation the same unchanging address and then asks
-   * for it to be cached as immutable for a year. See cardStamp: a host who
-   * added a photograph after sending the link went on seeing the old card in
-   * WhatsApp for ever, because nothing about the address had changed.
-   *
-   * Everything the card draws goes into the token, not only the photograph —
-   * moving a shower to a different day has exactly the same problem.
+   * It was briefly written out here with a token on it, to force a new
+   * address whenever the card changed — and a link sent while that was live
+   * got a preview with NO picture at all, which is worse than a stale one.
+   * The address was never the right lever: the cache header was, and
+   * opengraph-image.tsx now sets its own. Back to the path Next knows.
    */
-  const stamp = cardStamp([
-    i.coverUrl,
-    i.event.title,
-    i.event.at.toISOString(),
-    i.event.hasTime,
-    i.event.endsAt?.toISOString(),
-    i.event.where,
-    i.hostName,
-    i.event.cancelled,
-  ]);
-  const card = `/i/${encodeURIComponent(params.slug)}/opengraph-image?v=${stamp}`;
-
   return {
     title: i.event.title,
     description: desc,
@@ -84,13 +68,11 @@ export async function generateMetadata({
       title: i.event.title,
       description: `${desc} — from ${i.hostName}`,
       type: "website",
-      images: [{ url: card, width: 1200, height: 630, alt: "An invitation" }],
     },
     twitter: {
       card: "summary_large_image",
       title: i.event.title,
       description: desc,
-      images: [card],
     },
   };
 }

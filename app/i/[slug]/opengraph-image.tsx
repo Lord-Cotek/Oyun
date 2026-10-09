@@ -33,9 +33,20 @@ function truncate(s: string, n: number): string {
   return s.length > n ? `${s.slice(0, n - 1).trimEnd()}…` : s;
 }
 
-/** Two and a half seconds, five megabytes, and an image or nothing. */
-const FETCH_MS = 2500;
-const MAX_BYTES = 5 * 1024 * 1024;
+/**
+ * A second and a half, two megabytes, and an image or nothing.
+ *
+ * Deliberately mean. WhatsApp fetches this card while somebody waits for a
+ * message to send, and it gives up quickly — so a card that arrives late is
+ * a card that does not arrive, and a link goes out with no picture on it at
+ * all. A plain card is a good outcome; no card is the bad one. Every budget
+ * here is set so that the worst case is the plain card.
+ *
+ * Covers that go through the app are shrunk before they are uploaded, so two
+ * megabytes is generous for anything chosen the ordinary way.
+ */
+const FETCH_MS = 1500;
+const MAX_BYTES = 2 * 1024 * 1024;
 
 /**
  * The photograph, as bytes we already hold.
@@ -218,6 +229,24 @@ export default async function Image({ params }: { params: { slug: string } }) {
         </div>
       </div>
     ),
-    { ...size },
+    {
+      ...size,
+      // ── Why this header is set by hand ─────────────────────────────
+      // Next's default for a metadata image is
+      // `public, immutable, max-age=31536000` — keep it for a year, it will
+      // never change. True of an image whose URL carries a content hash,
+      // and false of ours: an invitation's card lives at one address before
+      // and after the host picks a photograph. WhatsApp fetched the plain
+      // card the first time the link was sent, was told to keep it for a
+      // year, and did.
+      //
+      // So: fresh to the browser, a day on the CDN, and servable while it
+      // revalidates. A card that is an hour stale is nobody's problem; a
+      // card that is a year stale is the bug this replaces.
+      headers: {
+        "cache-control":
+          "public, max-age=0, s-maxage=86400, stale-while-revalidate=604800",
+      },
+    },
   );
 }

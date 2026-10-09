@@ -476,39 +476,3 @@ export function optionSentence(votes: number, replied: number): string {
   if (votes === 0) return `Nobody of the ${replied} so far`;
   return `${votes} of ${replied} can`;
 }
-
-/**
- * A short token that changes whenever the shared card would look different.
- *
- * ── The bug this exists for ──────────────────────────────────────────────
- * Next serves a metadata image route with `cache-control: public, immutable,
- * max-age=31536000` — keep this for a year, it will never change. That is
- * true for an image whose URL is content-addressed, and it was a lie for
- * ours: the address of an invitation's card is the same before and after the
- * host chooses a photograph. So WhatsApp fetched the plain card the first
- * time the link was sent, was told to keep it for a year, and went on showing
- * it after a picture had been added. The picture was on the page; the card
- * never moved.
- *
- * Putting this in the URL makes the promise honest. A different card is a
- * different address, and the year of caching becomes a feature rather than a
- * trap.
- *
- * ── Why not a real hash ──────────────────────────────────────────────────
- * This file is pure on purpose — the host's page, the guest's page, the
- * calendar file and the tests all share it, and some of those are the
- * browser. Importing node:crypto for a cache key would break that for no
- * benefit: nothing here is secret, and FNV-1a changes when the input does,
- * which is the entire requirement.
- */
-export function cardStamp(
-  parts: (string | number | boolean | null | undefined)[],
-): string {
-  const s = parts.map((p) => (p == null ? "" : String(p))).join("\u0000");
-  let h = 0x811c9dc5;
-  for (let i = 0; i < s.length; i += 1) {
-    h ^= s.charCodeAt(i);
-    h = Math.imul(h, 0x01000193) >>> 0;
-  }
-  return h.toString(36);
-}
