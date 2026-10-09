@@ -5,6 +5,7 @@ import { Linked } from "@/components/ui/Linked";
 import {
   saveInvitation,
   setInvitationClosed,
+  setInvitationCover,
   revokeInvitation,
   restoreInvitation,
   removeReply,
@@ -20,12 +21,15 @@ import {
 import { ShareInvite } from "@/components/invite/ShareInvite";
 import { PollPanel, type PollOption } from "@/components/dates/PollPanel";
 import { ConfirmButton } from "@/components/ui/Confirm";
+import { CoverPicker } from "@/components/ui/CoverPicker";
 
 export type InviteRow = {
   slug: string;
   url: string;
   hostName: string;
   message: string | null;
+  /** The photograph at the top of the invitation, if one was chosen. */
+  coverUrl: string | null;
   showGuestList: boolean;
   allowPlusOnes: boolean;
   capacity: number | null;
@@ -63,12 +67,15 @@ export function InvitePanel({
   when,
   where,
   invite,
+  coverChoices = [],
 }: {
   eventId: string;
   title: string;
   when: string;
   where: string | null;
   invite: InviteRow | null;
+  /** Photographs already on this journey, offered before the camera roll. */
+  coverChoices?: string[];
 }) {
   const [open, setOpen] = useState(!invite);
   const [busy, setBusy] = useState(false);
@@ -138,6 +145,45 @@ export function InvitePanel({
               Room for {invite.capacity} · {Math.max(0, invite.capacity - count.coming)}{" "}
               still free
             </p>
+          )}
+
+          {/* ── The picture guests open on ──────────────────────────────
+              Beside the share button, because choosing it and sending it are
+              one thought: nobody opens this panel to decorate an invitation
+              they are not about to send. Behind the ordinary picker the rest
+              of the app uses, so a photograph already in the diary costs no
+              upload and no waiting.
+
+              Not offered on a dead link. There is nothing to decorate. */}
+          {!invite.revoked && (
+            <div className="mt-3 flex items-center gap-3">
+              {invite.coverUrl ? (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img
+                  src={invite.coverUrl}
+                  alt=""
+                  className="h-12 w-16 shrink-0 rounded-lg object-cover"
+                />
+              ) : (
+                <div className="flex h-12 w-16 shrink-0 items-center justify-center rounded-lg border border-dashed border-border">
+                  <span className="font-mono text-[0.55rem] uppercase tracking-widest text-muted">
+                    none
+                  </span>
+                </div>
+              )}
+              <div className="min-w-0">
+                <CoverPicker
+                  current={invite.coverUrl}
+                  choices={coverChoices}
+                  action={(url) => setInvitationCover(eventId, url)}
+                  label="Picture"
+                />
+                <p className="mt-1 font-mono text-[0.58rem] leading-relaxed text-muted">
+                  Shown at the top of the invitation, and in the preview when
+                  the link is forwarded.
+                </p>
+              </div>
+            </div>
           )}
 
           {!invite.revoked && (

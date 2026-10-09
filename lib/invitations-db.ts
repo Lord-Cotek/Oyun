@@ -38,6 +38,12 @@ export type PublicInvitation = {
   slug: string;
   hostName: string;
   message: string | null;
+  /**
+   * The photograph at the top, chosen by the host. Null is the ordinary case
+   * and the page is designed for it — see Invitation.coverUrl for what may be
+   * in here, and why that is checked harder than anywhere else in the app.
+   */
+  coverUrl: string | null;
   showGuestList: boolean;
   allowPlusOnes: boolean;
   capacity: number | null;
@@ -92,6 +98,7 @@ export async function getPublicInvitation(
       slug: true,
       hostName: true,
       message: true,
+      coverUrl: true,
       showGuestList: true,
       allowPlusOnes: true,
       capacity: true,
@@ -140,6 +147,7 @@ export async function getPublicInvitation(
     slug: i.slug,
     hostName: i.hostName,
     message: i.message,
+    coverUrl: i.coverUrl,
     showGuestList: i.showGuestList,
     allowPlusOnes: i.allowPlusOnes,
     capacity: i.capacity,
@@ -177,6 +185,7 @@ export async function getHostInvitations(journeyId: string) {
       eventId: true,
       hostName: true,
       message: true,
+      coverUrl: true,
       showGuestList: true,
       allowPlusOnes: true,
       capacity: true,

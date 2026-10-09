@@ -48,12 +48,40 @@ export default async function AppointmentsPage() {
   }));
 
 
-  const [upcoming, past, diary, invitations] = await Promise.all([
+  const [upcoming, past, diary, invitations, sharedPhotos] = await Promise.all([
     getUpcomingAppointments(active.journey.id, session.user.id),
     getPastAppointments(active.journey.id, session.user.id),
     getDiary(active.journey.id, session.user.id),
     getHostInvitations(active.journey.id),
+    // For the invitation's picture picker. Family-only posts are excluded at
+    // the query, not in the map: a photograph kept from the circle must not
+    // reach a list of candidates for a page sent to strangers.
+    prisma.post.findMany({
+      where: {
+        journeyId: active.journey.id,
+        householdOnly: false,
+        mediaUrls: { isEmpty: false },
+      },
+      orderBy: { createdAt: "desc" },
+      take: 30,
+      select: { mediaUrls: true },
+    }),
   ]);
+
+  /**
+   * What the invitation's picture picker offers before the camera roll.
+   *
+   * The same rule as the journey's own cover — see app/journey/page.tsx.
+   * Videos are dropped: this becomes an <img> on the invitation and a still
+   * frame in a WhatsApp preview, and neither can play one.
+   */
+  const coverChoices = Array.from(
+    new Set(
+      sharedPhotos
+        .flatMap((p) => p.mediaUrls)
+        .filter((u) => !/\.(mp4|m4v|mov|webm|ogg)(\?|#|$)/i.test(u)),
+    ),
+  ).slice(0, 18);
 
   const byEvent = new Map<string, InviteRow>(
     invitations.map((i) => [
@@ -63,6 +91,7 @@ export default async function AppointmentsPage() {
         url: inviteUrl(i.slug),
         hostName: i.hostName,
         message: i.message,
+        coverUrl: i.coverUrl,
         showGuestList: i.showGuestList,
         allowPlusOnes: i.allowPlusOnes,
         capacity: i.capacity,
@@ -141,7 +170,7 @@ export default async function AppointmentsPage() {
         </Card>
 
         <Card className="mt-6 p-8">
-          <OwnDays days={rows} canEdit housemates={housemates} />
+          <OwnDays days={rows} canEdit housemates={housemates} coverChoices={coverChoices} />
         </Card>
 
         <div className="mt-6 rounded-2xl border border-border bg-surface/60 p-6">

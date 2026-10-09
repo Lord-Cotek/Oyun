@@ -1136,6 +1136,22 @@ model Invitation {
   /// Typed rather than taken from an account, so she chooses what a guest sees.
   hostName            String
   message             String?
+  /// The photograph at the top of the invitation, and the picture WhatsApp
+  /// shows when the link is forwarded.
+  ///
+  /// ── Why it lives on the invitation and not on the event ─────────────
+  /// The event is the household's own diary entry; the invitation is the
+  /// face it shows to people outside. A picture chosen to make a shower look
+  /// inviting is not necessarily the picture the family want on their own
+  /// page for a hospital appointment, and the two should not move together.
+  ///
+  /// ── What may go in here ─────────────────────────────────────────────
+  /// Only what lib/cover-url.ts allows: this app's own blob storage, or a
+  /// photograph already on this journey. It matters more here than anywhere
+  /// else in the app, because the link preview is fetched by WhatsApp's
+  /// servers for every person the invitation reaches — a foreign URL would
+  /// be a tracking beacon with a guest list attached.
+  coverUrl            String?
   /// Whether a guest sees who else is coming. At a shower that is half the
   /// reason to come; at a quiet supper it is nobody's business.
   showGuestList       Boolean            @default(true)

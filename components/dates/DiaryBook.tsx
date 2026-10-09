@@ -471,11 +471,14 @@ export function OwnDays({
   days,
   canEdit,
   housemates,
+  coverChoices = [],
 }: {
   days: DayRow[];
   canEdit: boolean;
   /** Everybody in this journey, so a surprise can be planned with one of them. */
   housemates: Housemate[];
+  /** Photographs already on this journey, for an invitation's header. */
+  coverChoices?: string[];
 }) {
   const [adding, setAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -641,6 +644,7 @@ export function OwnDays({
                       when={whenWords(d.atISO, d.hasTime, d.endsAtISO)}
                       where={d.where}
                       invite={d.invite}
+                      coverChoices={coverChoices}
                     />
                   )}
                 </>

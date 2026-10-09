@@ -10,6 +10,7 @@ import { notify } from "@/lib/notify";
 import { isHousehold, HOUSEHOLD_ROLES } from "@/lib/roles";
 import { sendGuestDayEmail, sendInvitationEmail } from "@/lib/email";
 import { toEventKind } from "@/lib/events-db";
+import { checkCoverUrl } from "@/lib/cover-url";
 import { newSlug, inviteUrl } from "@/lib/invitations-db";
 import {
   HOST_NAME_MAX,
@@ -371,6 +372,35 @@ export async function saveInvitation(formData: FormData): Promise<Result> {
     create: { eventId, slug: newSlug(), ...s },
   });
 
+  revalidatePath("/appointments");
+  return { ok: true };
+}
+
+/**
+ * The photograph at the top of an invitation.
+ *
+ * Null takes it off again, which is why checkCoverUrl answers with three
+ * things rather than two — see lib/cover-url.ts, which also explains why a
+ * URL from our own picker is checked at all.
+ *
+ * Scoped by `event: { journeyId }` like every other invitation action here,
+ * so an eventId belonging to another family changes nothing and says so.
+ */
+export async function setInvitationCover(
+  eventId: string,
+  url: string | null,
+): Promise<{ ok: boolean }> {
+  const who = await requireHouse();
+  if (!who) return { ok: false };
+
+  const value = await checkCoverUrl(url, who.journeyId);
+  if (value === false) return { ok: false };
+
+  const n = await prisma.invitation.updateMany({
+    where: { eventId, event: { journeyId: who.journeyId } },
+    data: { coverUrl: value },
+  });
+  if (n.count === 0) return { ok: false };
   revalidatePath("/appointments");
   return { ok: true };
 }

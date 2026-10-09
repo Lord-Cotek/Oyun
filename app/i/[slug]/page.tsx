@@ -13,6 +13,7 @@ import {
 } from "@/lib/invitations";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { OyunMark } from "@/components/ui/OyunMark";
+import { Arches } from "@/components/ui/Marks";
 import { GuestReply } from "@/components/invite/GuestReply";
 import { GuestPoll } from "@/components/invite/GuestPoll";
 import { AddToMyOyun } from "@/components/invite/AddToMyOyun";
@@ -115,7 +116,47 @@ export default async function InvitationPage({
 
   return (
     <main className="relative min-h-[100dvh]">
-      <div className="mx-auto flex min-h-[100dvh] max-w-2xl flex-col px-6 py-10">
+      {/* ── The photograph the host chose ────────────────────────────────
+          Full width and above everything, because this is the first thing a
+          guest sees and an invitation that opens on a picture reads as an
+          invitation rather than as a form.
+
+          Three deliberate things about how it is drawn:
+
+          It escapes the page's own padding, so the picture meets the edges
+          of the phone. Inset in a rounded card it would read as an
+          attachment to a document; full-bleed it reads as the top of an
+          invitation.
+
+          It melts into the page rather than stopping at a line. The gradient
+          at its foot runs to the page's own background, so there is no hard
+          seam between a photograph somebody took on a phone and the cream
+          the rest of this page is set on.
+
+          The arches sit on it, as they do on every band in the app, which is
+          what makes a stranger's photograph look like it belongs to Oyun.
+
+          `cancelled` suppresses it: a picture of a happy room above the
+          words "this has been called off" is a cruel accident, and the one
+          case where the nicest version of this feature is the wrong one. */}
+      {i.coverUrl && !i.event.cancelled && (
+        <div className="relative h-56 w-full overflow-hidden sm:h-72">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={i.coverUrl}
+            alt=""
+            className="h-full w-full object-cover"
+          />
+          <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-bg via-bg/70 to-transparent" />
+          <Arches className="on-band" />
+        </div>
+      )}
+
+      <div
+        className={`mx-auto flex min-h-[100dvh] max-w-2xl flex-col px-6 pb-10 ${
+          i.coverUrl && !i.event.cancelled ? "pt-6" : "pt-10"
+        }`}
+      >
         <Link href="/" className="inline-flex items-center gap-2.5">
           <OyunMark size={28} className="text-ink" />
           <span className="font-serif text-base text-ink">Oyun</span>
