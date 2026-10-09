@@ -521,9 +521,29 @@ model PostComment {
   attributedById  String?
   attributedBy    User?        @relation("CommentAttributedBy", fields: [attributedById], references: [id], onDelete: SetNull)
 
+  /// The reply this one answers, when somebody wanted to say something to one
+  /// person rather than to the post.
+  ///
+  /// ── One level, and only one ───────────────────────────────────────────
+  /// A reply to a reply attaches to the same parent — see addComment. Six
+  /// people answering each other round a photograph is a conversation; the
+  /// same six nested eight deep is a forum, and a thread that walks off the
+  /// right-hand edge of a phone is nobody's idea of a family.
+  ///
+  /// ── SetNull, never Cascade ────────────────────────────────────────────
+  /// If somebody takes down their own comment, the answers other people gave
+  /// it become ordinary comments. They lose a little context, which is a
+  /// shame. Cascade would delete them outright, which is one person reaching
+  /// across and removing another person's words — and that is not a trade a
+  /// family app gets to make on their behalf.
+  parentId  String?
+  parent    PostComment?  @relation("CommentThread", fields: [parentId], references: [id], onDelete: SetNull)
+  replies   PostComment[] @relation("CommentThread")
+
   reactions PostCommentReaction[]
 
   @@index([postId, createdAt])
+  @@index([parentId, createdAt])
 }
 
 /// A reaction to somebody's REPLY, not to the post itself.

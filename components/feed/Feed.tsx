@@ -23,7 +23,7 @@ import {
   REACTIONS,
   type PostKind,
 } from "@/lib/feed";
-import type { FeedPost, MediaItem } from "@/lib/feed-query";
+import type { FeedPost, FeedComment, MediaItem } from "@/lib/feed-query";
 import { Lightbox } from "@/components/media/Lightbox";
 import { Pressable } from "@/components/ui/Pressable";
 import { ReactionRow } from "@/components/feed/ReactionRow";
@@ -59,7 +59,13 @@ type EditFn = (input: {
   body: string;
   removeMedia?: boolean;
 }) => Promise<void>;
-type CommentFn = (input: { postId: string; body: string }) => Promise<void>;
+type CommentFn = (input: {
+  postId: string;
+  body: string;
+  /** Answering one person rather than the post. Clamped to one level in
+      addComment — a reply to a reply joins the same thread. */
+  parentId?: string;
+}) => Promise<void>;
 type ReactFn = (input: { postId: string; kind: string }) => Promise<void>;
 type ReactCommentFn = (input: {
   commentId: string;
@@ -940,6 +946,155 @@ function Audience({
   );
 }
 
+/**
+ * One reply, the answers to it, and the box for adding another.
+ *
+ * ── Why answers are indented and not flattened ───────────────────────────
+ * Because the question "who is this person talking to?" should not need
+ * working out. Under a photograph with six replies, an answer to the second
+ * one reads as an answer to the sixth if it simply follows it.
+ *
+ * ── Why the indent only ever happens once ────────────────────────────────
+ * The depth is clamped on the server (see addComment), and this draws what
+ * the server allows: answers to an answer join the same thread rather than
+ * stepping further right. Four levels in, a phone gives a reply about eight
+ * characters of width. One step is enough to say who is being answered, and
+ * the name is written on the line anyway.
+ */
+function Said({
+  c,
+  postId,
+  pending,
+  answering,
+  setAnswering,
+  onComment,
+  onDeleteComment,
+  onReactToComment,
+  start,
+  inset = false,
+}: {
+  c: FeedComment;
+  postId: string;
+  pending: boolean;
+  answering: string | null;
+  setAnswering: (id: string | null) => void;
+  onComment: CommentFn;
+  onDeleteComment: (id: string) => Promise<void>;
+  onReactToComment: ReactCommentFn;
+  start: (fn: () => void) => void;
+  /** True for an answer, which is drawn inside its parent. */
+  inset?: boolean;
+}) {
+  const [draft, setDraft] = useState("");
+  const open = answering === c.id;
+
+  function send() {
+    const text = draft.trim();
+    if (!text) return;
+    start(async () => {
+      await onComment({ postId, body: text, parentId: c.id });
+      setDraft("");
+      setAnswering(null);
+    });
+  }
+
+  return (
+    <div>
+      <div className="flex items-start justify-between gap-3">
+        <p className="font-mono text-xs leading-relaxed text-ink/85">
+          <span className="text-muted">{c.author}</span> · {c.body}
+        </p>
+        {c.mine && (
+          <ConfirmButton
+            press="none"
+            disabled={pending}
+            describe="your reply"
+            onConfirm={async () => {
+              start(() => onDeleteComment(c.id));
+            }}
+            className="shrink-0 font-mono text-[0.62rem] text-muted underline underline-offset-4 hover:text-negative disabled:opacity-50"
+          />
+        )}
+      </div>
+      {/* Said once, quietly, and kept for good: these words came in
+          through a share link before we knew the person was in the
+          circle. Without it this is a reply from a year ago with no
+          reactions and no reason. See PostComment.fromHelloId. */}
+      {c.fromOutside && (
+        <p className="mt-0.5 font-mono text-[0.58rem] uppercase tracking-widest text-muted">
+          {ATTRIBUTE_WORDS.note}
+        </p>
+      )}
+
+      <div className="flex flex-wrap items-center gap-x-3">
+        <ReactionRow
+          compact
+          label="them"
+          reactions={c.reactions}
+          onToggle={(kind) => onReactToComment({ commentId: c.id, kind })}
+        />
+        <button
+          type="button"
+          onClick={() => setAnswering(open ? null : c.id)}
+          aria-expanded={open}
+          className="font-mono text-[0.62rem] text-muted underline underline-offset-4 hover:text-accent"
+        >
+          {open ? "Not now" : `Reply to ${c.author}`}
+        </button>
+      </div>
+
+      {open && (
+        <div className="mt-2 flex items-center gap-2">
+          <input
+            type="text"
+            autoFocus
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            placeholder={`Say something to ${c.author}…`}
+            className="prose-serif-xs w-full rounded-lg border border-border bg-bg px-3 py-2 text-ink placeholder:text-muted focus:border-accent focus:outline-none"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                send();
+              }
+              if (e.key === "Escape") setAnswering(null);
+            }}
+          />
+          <Pressable
+            press="none"
+            type="button"
+            disabled={pending || !draft.trim()}
+            onClick={send}
+            className="shrink-0 rounded-lg border border-border px-3 py-2 font-mono text-[0.68rem] text-muted hover:border-accent hover:text-accent disabled:opacity-40"
+          >
+            Send
+          </Pressable>
+        </div>
+      )}
+
+      {c.replies.length > 0 && (
+        <div className="mt-3 space-y-3 border-l border-border pl-3">
+          {c.replies.map((r) => (
+            <Said
+              key={r.id}
+              c={r}
+              postId={postId}
+              pending={pending}
+              answering={answering}
+              setAnswering={setAnswering}
+              onComment={onComment}
+              onDeleteComment={onDeleteComment}
+              onReactToComment={onReactToComment}
+              start={start}
+              inset
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function PostItem({
   post,
   canKeepToHousehold,
@@ -963,6 +1118,10 @@ function PostItem({
   const [removing, setRemoving] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [comment, setComment] = useState("");
+  // Which reply has its answer box open, if any. One at a time, held here
+  // rather than in each line, so opening a second closes the first — two
+  // half-typed boxes in one thread is how people lose what they wrote.
+  const [answering, setAnswering] = useState<string | null>(null);
   const hasMedia = post.media.length > 0;
 
 
@@ -1157,39 +1316,18 @@ function PostItem({
       {(showComments || post.comments.length > 0) && (
         <div className="mt-4 space-y-3 border-t border-border pt-4">
           {post.comments.map((c) => (
-            <div key={c.id}>
-              <div className="flex items-start justify-between gap-3">
-                <p className="font-mono text-xs leading-relaxed text-ink/85">
-                  <span className="text-muted">{c.author}</span> · {c.body}
-                </p>
-                {c.mine && (
-                  <ConfirmButton
-                    press="none"
-                    disabled={pending}
-                    describe="your reply"
-                    onConfirm={async () => {
-                      start(() => onDeleteComment(c.id));
-                    }}
-                    className="shrink-0 font-mono text-[0.62rem] text-muted underline underline-offset-4 hover:text-negative disabled:opacity-50"
-                  />
-                )}
-              </div>
-              {/* Said once, quietly, and kept for good: these words came in
-                  through a share link before we knew the person was in the
-                  circle. Without it this is a reply from a year ago with no
-                  reactions and no reason. See PostComment.fromHelloId. */}
-              {c.fromOutside && (
-                <p className="mt-0.5 font-mono text-[0.58rem] uppercase tracking-widest text-muted">
-                  {ATTRIBUTE_WORDS.note}
-                </p>
-              )}
-              <ReactionRow
-                compact
-                label="them"
-                reactions={c.reactions}
-                onToggle={(kind) => onReactToComment({ commentId: c.id, kind })}
-              />
-            </div>
+            <Said
+              key={c.id}
+              c={c}
+              postId={post.id}
+              pending={pending}
+              answering={answering}
+              setAnswering={setAnswering}
+              onComment={onComment}
+              onDeleteComment={onDeleteComment}
+              onReactToComment={onReactToComment}
+              start={start}
+            />
           ))}
           <div className="flex items-center gap-2">
             <input

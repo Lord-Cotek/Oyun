@@ -200,7 +200,12 @@ export async function setPostAudience(input: {
   return { ok: done.count > 0 };
 }
 
-export async function addComment(input: { postId: string; body: string }) {
+export async function addComment(input: {
+  postId: string;
+  body: string;
+  /** Answering one person rather than the post. See the note below. */
+  parentId?: string;
+}) {
   const { userId, journeyId, role } = await member();
   const body = input.body.trim();
   if (!body) return;
@@ -213,8 +218,44 @@ export async function addComment(input: { postId: string; body: string }) {
     select: { id: true, authorId: true },
   });
   if (!post) return;
+
+  /**
+   * Who, if anyone, is being answered — and at what depth.
+   *
+   * ── Why a reply to a reply joins the same thread ─────────────────────
+   * Depth is clamped here rather than in the page, because the page is not
+   * the only way in. Answering an answer attaches to the answer's parent, so
+   * a conversation can be as long as it likes and never more than one step
+   * wide. Six people talking under a photograph is a family; the same six
+   * nested eight deep is a forum, and on a phone the eighth reply is four
+   * characters wide.
+   *
+   * A parent from another post is dropped rather than refused: the reply is
+   * still worth keeping, and it belongs to the post the person was looking
+   * at.
+   */
+  let parentId: string | null = null;
+  let answering: string | null = null;
+  if (input.parentId) {
+    const parent = await prisma.postComment.findFirst({
+      where: { id: input.parentId, postId: post.id },
+      select: { id: true, parentId: true, authorId: true },
+    });
+    if (parent) {
+      parentId = parent.parentId ?? parent.id;
+      // The person actually being answered is the one whose words were
+      // tapped, not whoever happens to own the top of the thread.
+      answering = parent.authorId;
+    }
+  }
+
   await prisma.postComment.create({
-    data: { postId: post.id, authorId: userId, body: body.slice(0, 2000) },
+    data: {
+      postId: post.id,
+      authorId: userId,
+      body: body.slice(0, 2000),
+      parentId,
+    },
   });
 
   // Notify the post's author, and anyone else already in the thread.
@@ -240,10 +281,16 @@ export async function addComment(input: { postId: string; body: string }) {
         notify({
           userId: rid,
           type: "comment",
+          // Being answered by name is a different event from being in a
+          // thread that moved, and it outranks owning the post: somebody who
+          // wrote a line and was answered should be told THAT, not that
+          // their post has activity.
           title:
-            rid === post.authorId
-              ? `${who} replied to your post`
-              : `${who} also replied to a post you're on`,
+            rid === answering
+              ? `${who} replied to you`
+              : rid === post.authorId
+                ? `${who} replied to your post`
+                : `${who} also replied to a post you're on`,
           body: snip,
           href: "/life",
         }),

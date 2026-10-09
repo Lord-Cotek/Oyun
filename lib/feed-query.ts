@@ -23,6 +23,16 @@ export interface FeedComment {
    * being able to see. See PostComment.fromHelloId.
    */
   fromOutside: boolean;
+  /**
+   * Answers to THIS reply, oldest first.
+   *
+   * Only ever one level deep — addComment attaches an answer to an answer to
+   * the same parent — so this array is always empty on anything inside it.
+   * Nested rather than flat because the page has to draw it nested, and
+   * working that out in the component would mean every card re-deriving a
+   * shape the query already knows.
+   */
+  replies: FeedComment[];
 }
 
 export interface FeedReaction {
@@ -116,6 +126,65 @@ function tally(
   return [...byKind.values()];
 }
 
+/** What the query hands back for one reply, before it is threaded. */
+interface CommentRow {
+  id: string;
+  authorId: string;
+  author: { name: string | null };
+  body: string;
+  createdAt: Date;
+  parentId: string | null;
+  fromHelloId: string | null;
+  reactions: { kind: string; userId: string }[];
+}
+
+/**
+ * Lay a flat list of replies out as a conversation.
+ *
+ * ── Why in one pass over one query ───────────────────────────────────────
+ * Because the alternative is a second query per comment, and a photograph
+ * with forty replies would then cost forty-one. Everything needed is already
+ * in the rows; this only arranges them.
+ *
+ * ── Why an answer whose parent is missing comes back to the top ──────────
+ * Somebody can take down their own comment, and PostComment.parentId is
+ * SetNull rather than Cascade so that doing so never deletes the answers
+ * other people gave it. But a row could still name a parent that is not in
+ * this list — a post filtered mid-page, an old row. Those are shown as
+ * ordinary replies rather than dropped: losing a little context is a shame,
+ * and silently losing somebody's words is not a thing this file may do.
+ */
+function thread(
+  rows: CommentRow[],
+  viewerId: string,
+  now: Date,
+): FeedComment[] {
+  const shape = (c: CommentRow): FeedComment => ({
+    id: c.id,
+    author: c.author.name ?? "Someone",
+    mine: c.authorId === viewerId,
+    body: c.body,
+    when: relative(c.createdAt, now),
+    reactions: tally(c.reactions, viewerId),
+    fromOutside: c.fromHelloId !== null,
+    replies: [],
+  });
+
+  const byId = new Map<string, FeedComment>();
+  const top: FeedComment[] = [];
+  // Two passes, because the rows are in time order and an answer always
+  // follows its parent — but only always, not provably, and a single pass
+  // would quietly drop the day that stops being true.
+  for (const c of rows) byId.set(c.id, shape(c));
+  for (const c of rows) {
+    const made = byId.get(c.id)!;
+    const parent = c.parentId ? byId.get(c.parentId) : undefined;
+    if (parent && parent !== made) parent.replies.push(made);
+    else top.push(made);
+  }
+  return top;
+}
+
 /**
  * `role` is required and sits before the optional arguments on purpose: it
  * decides whether the family-only posts are in this list at all, and a
@@ -142,6 +211,8 @@ export async function loadFeed(
     include: {
       author: { select: { id: true, name: true, image: true } },
       reactions: { select: { kind: true, userId: true } },
+      // Every reply to the post, answers included, in one query and one
+      // order. They are threaded below rather than fetched twice.
       comments: {
         orderBy: { createdAt: "asc" },
         include: {
@@ -222,15 +293,7 @@ export async function loadFeed(
           }))
         : [],
       reactions: tally(p.reactions, viewerId),
-      comments: p.comments.map((c) => ({
-        id: c.id,
-        author: c.author.name ?? "Someone",
-        mine: c.authorId === viewerId,
-        body: c.body,
-        when: relative(c.createdAt, now),
-        reactions: tally(c.reactions, viewerId),
-        fromOutside: c.fromHelloId !== null,
-      })),
+      comments: thread(p.comments, viewerId, now),
     };
   });
 }
