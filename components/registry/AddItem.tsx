@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Pressable } from "@/components/ui/Pressable";
+import { PickPicture } from "@/components/ui/PickPicture";
 import { addItem, previewLink } from "@/app/registry/actions";
 import {
   ITEM_KINDS,
@@ -185,17 +186,30 @@ export function AddItem({ takesMoney }: { takesMoney: boolean }) {
         </div>
       )}
 
-      {imageUrl && (
-        <div className="mb-4 flex items-center gap-3">
-          {/* A background rather than an <img>: this URL came from somebody
-              else's server and may well be gone by Tuesday. A background that
-              fails shows an empty square; an <img> that fails shows a broken
-              icon on a page a guest is reading. */}
+      {/* ── The picture, however it got here ─────────────────────────────
+          Read off a shop page when a link was pasted, or chosen from the
+          phone. The second half matters for everything a shop never listed:
+          the cot being handed down, the money towards the baby's room,
+          anything typed by hand. Those used to be stuck with a letter in a
+          box for ever. */}
+      <div className="mb-4 flex flex-wrap items-center gap-3">
+        {imageUrl && (
+          // A background rather than an <img>: this URL came from somebody
+          // else's server and may well be gone by Tuesday. A background that
+          // fails shows an empty square; an <img> that fails shows a broken
+          // icon on a page a guest is reading.
           <span
             aria-hidden
             className="h-16 w-16 shrink-0 rounded-lg border border-border bg-bg bg-cover bg-center"
             style={{ backgroundImage: `url(${JSON.stringify(imageUrl)})` }}
           />
+        )}
+        <PickPicture
+          folder="registry"
+          onPicked={setImageUrl}
+          label={imageUrl ? "Choose another" : "Choose a picture"}
+        />
+        {imageUrl && (
           <button
             type="button"
             onClick={() => setImageUrl(null)}
@@ -203,8 +217,8 @@ export function AddItem({ takesMoney }: { takesMoney: boolean }) {
           >
             No picture
           </button>
-        </div>
-      )}
+        )}
+      </div>
 
       <div className="space-y-4">
         <div>

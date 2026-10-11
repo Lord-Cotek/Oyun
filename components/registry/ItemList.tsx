@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Pressable } from "@/components/ui/Pressable";
+import { PickPicture } from "@/components/ui/PickPicture";
 import { ConfirmButton } from "@/components/ui/Confirm";
 import {
   moveItem,
@@ -237,6 +238,36 @@ function Row({
                   inputMode="url"
                   className={field}
                 />
+                {/* ── For everything a shop never listed ──────────────────
+                    Reading the picture off a shop page covers most of a
+                    list and none of the rest: the cot being handed down,
+                    the money towards the baby's room, anything typed by
+                    hand. For those the box above asked her to find a
+                    photograph already published somewhere and paste its
+                    address, which nobody is going to do. */}
+                <div className="mt-2 flex flex-wrap items-center gap-3">
+                  {imageUrl.trim() && (
+                    <span
+                      aria-hidden
+                      className="h-12 w-12 shrink-0 rounded-lg border border-border bg-bg bg-cover bg-center"
+                      style={{ backgroundImage: `url(${JSON.stringify(imageUrl.trim())})` }}
+                    />
+                  )}
+                  <PickPicture
+                    folder="registry"
+                    onPicked={setImageUrl}
+                    label={imageUrl.trim() ? "Choose another" : "Choose a picture"}
+                  />
+                  {imageUrl.trim() && (
+                    <button
+                      type="button"
+                      onClick={() => setImageUrl("")}
+                      className="font-mono text-[0.62rem] uppercase tracking-widest text-muted underline underline-offset-4 hover:text-negative"
+                    >
+                      No picture
+                    </button>
+                  )}
+                </div>
                 {url.trim() && (
                   <Pressable
                     press="none"
