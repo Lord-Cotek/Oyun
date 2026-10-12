@@ -170,7 +170,7 @@ export async function claim(formData: FormData): Promise<Result> {
         quantity: item.kind === "LIST" ? 1 : wanted,
       },
     });
-    await tellTheFamily(item.registry, item.title, claimName);
+    await tellTheFamily(item.registry, item.title, claimName, item.id);
   }
 
   revalidatePath(`/r/${slug}`);
@@ -326,6 +326,8 @@ async function tellTheFamily(
   },
   itemTitle: string,
   guestName: string,
+  /** So the notification lands on the item rather than the top of the list. */
+  itemId: string,
 ): Promise<void> {
   if (!registry.showClaims) return;
   try {
@@ -340,7 +342,7 @@ async function tellTheFamily(
           userId: k.userId,
           type: "registry",
           title: `${who} is getting ${itemTitle}.`,
-          href: "/registry",
+          href: `/registry#item-${itemId}`,
         }),
       ),
     );

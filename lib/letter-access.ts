@@ -53,7 +53,14 @@ export async function letterAccess(
   };
 }
 
-/** Both kinds of letter are read in the same room. */
-export function letterHref(): string {
-  return "/letters";
+/**
+ * Both kinds of letter are read in the same room — and, given an id, at the
+ * letter itself rather than at the top of the room.
+ *
+ * Optional because the room is a sensible answer when there is no one letter
+ * in question, and because a notification that lands on the wrong letter
+ * would be worse than one that lands on the shelf.
+ */
+export function letterHref(letterId?: string): string {
+  return letterId ? `/letters#letter-${letterId}` : "/letters";
 }

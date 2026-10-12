@@ -56,7 +56,7 @@ export async function replyToLetter(
       userId: access.authorId,
       type: "letter_reply",
       title: `${who} wrote back to your letter.`,
-      href: letterHref(),
+      href: letterHref(letterId),
     });
   }
 

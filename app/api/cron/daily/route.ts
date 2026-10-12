@@ -123,7 +123,7 @@ export async function GET(req: Request) {
         type: "appointment_reminder",
         title,
         body,
-        href: "/appointments",
+        href: `/appointments#appt-${a.id}`,
       });
       people += 1;
 
@@ -136,7 +136,7 @@ export async function GET(req: Request) {
           name: m.user.name,
           title,
           body,
-          href: "/appointments",
+          href: `/appointments#appt-${a.id}`,
         }).catch(() => {});
       }
     }

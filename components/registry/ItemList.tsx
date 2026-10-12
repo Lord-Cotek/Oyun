@@ -68,7 +68,10 @@ export function ItemList({
   return (
     <ul className="space-y-3">
       {items.map((item, i) => (
-        <li key={item.id}>
+        // The anchor a notification lands on — "somebody is getting the
+        // cot" should arrive at the cot. notif-target gives it the same
+        // quiet pulse every other arrival in the app gets.
+        <li key={item.id} id={`item-${item.id}`} className="notif-target">
           <Row
             item={item}
             showClaims={showClaims}

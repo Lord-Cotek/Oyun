@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { getActiveMembership } from "@/lib/data";
 import { notify } from "@/lib/notify";
+import { letterHref } from "@/lib/letter-access";
 import { MAX_PHOTOS } from "@/lib/photos";
 import { babyWords } from "@/lib/babies";
 import { Mood, MilestoneKind } from "@prisma/client";
@@ -68,7 +69,7 @@ export async function addLetter(formData: FormData) {
     childName = child?.name ?? null;
   }
 
-  await prisma.letter.create({
+  const written = await prisma.letter.create({
     data: { journeyId, authorId: userId, body, toBaby, childId },
   });
 
@@ -103,7 +104,7 @@ export async function addLetter(formData: FormData) {
         userId: o.userId,
         type: "encouragement",
         title: `${who} wrote a letter to ${toWhom}.`,
-        href: "/letters",
+        href: letterHref(written.id),
       });
     }
   }

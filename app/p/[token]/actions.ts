@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { postPath } from "@/lib/share-open";
 import { notify } from "@/lib/notify";
 import {
   liveShare,
@@ -120,7 +121,7 @@ export async function sayHello(
     // Told once, on the first hello from this person — not on every edit, and
     // not once per guest per visit. A family should hear that somebody wrote
     // to them; they should not be pinged because a cousin fixed a typo.
-    await tellTheFamily(share.journeyId, name);
+    await tellTheFamily(share.journeyId, name, false, share.postId);
   } else {
     await prisma.shareHello.update({
       where: { id: already.id },
@@ -263,8 +264,26 @@ async function tellTheFamily(
   journeyId: string,
   who: string,
   asking = false,
+  /**
+   * The post the word was left on, so the notification lands on it rather
+   * than at the top of the diary. Absent for a request to join, which is
+   * about a person and not about a post.
+   */
+  postId?: string,
 ): Promise<void> {
   try {
+    // One small lookup for the day the post was written — postPath needs it,
+    // because the diary shows the latest forty entries and a word left on
+    // something older would otherwise land on a page it is not on.
+    let where = asking ? "/circle" : "/life";
+    if (!asking && postId) {
+      const on = await prisma.post.findUnique({
+        where: { id: postId },
+        select: { createdAt: true },
+      });
+      if (on) where = postPath(postId, on.createdAt);
+    }
+
     const household = await prisma.membership.findMany({
       // Both of them, for both kinds of news. The circle page is theirs
       // together, so either can answer a request, and neither should hear
@@ -279,7 +298,7 @@ async function tellTheFamily(
         title: asking
           ? `${who} would like to join your circle.`
           : `${who} sent you a word from outside.`,
-        href: asking ? "/circle" : "/life",
+        href: where,
       });
     }
   } catch {

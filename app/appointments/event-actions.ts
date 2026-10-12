@@ -123,7 +123,7 @@ export async function addEvent(formData: FormData): Promise<Result> {
       userId: m.userId,
       type: "appointment",
       title: `A day went in the diary: ${event.title}`,
-      href: "/appointments",
+      href: `/appointments#day-${event.id}`,
     });
   }
 
@@ -829,7 +829,7 @@ export async function letThemIn(
     type: "appointment",
     title: `${askerName} has let you in on a surprise: ${event.title}`,
     body: "Nobody else can see it. Keep it that way.",
-    href: "/appointments",
+    href: `/appointments#day-${eventId}`,
   });
 
   revalidatePath("/appointments");

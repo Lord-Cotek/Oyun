@@ -128,7 +128,7 @@ export async function toggleReaction(
         userId: authorId,
         type: "encouragement",
         title: `${who} responded with ${word} ${emoji} to your letter.`,
-        href: letterHref(),
+        href: letterHref(targetId),
       });
     } else if (targetType === "PRAYER" && authorId && authorId !== userId) {
       await notify({

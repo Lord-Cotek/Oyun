@@ -106,7 +106,7 @@ export async function addAppointment(
       userId: o.userId,
       type: "appointment",
       title: `${name} — ${whenLabel(appt.at, appt.hasTime)}.`,
-      href: "/appointments",
+      href: `/appointments#appt-${appt.id}`,
     });
   }
 

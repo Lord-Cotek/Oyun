@@ -189,7 +189,7 @@ export async function addReflection(input: {
   const keeper = isHousehold(active.role);
   const isPrivate = keeper ? !!input.isPrivate : true;
 
-  await prisma.readingNote.create({
+  const written = await prisma.readingNote.create({
     data: {
       journeyId: active.journey.id,
       authorId: session.user.id,
@@ -227,7 +227,7 @@ export async function addReflection(input: {
             type: "reflection",
             title: `${author?.name ?? "Someone"} shared a reflection`,
             body: `${ref} — “${snip}”`,
-            href: "/journal",
+            href: `/journal#note-${written.id}`,
           })),
         });
       }
