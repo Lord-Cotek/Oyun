@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { letterPath } from "@/lib/open-item";
 
 /**
  * Who may read, react to, and now reply to a letter.
@@ -54,13 +55,17 @@ export async function letterAccess(
 }
 
 /**
- * Both kinds of letter are read in the same room — and, given an id, at the
- * letter itself rather than at the top of the room.
+ * Both kinds of letter are read in the same room — and, given an id, on a
+ * page of its own.
+ *
+ * It was an anchor in that room, `/letters#letter-…`, which needs the right
+ * tab open, the letter inside the page's limit and an anchor drawn for it
+ * before it can work. It was failing at least two of those. See
+ * app/letters/[id]/page.tsx.
  *
  * Optional because the room is a sensible answer when there is no one letter
- * in question, and because a notification that lands on the wrong letter
- * would be worse than one that lands on the shelf.
+ * in question.
  */
 export function letterHref(letterId?: string): string {
-  return letterId ? `/letters#letter-${letterId}` : "/letters";
+  return letterId ? letterPath(letterId) : "/letters";
 }

@@ -1,5 +1,6 @@
 "use server";
 
+import { dayPath } from "@/lib/open-item";
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
@@ -245,7 +246,7 @@ async function tellTheHouse(
         userId: k.userId,
         type: "appointment",
         title: `${name} ${word} to ${event.title}.`,
-        href: `/appointments#day-${event.id}`,
+        href: dayPath(event.id),
       });
     } catch {
       // A notification that does not send must never lose somebody's reply.

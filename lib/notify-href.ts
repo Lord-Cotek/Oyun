@@ -1,3 +1,5 @@
+import { ITEM_PATHS } from "@/lib/open-item";
+
 /**
  * Where a notification that was written months ago should go today.
  *
@@ -27,17 +29,35 @@
  */
 
 /**
- * `/life?year=2026#post-abc` and `/life#post-abc` both became `/life/abc`.
+ * Every old address had the same shape: a room, sometimes a query, and a
+ * fragment naming one thing — `#post-abc`, `#enc-abc`, `#letter-abc`.
  *
- * The id pattern is deliberately narrow — cuid characters only — so that a
- * stored value that is not one of ours is passed through untouched rather
- * than being spliced into a path.
+ * The room is deliberately not checked. It was the half nobody kept straight:
+ * one letter was being announced from two different rooms depending on which
+ * of the two people was being told, and neither room drew a letter anchor.
+ * The fragment is the part that always told the truth about WHAT the
+ * notification was about, so that is what is read.
+ *
+ * The id pattern is narrow on purpose — the characters a cuid can contain,
+ * and no hyphen. Every id in both apps is a cuid, and refusing the hyphen is
+ * what keeps a two-part name out of the trap: `#letter-reply-abc` is read as
+ * no kind at all and passed through untouched, rather than being taken for a
+ * letter whose id is "reply-abc". Anything this does not recognise keeps
+ * opening the room it has always opened.
  */
-const POST_ANCHOR = /^\/life(?:\?[^#]*)?#post-([A-Za-z0-9_-]{1,64})$/;
+const ITEM_ANCHOR = /^\/[^#?]*(?:\?[^#]*)?#([a-z]{1,16})-([A-Za-z0-9_]{1,64})$/;
 
 export function freshHref(href: string | null | undefined): string | null {
   if (!href) return null;
-  const post = POST_ANCHOR.exec(href);
-  if (post) return `/life/${post[1]}`;
+
+  const m = ITEM_ANCHOR.exec(href);
+  if (m) {
+    // An unknown kind is left exactly as it was: better the room it has
+    // always opened than a path this app has no page for. See ITEM_PATHS in
+    // lib/open-item.ts — each app declares its own kinds there.
+    const path = ITEM_PATHS[m[1]];
+    if (path) return path(m[2]);
+  }
+
   return href;
 }

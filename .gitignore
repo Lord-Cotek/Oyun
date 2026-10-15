@@ -37,3 +37,5 @@ yarn-error.log*
 
 # Local verification scratch — harnesses and seed scripts, never shipped.
 .tmp-mig/
+.probe/
+.verify-tmp/

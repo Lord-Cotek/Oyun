@@ -160,6 +160,77 @@ export async function getDiary(
   return days.sort((a, b) => a.at.getTime() - b.at.getTime());
 }
 
+/**
+ * One day of their own, for the page a notification opens.
+ *
+ * ── Why ──────────────────────────────────────────────────────────────────
+ * "Blessing replied yes" and "Tomorrow: the baby shower" both pointed at
+ * `/appointments#day-…`, and the diary draws only the days still ahead
+ * (`daysAway >= 0`, see OwnDays in components/dates/DiaryBook.tsx). Measured:
+ * the morning after the shower, the element the notification named was not in
+ * the document at all — so every reply that came in late, and every
+ * notification anybody went back to afterwards, opened the top of the book.
+ * The replies to a day that has passed are exactly the ones people reread.
+ *
+ * ── The surprise rule ────────────────────────────────────────────────────
+ * surpriseScope is spread in here like everywhere else that reads events —
+ * see the one rule in lib/surprise.ts, which `npm run verify:surprise`
+ * enforces. A page of its own would otherwise be the one door into the
+ * shower: anybody holding the id could read the day it was kept from them.
+ * Not found is all this says, which is what the diary says too.
+ */
+export async function getOneDay(
+  eventId: string,
+  journeyId: string,
+  viewerId: string,
+  opts: { now?: Date } = {},
+): Promise<DiaryDay | null> {
+  const now = opts.now ?? new Date();
+
+  const e = await prisma.journeyEvent.findFirst({
+    where: {
+      id: eventId,
+      journeyId,
+      cancelledAt: null,
+      AND: [surpriseScope(viewerId, now)],
+    },
+    select: {
+      id: true,
+      kind: true,
+      title: true,
+      at: true,
+      hasTime: true,
+      endsAt: true,
+      where: true,
+      note: true,
+      surprise: true,
+      createdById: true,
+      planners: { select: { userId: true } },
+    },
+  });
+  if (!e) return null;
+
+  // Shaped exactly as getDiary shapes an event, so the page can hand it to
+  // the diary's own components without a second idea of what a day is.
+  return {
+    key: `event:${e.id}`,
+    source: "event",
+    sourceId: e.id,
+    at: e.at,
+    endsAt: e.endsAt,
+    hasTime: e.hasTime,
+    label: e.title,
+    where: e.where,
+    note: e.note,
+    kind: e.kind,
+    editable: true,
+    surprise: stillASurprise(e, now),
+    onlyFor: stillASurprise(e, now) ? inOnIt(e) : null,
+    createdById: e.createdById,
+    daysAway: daysUntil(e.at, now),
+  };
+}
+
 function appointmentWord(kind: string): string {
   const words: Record<string, string> = {
     ANTENATAL: "Antenatal check",

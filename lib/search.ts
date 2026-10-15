@@ -3,6 +3,9 @@ import { type Role } from "@prisma/client";
 import { isHousehold } from "@/lib/roles";
 import { postScope } from "@/lib/post-visibility";
 import { chapterRef } from "@/lib/bible";
+import { letterHref } from "@/lib/letter-access";
+import { postPath } from "@/lib/share-open";
+import { prayerPath, wordPath, appointmentPath, checkInPath } from "@/lib/open-item";
 
 /**
  * Finding something you wrote.
@@ -151,7 +154,7 @@ const SOURCES: Source[] = [
         room: "Life",
         title: r.author.name ?? "Someone",
         snippet: snippet(r.body, q),
-        href: `/life#post-${r.id}`,
+        href: postPath(r.id),
         at: r.createdAt,
         who: r.author.name,
       }));
@@ -180,7 +183,7 @@ const SOURCES: Source[] = [
         room: "Life",
         title: `${r.author.name ?? "Someone"} replied`,
         snippet: snippet(r.body, q),
-        href: `/life#post-${r.postId}`,
+        href: postPath(r.postId),
         at: r.createdAt,
         who: r.author.name,
       }));
@@ -247,7 +250,7 @@ const SOURCES: Source[] = [
         room: "Letters",
         title: r.toBaby ? "To the baby" : "To each other",
         snippet: snippet(r.body, q),
-        href: `/letters#letter-${r.id}`,
+        href: letterHref(r.id),
         at: r.createdAt,
         who: r.author.name,
       }));
@@ -279,7 +282,7 @@ const SOURCES: Source[] = [
         room: r.answeredAt ? "Prayer — answered" : "Prayer",
         title: r.title,
         snippet: snippet(r.body ?? r.title, q),
-        href: `/prayer#prayer-${r.id}`,
+        href: prayerPath(r.id),
         at: r.createdAt,
       }));
     },
@@ -306,7 +309,7 @@ const SOURCES: Source[] = [
         room: "Circle",
         title: `${r.author.name ?? "Someone"} wrote`,
         snippet: snippet(r.body, q),
-        href: `/journey#enc-${r.id}`,
+        href: wordPath(r.id),
         at: r.createdAt,
         who: r.author.name,
       }));
@@ -391,7 +394,7 @@ const SOURCES: Source[] = [
             "",
           q,
         ),
-        href: `/appointments#appt-${r.id}`,
+        href: appointmentPath(r.id),
         at: r.at,
       }));
     },
@@ -414,7 +417,7 @@ const SOURCES: Source[] = [
         room: "Care journal",
         title: "How you were",
         snippet: snippet(r.note ?? "", q),
-        href: `/care#checkin-${r.id}`,
+        href: checkInPath(r.id),
         at: r.createdAt,
       }));
     },

@@ -7,6 +7,7 @@ import { notify } from "@/lib/notify";
 import { letterAccess, letterHref } from "@/lib/letter-access";
 import { isReactionEmoji } from "@/lib/reaction-emojis";
 import { type ReactionTarget } from "@/lib/reactions";
+import { prayerPath, wordPath, checkInPath } from "@/lib/open-item";
 
 const EMOJI_WORD: Record<string, string> = {
   "❤️": "a heart",
@@ -135,14 +136,14 @@ export async function toggleReaction(
         userId: authorId,
         type: "prayer",
         title: `${who} responded with ${word} ${emoji} to your prayer request.`,
-        href: `/prayer#prayer-${targetId}`,
+        href: prayerPath(targetId),
       });
     } else if (targetType === "ENCOURAGEMENT" && authorId && authorId !== userId) {
       await notify({
         userId: authorId,
         type: "encouragement",
         title: `${who} responded with ${word} ${emoji} to your encouragement.`,
-        href: `/journey#enc-${targetId}`,
+        href: wordPath(targetId),
       });
     } else if (targetType === "CHECKIN" && journeyId) {
       const journey = await prisma.journey.findUnique({
@@ -154,7 +155,7 @@ export async function toggleReaction(
           userId: journey.ownerId,
           type: "checkin",
           title: `${who} responded with ${word} ${emoji} to how you're feeling.`,
-          href: `/care#checkin-${targetId}`,
+          href: checkInPath(targetId),
         });
       }
     }

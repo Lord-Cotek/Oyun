@@ -50,7 +50,14 @@ export function BabyLetters({
                 ? "You"
                 : l.authorName?.trim().split(/\s+/)[0] || "Someone";
             return (
-              <div key={l.id} className="rounded-lg border border-border bg-bg p-4">
+              // The anchor CoupleLetters has always had and this did not,
+              // which is why search results and older notifications about a
+              // letter to the baby landed at the top of the room.
+              <div
+                key={l.id}
+                id={`letter-${l.id}`}
+                className="notif-target rounded-lg border border-border bg-bg p-4"
+              >
                 <p className="whitespace-pre-wrap font-serif text-base leading-relaxed text-ink">
                   {l.body}
                 </p>

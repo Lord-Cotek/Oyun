@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { postPath } from "@/lib/open-item";
 import { postScope } from "@/lib/post-visibility";
 
 /**
@@ -58,10 +59,13 @@ import { postScope } from "@/lib/post-visibility";
  * Everything that wants to send somebody to a post comes through here — the
  * notifications and the share link both — so there is one answer to "where
  * does a post live" and the two cannot drift apart.
+ *
+ * It is written in lib/open-item.ts now, beside the address of every other
+ * single thing a notification can be about, and re-exported here so that the
+ * share link's callers do not have to know that. That file is pure; this one
+ * opens the database, which is why the two are not one.
  */
-export function postPath(postId: string): string {
-  return `/life/${postId}`;
-}
+export { postPath };
 
 /**
  * The door for somebody who has an account but is signed out in THIS browser.

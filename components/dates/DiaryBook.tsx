@@ -1,5 +1,6 @@
 "use client";
 
+import { clockRange, whenWords } from "@/lib/day-words";
 import { useMemo, useState } from "react";
 import { InOnIt, type Housemate } from "@/components/dates/InOnIt";
 import { Linked } from "@/components/ui/Linked";
@@ -57,16 +58,7 @@ function dayWords(days: number): string {
   return `In ${Math.round(days / 7)} weeks`;
 }
 
-function clockRange(atISO: string, endsAtISO: string | null): string {
-  const t = (iso: string) =>
-    new Date(iso).toLocaleTimeString("en-GB", {
-      hour: "2-digit",
-      minute: "2-digit",
-      timeZone: "UTC",
-    });
-  return endsAtISO ? `${t(atISO)} – ${t(endsAtISO)}` : t(atISO);
-}
-
+/** "Saturday 18 October · 15:00" — inside a month the page has already named. */
 function longDate(iso: string, hasTime: boolean, endsAtISO: string | null): string {
   const day = new Date(iso).toLocaleDateString("en-GB", {
     weekday: "long",
@@ -75,17 +67,6 @@ function longDate(iso: string, hasTime: boolean, endsAtISO: string | null): stri
     timeZone: "UTC",
   });
   return hasTime ? `${day} · ${clockRange(iso, endsAtISO)}` : day;
-}
-
-function whenWords(atISO: string, hasTime: boolean, endsAtISO: string | null): string {
-  const day = new Date(atISO).toLocaleDateString("en-GB", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-    timeZone: "UTC",
-  });
-  return hasTime ? `${day}, ${clockRange(atISO, endsAtISO)}` : day;
 }
 
 function inviteSummary(i: InviteRow): string {

@@ -136,6 +136,149 @@ export async function getCoupleLetters(
 export type CoupleLettersPage = Awaited<ReturnType<typeof getCoupleLetters>>;
 export type CoupleLetter = CoupleLettersPage["items"][number];
 
+/**
+ * One letter, in exactly the shape the list gives them in.
+ *
+ * ── Why this exists ──────────────────────────────────────────────────────
+ * So a notification about a letter can land on the letter. It used to point
+ * at `/letters#letter-…`, which needs four things to line up before it works:
+ * the right tab open, the letter inside the page's limit, an anchor rendered
+ * for it, and the scroll surviving everything that loads afterwards. A letter
+ * written last month fails the second of those, and a letter to the baby
+ * failed the third — BabyLetters drew no anchor at all. So a notification
+ * about either opened the top of the room, which is what was reported.
+ *
+ * A page holding one letter needs none of the four.
+ *
+ * Returns the same fields as an item from getCoupleLetters — same reactions,
+ * same replies — so the page and the list cannot drift into drawing two
+ * different things.
+ */
+export async function getOneLetter(
+  letterId: string,
+  journeyId: string,
+  viewerId: string,
+) {
+  const l = await prisma.letter.findFirst({
+    // Scoped to the journey, so a letter id from another family is simply
+    // not found rather than refused with an explanation.
+    where: { id: letterId, journeyId },
+    include: { author: { select: { id: true, name: true } } },
+  });
+  if (!l) return null;
+
+  const [reactions, replies] = await Promise.all([
+    getReactionsFor("LETTER", [l.id], viewerId),
+    getRepliesFor([l.id]),
+  ]);
+
+  return {
+    id: l.id,
+    body: l.body,
+    createdAt: l.createdAt.toISOString(),
+    authorId: l.authorId,
+    authorName: l.author.name ?? null,
+    toBaby: l.toBaby,
+    reactions: reactions[l.id] ?? { counts: {}, mine: [] },
+    replies: replies[l.id] ?? [],
+  };
+}
+
+/**
+ * One prayer request, one word of encouragement, one check-in — each on its
+ * own, for the page a notification opens.
+ *
+ * ── Why these three are grouped and written the same way ─────────────────
+ * They are the three the rooms could not be trusted to show. Measured on a
+ * phone, arriving from another page: the sixth-newest word was not rendered
+ * at all, the fifty-first prayer was not rendered at all, and only the very
+ * latest check-in was — so a reaction to anything older announced a thing
+ * that was not there. The two that WERE rendered sat thousands of pixels down
+ * a page that never scrolled.
+ *
+ * Each returns null rather than throwing, and each is scoped to the journey
+ * so that an id from another family is simply not found. The page above turns
+ * null into a 404 without saying which of the two it was.
+ */
+export async function getOnePrayer(
+  prayerId: string,
+  journeyId: string,
+  viewerId: string,
+  canManageAny: boolean,
+) {
+  const r = await prisma.prayerRequest.findFirst({
+    where: { id: prayerId, journeyId },
+    include: {
+      author: { select: { name: true } },
+      _count: { select: { prayers: true } },
+      prayers: { where: { userId: viewerId }, select: { id: true }, take: 1 },
+    },
+  });
+  if (!r) return null;
+
+  const reactions = await getReactionsFor("PRAYER", [r.id], viewerId);
+  return {
+    id: r.id,
+    title: r.title,
+    body: r.body,
+    authorId: r.authorId,
+    authorName: r.author.name,
+    answered: !!r.answeredAt,
+    answeredAt: r.answeredAt ? r.answeredAt.toISOString() : null,
+    createdAt: r.createdAt.toISOString(),
+    prayerCount: r._count.prayers,
+    didIPray: r.prayers.length > 0,
+    // The same two people as in the room: whoever asked, and the mother.
+    canManage: r.authorId === viewerId || canManageAny,
+    reactions: reactions[r.id] ?? { counts: {}, mine: [] },
+  };
+}
+
+export async function getOneWord(
+  encouragementId: string,
+  journeyId: string,
+  viewerId: string,
+) {
+  const e = await prisma.encouragement.findFirst({
+    where: { id: encouragementId, journeyId },
+    include: { author: { select: { name: true } } },
+  });
+  if (!e) return null;
+
+  const reactions = await getReactionsFor("ENCOURAGEMENT", [e.id], viewerId);
+  return {
+    id: e.id,
+    body: e.body,
+    verseRef: e.verseRef,
+    createdAt: e.createdAt,
+    authorName: e.author.name,
+    reactions: reactions[e.id] ?? { counts: {}, mine: [] },
+  };
+}
+
+export async function getOneCheckIn(
+  checkInId: string,
+  journeyId: string,
+  viewerId: string,
+) {
+  const c = await prisma.checkIn.findFirst({
+    where: { id: checkInId, journeyId },
+    include: { user: { select: { id: true, name: true } } },
+  });
+  if (!c) return null;
+
+  const reactions = await getReactionsFor("CHECKIN", [c.id], viewerId);
+  return {
+    id: c.id,
+    mood: c.mood,
+    note: c.note,
+    createdAt: c.createdAt,
+    userId: c.userId,
+    userName: c.user.name ?? null,
+    reactions: reactions[c.id] ?? { counts: {}, mine: [] },
+  };
+}
+
 /** Keepsake letters written to the baby, newest first, with reactions. */
 export async function getBabyLetters(
   journeyId: string,

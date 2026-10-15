@@ -1,5 +1,6 @@
 "use server";
 
+import { dayPath } from "@/lib/open-item";
 import { redirect } from "next/navigation";
 import { PLANNERS_MAX, maySee } from "@/lib/surprise";
 import { revalidatePath } from "next/cache";
@@ -123,7 +124,7 @@ export async function addEvent(formData: FormData): Promise<Result> {
       userId: m.userId,
       type: "appointment",
       title: `A day went in the diary: ${event.title}`,
-      href: `/appointments#day-${event.id}`,
+      href: dayPath(event.id),
     });
   }
 
@@ -829,7 +830,7 @@ export async function letThemIn(
     type: "appointment",
     title: `${askerName} has let you in on a surprise: ${event.title}`,
     body: "Nobody else can see it. Keep it that way.",
-    href: `/appointments#day-${eventId}`,
+    href: dayPath(eventId),
   });
 
   revalidatePath("/appointments");

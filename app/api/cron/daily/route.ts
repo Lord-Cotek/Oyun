@@ -14,6 +14,7 @@ import { nudgeDueToday } from "@/lib/nudges";
 import { inviteUrl } from "@/lib/invitations-db";
 import { countSentence, headCount, whenWords } from "@/lib/invitations";
 import { HOUSEHOLD_ROLES } from "@/lib/roles";
+import { appointmentPath, dayPath } from "@/lib/open-item";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -123,7 +124,7 @@ export async function GET(req: Request) {
         type: "appointment_reminder",
         title,
         body,
-        href: `/appointments#appt-${a.id}`,
+        href: appointmentPath(a.id),
       });
       people += 1;
 
@@ -136,7 +137,7 @@ export async function GET(req: Request) {
           name: m.user.name,
           title,
           body,
-          href: `/appointments#appt-${a.id}`,
+          href: appointmentPath(a.id),
         }).catch(() => {});
       }
     }
@@ -403,7 +404,7 @@ async function tellTheHosts(now: Date) {
           c.coming ? `${c.coming} coming` : "nobody has said yes yet"
         }`,
         body,
-        href: `/appointments#day-${inv.event.id}`,
+        href: dayPath(inv.event.id),
         email: true,
       });
     }

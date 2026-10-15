@@ -133,6 +133,53 @@ export function AppointmentBook({
   );
 }
 
+/**
+ * One appointment, standing on its own, for the page a reminder opens.
+ *
+ * ── Why this is here and not its own component ───────────────────────────
+ * It is the book's own Row, with the book's own error line and transition.
+ * Everything a reminder makes somebody want to do — look at the time again,
+ * fix the hour the letter actually said, mark it attended, ask the circle to
+ * pray — is in that row already, and a second copy of those controls would be
+ * a second thing to keep in step. So the row is lent out rather than
+ * reimplemented, and it lives in this file because that is where Row lives.
+ */
+export function OneAppointment({ a }: { a: Appt }) {
+  const [error, setError] = useState<string | null>(null);
+  const [, start] = useTransition();
+
+  const run = (fn: () => Promise<Res>) =>
+    start(async () => {
+      const res = await fn();
+      setError(res.ok ? null : (res.error ?? "That didn’t work."));
+    });
+
+  // The row shows the "been and gone" face once the day has passed or it was
+  // attended or cancelled — the same question getPastAppointments asks.
+  const past =
+    !!a.attendedAt ||
+    !!a.cancelledAt ||
+    new Date(a.at).getTime() <
+      Date.UTC(
+        new Date().getUTCFullYear(),
+        new Date().getUTCMonth(),
+        new Date().getUTCDate(),
+      );
+
+  return (
+    <>
+      {error && (
+        <p className="mb-3 font-mono text-xs leading-relaxed text-negative">
+          {error}
+        </p>
+      )}
+      <ul>
+        <Row a={a} run={run} past={past} />
+      </ul>
+    </>
+  );
+}
+
 function Row({
   a,
   run,

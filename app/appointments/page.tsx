@@ -14,7 +14,8 @@ import { Verse } from "@/components/ui/Verse";
 import { AppointmentBook } from "@/components/appointments/AppointmentBook";
 import { DiaryBook, OwnDays, type DayRow } from "@/components/dates/DiaryBook";
 import { getDiary } from "@/lib/events-db";
-import { getHostInvitations, inviteUrl } from "@/lib/invitations-db";
+import { getHostInvitations } from "@/lib/invitations-db";
+import { toInviteRow, toDayRow } from "@/lib/day-rows";
 import { type InviteRow } from "@/components/dates/InvitePanel";
 
 export const metadata: Metadata = {
@@ -84,61 +85,12 @@ export default async function AppointmentsPage() {
   ).slice(0, 18);
 
   const byEvent = new Map<string, InviteRow>(
-    invitations.map((i) => [
-      i.eventId,
-      {
-        slug: i.slug,
-        url: inviteUrl(i.slug),
-        hostName: i.hostName,
-        message: i.message,
-        coverUrl: i.coverUrl,
-        showGuestList: i.showGuestList,
-        allowPlusOnes: i.allowPlusOnes,
-        capacity: i.capacity,
-        repliesByISO: i.repliesBy ? i.repliesBy.toISOString() : null,
-        closed: i.closedAt !== null,
-        revoked: i.revokedAt !== null,
-        settled: i.settledAt !== null,
-        emailsSent: i.emailsSentCount,
-        options: i.options.map((o) => ({
-          id: o.id,
-          atISO: o.at.toISOString(),
-          hasTime: o.hasTime,
-          endsAtISO: o.endsAt ? o.endsAt.toISOString() : null,
-          votes: o._count.votes,
-        })),
-        replies: i.replies.map((r) => ({
-          id: r.id,
-          name: r.name,
-          answer: r.answer,
-          partySize: r.partySize,
-          note: r.note,
-        })),
-      },
-    ]),
+    invitations.map((i) => [i.eventId, toInviteRow(i)]),
   );
 
-  const rows: DayRow[] = diary.map((d) => ({
-    key: d.key,
-    source: d.source,
-    sourceId: d.sourceId,
-    atISO: d.at.toISOString(),
-    endsAtISO: d.endsAt ? d.endsAt.toISOString() : null,
-    hasTime: d.hasTime,
-    label: d.label,
-    where: d.where,
-    note: d.note,
-    kind: d.kind,
-    editable: d.editable,
-    surprise: d.surprise,
-    // Everyone in on it except whoever thought of it, which the row keeps
-    // separately so they cannot be taken out of their own surprise.
-    inOnIt: (d.onlyFor ?? []).filter((id) => id !== d.createdById),
-    createdById: d.createdById,
-    daysAway: d.daysAway,
-    // Only a day she wrote down can be invited to. Nobody RSVPs to a scan.
-    invite: d.source === "event" ? (byEvent.get(d.sourceId) ?? null) : null,
-  }));
+  const rows: DayRow[] = diary.map((d) =>
+    toDayRow(d, byEvent.get(d.sourceId) ?? null),
+  );
 
   return (
     <>

@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { getActiveMembership } from "@/lib/data";
 import { notify } from "@/lib/notify";
+import { prayerPath } from "@/lib/open-item";
 
 async function requireMember() {
   const session = await auth();
@@ -40,7 +41,7 @@ export async function addPrayerRequest(formData: FormData) {
         userId: m.userId,
         type: "encouragement",
         title: `${who} asked for prayer: ${title}`,
-        href: `/prayer#prayer-${request.id}`,
+        href: prayerPath(request.id),
       }),
     ),
   );
@@ -96,7 +97,7 @@ export async function markAnswered(formData: FormData) {
         type: "encouragement",
         title: `Answered prayer: ${req.title}`,
         body: "Give thanks — God has heard.",
-        href: `/prayer#prayer-${req.id}`,
+        href: prayerPath(req.id),
       }),
     ),
   );

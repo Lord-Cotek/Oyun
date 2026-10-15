@@ -112,6 +112,32 @@ export async function getUpcomingAppointments(
   return rows.map((r) => shape(r, viewerId));
 }
 
+/**
+ * One appointment, for the page a reminder opens.
+ *
+ * ── Why a reminder could not use the book ────────────────────────────────
+ * Every reminder is about something still ahead, and an appointment still
+ * ahead sits below the form, the next-few card and the whole upcoming list.
+ * Measured on a phone: the element existed two thousand pixels down and the
+ * page did not move, because the browser had already acted on the fragment
+ * before the book had rendered. "Your appointment is tomorrow" opened the top
+ * of the book and left her to find which one.
+ *
+ * Null when it is not this journey's, so the page 404s without saying whether
+ * the id was wrong or somebody else's.
+ */
+export async function getOneAppointment(
+  appointmentId: string,
+  journeyId: string,
+  viewerId: string,
+): Promise<AppointmentView | null> {
+  const r = await prisma.appointment.findFirst({
+    where: { id: appointmentId, journeyId },
+    select: FIELDS,
+  });
+  return r ? shape(r, viewerId) : null;
+}
+
 /** What has been and gone — newest first, so the last one is at the top. */
 export async function getPastAppointments(
   journeyId: string,

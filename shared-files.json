@@ -199,6 +199,8 @@
     "components/KnowTheHour.tsx",
     "app/api/cron/morning/route.ts",
     "components/share/ClaimYours.tsx",
-    "lib/notify-href.ts"
+    "lib/notify-href.ts",
+  "lib/day-words.ts",
+  "components/ui/BackLink.tsx"
   ]
 }

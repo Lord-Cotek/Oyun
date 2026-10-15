@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { appointmentPath } from "@/lib/open-item";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
@@ -106,7 +107,7 @@ export async function addAppointment(
       userId: o.userId,
       type: "appointment",
       title: `${name} — ${whenLabel(appt.at, appt.hasTime)}.`,
-      href: `/appointments#appt-${appt.id}`,
+      href: appointmentPath(appt.id),
     });
   }
 
