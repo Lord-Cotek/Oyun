@@ -198,6 +198,7 @@
     "app/time-zone-actions.ts",
     "components/KnowTheHour.tsx",
     "app/api/cron/morning/route.ts",
-    "components/share/ClaimYours.tsx"
+    "components/share/ClaimYours.tsx",
+    "lib/notify-href.ts"
   ]
 }
