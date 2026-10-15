@@ -272,17 +272,7 @@ async function tellTheFamily(
   postId?: string,
 ): Promise<void> {
   try {
-    // One small lookup for the day the post was written — postPath needs it,
-    // because the diary shows the latest forty entries and a word left on
-    // something older would otherwise land on a page it is not on.
-    let where = asking ? "/circle" : "/life";
-    if (!asking && postId) {
-      const on = await prisma.post.findUnique({
-        where: { id: postId },
-        select: { createdAt: true },
-      });
-      if (on) where = postPath(postId, on.createdAt);
-    }
+    const where = !asking && postId ? postPath(postId) : asking ? "/circle" : "/life";
 
     const household = await prisma.membership.findMany({
       // Both of them, for both kinds of news. The circle page is theirs

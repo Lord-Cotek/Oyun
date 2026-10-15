@@ -41,20 +41,26 @@ import { postScope } from "@/lib/post-visibility";
  */
 
 /**
- * The in-app address of one post.
+ * The in-app address of one post: its own page.
  *
- * The year is always included, not only when it is needed. `/life` shows the
- * latest forty entries, or a whole year when asked for one (up to 400 — see
- * loadFeed), so naming the year is what makes the anchor land for a post from
- * any depth of the diary rather than only a recent one. Families share old
- * photographs, so "recent" is not a safe assumption.
+ * ── Why not an anchor in the diary ───────────────────────────────────────
+ * It was one, `/life?year=…#post-…`, with the year on it so that the anchor
+ * existed on the page even for an old entry. That part was right and it was
+ * not enough. The browser jumps to an anchor the moment it parses it, and
+ * then the photographs above it finish loading and push it down — so what
+ * the reader tapped ends up off the top of the screen, which is
+ * indistinguishable from being dumped at the top of Life. Chasing it with
+ * re-scrolls would have been a race nobody could be sure of winning.
  *
- * One rule in every case beats a conditional that holds right up until a
- * family has a busy year.
+ * A page with one post on it has nothing above it to shift. See
+ * app/life/[id]/page.tsx.
+ *
+ * Everything that wants to send somebody to a post comes through here — the
+ * notifications and the share link both — so there is one answer to "where
+ * does a post live" and the two cannot drift apart.
  */
-export function postPath(postId: string, postedAt: Date | string): string {
-  const year = new Date(postedAt).getUTCFullYear();
-  return `/life?year=${year}#post-${postId}`;
+export function postPath(postId: string): string {
+  return `/life/${postId}`;
 }
 
 /**
@@ -123,11 +129,11 @@ export async function inAppPath(
   // why this is asked rather than assumed.
   const post = await prisma.post.findFirst({
     where: { id: share.postId, ...postScope(member.role) },
-    select: { createdAt: true },
+    select: { id: true },
   });
   if (!post) return null;
 
-  return postPath(share.postId, post.createdAt);
+  return postPath(share.postId);
 }
 
 /**

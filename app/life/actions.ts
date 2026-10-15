@@ -130,7 +130,7 @@ export async function createPost(input: {
             type: "post",
             title: `${author?.name ?? "Someone"} shared with the family`,
             body: snip,
-            href: postPath(made.id, made.createdAt),
+            href: postPath(made.id),
           }),
         ),
       );
@@ -216,8 +216,7 @@ export async function addComment(input: {
   // show it to them.
   const post = await prisma.post.findFirst({
     where: { id: input.postId, journeyId, ...postScope(role) },
-    // createdAt only so the notification can name the post — see postPath.
-    select: { id: true, authorId: true, createdAt: true },
+    select: { id: true, authorId: true },
   });
   if (!post) return;
 
@@ -294,7 +293,7 @@ export async function addComment(input: {
                 ? `${who} replied to your post`
                 : `${who} also replied to a post you're on`,
           body: snip,
-          href: postPath(post.id, post.createdAt),
+          href: postPath(post.id),
         }),
       ),
     );
@@ -316,8 +315,7 @@ export async function toggleReaction(input: { postId: string; kind: string }) {
   if (!isReactionKind(input.kind)) return;
   const post = await prisma.post.findFirst({
     where: { id: input.postId, journeyId, ...postScope(role) },
-    // createdAt only so the notification can name the post — see postPath.
-    select: { id: true, authorId: true, createdAt: true },
+    select: { id: true, authorId: true },
   });
   if (!post) return;
   const existing = await prisma.postReaction.findFirst({
@@ -348,7 +346,7 @@ export async function toggleReaction(input: { postId: string; kind: string }) {
           userId: post.authorId,
           type: "reaction",
           title: `${who} reacted ${reactionGlyph(input.kind)} ${label.toLowerCase()} to your post`,
-          href: postPath(post.id, post.createdAt),
+          href: postPath(post.id),
         });
       } catch {
         // A missed notice must never fail the reaction.
@@ -375,14 +373,8 @@ export async function toggleCommentReaction(input: {
   const comment = await prisma.postComment.findFirst({
     where: { id: input.commentId, post: { journeyId, ...postScope(role) } },
     // The post as well as the reply: a notification about a reaction to a
-    // reply has to land on the post the conversation is under, because that
-    // is the only thing the diary has an address for.
-    select: {
-      id: true,
-      authorId: true,
-      postId: true,
-      post: { select: { createdAt: true } },
-    },
+    // reply has to land on the post the conversation is under.
+    select: { id: true, authorId: true, postId: true },
   });
   if (!comment) return;
 
@@ -413,7 +405,7 @@ export async function toggleCommentReaction(input: {
           userId: comment.authorId,
           type: "reaction",
           title: `${who} reacted ${reactionGlyph(input.kind)} ${label.toLowerCase()} to your reply`,
-          href: postPath(comment.postId, comment.post.createdAt),
+          href: postPath(comment.postId),
         });
       } catch {
         // A missed notice must never fail the reaction.

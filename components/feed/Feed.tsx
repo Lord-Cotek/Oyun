@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useTransition } from "react";
+import Link from "next/link";
 import { ConfirmButton, ConfirmDialog } from "@/components/ui/Confirm";
 import {
   SHRINK_OVER_BYTES,
@@ -106,6 +107,7 @@ export function Feed({
   // particular thing to write rather than four categories to choose between.
   emptyLine = "Nothing here yet. The entries worth having in ten years are the ordinary ones — what somebody said, what you ate, who came round.",
   emptyAction = "Write down one thing that happened today",
+  alone = false,
   ...actions
 }: {
   posts: FeedPost[];
@@ -118,14 +120,30 @@ export function Feed({
   composerPlaceholder?: string;
   emptyLine?: string;
   emptyAction?: string;
+  /**
+   * This post, on a page of its own.
+   *
+   * ── Why a post has its own page at all ────────────────────────────────
+   * Because a notification has to be able to land on it, and an anchor in
+   * the diary cannot be trusted to. The browser jumps to `#post-…` the
+   * moment it finds it, and then every photograph above it finishes loading
+   * and pushes it down the page — so the reader ends up somewhere above
+   * what they tapped, which reads exactly like being dumped at the top. On
+   * a page holding one post there is nothing above it to shift.
+   *
+   * No composer here, and the date is not a link to where you already are.
+   */
+  alone?: boolean;
 } & Actions) {
   return (
     <div className="space-y-6">
-      <Composer
-        onCreate={actions.onCreate}
-        placeholder={composerPlaceholder}
-        canKeepToHousehold={canKeepToHousehold}
-      />
+      {!alone && (
+        <Composer
+          onCreate={actions.onCreate}
+          placeholder={composerPlaceholder}
+          canKeepToHousehold={canKeepToHousehold}
+        />
+      )}
       {posts.length === 0 ? (
         <div className="surface-premium rounded-2xl border border-border p-8">
           <FirstStep
@@ -141,7 +159,12 @@ export function Feed({
         <ul className="space-y-4">
           {posts.map((p) => (
             <li key={p.id} id={`post-${p.id}`} className="notif-target">
-              <PostItem post={p} canKeepToHousehold={canKeepToHousehold} {...actions} />
+              <PostItem
+                post={p}
+                canKeepToHousehold={canKeepToHousehold}
+                alone={alone}
+                {...actions}
+              />
             </li>
           ))}
         </ul>
@@ -1110,13 +1133,21 @@ function PostItem({
   onHideHello,
   onAttributeHello,
   circle,
-}: { post: FeedPost; canKeepToHousehold: boolean } & Actions) {
+  alone = false,
+}: {
+  post: FeedPost;
+  canKeepToHousehold: boolean;
+  alone?: boolean;
+} & Actions) {
   const [pending, start] = useTransition();
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(post.body);
   const [removeMedia, setRemoveMedia] = useState(false);
   const [removing, setRemoving] = useState(false);
-  const [showComments, setShowComments] = useState(false);
+  // Open from the start on a post's own page. Somebody who followed a
+  // notification about a reply is there to read it, and should not have to
+  // find a button first.
+  const [showComments, setShowComments] = useState(alone);
   const [comment, setComment] = useState("");
   // Which reply has its answer box open, if any. One at a time, held here
   // rather than in each line, so opening a second closes the first — two
@@ -1135,7 +1166,18 @@ function PostItem({
           <div className="flex min-w-0 flex-wrap items-center gap-2 font-mono text-[0.64rem] uppercase tracking-widest text-muted">
           <span className="text-ink/85">{post.author}</span>
           <span aria-hidden>·</span>
-          <span>{post.when}</span>
+          {/* The date is the way in. Every post has a page of its own, and
+              this is how anybody finds it without being sent a link. */}
+          {alone ? (
+            <span>{post.when}</span>
+          ) : (
+            <Link
+              href={`/life/${post.id}`}
+              className="underline-offset-4 hover:text-accent hover:underline"
+            >
+              {post.when}
+            </Link>
+          )}
           <span
             className="rounded-full border border-border px-2 py-0.5 text-[0.56rem] text-muted"
             // The chip says "Praise" or "Prayer"; the word is the marker.

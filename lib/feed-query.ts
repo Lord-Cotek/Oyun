@@ -197,17 +197,28 @@ export async function loadFeed(
   role: Role | string,
   take = 40,
   year?: number,
+  /**
+   * One post, by id, instead of a page of them.
+   *
+   * Here rather than in a query of its own so that a post read on its own
+   * page comes back through exactly the same shape as a post in the diary —
+   * same replies, same reactions, same live link, same words from outside.
+   * Two queries would be two chances to drift, and the one that is read less
+   * often is the one that would quietly rot.
+   */
+  onlyPostId?: string,
 ): Promise<FeedPost[]> {
   const posts = await prisma.post.findMany({
     where: {
       journeyId,
       ...postScope(role),
+      ...(onlyPostId ? { id: onlyPostId } : {}),
       ...(year ? { createdAt: yearBounds(year) } : {}),
     },
     orderBy: { createdAt: "desc" },
     // A year is a bounded thing a family asked to see in full, so it is not
     // cut short at the usual page size.
-    take: year ? 400 : take,
+    take: onlyPostId ? 1 : year ? 400 : take,
     include: {
       author: { select: { id: true, name: true, image: true } },
       reactions: { select: { kind: true, userId: true } },
@@ -296,4 +307,21 @@ export async function loadFeed(
       comments: thread(p.comments, viewerId, now),
     };
   });
+}
+
+/**
+ * One post, drawn the way the diary draws it.
+ *
+ * Null when it is not this family's, or when the reader's role does not
+ * reach it — the same two refusals the diary itself makes, by going through
+ * the same query.
+ */
+export async function loadOnePost(
+  journeyId: string,
+  viewerId: string,
+  role: Role | string,
+  postId: string,
+): Promise<FeedPost | null> {
+  const [post] = await loadFeed(journeyId, viewerId, role, 1, undefined, postId);
+  return post ?? null;
 }
