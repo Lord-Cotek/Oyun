@@ -29,7 +29,7 @@ export function EmptyState({
       </div>
       <h3 className="font-serif text-2xl leading-tight text-ink">{title}</h3>
       {children && (
-        <p className="max-w-sm font-mono text-xs leading-relaxed text-muted">
+        <p className="prose-serif-sm max-w-sm text-muted">
           {children}
         </p>
       )}

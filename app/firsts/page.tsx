@@ -61,7 +61,7 @@ export default async function FirstsPage() {
   return (
     <>
       <SiteHeader active="firsts" />
-      <main className="mx-auto max-w-shell px-6 py-10">
+      <main className="mx-auto max-w-shell px-6 pb-10">
         <PageHero
           eyebrow="The firsts"
           title="Every first, remembered."
@@ -70,13 +70,13 @@ export default async function FirstsPage() {
 
         <div className="mt-6 grid grid-cols-3 gap-3">
           <Reveal>
-            <StatPill label="Firsts" value={milestones.length} hint="moments kept" tone="gold" />
+            <StatPill label="Firsts" value={milestones.length} hint="moments kept" />
           </Reveal>
           <Reveal delay={70}>
-            <StatPill label="With photos" value={withPhotos} hint="have a picture" tone="rose" />
+            <StatPill label="With photos" value={withPhotos} hint="have a picture" />
           </Reveal>
           <Reveal delay={140}>
-            <StatPill label="Photos" value={photoCount} hint="tap to view" tone="plum" />
+            <StatPill label="Photos" value={photoCount} hint="tap to view" />
           </Reveal>
         </div>
 

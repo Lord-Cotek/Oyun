@@ -72,7 +72,7 @@ export default function SharedHymn({ params }: { params: { id: string } }) {
                     </p>
                   )}
                   <p
-                    className={`whitespace-pre-line font-mono text-sm leading-relaxed ${
+                    className={`whitespace-pre-line prose-serif-sm ${
                       refrain ? "text-ink/80 italic" : "text-ink/90"
                     }`}
                   >
@@ -94,12 +94,12 @@ export default function SharedHymn({ params }: { params: { id: string } }) {
         </div>
 
         {/* The invitation back to the app */}
-        <div className="surface-raised rounded-2xl border border-accent/25 bg-gradient-to-br from-accent/[0.10] via-surface to-accent2/[0.09] p-6 md:p-8">
+        <div className="surface-raised rounded-2xl border border-border bg-surface p-6 md:p-8">
           <Eyebrow className="mb-3">A COTEK companion</Eyebrow>
           <h2 className="font-serif text-2xl leading-snug text-ink">
             Sing it in family worship.
           </h2>
-          <p className="mt-2 max-w-md font-mono text-sm leading-relaxed text-muted">
+          <p className="mt-2 max-w-md prose-serif-sm text-muted">
             Oyun brings a mother and the one beside her a daily rhythm —
             Scripture, prayer, a hymn to sing, and a reading plan through the
             whole Bible. A little altar in your home.
@@ -112,7 +112,7 @@ export default function SharedHymn({ params }: { params: { id: string } }) {
           </div>
         </div>
 
-        <p className="mt-6 text-center font-mono text-[0.68rem] text-muted">
+        <p className="prose-serif-xs mt-6 text-center text-muted">
           Shared from Oyun · a COTEK app
         </p>
       </div>

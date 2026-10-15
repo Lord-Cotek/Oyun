@@ -4,11 +4,12 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { NavMoreMenu } from "@/components/NavMoreMenu";
 import { NotificationBell } from "@/components/NotificationBell";
 import { TabBar, type Tab } from "@/components/TabBar";
-import { type IconName } from "@/components/ui/Icon";
+import { Icon, type IconName } from "@/components/ui/Icon";
 import { JourneySwitcher } from "@/components/JourneySwitcher";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getActiveMembership, getMyJourneys } from "@/lib/data";
+import { circleSeesRegistry } from "@/lib/registry";
 
 type ActiveKey =
   | "journey"
@@ -22,7 +23,9 @@ type ActiveKey =
   | "appointments"
   | "help"
   | "nursery"
-  | "worship";
+  | "worship"
+  | "registry"
+  | "shared";
 
 export async function SiteHeader({
   active,
@@ -36,6 +39,8 @@ export async function SiteHeader({
   let isMother = false;
   let isHousehold = false;
   let inLoss = false;
+  /** The circle sees the registry only once the family has opened it. */
+  let registryOpen = false;
   let journeys: Awaited<ReturnType<typeof getMyJourneys>> = [];
   let activeJourneyId: string | null = null;
   if (session?.user?.id) {
@@ -48,6 +53,13 @@ export async function SiteHeader({
     isMother = membership?.role === "MOTHER";
     isHousehold = membership?.role === "MOTHER" || membership?.role === "PARTNER";
     inLoss = membership?.journey.status === "LOSS";
+    if (membership) {
+      const reg = await prisma.registry.findUnique({
+        where: { journeyId: membership.journey.id },
+        select: { sharedWithCircleAt: true, closedAt: true },
+      });
+      registryOpen = !!reg && circleSeesRegistry(reg);
+    }
     journeys = myJourneys;
     activeJourneyId = membership?.journey.id ?? null;
   }
@@ -61,10 +73,15 @@ export async function SiteHeader({
       ? [{ href: "/letters", label: "Letters", current: active === "letters" }]
       : []),
     // Worship comes before Prayer so it sits in the thumb-reachable bottom tabs
-    // — worship is the daily rhythm, always one tap away.
-    ...(!inLoss && isHousehold
-      ? [{ href: "/worship", label: "Worship", current: active === "worship" }]
-      : []),
+    // — worship is the daily rhythm, always one tap away. It is everybody's
+    // now: the circle keeps its own altar in the same room, on the same day's
+    // liturgy, against its own record.
+    //
+    // It stays after a loss too, for everybody. Both the family and the
+    // circle get a grief liturgy in this room rather than being shut out of
+    // it: grief is not a reason to stop drawing near to God, and the words
+    // change rather than the door.
+    { href: "/worship", label: "Worship", current: active === "worship" },
     { href: "/prayer", label: "Prayer", current: active === "prayer" },
     ...(isHousehold && !inLoss
       ? [
@@ -85,8 +102,26 @@ export async function SiteHeader({
     ...(isHousehold && !inLoss
       ? [{ href: "/firsts", label: "Firsts", current: active === "firsts" }]
       : []),
-    ...(isMother
+    // The household, not the mother alone. Inviting and welcoming became
+    // theirs together; a link she can see and he cannot would have left him
+    // able to reach the page only by typing the address.
+    ...(isHousehold
       ? [{ href: "/circle", label: "Circle", current: active === "circle" }]
+      : []),
+    // The two of them decide what the baby needs; the circle is who the list
+    // is for, and gets it once the family has opened it to them — /registry
+    // sends them on to the read-only page. Never a bottom tab either way: a
+    // gift list is not a daily rhythm, and a thing you do twice should not
+    // take a place from a thing you do every morning.
+    ...((isHousehold || registryOpen) && !inLoss
+      ? [{ href: "/registry", label: "Registry", current: active === "registry" }]
+      : []),
+    // Under More on purpose. It is a thing you go looking for on the one day
+    // you need it, not a room you visit; and putting "what have I shared with
+    // the world" beside the daily rhythms would give it a weight in the app
+    // it does not have in a life.
+    ...(isHousehold
+      ? [{ href: "/shared", label: "Shared outside", current: active === "shared" }]
       : []),
     { href: "/help", label: "How this works", current: active === "help" },
     { href: "/settings", label: "Settings", current: active === "settings" },
@@ -113,6 +148,7 @@ export async function SiteHeader({
     "/child": "star",
     "/firsts": "sparkles",
     "/circle": "users",
+    "/registry": "gift",
     "/help": "question",
     "/settings": "settings",
   };
@@ -161,6 +197,16 @@ export async function SiteHeader({
           </nav>
 
           {/* Always-visible controls */}
+          <Link
+            href="/search"
+            aria-label="Search"
+            title="Search"
+            // 44pt. It was 18px of icon in 8px of padding — 34px, and the
+            // first thing a thumb reaches for at the top of every screen.
+            className="inline-flex h-11 w-11 items-center justify-center rounded-lg text-muted transition-colors hover:bg-surface hover:text-ink"
+          >
+            <Icon name="search" size={18} aria-hidden="true" />
+          </Link>
           <NotificationBell initialUnread={unread} />
           <ThemeToggle />
         </div>

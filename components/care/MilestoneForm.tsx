@@ -1,9 +1,10 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { addMilestone } from "@/app/care/actions";
 import { MilestoneFields } from "@/components/care/MilestoneFields";
+import { sendPhotos } from "@/components/care/send-photos";
 
 export function MilestoneForm({
   children = [],
@@ -11,17 +12,43 @@ export function MilestoneForm({
   children?: { id: string; name: string }[];
 }) {
   const formRef = useRef<HTMLFormElement>(null);
+  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   return (
     <form
       ref={formRef}
       action={async (fd) => {
-        await addMilestone(fd);
-        formRef.current?.reset();
+        setMsg(null);
+        try {
+          const lost = await sendPhotos(formRef.current, fd, setMsg);
+          await addMilestone(fd);
+          formRef.current?.reset();
+          setMsg(
+            lost === 0
+              ? null
+              : {
+                  ok: false,
+                  text: `Remembered, but ${lost} ${lost === 1 ? "photo" : "photos"} wouldn’t upload. You can add ${lost === 1 ? "it" : "them"} again.`,
+                },
+          );
+        } catch (err) {
+          setMsg({
+            ok: false,
+            text: err instanceof Error ? err.message : "Couldn’t save.",
+          });
+        }
       }}
       className="space-y-3"
     >
       <MilestoneFields children={children} />
       <Submit />
+      {msg && (
+        <p
+          role="status"
+          className={`prose-serif-xs ${msg.ok ? "text-muted" : "text-negative"}`}
+        >
+          {msg.text}
+        </p>
+      )}
     </form>
   );
 }

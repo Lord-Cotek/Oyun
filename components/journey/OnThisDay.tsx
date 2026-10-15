@@ -1,4 +1,5 @@
 import { Eyebrow } from "@/components/ui/Eyebrow";
+import { mediaAlt } from "@/lib/alt";
 import type { MemoryItem } from "@/lib/data";
 
 function yearsAgoLabel(n: number): string {
@@ -28,7 +29,11 @@ export function OnThisDay({ items }: { items: MemoryItem[] }) {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={m.imageUrl}
-                  alt=""
+                  alt={mediaAlt({
+                    said: m.body ?? m.title,
+                    when: m.dateLabel,
+                    kind: m.kind,
+                  })}
                   loading="lazy"
                   className="h-16 w-16 object-cover"
                 />
@@ -42,7 +47,7 @@ export function OnThisDay({ items }: { items: MemoryItem[] }) {
                 {m.title}
               </p>
               {m.body && (
-                <p className="mt-1 line-clamp-3 font-mono text-xs leading-relaxed text-muted">
+                <p className="mt-1 line-clamp-3 prose-serif-xs text-muted">
                   {m.body}
                 </p>
               )}

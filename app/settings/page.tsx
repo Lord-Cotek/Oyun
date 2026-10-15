@@ -23,6 +23,9 @@ import {
 import { PushToggle } from "@/components/PushToggle";
 import { MarkLoss } from "@/components/settings/MarkLoss";
 import { DeleteAccount } from "@/components/settings/DeleteAccount";
+import { ExportButton } from "@/components/settings/ExportButton";
+import { RaiseConcern } from "@/components/settings/RaiseConcern";
+import { isOn } from "@/lib/flags";
 
 export const metadata: Metadata = {
   title: "Settings",
@@ -38,9 +41,10 @@ export default async function SettingsPage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/sign-in?callbackUrl=/settings");
 
-  const [user, active] = await Promise.all([
+  const [user, active, canWrite] = await Promise.all([
     prisma.user.findUnique({ where: { id: session.user.id } }),
     getActiveMembership(session.user.id),
+    isOn("concerns"),
   ]);
   if (!user) redirect("/sign-in");
 
@@ -58,7 +62,7 @@ export default async function SettingsPage() {
   return (
     <>
       <SiteHeader active="settings" />
-      <main className="mx-auto max-w-3xl px-6 py-10">
+      <main className="mx-auto max-w-3xl px-6 pb-10">
         <PageHero
           eyebrow="Settings"
           title="Your account."
@@ -102,6 +106,15 @@ export default async function SettingsPage() {
             <NotificationForm
               notifyByEmail={user.notifyByEmail}
               weeklyDigest={user.weeklyDigest}
+              categories={{
+                notifyCircle: user.notifyCircle,
+                notifyHer: user.notifyHer,
+                notifyDates: user.notifyDates,
+                notifyDiary: user.notifyDiary,
+                notifyHouse: user.notifyHouse,
+                notifyMorning: user.notifyMorning,
+              }}
+              morningHour={user.morningHour}
             />
             <div className="mt-6 border-t border-border pt-6">
               <PushToggle />
@@ -133,12 +146,43 @@ export default async function SettingsPage() {
             </Card>
           )}
 
+          {/*
+            Somewhere to turn.
+            Placed above the dangerous heading and below the everyday ones,
+            because the person who needs it is not browsing — they came here
+            looking for a way to reach a human, and found one.
+          */}
+          {canWrite && (
+            <Card className="p-8">
+              <Eyebrow className="mb-3">Something is wrong</Eyebrow>
+              <p className="mb-5 prose-serif-xs text-muted">
+                If you are worried about somebody, or somebody in your circle
+                should not be here, or anything at all has gone wrong — tell us
+                and a person will read it. We only ever see what you write
+                here; we cannot read your diary, your letters, or anything else
+                your family has kept.
+              </p>
+              <RaiseConcern />
+            </Card>
+          )}
+
           {isMother && active?.journey.status === "ACTIVE" && (
             <Card className="border-accent2/20 p-8">
               <Eyebrow className="mb-4 text-accent2">If the road turns hard</Eyebrow>
               <MarkLoss />
             </Card>
           )}
+
+          <Card className="p-8">
+            <Eyebrow className="mb-3">Take everything with you</Eyebrow>
+            <p className="mb-5 prose-serif-xs text-muted">
+              These months are your family&rsquo;s, not ours. Download the lot —
+              letters, prayers, firsts, the appointments and what came of them —
+              as one file: a page you can read or print without any app, and the
+              same records again as data. Photographs are linked, not packed in.
+            </p>
+            <ExportButton />
+          </Card>
 
           <Card className="flex items-center justify-between p-8">
             <div>

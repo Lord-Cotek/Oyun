@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
-import { INVITABLE_ROLES } from "@/lib/roles";
+import { INVITABLE_ROLES, isHousehold } from "@/lib/roles";
 import { auth } from "@/lib/auth";
 import { getActiveMembership } from "@/lib/data";
 import { sendInviteEmail } from "@/lib/email";
@@ -19,8 +19,9 @@ export async function createInvite(
   if (!session?.user?.id) redirect("/sign-in");
 
   const active = await getActiveMembership(session.user.id);
-  if (!active || active.role !== "MOTHER") {
-    return { ok: false, error: "Only the mother can send invites." };
+  // Either of the two of them. See the note in app/circle/page.tsx.
+  if (!active || !isHousehold(active.role)) {
+    return { ok: false, error: "Only the two of you can send invites." };
   }
 
   const email = String(formData.get("email") ?? "").trim().toLowerCase();

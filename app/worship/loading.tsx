@@ -2,5 +2,5 @@ import { PageSkeleton } from "@/components/ui/Skeleton";
 
 /** Shown the instant a navigation starts, while this room is fetched. */
 export default function Loading() {
-  return <PageSkeleton cards={3} />;
+  return <PageSkeleton shape="rail" />;
 }

@@ -35,7 +35,7 @@ export function PushToggle() {
 
   if (!VAPID_PUBLIC) {
     return (
-      <p className="font-mono text-[0.7rem] leading-relaxed text-muted">
+      <p className="prose-serif-xs text-muted">
         Push notifications aren&rsquo;t configured yet.
       </p>
     );
@@ -43,7 +43,7 @@ export function PushToggle() {
 
   if (!supported) {
     return (
-      <p className="font-mono text-[0.7rem] leading-relaxed text-muted">
+      <p className="prose-serif-xs text-muted">
         This browser doesn&rsquo;t support push notifications. On iPhone, install
         Oyun to your Home Screen first, then enable them from there.
       </p>
@@ -109,7 +109,7 @@ export function PushToggle() {
   return (
     <div className="rounded-lg border border-border bg-bg p-4">
       <p className="font-mono text-sm text-ink">Push to this device</p>
-      <p className="mb-3 font-mono text-[0.7rem] leading-relaxed text-muted">
+      <p className="prose-serif-xs mb-3 text-muted">
         Get a gentle notification on this device when someone prays for you or
         sends a word — even when Oyun is closed.
       </p>

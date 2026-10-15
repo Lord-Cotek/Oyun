@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import { useFormStatus } from "react-dom";
 import { addPrayerRequest } from "@/app/prayer/actions";
+import { DraftTextarea } from "@/components/ui/DraftTextarea";
 
 export function PrayerForm() {
   const formRef = useRef<HTMLFormElement>(null);
@@ -16,17 +17,19 @@ export function PrayerForm() {
       className="space-y-3"
     >
       <input
+        id="prayer-title"
         name="title"
         required
         maxLength={200}
         placeholder="What can your circle pray for?"
-        className="w-full rounded-lg border border-border bg-bg px-3.5 py-2.5 font-mono text-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none"
+        className="prose-serif-sm w-full rounded-lg border border-border bg-bg px-3.5 py-2.5 text-ink placeholder:text-muted focus:border-accent focus:outline-none"
       />
-      <textarea
+      <DraftTextarea
+        draftKey="prayer:request"
         name="body"
         rows={3}
         placeholder="Any detail you'd like to add (optional)"
-        className="w-full resize-none rounded-lg border border-border bg-bg px-3.5 py-2.5 font-mono text-sm leading-relaxed text-ink placeholder:text-muted focus:border-accent focus:outline-none"
+        className="w-full resize-none rounded-lg border border-border bg-bg px-3.5 py-2.5 prose-serif-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none"
       />
       <Submit />
     </form>

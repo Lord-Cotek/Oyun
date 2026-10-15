@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { freshHref } from "@/lib/notify-href";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -29,7 +30,10 @@ export async function GET() {
       type: n.type,
       title: n.title,
       body: n.body,
-      href: n.href,
+      // Rewritten on the way out, not in the table — see freshHref. A
+      // notification written before posts had pages of their own still
+      // says so, and those are the ones already sitting in the bell.
+      href: freshHref(n.href),
       read: !!n.readAt,
       createdAt: n.createdAt.toISOString(),
     })),

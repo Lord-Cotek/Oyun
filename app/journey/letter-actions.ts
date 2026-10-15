@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { getActiveMembership, getCoupleLetters, type CoupleLettersPage } from "@/lib/data";
 import { notify } from "@/lib/notify";
+import { letterHref } from "@/lib/letter-access";
 
 /**
  * Write a letter "to each other" — the shared thread between the mother and her
@@ -47,7 +48,12 @@ export async function addCoupleLetter(formData: FormData) {
       userId: o.userId,
       type: "encouragement",
       title: `${who} wrote you a letter.`,
-      href: `${o.role === "MOTHER" ? "/care" : "/journey"}#letter-${letter.id}`,
+      // Was `/care#letter-…` or `/journey#letter-…`, picked by the reader's
+      // role, because the couple's thread is shown in both rooms. Neither
+      // room draws an anchor for a letter, so both were landing people at
+      // the top of a page and leaving them to find the letter themselves.
+      // One page, the same one for both of them. See lib/letter-access.ts.
+      href: letterHref(letter.id),
       email: true,
     });
   }

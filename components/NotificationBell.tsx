@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { scrollToElement } from "@/lib/scroll";
 
 type Item = {
   id: string;
@@ -90,7 +91,7 @@ export function NotificationBell({ initialUnread }: { initialUnread: number }) {
             {items === null ? (
               <p className="px-4 py-6 font-mono text-xs text-muted">Loading…</p>
             ) : items.length === 0 ? (
-              <p className="px-4 py-6 font-mono text-xs leading-relaxed text-muted">
+              <p className="px-4 py-6 prose-serif-xs text-muted">
                 Nothing yet. When someone prays for you or sends a word, it will
                 appear here.
               </p>
@@ -138,9 +139,7 @@ function Row({ item, onNavigate }: { item: Item; onNavigate: () => void }) {
         const hash = item.href?.includes("#") ? item.href.split("#")[1] : null;
         if (hash) {
           setTimeout(() => {
-            document
-              .getElementById(hash)
-              ?.scrollIntoView({ block: "center", behavior: "smooth" });
+            scrollToElement(document.getElementById(hash));
           }, 120);
         }
       }}

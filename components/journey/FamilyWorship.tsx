@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Pressable } from "@/components/ui/Pressable";
 import { familyWorship } from "@/lib/worship";
 import { Card } from "@/components/ui/Card";
 import { Eyebrow } from "@/components/ui/Eyebrow";
@@ -27,7 +27,7 @@ export function FamilyWorship({
             &ldquo;{liturgy.read.text}&rdquo;
           </p>
           <p className="mt-2 font-mono text-xs text-accent">{liturgy.read.ref}</p>
-          <p className="mt-4 max-w-prose font-mono text-sm leading-relaxed text-muted">
+          <p className="mt-4 max-w-prose prose-serif-sm text-muted">
             {liturgy.pray}
           </p>
         </div>
@@ -40,10 +40,10 @@ export function FamilyWorship({
             <p className="font-serif text-lg leading-snug text-ink">
               {catechism.q}
             </p>
-            <p className="mt-2 font-mono text-sm leading-relaxed text-ink/90">
+            <p className="mt-2 prose-serif-sm text-ink/90">
               <span className="text-accent">A.</span> {catechism.a}
             </p>
-            <p className="mt-4 font-mono text-[0.7rem] leading-relaxed text-muted">
+            <p className="prose-serif-xs mt-4 text-muted">
               A gentle rhythm for the household — learned by repetition, long
               before it&rsquo;s fully understood.
             </p>
@@ -61,12 +61,13 @@ export function FamilyWorship({
         ) : (
           <span />
         )}
-        <Link
+        <Pressable
           href="/worship"
-          className="font-mono text-xs text-accent hover:underline"
+          press="control"
+          className="inline-flex min-h-11 shrink-0 items-center rounded-lg border border-border px-3.5 font-mono text-xs text-accent hover:border-accent"
         >
           Open family worship &rarr;
-        </Link>
+        </Pressable>
       </div>
     </Card>
   );

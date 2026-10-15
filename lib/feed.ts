@@ -19,23 +19,31 @@ export const KIND_LABEL: Record<string, string> = {
   MILESTONE: "Milestone",
 };
 
-/** The tone for a post kind's badge — tones shared by both apps' palettes. */
-export const KIND_TONE: Record<string, string> = {
-  UPDATE: "sky",
-  PRAISE: "gold",
-  PRAYER: "plum",
-  MILESTONE: "green",
-};
-
 export function isPostKind(v: string): v is PostKind {
   return POST_KINDS.some((k) => k.kind === v);
 }
 
+/**
+ * What a family can say back without typing.
+ *
+ * These were all reverent — amen, praying, love, rejoicing, thankful — and a
+ * household is not only reverent. Somebody posts that the baby has put beans
+ * up her nose again and the only honest answers available were a prayer and a
+ * bunch of herbs. A house where you can pray together and not laugh together
+ * is not the house this is for.
+ *
+ * So laughter, and a hug for the days that need one rather than a verdict.
+ * Nothing was taken away: a kind string already written against somebody's
+ * post would simply stop being drawn, and a reaction somebody gave three years
+ * ago is theirs.
+ */
 export const REACTIONS = [
   { kind: "AMEN", glyph: "🙏", label: "Amen" },
   { kind: "PRAYING", glyph: "🤲", label: "Praying" },
   { kind: "HEART", glyph: "❤️", label: "Love" },
+  { kind: "LAUGH", glyph: "😂", label: "That is funny" },
   { kind: "REJOICING", glyph: "🎉", label: "Rejoicing" },
+  { kind: "HUG", glyph: "🤗", label: "A hug" },
   { kind: "THANKFUL", glyph: "🌿", label: "Thankful" },
 ] as const;
 

@@ -51,7 +51,7 @@ export async function LamentView({
               })
             : "Known and loved by their Maker"}
         </p>
-        <p className="mx-auto mt-6 max-w-prose font-mono text-sm leading-relaxed text-muted">
+        <p className="mx-auto mt-6 max-w-prose prose-serif-sm text-muted">
           There are no words that make this right, and we will not pretend
           otherwise. Your child was fully known and fully loved by God before
           they were known by anyone else. We are so sorry. You do not walk this
@@ -64,21 +64,21 @@ export async function LamentView({
           <Card className="p-8">
             <Eyebrow className="mb-4 text-accent2">A word for today</Eyebrow>
             <Verse text={lament.text} reference={lament.ref} size="lg" />
-            <p className="mt-6 border-t border-border pt-6 font-mono text-sm leading-relaxed text-muted">
+            <p className="mt-6 border-t border-border pt-6 prose-serif-sm text-muted">
               {lament.reflection}
             </p>
           </Card>
 
           <Card className="p-8">
             <Eyebrow className="mb-4">Words of remembrance</Eyebrow>
-            <p className="mb-5 font-mono text-xs leading-relaxed text-muted">
+            <p className="mb-5 prose-serif-xs text-muted">
               A place to keep what you and those who love you want to remember —
               a name spoken, a prayer, a hope held. These are yours to keep.
             </p>
             <RemembranceForm />
             <div className="mt-6 space-y-3 border-t border-border pt-5">
               {remembrances.length === 0 ? (
-                <p className="font-mono text-xs text-muted">
+                <p className="prose-serif-xs text-muted">
                   Nothing written yet. When you or your circle are ready, a first
                   word can be very small.
                 </p>
@@ -107,7 +107,7 @@ export async function LamentView({
             <Eyebrow className="mb-3 text-accent2">You are not alone</Eyebrow>
             {supporters.length > 0 ? (
               <>
-                <p className="mb-4 font-mono text-xs leading-relaxed text-muted">
+                <p className="mb-4 prose-serif-xs text-muted">
                   These people have been told, and they are with you. Let them
                   near — you do not have to be strong, or to have words.
                 </p>
@@ -126,7 +126,7 @@ export async function LamentView({
               </>
             ) : (
               <>
-                <p className="mb-4 font-mono text-xs leading-relaxed text-muted">
+                <p className="mb-4 prose-serif-xs text-muted">
                   Please don&rsquo;t carry this by yourself. Invite someone to walk
                   with you — a spouse, a friend, someone from your church who will
                   simply be present.
@@ -140,7 +140,7 @@ export async function LamentView({
 
           <Card className="p-6">
             <Eyebrow className="mb-3">Lean on the Body</Eyebrow>
-            <p className="font-mono text-xs leading-relaxed text-muted">
+            <p className="prose-serif-xs text-muted">
               Tell your pastor and your church. Grief was never meant to be
               private. The people of God are meant to weep with those who weep
               (Romans 12:15) — let them.
@@ -149,7 +149,7 @@ export async function LamentView({
 
           <Card className="p-6">
             <Eyebrow className="mb-3 text-accent2">Agbebi is here</Eyebrow>
-            <p className="font-mono text-xs leading-relaxed text-muted">
+            <p className="prose-serif-xs text-muted">
               If you want to pray, or simply not be alone with your thoughts,
               Agbebi will sit with you — gently, and for as long as you need. She
               is the quiet mark in the corner.

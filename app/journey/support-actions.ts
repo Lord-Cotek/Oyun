@@ -7,6 +7,7 @@ import { auth } from "@/lib/auth";
 import { getActiveMembership } from "@/lib/data";
 import { notify } from "@/lib/notify";
 import { NUDGE_CAP, NUDGE_TEXT_MAX, parseWhen } from "@/lib/nudges";
+import { wordPath } from "@/lib/open-item";
 
 /** Midnight UTC for "today" — matches Prisma's @db.Date storage. */
 function utcToday(): Date {
@@ -144,7 +145,7 @@ export async function sendEncouragement(formData: FormData) {
       type: "encouragement",
       title: `${who} sent you a word of encouragement.`,
       body: preview,
-      href: `/journey#enc-${encouragement.id}`,
+      href: wordPath(encouragement.id),
       email: true,
     });
   }

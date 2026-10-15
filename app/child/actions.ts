@@ -6,7 +6,6 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { getActiveMembership } from "@/lib/data";
 import { isHousehold } from "@/lib/roles";
-import { uploadImage } from "@/lib/blob";
 
 // The nursery is the household's — both parents add, edit and name their own
 // children. Gate on the household, never on one role.
@@ -22,6 +21,12 @@ function parseSex(v: string): string | null {
   return v === "boy" || v === "girl" ? v : null;
 }
 
+/** The URL the browser uploaded, or null when no picture was chosen. */
+function photoUrlFrom(formData: FormData): string | null {
+  const url = String(formData.get("photoUrl") ?? "").trim();
+  return url.startsWith("http") ? url : null;
+}
+
 export async function addChild(formData: FormData) {
   const { journeyId } = await requireParent();
   const name = String(formData.get("name") ?? "").trim();
@@ -30,7 +35,8 @@ export async function addChild(formData: FormData) {
   const dateStr = String(formData.get("birthDate") ?? "").trim();
   const birthDate = dateStr ? new Date(dateStr) : null;
   const note = String(formData.get("note") ?? "").trim() || null;
-  const photoUrl = await uploadImage(formData.get("photo"), "children");
+  // Uploaded by the browser; only the URL crosses in the request body.
+  const photoUrl = photoUrlFrom(formData);
 
   await prisma.child.create({
     data: {
@@ -55,7 +61,7 @@ export async function updateChild(formData: FormData) {
   const dateStr = String(formData.get("birthDate") ?? "").trim();
   const birthDate = dateStr ? new Date(dateStr) : null;
   const note = String(formData.get("note") ?? "").trim() || null;
-  const newPhoto = await uploadImage(formData.get("photo"), "children");
+  const newPhoto = photoUrlFrom(formData);
 
   await prisma.child.updateMany({
     where: { id, journeyId },

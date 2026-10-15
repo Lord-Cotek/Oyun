@@ -3,6 +3,7 @@
 import { useTransition } from "react";
 import { markWorship } from "@/app/worship/actions";
 import { ProgressRing } from "@/components/ui/ProgressRing";
+import { Pressable } from "@/components/ui/Pressable";
 
 export function WorshipTracker({
   doneToday,
@@ -17,26 +18,40 @@ export function WorshipTracker({
 }) {
   const [pending, start] = useTransition();
 
+  /**
+   * The breathing lives on the wrapper, not the button.
+   *
+   * `animate-breathe` runs forever and animates `transform`, and a property an
+   * animation is driving beats the same property set any other way — so on the
+   * button itself it would have quietly cancelled the press, on the one
+   * control here that writes something down. Wrapped, the invitation still
+   * breathes and the button still answers a thumb.
+   */
   const button = (
-    <button
-      type="button"
-      disabled={pending}
-      onClick={() => start(() => markWorship())}
-      title={doneToday ? "Tap to undo" : undefined}
-      className={`flex items-center gap-2 rounded-lg border px-4 py-2 font-mono text-xs transition-colors disabled:opacity-50 ${
-        doneToday
-          ? "border-accent/50 bg-accent/10 text-accent"
-          : "border-border text-ink hover:border-accent hover:text-accent"
-      } ${!doneToday && showRing ? "animate-breathe" : ""}`}
+    <span
+      className={`inline-flex ${!doneToday && showRing ? "animate-breathe" : ""}`}
     >
-      {doneToday ? (
-        <>
-          <CheckIcon /> We worshipped today
-        </>
-      ) : (
-        "We worshipped today"
-      )}
-    </button>
+      <Pressable
+        type="button"
+        press="control"
+        disabled={pending}
+        onClick={() => start(() => markWorship())}
+        title={doneToday ? "Tap to undo" : undefined}
+        className={`flex min-h-11 items-center gap-2 rounded-lg border px-4 font-mono text-xs disabled:opacity-50 ${
+          doneToday
+            ? "border-accent/50 bg-accent/10 text-accent"
+            : "border-border text-ink hover:border-accent hover:text-accent"
+        }`}
+      >
+        {doneToday ? (
+          <>
+            <CheckIcon /> We worshipped today
+          </>
+        ) : (
+          "We worshipped today"
+        )}
+      </Pressable>
+    </span>
   );
 
   if (showRing) {

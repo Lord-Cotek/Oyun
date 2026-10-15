@@ -15,7 +15,7 @@ export function BeginAgain() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="font-mono text-xs text-muted underline underline-offset-4 hover:text-ink"
+        className="prose-serif-xs text-muted underline underline-offset-4 hover:text-ink"
       >
         When you are ready — begin a new journey
       </button>
@@ -25,7 +25,7 @@ export function BeginAgain() {
   return (
     <div>
       <Eyebrow className="mb-3">Only when you are ready</Eyebrow>
-      <p className="mb-4 max-w-prose font-mono text-xs leading-relaxed text-muted">
+      <p className="mb-4 max-w-prose prose-serif-xs text-muted">
         There is no timeline for grief, and no pressure here. If and when a new
         season begins, you can set a new due date — or birth date — and Oyun will
         walk with you again. What you have written in memory will not be lost.
