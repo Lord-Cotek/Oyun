@@ -444,8 +444,8 @@ export const STAGES: Stage[] = [
     reflection: "Whatever this journey has cost you, God draws near to the broken rather than away. He is nearest when you feel least whole.",
     newThisStage: "The eyes, long fused shut, begin to open for the first time.",
     action: "Bring one grief or disappointment honestly to God today, without dressing it up.",
-    partnerFocus: "If she is carrying grief or hard news, sit near her in it rather than hurrying her out of it. Pray, asking the Lord to draw near to any brokenness between you.",
-    prayerPoint: "Thank God that he is near the brokenhearted, and ask him to hold close any sorrow you carry into this pregnancy.",
+    partnerFocus: "Draw near rather than back this week: ask how her heart is, and stay in the answer without hurrying her out of it. Pray that the God who is near the brokenhearted would be near you both.",
+    prayerPoint: "Thank God that he is near the brokenhearted, and ask him to carry whatever is heavy for them this week.",
   },
   {
     stage: "week-27",

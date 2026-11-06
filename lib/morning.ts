@@ -1,6 +1,7 @@
 import { computePosition } from "@/lib/stage";
 import { dailyDevotion } from "@/lib/daily";
 import { dailyLament } from "@/lib/lament";
+import { partnerDailyCare, dayKey } from "@/lib/partner-care";
 
 /**
  * One note each morning, written for the seat you are actually sitting in.
@@ -11,11 +12,22 @@ import { dailyLament } from "@/lib/lament";
  * none of them: she does not need telling how to care for herself, and a
  * friend four hundred miles away cannot act on "rest when you can".
  *
- * The content for all three is already written, per week, in lib/journey.ts
- * — every stage carries an `action` (the one thing to do), a `partnerFocus`
- * (how to care for her THIS week) and a `prayerPoint` (how to pray for them).
- * Nothing here is invented. This only chooses which of the three to send, and
- * to whom, and pairs it with the day's verse.
+ * ── Nothing here is invented ─────────────────────────────────────────────
+ * The content is already written: a verse and a short reflection for every
+ * day in lib/daily.ts, sixty small concrete ways to care for her in
+ * lib/partner-care.ts, and a prayer point for each week of the journey in
+ * lib/journey.ts. This only chooses which of them to put on a lock screen,
+ * and for whom.
+ *
+ *   the mother    the day's Scripture
+ *   her partner   the day's one small thing he can do for her
+ *   the circle    how to pray for them this week
+ *
+ * ── Why two of those three change every day ──────────────────────────────
+ * Because a notification is read in one second, on a morning that has its
+ * own weather, and the same sentence seven mornings running stops being read
+ * at all. Only the circle's is weekly, and deliberately: a prayer point you
+ * hold for a week is how people actually pray for somebody.
  *
  * ── What it must never do ────────────────────────────────────────────────
  * Send a family who have just lost a baby a cheerful note about week
@@ -102,11 +114,32 @@ export function morningNote(input: MorningInput): MorningNote | null {
   }
 
   if (input.seat === "partner") {
+    /**
+     * ── Why the day's nudge and not the week's counsel ───────────────────
+     * This was `stage.partnerFocus`, which is written per WEEK — so one
+     * sentence arrived on seven consecutive mornings, and whatever that week
+     * was about arrived with it each time. Week 26 is built on "the LORD is
+     * near to those who have a broken heart", and its counsel opened "If she
+     * is carrying grief or hard news". That is careful, true, and the right
+     * thing to read on the journey page. On a lock screen, every morning for
+     * a week, it tells a man his wife is grieving when she may be perfectly
+     * well — and it is the only thing the app said to him that day.
+     *
+     * lib/partner-care.ts already holds sixty small, concrete, warm acts,
+     * rotating by the day and offset by the stage. Picked here with the same
+     * key and offset the journey page uses, so the notification and the page
+     * agree about what today's one thing is. The week's counsel keeps the
+     * two places it reads properly: the journey page, under "how to carry
+     * her this stage", and the weekly email.
+     */
+    const care = partnerDailyCare(stage.phase, dayKey(now), stage.index);
     return {
       // Named for what it is, so it is worth opening even on a busy morning:
-      // this is the one thing he can do for her today.
-      title: `For her today · ${verse.ref}`,
-      body: trim(stage.partnerFocus),
+      // this is the one thing he can do for her today. The nudge's own verse
+      // when it has one, because then the title and the body are about the
+      // same thing.
+      title: `For her today · ${care.ref ?? verse.ref}`,
+      body: trim(care.act),
       href: "/journey",
     };
   }
