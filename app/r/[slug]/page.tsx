@@ -219,6 +219,41 @@ export default async function PublicRegistryPage({
         </p>
       )}
 
+      {/* ── The whole list, first ────────────────────────────────────────
+          A family that keeps an Amazon or a shop's own registry usually
+          keeps MOST of the list there, and only a few things here. This
+          section was last on the page, under everything else, so the one
+          link a guest most needed was the one they had to scroll past forty
+          cards to find — and plenty never did. It goes first now, and says
+          plainly that there is more below, so nothing underneath is lost by
+          being second. */}
+      {lists.length > 0 && (
+        <section className="reg-section mt-10">
+          <Eyebrow className="mb-2">Kept elsewhere</Eyebrow>
+          <p className="mb-4 prose-serif-sm text-muted">
+            {lists.length === 1
+              ? "The whole list lives on another site. The shop keeps its own record of what has been bought from it."
+              : "These lists live on another site. The shop keeps its own record of what has been bought from them."}
+            {things.length + help.length + funds.length > 0 && (
+              <> There are a few more things on this page, below.</>
+            )}
+          </p>
+          <ul className={listClass(lists)}>
+            {lists.map((i) => (
+              <li key={i.id} {...rowProps(i)}>
+                <GuestItem
+                  slug={r.slug}
+                  item={i}
+                  closed={r.closed}
+                  shipsTo={r.shipsTo}
+                  shipReach={r.shipReach}
+                />
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       {/*
         Only worth offering once there is enough on the list for the shape to
         matter. Two cards look the same either way, and a control that changes
@@ -298,29 +333,6 @@ export default async function PublicRegistryPage({
           </p>
           <ul className={listClass(funds)}>
             {funds.map((i) => (
-              <li key={i.id} {...rowProps(i)}>
-                <GuestItem
-                  slug={r.slug}
-                  item={i}
-                  closed={r.closed}
-                  shipsTo={r.shipsTo}
-                  shipReach={r.shipReach}
-                />
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-
-      {lists.length > 0 && (
-        <section className="reg-section mt-10">
-          <Eyebrow className="mb-2">Kept elsewhere</Eyebrow>
-          <p className="mb-4 prose-serif-sm text-muted">
-            Whole lists that live on another site. The shop keeps its own
-            record of what has been bought from them.
-          </p>
-          <ul className={listClass(lists)}>
-            {lists.map((i) => (
               <li key={i.id} {...rowProps(i)}>
                 <GuestItem
                   slug={r.slug}
