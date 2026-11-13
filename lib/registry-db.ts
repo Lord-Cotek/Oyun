@@ -210,6 +210,70 @@ export async function isJourneyMember(
   return member !== null;
 }
 
+/** What a guest needs in order to put something in the post. */
+export interface Shipping {
+  name: string | null;
+  address: string;
+  phone: string | null;
+  note: string | null;
+}
+
+/**
+ * The address, for somebody entitled to it.
+ *
+ * ── Why this is one function and not two rules ───────────────────────────
+ * It is asked in two places now: by the page, which renders the address for
+ * a reader who is allowed it, and by revealShipping, which answers the tap
+ * for everybody else. Two copies of "who may see a family's home address"
+ * is one rule and one leak waiting — the day somebody tightens the tap and
+ * forgets the page, the page is still printing it. So the rule lives here
+ * and both callers ask the same question.
+ *
+ * The rule itself, unchanged:
+ *   · no address on the registry at all        — "none"
+ *   · reach LINK: whoever holds the link        — allowed
+ *   · otherwise: signed in, and in this journey — allowed
+ *   · anybody else                              — "circle"
+ */
+export async function shippingFor(
+  slug: string,
+  session: { user?: { id?: string | null } } | null,
+): Promise<{ ok: true; shipping: Shipping } | { ok: false; reason: "none" | "circle" }> {
+  const r = await prisma.registry.findUnique({
+    where: { slug },
+    select: {
+      journeyId: true,
+      shipName: true,
+      shipAddress: true,
+      shipPhone: true,
+      shipNote: true,
+      shipReach: true,
+    },
+  });
+  const address = (r?.shipAddress ?? "").trim();
+  if (!r || !address) return { ok: false, reason: "none" };
+
+  if (shipReachOf(r) !== "LINK") {
+    if (!(await isJourneyMember(r.journeyId, session))) {
+      return { ok: false, reason: "circle" };
+    }
+  }
+
+  const tidy = (v: string | null) => {
+    const s = (v ?? "").trim();
+    return s.length > 0 ? s : null;
+  };
+  return {
+    ok: true,
+    shipping: {
+      name: tidy(r.shipName),
+      address,
+      phone: tidy(r.shipPhone),
+      note: tidy(r.shipNote),
+    },
+  };
+}
+
 export async function getPublicRegistry(
   slug: string,
   guestToken: string | null,

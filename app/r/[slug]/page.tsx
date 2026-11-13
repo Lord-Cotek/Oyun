@@ -6,6 +6,7 @@ import {
   getPublicRegistry,
   memberClaimToken,
   readerTokenFor,
+  shippingFor,
 } from "@/lib/registry-db";
 import { auth } from "@/lib/auth";
 import { OyunMark } from "@/components/ui/OyunMark";
@@ -148,6 +149,17 @@ export default async function PublicRegistryPage({
   const insider =
     !!session?.user?.id && token === memberClaimToken(session.user.id);
 
+  /**
+   * The address, when this reader is already entitled to it.
+   *
+   * Asked of the same rule the tap asks (shippingFor), so the page can never
+   * show what the tap would refuse. For everybody else this is null and the
+   * band behaves exactly as it did: a button, and a refusal that tells them
+   * to ask the family.
+   */
+  const shipping = r.shipsTo && !r.closed ? await shippingFor(params.slug, session) : null;
+  const address = shipping?.ok ? shipping.shipping : null;
+
   // Every kind gets a section. A kind with no section is an item that exists
   // in her room and nowhere a guest can see it — which is how the first
   // version of this page silently swallowed the funds.
@@ -255,6 +267,22 @@ export default async function PublicRegistryPage({
       )}
 
       {/*
+        Directly under the list, because somebody who came here to post
+        something wants the address before they start, not after they have
+        scrolled past forty cards — and because it was below the sorting
+        controls, which is where a reader stops looking.
+
+        Only when there is something to post: a page of nothing but meals and
+        a fund has no parcel in it, and the address should not be offered to
+        guests who have no use for it. A whole list counts — things bought
+        from an Amazon list are posted somewhere too. Not on a finished
+        registry either; by then nothing more is coming.
+      */}
+      {!r.closed && r.shipsTo && things.length + lists.length > 0 && (
+        <ShipReveal slug={r.slug} reach={r.shipReach} given={address} />
+      )}
+
+      {/*
         Only worth offering once there is enough on the list for the shape to
         matter. Two cards look the same either way, and a control that changes
         nothing visible is a control that makes a reader doubt they pressed it.
@@ -264,18 +292,6 @@ export default async function PublicRegistryPage({
           total={r.items.length}
           stillNeeded={stillNeeded}
         />}
-
-      {/*
-        Near the top, because somebody who came here to buy a cot wants the
-        address before they start, not after they have scrolled past forty
-        cards. Only when there is something to post: a list of nothing but
-        meals and a fund has no parcel in it, and the address should not be
-        offered to guests who have no use for it. Not on a finished registry
-        either — by then nothing more is coming.
-      */}
-      {!r.closed && r.shipsTo && things.length > 0 && (
-        <ShipReveal slug={r.slug} reach={r.shipReach} />
-      )}
 
       {r.items.length === 0 && (
         <p className="mt-8 prose-serif-sm text-muted">

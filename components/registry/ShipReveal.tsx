@@ -36,12 +36,31 @@ export function ShipReveal({
   slug,
   reach,
   tone = "band",
+  given = null,
 }: {
   slug: string;
   reach: ShipReach;
   tone?: "band" | "inline";
+  /**
+   * The address, when the page already knows this reader may have it.
+   *
+   * ── Why it is handed over rather than asked for ──────────────────────
+   * The tap was there because a home address printed into a public page is
+   * in front of everybody who ever opens the link — including whatever
+   * fetches it to build a preview card. That is still true of a stranger,
+   * and still how it works for them.
+   *
+   * But a family who set the reach to "whoever holds the link", and anybody
+   * signed in to this journey, are already entitled to it: the tap only
+   * ever handed it over a second later. Making them ask for what they are
+   * going to be given is a step that protects nobody, and the step is the
+   * reason people were posting things with the address still unread. So
+   * the server decides — see shippingFor in lib/registry-db.ts, the same
+   * rule the tap asks — and when the answer is yes, it is simply there.
+   */
+  given?: Address | null;
 }) {
-  const [found, setFound] = useState<Address | null>(null);
+  const [found, setFound] = useState<Address | null>(given);
   const [refused, setRefused] = useState<"none" | "circle" | null>(null);
   const [asking, start] = useTransition();
 
@@ -125,14 +144,16 @@ export function ShipReveal({
   }
 
   return (
-    <section className="mt-8 rounded-2xl border border-border bg-bg p-4">
+    <section className="mt-6 rounded-2xl border border-border bg-bg p-4">
       <p className="font-mono text-[0.62rem] uppercase tracking-widest text-muted">
         Having something delivered
       </p>
       <p className="mb-3 mt-1.5 prose-serif-sm text-muted">
-        {held
-          ? "They post to an address they keep to the people walking with them."
-          : "They have left an address for anything that comes by post."}
+        {found
+          ? "Anything that comes by post goes here."
+          : held
+            ? "They post to an address they keep to the people walking with them."
+            : "They have left an address for anything that comes by post."}
       </p>
       {body}
     </section>

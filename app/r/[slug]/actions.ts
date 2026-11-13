@@ -9,6 +9,7 @@ import {
   guestCookieName,
   isJourneyMember,
   newGuestToken,
+  shippingFor,
   memberClaimToken,
 } from "@/lib/registry-db";
 import {
@@ -17,7 +18,6 @@ import {
   GUEST_NOTE_MAX,
   QUANTITY_MAX,
   remaining,
-  shipReachOf,
 } from "@/lib/registry";
 import { HOUSEHOLD_ROLES } from "@/lib/roles";
 
@@ -245,36 +245,12 @@ export async function revealShipping(slug: string): Promise<
     }
   | { ok: false; reason: "none" | "circle" }
 > {
-  const r = await prisma.registry.findUnique({
-    where: { slug },
-    select: {
-      journeyId: true,
-      shipName: true,
-      shipAddress: true,
-      shipPhone: true,
-      shipNote: true,
-      shipReach: true,
-    },
-  });
-  const address = (r?.shipAddress ?? "").trim();
-  if (!r || !address) return { ok: false, reason: "none" };
-
-  if (shipReachOf(r) !== "LINK") {
-    const member = await isJourneyMember(r.journeyId, await auth());
-    if (!member) return { ok: false, reason: "circle" };
-  }
-
-  const tidy = (v: string | null) => {
-    const s = (v ?? "").trim();
-    return s.length > 0 ? s : null;
-  };
-  return {
-    ok: true,
-    name: tidy(r.shipName),
-    address,
-    phone: tidy(r.shipPhone),
-    note: tidy(r.shipNote),
-  };
+  // The rule lives in lib/registry-db.ts, because the page asks it too — a
+  // reader who is entitled to the address is shown it rather than made to
+  // tap for it, and two copies of "who may see a family's home address"
+  // would be one rule and one leak waiting.
+  const res = await shippingFor(slug, await auth());
+  return res.ok ? { ok: true, ...res.shipping } : res;
 }
 
 /** Changing their mind. Their own claim only — the token decides that. */
