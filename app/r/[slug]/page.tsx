@@ -231,14 +231,30 @@ export default async function PublicRegistryPage({
         </p>
       )}
 
-      {/* ── The whole list, first ────────────────────────────────────────
+      {/* ── Where it goes, first ─────────────────────────────────────────
+          Above everything, because it is the one thing on this page a guest
+          cannot get anywhere else. A list can be opened at the shop; the
+          address exists here and nowhere else, and somebody who came to post
+          something wants it before they start rather than after they have
+          scrolled past forty cards.
+
+          Only when there is something to post: a page of nothing but meals
+          and a fund has no parcel in it, and the address should not be
+          offered to guests who have no use for it. A whole list counts —
+          things bought from an Amazon list are posted somewhere too. Not on
+          a finished registry either; by then nothing more is coming. */}
+      {!r.closed && r.shipsTo && things.length + lists.length > 0 && (
+        <ShipReveal slug={r.slug} reach={r.shipReach} given={address} />
+      )}
+
+      {/* ── The whole list, before the things ────────────────────────────
           A family that keeps an Amazon or a shop's own registry usually
-          keeps MOST of the list there, and only a few things here. This
-          section was last on the page, under everything else, so the one
-          link a guest most needed was the one they had to scroll past forty
-          cards to find — and plenty never did. It goes first now, and says
-          plainly that there is more below, so nothing underneath is lost by
-          being second. */}
+          keeps MOST of the list there, and only a few things here. This was
+          last on the page, under everything else, so the one link a guest
+          most needed was the one they had to scroll past forty cards to find
+          — and plenty never did. It sits under the address now and above the
+          things, and says plainly that there is more below, so nothing
+          underneath is lost by being second. */}
       {lists.length > 0 && (
         <section className="reg-section mt-10">
           <Eyebrow className="mb-2">Kept elsewhere</Eyebrow>
@@ -264,22 +280,6 @@ export default async function PublicRegistryPage({
             ))}
           </ul>
         </section>
-      )}
-
-      {/*
-        Directly under the list, because somebody who came here to post
-        something wants the address before they start, not after they have
-        scrolled past forty cards — and because it was below the sorting
-        controls, which is where a reader stops looking.
-
-        Only when there is something to post: a page of nothing but meals and
-        a fund has no parcel in it, and the address should not be offered to
-        guests who have no use for it. A whole list counts — things bought
-        from an Amazon list are posted somewhere too. Not on a finished
-        registry either; by then nothing more is coming.
-      */}
-      {!r.closed && r.shipsTo && things.length + lists.length > 0 && (
-        <ShipReveal slug={r.slug} reach={r.shipReach} given={address} />
       )}
 
       {/*
