@@ -1,5 +1,6 @@
 "use client";
 
+import { headCount } from "@/lib/invitations";
 import { clockRange, whenWords } from "@/lib/day-words";
 import { useMemo, useState } from "react";
 import { InOnIt, type Housemate } from "@/components/dates/InOnIt";
@@ -76,18 +77,21 @@ function inviteSummary(i: InviteRow): string {
       ? `Asking which of ${i.options.length} days suits — no replies yet`
       : `Asking which of ${i.options.length} days suits — ${answered} answered`;
   }
-  const coming = i.replies
-    .filter((r) => r.answer === "YES")
-    .reduce((n, r) => n + Math.max(1, r.partySize), 0);
-  const hoping = i.replies
-    .filter((r) => r.answer === "MAYBE")
-    .reduce((n, r) => n + Math.max(1, r.partySize), 0);
+  // The same count as the invitation panel, from the same function — this
+  // card used to add the party sizes up itself, which is two definitions of
+  // "coming" waiting to disagree. And it names its units, people and
+  // replies, for the reason given in headCount.
+  const c = headCount(i.replies);
   const head =
-    i.replies.length === 0
+    c.replied === 0
       ? "Invitation sent — no replies yet"
-      : [coming ? `${coming} coming` : null, hoping ? `${hoping} hoping to` : null]
+      : [
+          c.coming ? `${c.coming} ${c.coming === 1 ? "person" : "people"} coming` : null,
+          c.hoping ? `${c.hoping} hoping to` : null,
+          `${c.replied} ${c.replied === 1 ? "reply" : "replies"}`,
+        ]
           .filter(Boolean)
-          .join(" · ") || "Replies in";
+          .join(" · ");
   return i.closed ? `${head} · replies closed` : head;
 }
 

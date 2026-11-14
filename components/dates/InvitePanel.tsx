@@ -14,9 +14,10 @@ import {
 import {
   HOST_NAME_MAX,
   MESSAGE_MAX,
-  answerLabel,
-  countSentence,
+  countForHost,
+  guestListText,
   headCount,
+  partyOf,
 } from "@/lib/invitations";
 import { ShareInvite } from "@/components/invite/ShareInvite";
 import { PollPanel, type PollOption } from "@/components/dates/PollPanel";
@@ -84,6 +85,8 @@ export function InvitePanel({
   const [asking, setAsking] = useState(false);
 
   const count = invite ? headCount(invite.replies) : null;
+  const hostCount = count ? countForHost(count) : null;
+  const [copied, setCopied] = useState(false);
   /**
    * While the day is still a question, the head count and the guest list are
    * answers to a different one. Four people said yes — to what? Hidden until
@@ -135,10 +138,35 @@ export function InvitePanel({
                   ? "Replies are closed"
                   : "Invitation is open"}
             </p>
-            <p className="font-mono text-xs text-muted">
-              {count ? countSentence(count) : ""}
-            </p>
           </div>
+
+          {/* ── The count, with its units said out loud ────────────────────
+              This was one line, "38 coming · 19 hoping to · 8 can't", above a
+              button reading "Who has replied (42)". Both were true and they
+              were not the same question: 38 is people saying yes, with the
+              guests they are bringing, and 42 is every reply of every kind —
+              the no's and the maybes too. With nothing saying which was which
+              a host counted the names, got 42, and reasonably decided the 38
+              was wrong. So the first number names itself as people, the line
+              under it says what it is made of, and the total is called
+              replies. */}
+          {count && (
+            <div className="mt-1.5">
+              <p className="font-serif text-2xl leading-tight text-ink">
+                {hostCount!.headline}
+              </p>
+              {hostCount!.detail && (
+                <p className="mt-0.5 font-mono text-xs text-muted">
+                  {hostCount!.detail}
+                </p>
+              )}
+              {hostCount!.rest && (
+                <p className="mt-0.5 font-mono text-xs text-muted">
+                  {hostCount!.rest}
+                </p>
+              )}
+            </div>
+          )}
 
           {invite.capacity != null && count && (
             <p className="mt-0.5 font-mono text-[0.66rem] text-muted">
@@ -207,47 +235,101 @@ export function InvitePanel({
 
           {invite.replies.length > 0 && (
             <div className="mt-3">
-              <button
-                type="button"
-                onClick={() => setShowGuests((s) => !s)}
-                aria-expanded={showGuests}
-                className="font-mono text-[0.68rem] text-accent underline underline-offset-4"
-              >
-                {showGuests
-                  ? "Hide who has replied"
-                  : `Who has replied (${invite.replies.length})`}
-              </button>
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                <button
+                  type="button"
+                  onClick={() => setShowGuests((s) => !s)}
+                  aria-expanded={showGuests}
+                  className="font-mono text-[0.68rem] text-accent underline underline-offset-4"
+                >
+                  {showGuests
+                    ? "Hide who has replied"
+                    : `Who has replied — ${hostCount!.total}`}
+                </button>
+                {/* The list as text, grouped and totalled, for the caterer,
+                    the seating plan or the family group. */}
+                <button
+                  type="button"
+                  onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(
+                        guestListText(title, invite.replies),
+                      );
+                      setCopied(true);
+                      setTimeout(() => setCopied(false), 2400);
+                    } catch {
+                      /* a browser that will not copy keeps the button as it was */
+                    }
+                  }}
+                  className="font-mono text-[0.68rem] text-muted underline underline-offset-4 hover:text-ink"
+                >
+                  {copied ? "Copied" : "Copy the list"}
+                </button>
+              </div>
+
+              {/* ── Grouped, and totalled the same way as the top ───────────
+                  It was one list of everybody in the order they replied, each
+                  with a small grey word saying which way they had answered.
+                  Counting it gave every reply — the no's included — which is
+                  how the 42 and the 38 came to look like they disagreed. Each
+                  answer is its own group now, and each group's total is the
+                  same number, in the same unit, as the line at the top. */}
               {showGuests && (
-                <ul className="mt-2 space-y-1.5">
-                  {invite.replies.map((r) => (
-                    <li
-                      key={r.id}
-                      className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 rounded-lg bg-bg/60 px-3 py-2"
-                    >
-                      <span className="font-serif text-base text-ink">
-                        {r.name}
-                      </span>
-                      <span className="font-mono text-[0.66rem] text-muted">
-                        {answerLabel(r.answer)}
-                        {r.partySize > 1 ? ` · ${r.partySize} of them` : ""}
-                      </span>
-                      {r.note && (
-                        <span className="w-full prose-serif-xs text-muted">
-                          “<Linked text={r.note} />”
-                        </span>
-                      )}
-                      <ConfirmButton
-                        press="none"
-                        disabled={busy}
-                        describe={`${r.name}'s reply`}
-                        onConfirm={async () => {
-                          await run(() => removeReply(r.id));
-                        }}
-                        className="ml-auto font-mono text-[0.6rem] uppercase tracking-widest text-muted hover:text-negative"
-                      />
-                    </li>
-                  ))}
-                </ul>
+                <div className="mt-3 space-y-4">
+                  {(
+                    [
+                      { answer: "YES", heading: "Coming", people: count!.coming },
+                      { answer: "MAYBE", heading: "Hoping to", people: count!.hoping },
+                      { answer: "NO", heading: "Can't make it", people: null },
+                    ] as const
+                  ).map((group) => {
+                    const rows = invite.replies.filter(
+                      (r) => r.answer === group.answer,
+                    );
+                    if (rows.length === 0) return null;
+                    return (
+                      <div key={group.answer}>
+                        <p className="mb-1.5 font-mono text-[0.6rem] uppercase tracking-widest text-muted">
+                          {group.heading} ·{" "}
+                          {group.people !== null && group.people !== rows.length
+                            ? `${group.people} people, ${rows.length} replies`
+                            : `${rows.length}`}
+                        </p>
+                        <ul className="space-y-1.5">
+                          {rows.map((r) => (
+                            <li
+                              key={r.id}
+                              className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 rounded-lg bg-bg/60 px-3 py-2"
+                            >
+                              <span className="font-serif text-base text-ink">
+                                {r.name}
+                              </span>
+                              {group.answer !== "NO" && partyOf(r) > 1 && (
+                                <span className="rounded-full border border-accent/40 px-2 py-px font-mono text-[0.6rem] text-accent">
+                                  +{partyOf(r) - 1}
+                                </span>
+                              )}
+                              {r.note && (
+                                <span className="w-full prose-serif-xs text-muted">
+                                  “<Linked text={r.note} />”
+                                </span>
+                              )}
+                              <ConfirmButton
+                                press="none"
+                                disabled={busy}
+                                describe={`${r.name}'s reply`}
+                                onConfirm={async () => {
+                                  await run(() => removeReply(r.id));
+                                }}
+                                className="ml-auto font-mono text-[0.6rem] uppercase tracking-widest text-muted hover:text-negative"
+                              />
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    );
+                  })}
+                </div>
               )}
             </div>
           )}

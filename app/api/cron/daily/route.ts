@@ -12,7 +12,7 @@ import {
 } from "@/lib/appointments";
 import { nudgeDueToday } from "@/lib/nudges";
 import { inviteUrl } from "@/lib/invitations-db";
-import { countSentence, headCount, whenWords } from "@/lib/invitations";
+import { countForHost, headCount, whenWords } from "@/lib/invitations";
 import { HOUSEHOLD_ROLES } from "@/lib/roles";
 import { appointmentPath, dayPath } from "@/lib/open-item";
 
@@ -388,8 +388,14 @@ async function tellTheHosts(now: Date) {
       .slice(0, 5)
       .map((r) => `${r.name}: ${r.note}`);
 
+    // People and replies, each named — the same wording as the invitation
+    // panel, so the digest and the screen it opens can never seem to differ.
+    const said = countForHost(c);
     const body = [
-      c.replied === 0 ? "Nobody has replied to the invitation." : countSentence(c),
+      c.replied === 0
+        ? "Nobody has replied to the invitation."
+        : [said.headline, said.detail].filter(Boolean).join(" — ") + ".",
+      said.rest && c.replied > 0 ? `${said.rest}.` : null,
       inv.event.where ? `At ${inv.event.where}.` : null,
       ...words,
     ]

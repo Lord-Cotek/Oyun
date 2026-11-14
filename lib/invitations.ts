@@ -38,26 +38,146 @@ export type ReplyLike = {
   note?: string | null;
 };
 
+/**
+ * The head count, in both units.
+ *
+ * ── Why both ─────────────────────────────────────────────────────────────
+ * "38 coming" and "42 replies" are both true and they are not the same
+ * question. The first is people — a yes bringing three is four — and the
+ * second is answers, of every kind, including the ones that said no. A host
+ * who sees the two side by side with nothing saying which is which counts
+ * the list of names, gets 42, and decides the 38 is wrong. Which is exactly
+ * what happened. So the count carries replies AND people for each answer,
+ * and the screens say out loud which one they are showing.
+ */
 export type HeadCount = {
   /** People, not replies: a yes bringing three is four. */
   coming: number;
   hoping: number;
   /** Replies, not people — "four households said no" is not a useful number. */
   cannot: number;
+  /** Every reply, of every kind. */
   replied: number;
+  /** How many replies said yes — the names on the list. */
+  comingReplies: number;
+  /** How many replies said they hope to. */
+  hopingReplies: number;
+  /**
+   * The extra people the yes-replies are bringing: `coming` minus the
+   * replies themselves. "29 replies, bringing 9 more" is the figure a host
+   * actually orders food from.
+   */
+  bringing: number;
 };
 
 export function headCount(replies: ReplyLike[]): HeadCount {
   let coming = 0;
   let hoping = 0;
   let cannot = 0;
+  let comingReplies = 0;
+  let hopingReplies = 0;
   for (const r of replies) {
-    const size = Math.max(1, Math.min(PARTY_MAX, r.partySize || 1));
-    if (r.answer === "YES") coming += size;
-    else if (r.answer === "MAYBE") hoping += size;
-    else if (r.answer === "NO") cannot += 1;
+    const size = partyOf(r);
+    if (r.answer === "YES") {
+      coming += size;
+      comingReplies += 1;
+    } else if (r.answer === "MAYBE") {
+      hoping += size;
+      hopingReplies += 1;
+    } else if (r.answer === "NO") cannot += 1;
   }
-  return { coming, hoping, cannot, replied: replies.length };
+  return {
+    coming,
+    hoping,
+    cannot,
+    replied: replies.length,
+    comingReplies,
+    hopingReplies,
+    bringing: coming - comingReplies,
+  };
+}
+
+/**
+ * How many people one reply stands for. The same clamp the count uses, so a
+ * name on the list and the number at the top can never disagree.
+ */
+export function partyOf(r: Pick<ReplyLike, "partySize">): number {
+  return Math.max(1, Math.min(PARTY_MAX, r.partySize || 1));
+}
+
+/**
+ * The count, said for the person organising the day.
+ *
+ * Every number names its unit — "people", "replies" — because the whole bug
+ * was two unlabelled numbers that looked like the same thing.
+ */
+export function countForHost(c: HeadCount): {
+  headline: string;
+  detail: string | null;
+  rest: string | null;
+  total: string;
+} {
+  const people = (n: number) => (n === 1 ? "1 person" : `${n} people`);
+  const repliesW = (n: number) => (n === 1 ? "1 reply" : `${n} replies`);
+
+  const headline =
+    c.replied === 0
+      ? "No replies yet"
+      : c.coming === 0
+        ? "Nobody has said yes yet"
+        : `${people(c.coming)} coming`;
+
+  const detail =
+    c.comingReplies === 0
+      ? null
+      : c.bringing > 0
+        ? `${repliesW(c.comingReplies)}, bringing ${c.bringing} more`
+        : `${repliesW(c.comingReplies)}, nobody bringing anyone`;
+
+  const restParts: string[] = [];
+  if (c.hoping) {
+    restParts.push(
+      `${people(c.hoping)} hoping to${
+        c.hoping !== c.hopingReplies ? ` (${repliesW(c.hopingReplies)})` : ""
+      }`,
+    );
+  }
+  if (c.cannot) restParts.push(`${c.cannot} can't make it`);
+
+  return {
+    headline,
+    detail,
+    rest: restParts.length ? restParts.join(" · ") : null,
+    total: `${repliesW(c.replied)} in all`,
+  };
+}
+
+/**
+ * The guest list as plain text, for pasting into a note, a caterer's
+ * message or the family group — grouped by answer, with each party's size,
+ * and the same totals as the screen.
+ */
+export function guestListText(title: string, replies: ReplyLike[]): string {
+  const c = headCount(replies);
+  const line = (r: ReplyLike) => {
+    const n = partyOf(r);
+    return `• ${r.name.trim() || "Someone"}${n > 1 ? ` +${n - 1}` : ""}`;
+  };
+  const section = (heading: string, answer: string) => {
+    const rows = replies.filter((r) => r.answer === answer);
+    return rows.length ? [heading, ...rows.map(line), ""] : [];
+  };
+  const head = countForHost(c);
+  return [
+    title.trim(),
+    [head.headline, head.detail].filter(Boolean).join(" — "),
+    "",
+    ...section(`Coming (${c.coming})`, "YES"),
+    ...section(`Hoping to (${c.hoping})`, "MAYBE"),
+    ...section(`Can't make it (${c.cannot})`, "NO"),
+  ]
+    .join("\n")
+    .trim();
 }
 
 /**
