@@ -48,6 +48,19 @@ export async function addCheckIn(formData: FormData) {
   revalidatePath("/journey");
 }
 
+/**
+ * Who sees how she is: her partner (as it has always been), her partner and
+ * the circle, or nobody but her. Hers alone to set.
+ */
+export async function setMoodAudience(audience: string) {
+  const { journeyId } = await requireMother();
+  if (!["HOUSEHOLD", "CIRCLE", "ME"].includes(audience)) return { ok: false as const };
+  await prisma.journey.update({ where: { id: journeyId }, data: { moodAudience: audience } });
+  revalidatePath("/care");
+  revalidatePath("/journey");
+  return { ok: true as const };
+}
+
 export async function addLetter(formData: FormData) {
   const { userId, journeyId } = await requireParent();
   const body = String(formData.get("body") ?? "").trim();

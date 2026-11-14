@@ -552,8 +552,8 @@ export default async function JourneyPage() {
   }
 
   // ── Husband / Partner view ─────────────────────────────────────────────
-  const [latest, nudges, support, coupleLetters, babyLetters] = await Promise.all([
-    getLatestMotherCheckIn(journey.id),
+  const [herMood, nudges, support, coupleLetters, babyLetters] = await Promise.all([
+    getLatestMotherCheckIn(journey.id, "PARTNER"),
     getOpenNudges(journey.id, session.user.id),
     getSupportSummary(journey.id, session.user.id),
     getCoupleLetters(journey.id, session.user.id),
@@ -570,6 +570,8 @@ export default async function JourneyPage() {
   // lib/babies.ts. Declared again here because the mother's branch above has
   // already returned by this point and its own copy is out of scope.
   const bw = babyWords(journey.babyCount, journey.babyName);
+  const latest = herMood.checkIn;
+  const moodHidden = herMood.hidden;
   const mood = latest ? MOOD_META[latest.mood] : null;
   const latestReactions = latest
     ? (await getReactionsFor("CHECKIN", [latest.id], session.user.id))[latest.id]
@@ -665,8 +667,9 @@ export default async function JourneyPage() {
                 </>
               ) : (
                 <p className="prose-serif-xs text-muted">
-                  {motherName} hasn&rsquo;t shared a check-in yet. When she does,
-                  you&rsquo;ll see how she&rsquo;s doing here — a cue to reach out.
+                  {moodHidden
+                    ? `${motherName} is keeping how she is to herself for now. Ask her gently — she may want to tell you.`
+                    : <>{motherName} hasn&rsquo;t shared a check-in yet. When she does, you&rsquo;ll see how she&rsquo;s doing here — a cue to reach out.</>}
                 </p>
               )}
             </div>

@@ -14,6 +14,7 @@ import { Eyebrow } from "@/components/ui/Eyebrow";
 import { StatCard } from "@/components/ui/StatCard";
 import { PageHero } from "@/components/ui/PageHero";
 import { CheckInForm } from "@/components/care/CheckInForm";
+import { MoodAudience } from "@/components/care/MoodAudience";
 import { MoodChart, type MoodPoint } from "@/components/care/MoodChart";
 import { LettersSummary } from "@/components/care/LettersSummary";
 
@@ -91,7 +92,13 @@ export default async function CarePage() {
         <PageHero
           eyebrow="Care"
           title="Your heart, your letters."
-          lede="A quiet, private place. What you write here stays yours — your check-in mood can be shared with the one supporting you; your notes and letters are kept for you."
+          lede={
+            active.journey.moodAudience === "ME"
+              ? "A quiet, private place. Your moods, notes and letters are kept for you — nobody else sees how you are."
+              : active.journey.moodAudience === "CIRCLE"
+                ? "A quiet, private place. Your mood is seen by your partner and your circle; your notes and letters are kept for you."
+                : "A quiet, private place. Your mood is seen by your partner only; your notes and letters are kept for you."
+          }
         />
 
         <div className="mt-6 grid gap-4 sm:grid-cols-3">
@@ -116,7 +123,10 @@ export default async function CarePage() {
           {/* Check-ins + chart */}
           <Card className="lg:col-span-2">
             <Eyebrow className="mb-4">How is your heart today?</Eyebrow>
-            <CheckInForm />
+            <CheckInForm shareable={active.journey.moodAudience !== "ME"} />
+            <div className="mt-8 border-t border-border pt-6">
+              <MoodAudience initial={active.journey.moodAudience} />
+            </div>
             <div className="mt-8 border-t border-border pt-6">
               <p className="eyebrow mb-4 text-muted">Over time</p>
               <MoodChart data={points} />

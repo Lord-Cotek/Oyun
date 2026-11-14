@@ -75,14 +75,17 @@ export async function AccountabilityView({
   familyPosts?: FeedPost[];
   todayLabel?: string;
 }) {
-  const [latest, nudges, support, me, hasOwnJourney] = await Promise.all([
-    getLatestMotherCheckIn(journeyId),
+  const [herMood, nudges, support, me, hasOwnJourney] = await Promise.all([
+    getLatestMotherCheckIn(journeyId, "CIRCLE"),
     getOpenNudges(journeyId, userId),
     getSupportSummary(journeyId, userId),
     prisma.user.findUnique({ where: { id: userId }, select: { name: true } }),
     ownsJourney(userId),
   ]);
   const idileUrl = process.env.NEXT_PUBLIC_IDILE_URL;
+  // Only when she has opened her mood to the circle — see Journey.moodAudience.
+  const latest = herMood.checkIn;
+  const moodHidden = herMood.hidden;
   const mood = latest ? MOOD_META[latest.mood] : null;
   const latestReactions = latest
     ? (await getReactionsFor("CHECKIN", [latest.id], userId))[latest.id]
@@ -127,8 +130,9 @@ export async function AccountabilityView({
               </>
             ) : (
               <p className="prose-serif-xs text-muted">
-                {motherName} hasn&rsquo;t shared a check-in yet. When she does,
-                you&rsquo;ll see it here — a cue to reach out.
+                {moodHidden
+                  ? `${motherName} keeps how she is close to home for now. A word or a prayer from you is always welcome.`
+                  : <>{motherName} hasn&rsquo;t shared a check-in yet. When she does, you&rsquo;ll see it here — a cue to reach out.</>}
               </p>
             )}
           </div>

@@ -316,6 +316,12 @@ model Journey {
   postShares     PostShare[]
   shareHellos    ShareHello[]
   joinRequests   JoinRequest[]
+  /// Who sees how she is — her check-in mood: "HOUSEHOLD" (the one walking
+  /// beside her), "CIRCLE" (them and the wider circle) or "ME" (nobody but
+  /// her). Hers to choose on the Care page. The Care page always promised
+  /// her mood went to "the one supporting you", so that is the default; the
+  /// circle sees it only if she opens it to them.
+  moodAudience    String         @default("HOUSEHOLD")
 }
 
 /// The family feed — an update, a praise, a prayer, or a milestone that the

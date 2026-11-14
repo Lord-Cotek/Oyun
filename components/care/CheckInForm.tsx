@@ -6,7 +6,7 @@ import { addCheckIn } from "@/app/care/actions";
 import { MOOD_ORDER, MOOD_META } from "@/lib/moods";
 import { DraftTextarea } from "@/components/ui/DraftTextarea";
 
-export function CheckInForm() {
+export function CheckInForm({ shareable = true }: { shareable?: boolean }) {
   const [mood, setMood] = useState<string>("STEADY");
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -46,22 +46,29 @@ export function CheckInForm() {
         draftKey="care:checkin"
         name="note"
         rows={2}
-        placeholder="A word about today (optional) — this stays yours unless you share it."
+        placeholder={
+          shareable
+            ? "A word about today (optional) — this stays yours unless you share it."
+            : "A word about today (optional) — this stays yours."
+        }
         className="w-full resize-none rounded-lg border border-border bg-bg px-3.5 py-2.5 font-mono text-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none"
       />
-      {/* Off unless she ticks it. Her mood is shared as it always was; her
-          words go only where she sends them. */}
-      <label className="flex items-start gap-2.5 prose-serif-xs text-muted">
-        <input
-          type="checkbox"
-          name="shareNote"
-          className="mt-1 h-4 w-4 shrink-0 accent-[color:var(--accent)]"
-        />
-        <span>
-          Share this note with the people who see how I am — not just the
-          mood.
-        </span>
-      </label>
+      {/* Off unless she ticks it. Her mood goes to whoever she chose on this
+          page; her words go only where she sends them. When she keeps her
+          mood to herself there is nobody to share a note with. */}
+      {shareable && (
+        <label className="flex items-start gap-2.5 prose-serif-xs text-muted">
+          <input
+            type="checkbox"
+            name="shareNote"
+            className="mt-1 h-4 w-4 shrink-0 accent-[color:var(--accent)]"
+          />
+          <span>
+            Share this note with the people who see how I am — not just the
+            mood.
+          </span>
+        </label>
+      )}
       <Submit label="Save today" />
     </form>
   );

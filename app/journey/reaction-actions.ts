@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { moodVisibleTo } from "@/lib/data";
 import { isSealedFor } from "@/lib/letters-seal";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
@@ -82,6 +83,11 @@ export async function toggleReaction(
     select: { role: true },
   });
   if (!member) return { ok: false };
+  // Nobody answers a mood she has not shown them — see Journey.moodAudience.
+  if (targetType === "CHECKIN" && member.role !== "MOTHER") {
+    const j = await prisma.journey.findUnique({ where: { id: journeyId! }, select: { moodAudience: true } });
+    if (!j || !moodVisibleTo(j.moodAudience, member.role === "PARTNER" ? "PARTNER" : "CIRCLE")) return { ok: false };
+  }
   /**
    * Letters are the two of them — never an accountability partner or a friend.
    * This is the same line /letters draws with `isHousehold`, kept here because

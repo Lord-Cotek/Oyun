@@ -570,17 +570,34 @@ export async function getUpcoming(
   return items.sort((a, b) => a.daysAway - b.daysAway).slice(0, 6);
 }
 
-export async function getLatestMotherCheckIn(journeyId: string) {
+/**
+ * Her latest check-in, as this viewer is allowed to see it.
+ *
+ * `hidden` is true when she has checked in but keeps her mood from this
+ * viewer — see Journey.moodAudience — so the screen can say so honestly
+ * rather than "she hasn't shared a check-in yet".
+ */
+export async function getLatestMotherCheckIn(journeyId: string, viewer: "PARTNER" | "CIRCLE") {
   const journey = await prisma.journey.findUnique({
     where: { id: journeyId },
-    select: { ownerId: true },
+    select: { ownerId: true, moodAudience: true },
   });
-  if (!journey) return null;
+  if (!journey) return { checkIn: null, hidden: false };
 
-  return prisma.checkIn.findFirst({
+  const checkIn = await prisma.checkIn.findFirst({
     where: { journeyId, userId: journey.ownerId },
     orderBy: { createdAt: "desc" },
   });
+  if (!checkIn) return { checkIn: null, hidden: false };
+  const may = moodVisibleTo(journey.moodAudience, viewer);
+  return may ? { checkIn, hidden: false } : { checkIn: null, hidden: true };
+}
+
+/** The one rule for who sees her mood. */
+export function moodVisibleTo(audience: string, viewer: "PARTNER" | "CIRCLE"): boolean {
+  if (audience === "ME") return false;
+  if (viewer === "PARTNER") return true;
+  return audience === "CIRCLE";
 }
 
 export async function getOpenNudges(journeyId: string, userId: string) {

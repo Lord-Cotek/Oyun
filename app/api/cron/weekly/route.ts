@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { moodVisibleTo } from "@/lib/data";
 import { prisma } from "@/lib/prisma";
 import { computePosition } from "@/lib/stage";
 import { MOOD_META } from "@/lib/moods";
@@ -103,7 +104,8 @@ export async function GET(req: Request) {
         intro = `Here's how to carry ${motherName} in the days ahead.`;
         sections.push({ heading: "How to carry her", lines: [stage.partnerFocus] });
         sections.push({ heading: "Pray for her", lines: [stage.prayerPoint] });
-        if (latestMood) {
+        // Her mood only to those she has chosen — see Journey.moodAudience.
+        if (latestMood && moodVisibleTo(journey.moodAudience, m.role === "PARTNER" ? "PARTNER" : "CIRCLE")) {
           sections.push({
             heading: "Her heart, lately",
             lines: [
