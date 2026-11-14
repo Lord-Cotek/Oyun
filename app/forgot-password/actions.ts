@@ -1,6 +1,7 @@
 "use server";
 
 import { randomBytes } from "node:crypto";
+import { HOUR, allowAll, callerIp } from "@/lib/rate-limit";
 import { prisma } from "@/lib/prisma";
 import { sendPasswordResetEmail } from "@/lib/email";
 
@@ -19,6 +20,17 @@ export async function requestPasswordReset(
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   if (!email || !email.includes("@")) {
     return { ok: false, error: "Please enter a valid email address." };
+  }
+
+  // Three reset emails an address and ten a device an hour. Past that the
+  // answer is the same generic one — nothing is sent, and nothing is told.
+  if (
+    !(await allowAll([
+      [`reset:email:${email}`, 3, HOUR],
+      [`reset:ip:${callerIp()}`, 10, HOUR],
+    ]))
+  ) {
+    return { ok: true };
   }
 
   const user = await prisma.user.findUnique({ where: { email } });

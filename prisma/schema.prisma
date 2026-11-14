@@ -13,6 +13,9 @@ model User {
   name          String?
   email         String?   @unique
   emailVerified DateTime?
+  /// A new address waiting to be confirmed. It becomes `email` only when the
+  /// link sent to it is opened — see lib/email-confirm.ts.
+  pendingEmail  String?
   image         String?
   passwordHash  String?
   notifyByEmail Boolean   @default(true)
@@ -1634,4 +1637,29 @@ model OwnMorningSent {
 
   @@unique([userId, key])
   @@index([sentAt])
+}
+
+/// A six-digit code emailed so somebody can sign in without their password —
+/// optional; the password stays the ordinary way in. Hashed with the address,
+/// ten minutes, five tries. See lib/sign-in-code.ts.
+model SignInCode {
+  id        String   @id @default(cuid())
+  email     String
+  codeHash  String
+  expires   DateTime
+  attempts  Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@index([email])
+}
+
+/// One knock against a limit — a sign-in, a code request, a reset email, a
+/// guest reply — keyed by what was limited ("signin:email:…", "reset:ip:…").
+/// Swept as it goes. See lib/rate-limit.ts.
+model RateHit {
+  id  String   @id @default(cuid())
+  key String
+  at  DateTime @default(now())
+
+  @@index([key, at])
 }

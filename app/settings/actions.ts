@@ -1,6 +1,8 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { makeConfirmLink } from "@/lib/email-confirm";
+import { sendConfirmEmail, sendEmailChangeNotice } from "@/lib/email";
 import { CATEGORY_FIELDS } from "@/lib/notify-prefs";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
@@ -25,22 +27,38 @@ export async function updateProfile(_prev: unknown, formData: FormData): Promise
   if (email && !email.includes("@")) {
     return { ok: false, error: "Please enter a valid email." };
   }
-  if (email) {
+  // ── A new address waits until it is confirmed ──────────────────────────
+  // It used to replace the old one the moment it was typed, which let an
+  // address nobody had proved carry admin rights and invitations. Now it is
+  // held in pendingEmail, a link goes to it, the OLD address is told, and the
+  // account keeps its current email until the link is opened.
+  const me = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { email: true, name: true },
+  });
+  let pendingNote = "";
+  if (email && email !== (me?.email ?? "").toLowerCase()) {
     const clash = await prisma.user.findFirst({
       where: { email, id: { not: userId } },
     });
     if (clash) return { ok: false, error: "That email is already in use." };
+    await prisma.user.update({ where: { id: userId }, data: { pendingEmail: email } });
+    const link = await makeConfirmLink(userId, email, process.env.NEXT_PUBLIC_SITE_URL ?? "https://oyun.cotek.app");
+    await sendConfirmEmail({ to: email, name: me?.name, link, change: true }).catch(() => {});
+    if (me?.email) await sendEmailChangeNotice({ to: me.email, newEmail: email }).catch(() => {});
+    pendingNote = ` We've sent a link to ${email} — your email changes once you open it.`;
   }
 
   // The browser uploaded any new photo straight to Blob and passed the URL.
   const rawPhoto = String(formData.get("photoUrl") ?? "").trim();
-  const photoUrl = rawPhoto.startsWith("http") ? rawPhoto : null;
+  // Only our own storage: a photo URL from anywhere else is a tracking pixel
+  // shown to everybody who sees this person.
+  const photoUrl = /^https:\/\/[a-z0-9.-]+\.public\.blob\.vercel-storage\.com\//i.test(rawPhoto) ? rawPhoto : null;
 
   await prisma.user.update({
     where: { id: userId },
     data: {
       name: name || null,
-      ...(email ? { email } : {}),
       ...(photoUrl ? { image: photoUrl } : {}),
     },
   });
@@ -48,7 +66,7 @@ export async function updateProfile(_prev: unknown, formData: FormData): Promise
   revalidatePath("/journey");
   revalidatePath("/circle");
   revalidatePath("/life");
-  return { ok: true, message: "Profile saved." };
+  return { ok: true, message: `Profile saved.${pendingNote}` };
 }
 
 export async function changePassword(_prev: unknown, formData: FormData): Promise<Result> {
@@ -143,4 +161,22 @@ export async function deleteAccount(): Promise<void> {
     await prisma.passwordResetToken.deleteMany({ where: { email: user.email } });
   }
   await prisma.user.delete({ where: { id: userId } });
+}
+
+
+/** Send the "confirm your email" link again — for the current address or a pending one. */
+export async function resendConfirm(): Promise<Result> {
+  const userId = await requireUser();
+  const u = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { email: true, pendingEmail: true, name: true, emailVerified: true },
+  });
+  if (!u) return { ok: false, error: "Account not found." };
+  const to = u.pendingEmail ?? (u.emailVerified ? null : u.email);
+  if (!to) return { ok: true, message: "Your email is already confirmed." };
+  const link = await makeConfirmLink(userId, to, process.env.NEXT_PUBLIC_SITE_URL ?? "https://oyun.cotek.app");
+  const sent = await sendConfirmEmail({ to, name: u.name, link, change: !!u.pendingEmail }).catch(() => false);
+  return sent
+    ? { ok: true, message: `Sent to ${to}. The link works for three days.` }
+    : { ok: false, error: "That did not send just now. Try again in a few minutes." };
 }

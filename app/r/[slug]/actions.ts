@@ -1,6 +1,7 @@
 "use server";
 
 import { cookies } from "next/headers";
+import { HOUR, allowAll, callerIp } from "@/lib/rate-limit";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
@@ -91,6 +92,10 @@ async function claimerFor(
 
 export async function claim(formData: FormData): Promise<Result> {
   const slug = String(formData.get("slug") ?? "");
+  // Forty a device an hour — far past anybody choosing gifts by hand.
+  if (!(await allowAll([[`claim:ip:${callerIp()}`, 40, HOUR]]))) {
+    return { ok: false, error: "A lot of choices from here in a short time. Please wait a little and try again." };
+  }
   const itemId = String(formData.get("itemId") ?? "");
   const name = String(formData.get("name") ?? "").trim().slice(0, GUEST_NAME_MAX);
   const note = String(formData.get("note") ?? "").trim().slice(0, GUEST_NOTE_MAX);

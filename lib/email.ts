@@ -944,3 +944,109 @@ export async function sendGuestAfterEmails({
   });
   return sendEmailBatch(items, "guest-after");
 }
+
+/**
+ * "Is this your address?" — at sign-up, when an address is changed, or when
+ * somebody asks for the link again from Settings.
+ *
+ * It proves the address belongs to the person: admin rights and invitations
+ * are matched by address, so an address nobody has proved must not carry
+ * them. See lib/email-confirm.ts.
+ */
+export async function sendConfirmEmail({
+  to,
+  name,
+  link,
+  change = false,
+}: {
+  to: string;
+  name?: string | null;
+  link: string;
+  /** True when this is a new address replacing an old one. */
+  change?: boolean;
+}): Promise<boolean> {
+  const greeting = name?.trim() || "Hello";
+  const lead = change
+    ? "You asked to use this address for your Oyun account. Confirm it below and it takes over from the old one."
+    : "Please confirm this is your email address, so Oyun knows it is really you.";
+  const html = shell(`
+    <p style="font-size:16px;line-height:1.6;color:#ECE8DE;">${escapeHtml(greeting)},</p>
+    <p style="font-size:14px;line-height:1.7;color:#ECE8DE;">${escapeHtml(lead)}</p>
+    <p style="margin:24px 0;">
+      <a href="${link}" style="display:inline-block;background:#E6A94E;color:#120D08;text-decoration:none;font-weight:600;padding:12px 20px;border-radius:8px;font-size:14px;">Confirm my email</a>
+    </p>
+    <p style="font-size:12px;line-height:1.7;color:#8A9099;">
+      The link works for three days. If you did not ask for this, ignore it — nothing changes.
+    </p>
+  `);
+  const text = [
+    `${greeting},`,
+    "",
+    lead,
+    "",
+    `Confirm my email: ${link}`,
+    "",
+    "The link works for three days. If you did not ask for this, ignore it — nothing changes.",
+  ].join("\n");
+  return sendEmail({ to, subject: change ? "Confirm your new email address" : "Confirm your email address", html, text, kind: "confirm-email" });
+}
+
+/**
+ * A word to the OLD address when somebody asks to move the account to a new
+ * one — so a change nobody meant is noticed while it can still be stopped.
+ */
+export async function sendEmailChangeNotice({
+  to,
+  newEmail,
+}: {
+  to: string;
+  newEmail: string;
+}): Promise<boolean> {
+  const masked = newEmail.replace(/^(.).*(@.*)$/, "$1…$2");
+  const html = shell(`
+    <p style="font-size:14px;line-height:1.7;color:#ECE8DE;">
+      Somebody signed in to your Oyun account asked to change its email to ${escapeHtml(masked)}.
+      Nothing changes until that new address is confirmed.
+    </p>
+    <p style="font-size:14px;line-height:1.7;color:#ECE8DE;">
+      If this was you, there is nothing to do. If it was not, sign in and change your password now.
+    </p>
+  `);
+  const text = [
+    `Somebody signed in to your Oyun account asked to change its email to ${masked}.`,
+    "Nothing changes until that new address is confirmed.",
+    "",
+    "If this was you, there is nothing to do. If it was not, sign in and change your password now.",
+  ].join("\n");
+  return sendEmail({ to, subject: "Your email address is being changed", html, text, kind: "email-change-notice" });
+}
+
+/** The six-digit sign-in code — optional; the password stays the ordinary way in. */
+export async function sendSignInCodeEmail({
+  to,
+  name,
+  code,
+}: {
+  to: string;
+  name?: string | null;
+  code: string;
+}): Promise<boolean> {
+  const greeting = name?.trim() || "Hello";
+  const spaced = `${code.slice(0, 3)} ${code.slice(3)}`;
+  const html = shell(`
+    <p style="font-size:16px;line-height:1.6;color:#ECE8DE;">${escapeHtml(greeting)},</p>
+    <p style="font-size:14px;line-height:1.7;color:#ECE8DE;">Here is your code to sign in to Oyun:</p>
+    <p style="font-size:32px;letter-spacing:8px;font-weight:600;color:#ECE8DE;margin:16px 0;">${spaced}</p>
+    <p style="font-size:12px;line-height:1.7;color:#8A9099;">
+      It works for ten minutes. If you did not ask for it, ignore this email — nobody can sign in without the code.
+    </p>
+  `);
+  const text = [
+    `${greeting},`,
+    "",
+    `Here is your code to sign in to Oyun: ${spaced}`,
+    "",
+    "It works for ten minutes. If you did not ask for it, ignore this email.",
+  ].join("\n");
+  return sendEmail({ to, subject: `${spaced} is your Oyun sign-in code`, html, text, kind: "sign-in-code" });
+}

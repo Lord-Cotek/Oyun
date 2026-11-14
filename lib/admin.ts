@@ -160,8 +160,18 @@ export function superAdminEmails(): string[] {
  */
 export async function currentAdmin(): Promise<Admin | null> {
   const session = await auth();
-  const email = session?.user?.email?.trim().toLowerCase();
-  if (!email) return null;
+  const id = session?.user?.id;
+  if (!id) return null;
+  // The address as the account holds it now — not as the sign-in cookie
+  // remembered it — and only once it has been CONFIRMED. Admin rights are
+  // granted by address; an address nobody has proved must not carry them,
+  // however old the account. See lib/email-confirm.ts.
+  const me = await prisma.user.findUnique({
+    where: { id },
+    select: { email: true, emailVerified: true },
+  });
+  const email = me?.email?.trim().toLowerCase();
+  if (!email || !me?.emailVerified) return null;
 
   if (superAdminEmails().includes(email)) return { email, isSuper: true };
 

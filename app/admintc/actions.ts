@@ -263,6 +263,12 @@ type LinkResult =
  */
 export async function takeResetLink(email: string): Promise<LinkResult> {
   const admin = await requireSuperAdmin();
+  // The most powerful thing this centre does — a link that opens somebody's
+  // account — so it needs the centre unlocked like everything else here. It
+  // used to work with a session cookie alone.
+  if (!unlockedFor(admin.email)) {
+    return { ok: false, error: "The centre has locked. Open it again." };
+  }
   const to = email.trim().toLowerCase();
 
   const user = await prisma.user.findFirst({

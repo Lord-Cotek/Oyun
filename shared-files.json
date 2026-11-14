@@ -227,6 +227,20 @@
     },
     "components/invite/ThankGuests.tsx",
     "lib/assistant-limit.ts",
-    "components/invite/AfterTheDay.tsx"
+    "components/invite/AfterTheDay.tsx",
+    "lib/email-confirm.ts",
+    "lib/sign-in-code.ts",
+    "lib/rate-limit.ts",
+    "components/settings/ConfirmEmailNote.tsx",
+    "app/sign-in/actions.ts",
+    {
+      "path": "app/confirm-email/page.tsx",
+      "substitutions": [
+        [
+          "IdileMark",
+          "ÌdíléMark"
+        ]
+      ]
+    }
   ]
 }

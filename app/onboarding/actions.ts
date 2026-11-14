@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { markConfirmed } from "@/lib/email-confirm";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
@@ -100,6 +101,9 @@ export async function acceptInvite(formData: FormData) {
       `This invitation was sent to ${invite.email}. Please sign in with that email to accept it.`,
     );
   }
+  // The link was emailed to this address and the account's address matches
+  // it: opening it is proof the address is theirs. See lib/email-confirm.ts.
+  await markConfirmed(session.user.id);
   // Guard 3: never overwrite an existing role (especially not a MOTHER).
   const existingMembership = await prisma.membership.findUnique({
     where: {

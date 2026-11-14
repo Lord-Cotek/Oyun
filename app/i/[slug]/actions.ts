@@ -1,6 +1,7 @@
 "use server";
 
 import { dayPath } from "@/lib/open-item";
+import { HOUR, allowAll, callerIp } from "@/lib/rate-limit";
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
@@ -41,6 +42,12 @@ type Result = { ok: true } | { ok: false; error: string };
  */
 export async function reply(formData: FormData): Promise<Result> {
   const slug = String(formData.get("slug") ?? "");
+  // Twenty replies a device an hour on one invitation — plenty for a family
+  // answering for each other, and stops one person filling the list so real
+  // guests are turned away.
+  if (!(await allowAll([[`reply:ip:${callerIp()}:${slug}`, 20, HOUR]]))) {
+    return { ok: false, error: "A lot of replies from here in a short time. Please wait a little and try again." };
+  }
   const invitation = await prisma.invitation.findUnique({
     where: { slug },
     select: {

@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { ConfirmEmailNote } from "@/components/settings/ConfirmEmailNote";
+import { resendConfirm } from "@/app/settings/actions";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
@@ -93,6 +95,12 @@ export default async function SettingsPage() {
               name={user.name ?? ""}
               email={user.email ?? ""}
               image={user.image}
+            />
+            <ConfirmEmailNote
+              email={user.email ?? ""}
+              pending={user.pendingEmail}
+              confirmed={!!user.emailVerified}
+              onResend={resendConfirm}
             />
           </Card>
 

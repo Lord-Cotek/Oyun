@@ -2,6 +2,19 @@ import { type NextAuthOptions, getServerSession } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "@/lib/prisma";
 import { verifyPassword } from "@/lib/password";
+import { redeemSignInCode } from "@/lib/sign-in-code";
+import { MINUTE, allowAll, callerIp } from "@/lib/rate-limit";
+
+/** NextAuth hands credentials a plain header object; the limiter wants .get(). */
+function headerGetter(h: unknown): { get(name: string): string | null } {
+  const rec = (h ?? {}) as Record<string, string | string[] | undefined>;
+  return {
+    get: (name) => {
+      const v = rec[name] ?? rec[name.toLowerCase()];
+      return Array.isArray(v) ? (v[0] ?? null) : (v ?? null);
+    },
+  };
+}
 
 /**
  * How long somebody stays signed in without having to think about it.
@@ -38,10 +51,21 @@ export const authOptions: NextAuthOptions = {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials) {
+      async authorize(credentials, req) {
         const email = credentials?.email?.trim().toLowerCase();
         const password = credentials?.password ?? "";
         if (!email || !password) return null;
+        // Ten tries an address and thirty a device in fifteen minutes — far
+        // past anybody mistyping, well short of anybody guessing.
+        const ip = callerIp(headerGetter(req?.headers));
+        if (
+          !(await allowAll([
+            [`signin:email:${email}`, 10, 15 * MINUTE],
+            [`signin:ip:${ip}`, 30, 15 * MINUTE],
+          ]))
+        ) {
+          return null;
+        }
 
         const user = await prisma.user.findUnique({ where: { email } });
         if (!user || !user.passwordHash) return null;
@@ -53,6 +77,27 @@ export const authOptions: NextAuthOptions = {
         if (!ok) return null;
 
         return { id: user.id, email: user.email, name: user.name };
+      },
+    }),
+    // ── Or a code sent by email ──────────────────────────────────────────
+    // Optional, for the people who have forgotten a password they rarely
+    // use. The password above stays the ordinary way in. See
+    // lib/sign-in-code.ts.
+    CredentialsProvider({
+      id: "email-code",
+      name: "Email code",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        code: { label: "Code", type: "text" },
+      },
+      async authorize(credentials, req) {
+        const email = credentials?.email?.trim().toLowerCase();
+        const code = credentials?.code ?? "";
+        if (!email || !code) return null;
+        const ip = callerIp(headerGetter(req?.headers));
+        if (!(await allowAll([[`code-use:ip:${ip}`, 30, 15 * MINUTE]]))) return null;
+        const user = await redeemSignInCode(email, code);
+        return user ? { id: user.id, email: user.email, name: user.name } : null;
       },
     }),
   ],
