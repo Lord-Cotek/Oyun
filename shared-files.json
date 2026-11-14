@@ -225,6 +225,7 @@
         ]
       ]
     },
-    "components/invite/ThankGuests.tsx"
+    "components/invite/ThankGuests.tsx",
+    "lib/assistant-limit.ts"
   ]
 }

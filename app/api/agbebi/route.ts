@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { anthropic, modelChain, isModelError } from "@/lib/anthropic";
 import { buildAgbebiSystem } from "@/lib/agbebi";
 import { auth } from "@/lib/auth";
+import { checkAssistantLimit, recordAssistantUse } from "@/lib/assistant-limit";
 import { getActiveMembership } from "@/lib/data";
 import { computePosition } from "@/lib/stage";
 import { prisma } from "@/lib/prisma";
@@ -56,6 +57,16 @@ export async function POST(req: Request) {
   if (messages.length === 0) {
     return NextResponse.json({ error: "No message provided." }, { status: 400 });
   }
+
+  // A ceiling no person typing ever reaches — see lib/assistant-limit.ts.
+  const allowed = await checkAssistantLimit(session.user.id);
+  if (!allowed.ok) {
+    return NextResponse.json(
+      { error: allowed.message },
+      { status: 429, headers: { "Retry-After": String(allowed.retryAfterSeconds) } },
+    );
+  }
+  await recordAssistantUse(session.user.id);
 
   // Build authoritative context server-side from the session — never trust the client.
   let system = buildAgbebiSystem({ name: session.user.name });

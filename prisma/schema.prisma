@@ -87,6 +87,7 @@ model User {
   postShares    PostShare[]
 
   personalWorshipDays PersonalWorshipDay[]
+  assistantUses   AssistantUse[]
 }
 
 /// A small emoji reaction on an encouragement or a check-in.
@@ -1584,4 +1585,15 @@ model MorningSent {
 
   @@unique([userId, day])
   @@index([day])
+}
+
+/// One message to the assistant, counted so one account cannot run up the
+/// family's bill — see lib/assistant-limit.ts. Swept after two days.
+model AssistantUse {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
 }
