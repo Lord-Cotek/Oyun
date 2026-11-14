@@ -874,3 +874,73 @@ export async function sendGuestThankYouEmails({
 
   return sendEmailBatch(items, "guest-thanks");
 }
+
+
+/**
+ * The thank-you for coming, after the day — with a few of the photographs.
+ *
+ * Sent once, only to guests who said yes, left an address, and replied on a
+ * form that promised "a thank-you afterwards". It says so at the foot, and
+ * that it is the last message about this day.
+ */
+export async function sendGuestAfterEmails({
+  guests,
+  title,
+  hostName,
+  note,
+  photos,
+  url,
+}: {
+  guests: { email: string; name: string }[];
+  title: string;
+  hostName: string;
+  note?: string | null;
+  photos: string[];
+  url: string;
+}): Promise<string[]> {
+  const own = note?.trim() || null;
+  const shown = photos.filter((p) => /^https:\/\//.test(p)).slice(0, 4);
+  const items = guests.map((g) => {
+    const greeting = g.name?.trim() || "Hello";
+    const html = shell(`
+    <p style="font-size:16px;line-height:1.6;color:#ECE9DF;">${escapeHtml(greeting)},</p>
+    <p style="font-family:Georgia,'Times New Roman',serif;font-size:24px;line-height:1.3;color:#ECE9DF;margin:0 0 10px;">Thank you for coming to ${escapeHtml(title)}.</p>
+    ${own ? `<p style="font-size:15px;line-height:1.7;color:#ECE9DF;margin:0 0 2px;white-space:pre-wrap;">${escapeHtml(own)}</p><p style="font-size:12px;color:#8B9086;margin:0;">— ${escapeHtml(hostName)}</p>` : ""}
+    ${
+      shown.length
+        ? `<table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;margin:20px 0 4px;border-collapse:separate;border-spacing:6px;"><tr>${shown
+            .map(
+              (p, i) =>
+                `${i === 2 ? "</tr><tr>" : ""}<td style="width:50%;"><a href="${url}"><img src="${escapeHtml(p)}" alt="" width="240" style="display:block;width:100%;height:auto;border-radius:10px;" /></a></td>`,
+            )
+            .join("")}</tr></table>`
+        : ""
+    }
+    <p style="margin:22px 0;">
+      <a href="${url}" style="display:inline-block;background:#CF7D43;color:#120D08;text-decoration:none;font-weight:600;padding:12px 20px;border-radius:8px;font-size:14px;">${photos.length ? "See the photos" : "See the invitation"}</a>
+    </p>
+    <p style="font-size:12px;line-height:1.7;color:#8B9086;">
+      You are getting this because you told ${escapeHtml(hostName)} you were coming
+      and agreed to a thank-you afterwards. This is the last message about this
+      day, and your address goes with the invitation.
+    </p>
+  `);
+    const text = [
+      `${greeting},`,
+      "",
+      `Thank you for coming to ${title}.`,
+      own ? "" : null,
+      own,
+      own ? `— ${hostName}` : null,
+      "",
+      `${photos.length ? "See the photos" : "See the invitation"}: ${url}`,
+      "",
+      `You are getting this because you told ${hostName} you were coming and agreed to a`,
+      "thank-you afterwards. This is the last message about this day.",
+    ]
+      .filter((l): l is string => l !== null)
+      .join("\n");
+    return { to: g.email, subject: `Thank you for coming — ${title}`, html, text };
+  });
+  return sendEmailBatch(items, "guest-after");
+}

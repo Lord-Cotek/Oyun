@@ -11,6 +11,10 @@ import {
   removeReply,
   emailInvitation,
   emailThankYou,
+  addAfterPhoto,
+  removeAfterPhoto,
+  saveAfterNote,
+  emailAfterThanks,
 } from "@/app/appointments/event-actions";
 import {
   HOST_NAME_MAX,
@@ -26,6 +30,7 @@ import { ConfirmButton } from "@/components/ui/Confirm";
 import { CoverPicker } from "@/components/ui/CoverPicker";
 import { UsefulLinks } from "@/components/invite/UsefulLinks";
 import { ThankGuests } from "@/components/invite/ThankGuests";
+import { AfterTheDay } from "@/components/invite/AfterTheDay";
 
 export type InviteRow = {
   slug: string;
@@ -65,6 +70,14 @@ export type InviteRow = {
   thanksWaiting: number;
   /** Guests the thank-you has already been emailed to. */
   thanksSent: number;
+  /** After the day: photographs and a thank-you for coming. */
+  afterPhotos: string[];
+  afterNote: string | null;
+  /** Yes-guests with an address who agreed to the after-the-day email, not yet sent. */
+  afterWaiting: number;
+  afterSent: number;
+  /** The day is over. */
+  over: boolean;
 };
 
 const inputClass =
@@ -368,7 +381,27 @@ export function InvitePanel({
             />
           )}
 
-          {!invite.revoked && (
+          {/* ── After the day ───────────────────────────────────────────
+              Once it is over the page turns from "can you come?" to
+              "thank you for coming": photographs, a word, and a way to
+              send it to the people who came. */}
+          {!invite.revoked && invite.over && (
+            <AfterTheDay
+              title={title}
+              url={invite.url}
+              photos={invite.afterPhotos}
+              note={invite.afterNote}
+              emailWaiting={invite.afterWaiting}
+              emailSent={invite.afterSent}
+              coverChoices={coverChoices}
+              onAddPhoto={(u) => addAfterPhoto(eventId, u)}
+              onRemovePhoto={(u) => removeAfterPhoto(eventId, u)}
+              onSaveNote={(t) => saveAfterNote(eventId, t)}
+              onEmail={() => emailAfterThanks(eventId)}
+            />
+          )}
+
+          {!invite.revoked && !invite.over && (
             <UsefulLinks
               eventId={eventId}
               links={invite.links}

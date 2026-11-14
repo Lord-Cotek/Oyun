@@ -50,12 +50,22 @@ export function toInviteRow(i: {
   thankYou: string | null;
   thanksWaiting?: number;
   thanksSent?: number;
+  afterPhotos?: string[];
+  afterNote?: string | null;
+  afterWaiting?: number;
+  afterSent?: number;
+  over?: boolean;
 }, extra: { registryUrl: string | null } = { registryUrl: null }): InviteRow {
   return {
     slug: i.slug,
     url: inviteUrl(i.slug),
     thanksWaiting: i.thanksWaiting ?? 0,
     thanksSent: i.thanksSent ?? 0,
+    afterPhotos: i.afterPhotos ?? [],
+    afterNote: i.afterNote ?? null,
+    afterWaiting: i.afterWaiting ?? 0,
+    afterSent: i.afterSent ?? 0,
+    over: i.over ?? false,
     hostName: i.hostName,
     message: i.message,
     coverUrl: i.coverUrl,

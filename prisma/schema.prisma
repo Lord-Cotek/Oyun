@@ -1225,6 +1225,17 @@ model Invitation {
   /// links on the confirmation. Optional; without it the page says a plain
   /// thank-you in the app's own voice.
   thankYou            String?
+
+  /// After the day: photographs from it, shown on the invitation page to
+  /// anyone holding the link — the host is told exactly that when adding
+  /// them. Only this app's own storage or pictures already in the family,
+  /// by the same rule as coverUrl.
+  afterPhotos         String[]           @default([])
+  /// After the day: the host's thank-you for coming.
+  afterNote           String?
+  /// When the host was nudged, the morning after, to add photos and say
+  /// thank you. Once.
+  afterNudgedAt       DateTime?
 }
 
 /// One thing a guest will want before the day: the map pin, the registry,
@@ -1309,6 +1320,12 @@ model InvitationReply {
   /// emailed to this guest. Set once, so pressing the button again reaches
   /// only the people who have replied since, never the same inbox twice.
   thankedAt    DateTime?
+  /// Whether this guest agreed to a thank-you after the day. True only for
+  /// replies made on a form that said so, with an address — a guest who
+  /// replied before that promise existed is never emailed afterwards.
+  afterConsent Boolean          @default(false)
+  /// When the after-the-day thank-you was emailed to them. Once.
+  afterThankedAt DateTime?
   createdAt    DateTime         @default(now())
   updatedAt    DateTime         @updatedAt
   votes        InvitationVote[]

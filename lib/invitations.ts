@@ -596,3 +596,13 @@ export function optionSentence(votes: number, replied: number): string {
   if (votes === 0) return `Nobody of the ${replied} so far`;
   return `${votes} of ${replied} can`;
 }
+
+/**
+ * The version of what the reply form promises a guest's email is for.
+ *
+ * Sent as a hidden field by the form that says "and a thank-you afterwards".
+ * A reply saved from any form that did not say it — every reply before it
+ * existed — is never emailed after the day. If the promise is ever widened,
+ * this changes, and only guests who saw the new words count.
+ */
+export const AFTER_PROMISE = "after-v1";

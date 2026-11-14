@@ -17,7 +17,7 @@ import { auth } from "@/lib/auth";
 import { getActiveMembership } from "@/lib/data";
 import { notify } from "@/lib/notify";
 import { isHousehold, HOUSEHOLD_ROLES } from "@/lib/roles";
-import { sendGuestDayEmail, sendGuestThankYouEmails, sendInvitationEmail } from "@/lib/email";
+import { sendGuestAfterEmails, sendGuestDayEmail, sendGuestThankYouEmails, sendInvitationEmail } from "@/lib/email";
 import { toEventKind } from "@/lib/events-db";
 import { checkCoverUrl } from "@/lib/cover-url";
 import { newSlug, inviteUrl } from "@/lib/invitations-db";
@@ -635,6 +635,145 @@ export async function emailThankYou(
   }
   // Counted in guests, like everything the host is shown — two replies that
   // share one address are two guests, even though one email reached both.
+  return { ok: true, sent: claimed.length - refused.length, failed: refused.length };
+}
+
+// ── After the day ─────────────────────────────────────────────────────────
+//
+// Photographs from the day and a thank-you for coming, shown on the
+// invitation once the day is over, and emailed once to the guests who said
+// yes, left an address and agreed to it. Scoped like everything above.
+
+const AFTER_PHOTOS_MAX = 12;
+const AFTER_NOTE_MAX = 600;
+
+export async function addAfterPhoto(eventId: string, url: string | null): Promise<{ ok: boolean }> {
+  const who = await requireHouse();
+  if (!who) return { ok: false };
+  // The same rule as the cover: this app's own storage, or a picture already
+  // in this family. A foreign URL on a page sent to guests is a beacon.
+  const value = await checkCoverUrl(url, who.journeyId);
+  if (!value) return { ok: false };
+  const inv = await prisma.invitation.findFirst({
+    where: { eventId, event: { journeyId: who.journeyId } },
+    select: { id: true, afterPhotos: true },
+  });
+  if (!inv) return { ok: false };
+  if (inv.afterPhotos.includes(value)) return { ok: true };
+  if (inv.afterPhotos.length >= AFTER_PHOTOS_MAX) return { ok: false };
+  await prisma.invitation.update({
+    where: { id: inv.id },
+    data: { afterPhotos: [...inv.afterPhotos, value] },
+  });
+  revalidatePath("/appointments");
+  return { ok: true };
+}
+
+export async function removeAfterPhoto(eventId: string, url: string): Promise<Result> {
+  const who = await requireHouse();
+  if (!who) return { ok: false, error: "Only the two of you can change this." };
+  const inv = await prisma.invitation.findFirst({
+    where: { eventId, event: { journeyId: who.journeyId } },
+    select: { id: true, afterPhotos: true },
+  });
+  if (!inv) return { ok: false, error: "That invitation is not here." };
+  await prisma.invitation.update({
+    where: { id: inv.id },
+    data: { afterPhotos: inv.afterPhotos.filter((u) => u !== url) },
+  });
+  revalidatePath("/appointments");
+  return { ok: true };
+}
+
+export async function saveAfterNote(eventId: string, text: string): Promise<Result> {
+  const who = await requireHouse();
+  if (!who) return { ok: false, error: "Only the two of you can change this." };
+  const n = await prisma.invitation.updateMany({
+    where: { eventId, event: { journeyId: who.journeyId } },
+    data: { afterNote: text.trim().slice(0, AFTER_NOTE_MAX) || null },
+  });
+  if (n.count === 0) return { ok: false, error: "That invitation is not here." };
+  revalidatePath("/appointments");
+  return { ok: true };
+}
+
+/**
+ * Email the thank-you for coming — once each, to the guests who said yes,
+ * left an address, and replied on a form that promised it. Claimed before
+ * sending, exactly as emailThankYou is, so a double tap sends nothing twice.
+ */
+export async function emailAfterThanks(
+  eventId: string,
+): Promise<{ ok: true; sent: number; failed: number } | { ok: false; error: string }> {
+  const who = await requireHouse();
+  if (!who) return { ok: false, error: "Only the two of you can send this." };
+  const inv = await prisma.invitation.findFirst({
+    where: { eventId, event: { journeyId: who.journeyId } },
+    select: {
+      id: true,
+      slug: true,
+      hostName: true,
+      revokedAt: true,
+      closedAt: true,
+      repliesBy: true,
+      afterNote: true,
+      afterPhotos: true,
+      event: { select: { title: true, at: true, endsAt: true, cancelledAt: true } },
+    },
+  });
+  if (!inv) return { ok: false, error: "That invitation is not here." };
+  if (inv.revokedAt) return { ok: false, error: "That link has been switched off." };
+  if (inv.event.cancelledAt) return { ok: false, error: "This day was called off." };
+  if (inviteState(inv, inv.event.at, inv.event.endsAt) !== "past") {
+    return { ok: false, error: "This is for after the day." };
+  }
+  if (!inv.afterNote?.trim() && inv.afterPhotos.length === 0) {
+    return { ok: false, error: "Add a word or a photo first — that is what they will be sent." };
+  }
+
+  const stamp = new Date();
+  await prisma.invitationReply.updateMany({
+    where: {
+      invitationId: inv.id,
+      answer: "YES",
+      email: { not: null },
+      afterConsent: true,
+      afterThankedAt: null,
+    },
+    data: { afterThankedAt: stamp },
+  });
+  const claimed = await prisma.invitationReply.findMany({
+    where: { invitationId: inv.id, afterThankedAt: stamp },
+    select: { id: true, name: true, email: true },
+  });
+  if (claimed.length === 0) {
+    return { ok: false, error: "Everybody who can be emailed has already had it." };
+  }
+  const byAddress = new Map<string, { email: string; name: string }>();
+  for (const r of claimed) {
+    const key = r.email!.trim().toLowerCase();
+    if (!byAddress.has(key)) byAddress.set(key, { email: r.email!.trim(), name: r.name });
+  }
+  const accepted = await sendGuestAfterEmails({
+    guests: [...byAddress.values()],
+    title: inv.event.title,
+    hostName: inv.hostName,
+    note: inv.afterNote,
+    photos: inv.afterPhotos,
+    url: inviteUrl(inv.slug),
+  });
+  const went = new Set(accepted.map((a) => a.trim().toLowerCase()));
+  const refused = claimed.filter((r) => !went.has(r.email!.trim().toLowerCase())).map((r) => r.id);
+  if (refused.length > 0) {
+    await prisma.invitationReply.updateMany({
+      where: { id: { in: refused }, afterThankedAt: stamp },
+      data: { afterThankedAt: null },
+    });
+  }
+  revalidatePath("/appointments");
+  if (went.size === 0) {
+    return { ok: false, error: "The emails could not be sent just now. Nobody was marked as sent — try again in a while." };
+  }
   return { ok: true, sent: claimed.length - refused.length, failed: refused.length };
 }
 

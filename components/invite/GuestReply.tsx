@@ -9,6 +9,7 @@ import {
   GUEST_NOTE_MAX,
   PARTY_MAX,
   type Answer,
+  AFTER_PROMISE,
 } from "@/lib/invitations";
 
 const inputClass =
@@ -107,6 +108,8 @@ export function GuestReply({
     >
       <input type="hidden" name="slug" value={slug} />
       <input type="hidden" name="answer" value={answer ?? ""} />
+      {/* Which promise this form made about the email — see AFTER_PROMISE. */}
+      <input type="hidden" name="promise" value={AFTER_PROMISE} />
 
       <div className="grid gap-2 sm:grid-cols-3">
         {ANSWERS.map((a) => {
@@ -194,9 +197,9 @@ export function GuestReply({
               />
               <span className="mt-1.5 block prose-serif-xs text-muted">
                 Only about this day: a thank-you with the details once you
-                have replied, a reminder the evening before and on the morning
-                — and a word if it moves. No account, no list. Taking your
-                reply back removes it.
+                have replied, a reminder the evening before and on the morning,
+                a word if it moves — and a thank-you afterwards. No account, no
+                list. Taking your reply back removes it.
               </span>
             </label>
           )}

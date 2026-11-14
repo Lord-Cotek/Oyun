@@ -302,9 +302,38 @@ export default async function InvitationPage({
               speak to {i.hostName} if you need to.
             </p>
           ) : i.state === "past" ? (
-            <p className="prose-serif-sm text-muted">
-              This day has already been. Thank you for looking.
-            </p>
+            /* ── After the day ───────────────────────────────────────────
+               The invitation turns into the thank-you: the host's word and
+               the photographs they chose to share here. */
+            i.afterNote?.trim() || i.afterPhotos.length > 0 ? (
+              <div>
+                <p className="font-serif text-2xl leading-tight text-ink">
+                  {mine ? `Thank you for coming, ${firstName(mine.name)} 💛` : "Thank you for coming 💛"}
+                </p>
+                {i.afterNote?.trim() && (
+                  <>
+                    <p className="mt-2 whitespace-pre-wrap prose-serif-sm text-ink/90">{i.afterNote.trim()}</p>
+                    <p className="mt-1 font-mono text-[0.66rem] text-muted">— {i.hostName}</p>
+                  </>
+                )}
+                {i.afterPhotos.length > 0 && (
+                  <ul className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-3">
+                    {i.afterPhotos.map((p) => (
+                      <li key={p}>
+                        <a href={p} target="_blank" rel="noopener noreferrer">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={p} alt="" loading="lazy" className="aspect-square w-full rounded-xl object-cover" />
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            ) : (
+              <p className="prose-serif-sm text-muted">
+                This day has already been. Thank you for looking.
+              </p>
+            )
           ) : (
             <>
               <Eyebrow className="mb-4">

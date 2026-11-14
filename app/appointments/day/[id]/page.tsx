@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { openRegistryUrl } from "@/lib/registry-db";
 import { notFound, redirect } from "next/navigation";
+import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { getActiveMembership } from "@/lib/data";
 import { getOneDay } from "@/lib/events-db";
@@ -60,6 +61,25 @@ export default async function OneDay({ params }: { params: { id: string } }) {
       .map((i) => toInviteRow(i, { registryUrl }))[0] ?? null;
   const row = toDayRow(day, invite);
 
+  // The same picture choices as the book: photographs already shared with the
+  // circle, never a family-only post's, and no videos.
+  const coverChoices = invite
+    ? Array.from(
+        new Set(
+          (
+            await prisma.post.findMany({
+              where: { journeyId: active.journey.id, householdOnly: false, mediaUrls: { isEmpty: false } },
+              orderBy: { createdAt: "desc" },
+              take: 30,
+              select: { mediaUrls: true },
+            })
+          )
+            .flatMap((p) => p.mediaUrls)
+            .filter((u) => !/\.(mp4|m4v|mov|webm|ogg)(\?|#|$)/i.test(u)),
+        ),
+      ).slice(0, 18)
+    : [];
+
   return (
     <>
       <SiteHeader active="appointments" />
@@ -97,6 +117,7 @@ export default async function OneDay({ params }: { params: { id: string } }) {
                 when={whenWords(row.atISO, row.hasTime, row.endsAtISO)}
                 where={row.where}
                 invite={invite}
+                coverChoices={coverChoices}
               />
             </div>
           )}

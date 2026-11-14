@@ -80,6 +80,9 @@ export type PublicInvitation = {
   links: { id: string; kind: string; label: string; url: string }[];
   /** The host's own word to somebody who has just said yes. */
   thankYou: string | null;
+  /** After the day: photographs, and the host's thank-you for coming. */
+  afterPhotos: string[];
+  afterNote: string | null;
 };
 
 /**
@@ -153,6 +156,8 @@ export async function getPublicInvitation(
         select: { id: true, kind: true, label: true, url: true },
       },
       thankYou: true,
+      afterPhotos: true,
+      afterNote: true,
     },
   });
   if (!i || i.revokedAt) return null;
@@ -187,6 +192,8 @@ export async function getPublicInvitation(
     replies: i.replies,
     links: i.links,
     thankYou: i.thankYou,
+    afterPhotos: i.afterPhotos,
+    afterNote: i.afterNote,
   };
 }
 
@@ -212,6 +219,10 @@ export async function getHostInvitations(journeyId: string) {
       // A count, never the addresses — see the field's own comment.
       emailsSentCount: true,
       thankYou: true,
+      afterPhotos: true,
+      afterNote: true,
+      // Only to know whether the day is over, for the "after the day" part.
+      event: { select: { at: true, endsAt: true } },
       links: {
         orderBy: [{ position: "asc" }, { createdAt: "asc" }],
         select: { id: true, kind: true, label: true, url: true },
@@ -250,7 +261,7 @@ export async function getHostInvitations(journeyId: string) {
    * leaves this function — a host learns "18 left an email", never which.
    */
   const ids = rows.map((r) => r.id);
-  const [waiting, thanked] = ids.length
+  const [waiting, thanked, afterWaiting, afterSent] = ids.length
     ? await Promise.all([
         prisma.invitationReply.groupBy({
           by: ["invitationId"],
@@ -267,14 +278,36 @@ export async function getHostInvitations(journeyId: string) {
           where: { invitationId: { in: ids }, thankedAt: { not: null } },
           _count: { _all: true },
         }),
+        // After the day: who said yes, left an address and agreed to it.
+        prisma.invitationReply.groupBy({
+          by: ["invitationId"],
+          where: {
+            invitationId: { in: ids },
+            answer: "YES",
+            email: { not: null },
+            afterConsent: true,
+            afterThankedAt: null,
+          },
+          _count: { _all: true },
+        }),
+        prisma.invitationReply.groupBy({
+          by: ["invitationId"],
+          where: { invitationId: { in: ids }, afterThankedAt: { not: null } },
+          _count: { _all: true },
+        }),
       ])
-    : [[], []];
+    : [[], [], [], []];
   const w = new Map(waiting.map((g) => [g.invitationId, g._count._all]));
   const t = new Map(thanked.map((g) => [g.invitationId, g._count._all]));
+  const aw = new Map(afterWaiting.map((g) => [g.invitationId, g._count._all]));
+  const as = new Map(afterSent.map((g) => [g.invitationId, g._count._all]));
   return rows.map((r) => ({
     ...r,
     thanksWaiting: w.get(r.id) ?? 0,
     thanksSent: t.get(r.id) ?? 0,
+    afterWaiting: aw.get(r.id) ?? 0,
+    afterSent: as.get(r.id) ?? 0,
+    over: inviteState(r, r.event.at, r.event.endsAt) === "past",
   }));
 }
 

@@ -222,6 +222,7 @@ export async function GET(req: Request) {
   const guests = await remindGuests(now);
   const hosts = await tellTheHosts(now);
   const lettersOpened = await tellLettersOpening(now);
+  const afterNudges = await nudgeAfterTheDay(now);
 
   return NextResponse.json({
     ok: true,
@@ -231,7 +232,44 @@ export async function GET(req: Request) {
     ...guests,
     hostDigests: hosts,
     lettersOpened,
+    afterNudges,
   });
+}
+
+/**
+ * The morning after an invited day: one gentle word to the hosts — "How was
+ * it?" — pointing at the place to add photos and say thank you. Only if
+ * somebody said yes, only once, and to the same people who were told about
+ * the replies (a surprise's planners, until it has passed — which by now it
+ * has).
+ */
+async function nudgeAfterTheDay(now: Date) {
+  const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+  const yesterday = new Date(today.getTime() - 86_400_000);
+  const invitations = await prisma.invitation.findMany({
+    where: {
+      revokedAt: null,
+      afterNudgedAt: null,
+      event: { cancelledAt: null, at: { gte: yesterday, lt: today } },
+      replies: { some: { answer: "YES" } },
+    },
+    select: { id: true, event: { select: { id: true, title: true } } },
+  });
+  let nudged = 0;
+  for (const inv of invitations) {
+    for (const userId of await inviteAudience(inv.event.id, now)) {
+      await notify({
+        userId,
+        type: "appointment",
+        title: `How was ${inv.event.title}? 💛`,
+        body: "Add a few photos and a thank-you for coming — the guests can see them on the invitation, and you can send them on.",
+        href: dayPath(inv.event.id),
+      });
+    }
+    await prisma.invitation.update({ where: { id: inv.id }, data: { afterNudgedAt: new Date() } });
+    nudged += 1;
+  }
+  return nudged;
 }
 
 /**

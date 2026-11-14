@@ -17,6 +17,7 @@ import {
   isPoll,
 } from "@/lib/invitations";
 import { guestCookieName, inviteAudience, newGuestToken } from "@/lib/invitations-db";
+import { AFTER_PROMISE } from "@/lib/invitations";
 
 type Result = { ok: true } | { ok: false; error: string };
 
@@ -140,6 +141,9 @@ export async function reply(formData: FormData): Promise<Result> {
   const typed = String(formData.get("email") ?? "").trim().slice(0, 200);
   const email =
     answer !== "NO" && /^[^@\s]+@[^@\s.]+\.[^@\s]+$/.test(typed) ? typed : null;
+  // Agreed to a thank-you after the day only on a form that said so — see
+  // GuestReply's wording and InvitationReply.afterConsent.
+  const afterConsent = !!email && formData.get("promise") === AFTER_PROMISE;
 
   const cookieName = guestCookieName(slug);
   const jar = cookies();
@@ -172,7 +176,7 @@ export async function reply(formData: FormData): Promise<Result> {
   if (mine) {
     await prisma.invitationReply.update({
       where: { id: mine.id },
-      data: { name, answer, partySize, note, email },
+      data: { name, answer, partySize, note, email, afterConsent },
     });
     if (poll) await setVotes(mine.id, ticked);
   } else {
@@ -189,6 +193,7 @@ export async function reply(formData: FormData): Promise<Result> {
         partySize,
         note,
         email,
+        afterConsent,
       },
       select: { id: true },
     });
