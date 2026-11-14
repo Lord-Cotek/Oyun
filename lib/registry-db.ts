@@ -7,6 +7,8 @@ import {
   type ItemKind,
   type RegistrySort,
   type ShipReach,
+  isoDay,
+  rotaDayList,
 } from "@/lib/registry";
 
 /**
@@ -62,6 +64,12 @@ export interface PublicItem {
   claimed: number;
   /** How many this guest has taken, recognised by their own token. */
   mine: number;
+  /**
+   * On a rota, every day: whether it is taken and whether it is this guest's.
+   * Never who has the others — the same rule as everything else a guest is
+   * told about other guests.
+   */
+  rota: { iso: string; taken: boolean; mine: boolean }[] | null;
   /**
    * Where this item sits in each order the reader can choose — see
    * REGISTRY_SORTS. Ordinals only.
@@ -326,10 +334,12 @@ export async function getPublicRegistry(
           price: true,
           quantity: true,
           mostNeeded: true,
+          rotaStart: true,
+          rotaDays: true,
           // Read to work out "just added" and dropped immediately after —
           // see PublicItem.ranks. No timestamp leaves this function.
           createdAt: true,
-          claims: { select: { quantity: true, token: true } },
+          claims: { select: { quantity: true, token: true, forDate: true } },
         },
       },
     },
@@ -363,6 +373,13 @@ export async function getPublicRegistry(
             .filter((c) => c.token === guestToken)
             .reduce((n, c) => n + c.quantity, 0)
         : 0,
+      rota:
+        i.rotaStart && i.rotaDays
+          ? rotaDayList(i.rotaStart, i.rotaDays).map((iso) => {
+              const c = i.claims.find((x) => x.forDate && isoDay(x.forDate) === iso);
+              return { iso, taken: !!c, mine: !!c && !!guestToken && c.token === guestToken };
+            })
+          : null,
       ranks: ranks[i.id],
     })),
   };

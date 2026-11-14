@@ -9,6 +9,7 @@ import {
   KIND_COPY,
   kindTakesPost,
   remaining,
+  rotaDayLabel,
   type ItemKind,
   type ShipReach,
   shopLabel,
@@ -161,11 +162,19 @@ export function GuestItem({
             <Facts>
               {[
                 item.price,
-                item.kind !== "LIST" && item.kind !== "CASH" && item.quantity > 1 && !gone
-                  ? `${left} still wanted`
-                  : null,
-                gone ? <span className="text-accent">Taken</span> : null,
-                taken ? <span className="text-accent">{copy.claimed}</span> : null,
+                item.rota
+                  ? `A rota · ${item.rota.filter((d) => !d.taken).length} of ${item.rota.length} days free`
+                  : item.kind !== "LIST" && item.kind !== "CASH" && item.quantity > 1 && !gone
+                    ? `${left} still wanted`
+                    : null,
+                gone ? <span className="text-accent">{item.rota ? "Every day taken" : "Taken"}</span> : null,
+                taken ? (
+                  <span className="text-accent">
+                    {item.rota && item.rota.find((d) => d.mine)
+                      ? `You're coming ${rotaDayLabel(item.rota.find((d) => d.mine)!.iso)}`
+                      : copy.claimed}
+                  </span>
+                ) : null,
               ]}
             </Facts>
           </p>
@@ -245,6 +254,17 @@ export function GuestItem({
                 className="inline-flex min-h-11 items-center justify-center rounded-lg border border-accent/50 px-3.5 font-mono text-xs text-accent transition-colors hover:bg-accent/[0.06] disabled:border-border disabled:text-muted disabled:opacity-60"
               >
                 {gone ? "Already taken" : copy.claim}
+              </Pressable>
+            )}
+
+            {!closed && taken && item.rota && !open && (
+              <Pressable
+                type="button"
+                press="none"
+                onClick={() => setOpen(true)}
+                className="inline-flex min-h-11 items-center rounded-lg px-1 font-mono text-[0.62rem] uppercase tracking-widest text-accent underline underline-offset-4"
+              >
+                Change my day
               </Pressable>
             )}
 
@@ -328,7 +348,45 @@ export function GuestItem({
                 beside it, so people did not know they could take two of the
                 twelve and leave the rest. It says so now.
               */}
-              {item.kind !== "LIST" && item.kind !== "CASH" && left > 1 && (
+              {/* ── A rota: pick a day ─────────────────────────────────────
+                  Every day on it, with the taken ones shown as taken and
+                  never by whom. Their own day, if they have one, is chosen
+                  already, so changing day is the same form. */}
+              {item.rota && (
+                <fieldset>
+                  <legend className="mb-1.5 block font-mono text-[0.62rem] uppercase tracking-widest text-muted">
+                    Which day can you do?
+                  </legend>
+                  <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-3">
+                    {item.rota.map((d) => {
+                      const off = d.taken && !d.mine;
+                      return (
+                        <label
+                          key={d.iso}
+                          className={`flex min-h-11 items-center gap-2 rounded-lg border px-2.5 py-2 font-mono text-[0.7rem] ${
+                            off
+                              ? "border-border/60 text-muted/70 line-through"
+                              : "cursor-pointer border-border text-ink has-[:checked]:border-accent has-[:checked]:bg-accent/10"
+                          }`}
+                        >
+                          <input
+                            type="radio"
+                            name="forDate"
+                            value={d.iso}
+                            required
+                            disabled={off}
+                            defaultChecked={d.mine}
+                            className="accent-[color:var(--accent)]"
+                          />
+                          <span>{rotaDayLabel(d.iso)}</span>
+                          {off && <span className="sr-only">(taken)</span>}
+                        </label>
+                      );
+                    })}
+                  </div>
+                </fieldset>
+              )}
+              {!item.rota && item.kind !== "LIST" && item.kind !== "CASH" && left > 1 && (
                 <div>
                   <label
                     htmlFor={`qty-${item.id}`}

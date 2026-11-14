@@ -29,6 +29,7 @@ import {
   PRICE_MAX,
   QUANTITY_MAX,
   TITLE_MAX,
+  readRota,
 } from "@/lib/registry";
 
 type Result = { ok: true } | { ok: false; error: string };
@@ -361,6 +362,9 @@ export async function addItem(input: {
   price?: string;
   quantity?: number;
   mostNeeded?: boolean;
+  /** A rota's first day (yyyy-mm-dd) and how many days — a hand only. */
+  rotaStart?: string;
+  rotaDays?: number;
 }): Promise<Result> {
   const { journeyId } = await keeper();
   const r = await mine(journeyId);
@@ -377,6 +381,12 @@ export async function addItem(input: {
       ok: false,
       error: "Add how somebody can send money to you first.",
     };
+  }
+
+  // Only a hand can be a rota: nobody signs up for a day of a cot.
+  const rota = kind === "HELP" ? readRota(input.rotaStart, input.rotaDays) : null;
+  if (kind === "HELP" && (input.rotaStart || input.rotaDays) && !rota) {
+    return { ok: false, error: "Give the rota a first day and how many days it runs." };
   }
 
   const count = await prisma.registryItem.count({ where: { registryId: r.id } });
@@ -398,7 +408,11 @@ export async function addItem(input: {
       // up in an <img> on a public page.
       imageUrl: safeUrl(input.imageUrl),
       price: (input.price ?? "").trim().slice(0, PRICE_MAX) || null,
-      quantity: clampQuantity(input.quantity),
+      // On a rota, one place per day — so the ordinary "how many are left"
+      // arithmetic keeps working, and the day itself is checked on claiming.
+      quantity: rota ? rota.days : clampQuantity(input.quantity),
+      rotaStart: rota?.start ?? null,
+      rotaDays: rota?.days ?? null,
       mostNeeded: input.mostNeeded === true,
       position: count,
     },

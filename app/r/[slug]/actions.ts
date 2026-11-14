@@ -18,6 +18,8 @@ import {
   GUEST_NOTE_MAX,
   QUANTITY_MAX,
   remaining,
+  isoDay,
+  rotaDayList,
 } from "@/lib/registry";
 import { HOUSEHOLD_ROLES } from "@/lib/roles";
 
@@ -104,6 +106,8 @@ export async function claim(formData: FormData): Promise<Result> {
       title: true,
       kind: true,
       quantity: true,
+      rotaStart: true,
+      rotaDays: true,
       registry: {
         select: {
           id: true,
@@ -114,7 +118,7 @@ export async function claim(formData: FormData): Promise<Result> {
           journeyId: true,
         },
       },
-      claims: { select: { id: true, token: true, quantity: true } },
+      claims: { select: { id: true, token: true, quantity: true, forDate: true } },
     },
   });
   if (!item) return { ok: false, error: "That is no longer on the list." };
@@ -132,6 +136,24 @@ export async function claim(formData: FormData): Promise<Result> {
   const claimName = name || who.name || "";
 
   const mine = item.claims.find((c) => c.token === token);
+
+  // ── On a rota, a day rather than a number ──────────────────────────────
+  // One person a day: the day must be on the rota and nobody else's. A guest
+  // who already has a day and picks another simply moves to it.
+  let forDate: Date | null = null;
+  if (item.rotaStart && item.rotaDays) {
+    const want = String(formData.get("forDate") ?? "");
+    if (!rotaDayList(item.rotaStart, item.rotaDays).includes(want)) {
+      return { ok: false, error: "Choose one of the days on the rota." };
+    }
+    const takenBy = item.claims.find(
+      (c) => c.token !== token && c.forDate && isoDay(c.forDate) === want,
+    );
+    if (takenBy) {
+      return { ok: false, error: "Somebody has just taken that day. Is another one free?" };
+    }
+    forDate = new Date(`${want}T00:00:00.000Z`);
+  }
   const othersHave = item.claims
     .filter((c) => c.token !== token)
     .reduce((n, c) => n + c.quantity, 0);
@@ -157,7 +179,8 @@ export async function claim(formData: FormData): Promise<Result> {
       data: {
         name: claimName || null,
         note: note || null,
-        quantity: item.kind === "LIST" ? 1 : wanted,
+        quantity: item.kind === "LIST" || forDate ? 1 : wanted,
+        forDate,
       },
     });
   } else {
@@ -167,7 +190,8 @@ export async function claim(formData: FormData): Promise<Result> {
         token,
         name: claimName || null,
         note: note || null,
-        quantity: item.kind === "LIST" ? 1 : wanted,
+        quantity: item.kind === "LIST" || forDate ? 1 : wanted,
+        forDate,
       },
     });
     await tellTheFamily(item.registry, item.title, claimName, item.id);

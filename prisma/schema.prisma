@@ -917,6 +917,11 @@ model RegistryItem {
   /// The handful of things that actually matter, said so plainly.
   mostNeeded Boolean  @default(false)
   position   Int      @default(0)
+  /// A rota, for a hand rather than a thing: dinners for the first fortnight
+  /// home, one person a day. The first day and how many days; each day takes
+  /// one person, chosen by the guest. Null on everything that is not a rota.
+  rotaStart  DateTime? @db.Date
+  rotaDays   Int?
   createdAt  DateTime @default(now())
 
   claims RegistryClaim[]
@@ -946,6 +951,8 @@ model RegistryClaim {
   name      String?
   note      String?
   quantity  Int          @default(1)
+  /// On a rota, the day this person is coming. Null on everything else.
+  forDate   DateTime?    @db.Date
   createdAt DateTime     @default(now())
   /// Ticked off by her when the thank-you has been said.
   thankedAt DateTime?

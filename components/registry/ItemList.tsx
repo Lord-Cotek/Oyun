@@ -20,6 +20,7 @@ import {
   remaining,
   type ItemKind,
   shopHost,
+  rotaDayLabel,
 } from "@/lib/registry";
 
 export interface HostItem {
@@ -35,6 +36,8 @@ export interface HostItem {
   claimed: number;
   /** Who has taken it, or null while she has asked to be surprised. */
   takers: { id: string; name: string | null; note: string | null }[] | null;
+  /** On a rota: each day, and who (null name while she is being surprised). */
+  rota: { iso: string; taken: boolean; name: string | null; note: string | null }[] | null;
 }
 
 const field =
@@ -477,7 +480,30 @@ function Row({
 
       {/* Who, when she is allowed to know. The names are the whole point of
           keeping this: they are what thank-you notes are written from. */}
-      {showClaims && item.takers && item.takers.length > 0 && (
+      {/* ── A rota, day by day ───────────────────────────────────────────
+          The point of it: who is bringing dinner on Thursday, at a glance,
+          and which evenings nobody has yet. */}
+      {item.rota && (
+        <ul className="mt-3 grid gap-1 border-t border-border/70 pt-2.5 sm:grid-cols-2">
+          {item.rota.map((d) => (
+            <li key={d.iso} className="flex items-baseline gap-2 prose-serif-xs">
+              <span className="w-24 shrink-0 font-mono text-[0.66rem] text-muted">
+                {rotaDayLabel(d.iso)}
+              </span>
+              {d.taken ? (
+                <span className="min-w-0 text-ink">
+                  {d.name ?? "Taken"}
+                  {d.note ? <span className="text-muted"> — {d.note}</span> : null}
+                </span>
+              ) : (
+                <span className="text-muted/80 italic">nobody yet</span>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {!item.rota && showClaims && item.takers && item.takers.length > 0 && (
         <ul className="mt-3 space-y-1 border-t border-border/70 pt-2.5">
           {item.takers.map((t) => (
             <li key={t.id} className="prose-serif-xs text-muted">

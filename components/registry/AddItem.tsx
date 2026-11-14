@@ -12,6 +12,7 @@ import {
   QUANTITY_MAX,
   TITLE_MAX,
   type ItemKind,
+  ROTA_DAYS_MAX,
 } from "@/lib/registry";
 
 const field =
@@ -57,6 +58,10 @@ export function AddItem({ takesMoney }: { takesMoney: boolean }) {
   const [note, setNote] = useState("");
   const [price, setPrice] = useState("");
   const [quantity, setQuantity] = useState(1);
+  // A hand can be a rota: a first day, and how many days.
+  const [rotaOn, setRotaOn] = useState(false);
+  const [rotaStart, setRotaStart] = useState("");
+  const [rotaDays, setRotaDays] = useState(7);
   const [mostNeeded, setMostNeeded] = useState(false);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [readUrl, setReadUrl] = useState<string | null>(null);
@@ -73,6 +78,9 @@ export function AddItem({ takesMoney }: { takesMoney: boolean }) {
     setNote("");
     setPrice("");
     setQuantity(1);
+    setRotaOn(false);
+    setRotaStart("");
+    setRotaDays(7);
     setMostNeeded(false);
     setImageUrl(null);
     setReadUrl(null);
@@ -119,6 +127,7 @@ export function AddItem({ takesMoney }: { takesMoney: boolean }) {
         price,
         quantity,
         mostNeeded,
+        ...(kind === "HELP" && rotaOn ? { rotaStart, rotaDays } : {}),
         url: readUrl ?? link.trim() ?? undefined,
         imageUrl: imageUrl ?? undefined,
       });
@@ -273,7 +282,7 @@ export function AddItem({ takesMoney }: { takesMoney: boolean }) {
                 />
               </div>
             )}
-            <div className={kind === "CASH" ? "hidden" : "w-28"}>
+            <div className={kind === "CASH" || (kind === "HELP" && rotaOn) ? "hidden" : "w-28"}>
               <label htmlFor="registry-quantity" className={label}>
                 How many
               </label>
@@ -287,6 +296,60 @@ export function AddItem({ takesMoney }: { takesMoney: boolean }) {
                 className={field}
               />
             </div>
+          </div>
+        )}
+
+        {/* ── A rota ─────────────────────────────────────────────────────
+            Dinners for the first fortnight home, somebody each afternoon of
+            the first week: guests pick a day, one person each. */}
+        {kind === "HELP" && (
+          <div className="rounded-xl border border-border/80 bg-bg/40 p-3">
+            <label className="flex items-start gap-2.5 font-mono text-[0.68rem] text-ink">
+              <input
+                type="checkbox"
+                checked={rotaOn}
+                onChange={(e) => setRotaOn(e.target.checked)}
+                className="mt-0.5 h-4 w-4 accent-[color:var(--accent)]"
+              />
+              <span>
+                Make it a rota — one person a day
+                <span className="mt-0.5 block prose-serif-xs text-muted">
+                  For meals or visits after the birth. Guests choose a free day,
+                  and you see who is coming when.
+                </span>
+              </span>
+            </label>
+            {rotaOn && (
+              <div className="mt-3 flex flex-wrap gap-3">
+                <div className="min-w-[10rem] flex-1">
+                  <label htmlFor="registry-rota-start" className={label}>
+                    First day
+                  </label>
+                  <input
+                    id="registry-rota-start"
+                    type="date"
+                    required
+                    value={rotaStart}
+                    onChange={(e) => setRotaStart(e.target.value)}
+                    className={field}
+                  />
+                </div>
+                <div className="w-28">
+                  <label htmlFor="registry-rota-days" className={label}>
+                    How many days
+                  </label>
+                  <input
+                    id="registry-rota-days"
+                    type="number"
+                    min={1}
+                    max={ROTA_DAYS_MAX}
+                    value={rotaDays}
+                    onChange={(e) => setRotaDays(Math.min(ROTA_DAYS_MAX, Math.max(1, Number(e.target.value) || 1)))}
+                    className={field}
+                  />
+                </div>
+              </div>
+            )}
           </div>
         )}
 

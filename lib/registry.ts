@@ -311,3 +311,52 @@ export function shopHost(url: string): string {
     return "the shop";
   }
 }
+
+// ── A rota ────────────────────────────────────────────────────────────────
+//
+// A "hand" can be a rota: dinners for the first fortnight home, somebody to
+// sit with her each afternoon of the first week. The family names the first
+// day and how many; each day takes one person, and guests pick a day rather
+// than a number. This is the most useful thing a circle does after a birth,
+// and as a single "a week of dinners" card it was one person promising seven
+// evenings or nobody quite knowing who had which.
+
+/** Three weeks — long enough for the hardest stretch, short enough to read. */
+export const ROTA_DAYS_MAX = 21;
+
+/** yyyy-mm-dd for a stored @db.Date (midnight UTC). */
+export function isoDay(d: Date): string {
+  return new Date(d).toISOString().slice(0, 10);
+}
+
+/** Every day on a rota, in order, as yyyy-mm-dd. */
+export function rotaDayList(start: Date, days: number): string[] {
+  const out: string[] = [];
+  const n = Math.max(0, Math.min(ROTA_DAYS_MAX, Math.trunc(days)));
+  const t0 = new Date(start).getTime();
+  for (let i = 0; i < n; i++) out.push(isoDay(new Date(t0 + i * 86_400_000)));
+  return out;
+}
+
+/** A rota's first day and length as typed, or null if it is not a rota. */
+export function readRota(
+  startRaw: unknown,
+  daysRaw: unknown,
+): { start: Date; days: number } | null {
+  const s = String(startRaw ?? "").trim();
+  const days = Math.trunc(Number(daysRaw));
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(s) || !Number.isFinite(days) || days < 1) return null;
+  const start = new Date(`${s}T00:00:00.000Z`);
+  if (Number.isNaN(start.getTime())) return null;
+  return { start, days: Math.min(ROTA_DAYS_MAX, days) };
+}
+
+/** "Mon 1 Dec" — short enough for a row of days on a phone. */
+export function rotaDayLabel(iso: string): string {
+  return new Date(`${iso}T12:00:00.000Z`).toLocaleDateString("en-GB", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+    timeZone: "UTC",
+  });
+}

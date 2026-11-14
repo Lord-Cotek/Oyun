@@ -12,6 +12,8 @@ import {
   claimsVisibleToHost,
   shipReachOf,
   type ItemKind,
+  isoDay,
+  rotaDayList,
 } from "@/lib/registry";
 import { registryUrl } from "@/lib/registry-db";
 import { registryTitleFor } from "@/lib/babies";
@@ -103,6 +105,8 @@ export default async function RegistryPage() {
           price: true,
           quantity: true,
           mostNeeded: true,
+          rotaStart: true,
+          rotaDays: true,
           claims: {
             orderBy: { createdAt: "asc" },
             select: {
@@ -110,6 +114,7 @@ export default async function RegistryPage() {
               name: true,
               note: true,
               quantity: true,
+              forDate: true,
               createdAt: true,
               thankedAt: true,
             },
@@ -196,6 +201,20 @@ export default async function RegistryPage() {
     takers: showClaims
       ? i.claims.map((c) => ({ id: c.id, name: c.name, note: c.note }))
       : null,
+    // Each day, and who — or only "taken" while she has asked to be
+    // surprised, by the same rule as the names above.
+    rota:
+      i.rotaStart && i.rotaDays
+        ? rotaDayList(i.rotaStart, i.rotaDays).map((iso) => {
+            const c = i.claims.find((x) => x.forDate && isoDay(x.forDate) === iso);
+            return {
+              iso,
+              taken: !!c,
+              name: c && showClaims ? c.name?.trim() || "Someone" : null,
+              note: c && showClaims ? c.note : null,
+            };
+          })
+        : null,
   }));
 
   const thanks: ThankYou[] = showClaims
