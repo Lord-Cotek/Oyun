@@ -233,6 +233,7 @@
     "lib/rate-limit.ts",
     "components/settings/ConfirmEmailNote.tsx",
     "app/sign-in/actions.ts",
+    "scripts/db-sync.mjs",
     {
       "path": "app/confirm-email/page.tsx",
       "substitutions": [
