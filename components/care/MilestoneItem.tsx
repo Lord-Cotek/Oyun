@@ -3,7 +3,9 @@
 import { useRef, useState } from "react";
 import { mediaAlt } from "@/lib/alt";
 import { useFormStatus } from "react-dom";
-import { updateMilestone, deleteMilestone } from "@/app/care/actions";
+import { updateMilestone, deleteMilestone, shareMilestone } from "@/app/care/actions";
+import Link from "next/link";
+import { postPath } from "@/lib/open-item";
 import { MilestoneFields, milestoneTitle } from "@/components/care/MilestoneFields";
 import { PhotoGallery } from "@/components/ui/PhotoGallery";
 import { sendPhotos } from "@/components/care/send-photos";
@@ -18,6 +20,8 @@ export type MilestoneData = {
   photoUrls: string[];
   childId: string | null;
   childName: string | null;
+  /** The Life post this was shared as, if it was and the post still exists. */
+  postId: string | null;
 };
 
 export function MilestoneItem({
@@ -30,6 +34,9 @@ export function MilestoneItem({
   const [editing, setEditing] = useState(false);
   const [removing, setRemoving] = useState(false);
   const [going, setGoing] = useState(false);
+  const [sharing, setSharing] = useState<"no" | "asking" | "going">("no");
+  const [sharedId, setSharedId] = useState<string | null>(m.postId);
+  const [shareError, setShareError] = useState<string | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const occurred = new Date(m.occurredAt);
@@ -129,6 +136,56 @@ export function MilestoneItem({
               said: m.note ?? milestoneTitle(m.kind, m.title),
               kind: "milestone",
             })}
+          />
+          {/* ── Telling the circle ───────────────────────────────────────
+              A first is the household's until a parent chooses otherwise —
+              so it is a button, it asks first, and it says what will be
+              seen. Afterwards the card says so, and links to the post. */}
+          <div className="mt-2">
+            {sharedId ? (
+              <p className="font-mono text-[0.66rem] text-muted">
+                Shared with the circle ·{" "}
+                <Link href={postPath(sharedId)} className="text-accent underline underline-offset-4">
+                  See it in Life
+                </Link>
+              </p>
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  setShareError(null);
+                  setSharing("asking");
+                }}
+                className="font-mono text-[0.66rem] text-accent underline underline-offset-4"
+              >
+                Tell the circle
+              </button>
+            )}
+            {shareError && (
+              <p className="mt-1 font-mono text-[0.66rem] text-negative">{shareError}</p>
+            )}
+          </div>
+          <ConfirmDialog
+            open={sharing !== "no"}
+            title={`Share “${milestoneTitle(m.kind, m.title)}” with the circle?`}
+            body={[
+              "Everyone in your circle will see it in Life and be told about it",
+              m.note ? ", with your note" : "",
+              m.photoUrls.length > 0
+                ? ` and ${m.photoUrls.length === 1 ? "the photograph" : `the ${m.photoUrls.length} photographs`}`
+                : "",
+              ". It stays on your Firsts page as well.",
+            ].join("")}
+            confirmWord="Share it"
+            busy={sharing === "going"}
+            onCancel={() => setSharing("no")}
+            onConfirm={async () => {
+              setSharing("going");
+              const res = await shareMilestone(m.id);
+              setSharing("no");
+              if (res.ok) setSharedId(res.postId);
+              else setShareError(res.error);
+            }}
           />
         </div>
         <div className="flex shrink-0 items-center gap-2">

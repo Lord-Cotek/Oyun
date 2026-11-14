@@ -966,6 +966,11 @@ model Milestone {
   note       String?
   occurredAt DateTime
   photoUrls  String[]      @default([])
+  /// The Life post this first was shared to the circle as, if it was. A
+  /// first is the household's until a parent chooses to tell the circle —
+  /// grandparents used to never see one at all. Kept so the card can say it
+  /// has been shared, and link to it, rather than offering to share twice.
+  postId     String?
   createdAt  DateTime      @default(now())
 
   @@index([journeyId, occurredAt])

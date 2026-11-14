@@ -63,7 +63,16 @@ async function member() {
 }
 
 /** Share something with the circle — an update, praise, prayer, or milestone. */
-export async function createPost(input: {
+export async function createPost(input: Parameters<typeof postWithId>[0]): Promise<void> {
+  await postWithId(input);
+}
+
+/**
+ * The same, handing back the new post's id — for sharing a first, which
+ * needs to remember the post it became. One path, so a first shared from the
+ * Firsts page is told to the circle exactly as any other post is.
+ */
+export async function postWithId(input: {
   kind: string;
   body: string;
   mediaUrls?: string[];
@@ -140,6 +149,7 @@ export async function createPost(input: {
   }
   revalidatePath("/life");
   revalidatePath("/journey");
+  return { id: made.id };
 }
 
 export async function editPost(input: {

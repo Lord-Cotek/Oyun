@@ -47,6 +47,20 @@ export default async function FirstsPage() {
   const withPhotos = milestones.filter((m) => m.photoUrls.length > 0).length;
   const photoCount = milestones.reduce((n, m) => n + m.photoUrls.length, 0);
 
+  // Only posts that still exist — a shared first whose post was deleted can
+  // be shared again rather than linking to nothing.
+  const sharedIds = milestones.map((m) => m.postId).filter((x): x is string => !!x);
+  const livePosts = new Set(
+    sharedIds.length
+      ? (
+          await prisma.post.findMany({
+            where: { id: { in: sharedIds }, journeyId },
+            select: { id: true },
+          })
+        ).map((p) => p.id)
+      : [],
+  );
+
   const items = milestones.map((m) => ({
     id: m.id,
     kind: m.kind,
@@ -56,6 +70,7 @@ export default async function FirstsPage() {
     photoUrls: m.photoUrls,
     childId: m.child?.id ?? null,
     childName: m.child?.name ?? null,
+    postId: m.postId && livePosts.has(m.postId) ? m.postId : null,
   }));
 
   return (

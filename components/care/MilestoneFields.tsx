@@ -3,26 +3,9 @@
 import { useState } from "react";
 import { MAX_PHOTOS } from "@/lib/photos";
 
-export const MILESTONE_KINDS: { value: string; label: string }[] = [
-  { value: "FIRST_KICK", label: "First kick" },
-  { value: "ULTRASOUND", label: "Ultrasound" },
-  { value: "HEARTBEAT", label: "Heartbeat" },
-  { value: "BIRTH", label: "Birth" },
-  { value: "FIRST_SMILE", label: "First smile" },
-  { value: "FIRST_WORD", label: "First word" },
-  { value: "FIRST_STEPS", label: "First steps" },
-  { value: "CUSTOM", label: "Something else" },
-];
-
-export const KIND_LABEL: Record<string, string> = Object.fromEntries(
-  MILESTONE_KINDS.map((k) => [k.value, k.label]),
-);
-
-export function milestoneTitle(kind: string, title?: string | null): string {
-  if (title && title.trim()) return title.trim();
-  if (kind === "CUSTOM") return "A first";
-  return KIND_LABEL[kind] ?? "A first";
-}
+// The words live in lib/firsts.ts so the server can use them too.
+import { MILESTONE_KINDS, KIND_LABEL, milestoneTitle } from "@/lib/firsts";
+export { MILESTONE_KINDS, KIND_LABEL, milestoneTitle };
 
 const inputClass =
   "w-full rounded-lg border border-border bg-bg px-3 py-2.5 font-mono text-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none";

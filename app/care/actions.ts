@@ -10,6 +10,8 @@ import { letterHref } from "@/lib/letter-access";
 import { MAX_PHOTOS } from "@/lib/photos";
 import { babyWords } from "@/lib/babies";
 import { Mood, MilestoneKind } from "@prisma/client";
+import { postWithId } from "@/app/life/actions";
+import { firstPostBody } from "@/lib/firsts";
 
 async function requireMother() {
   const session = await auth();
@@ -209,4 +211,61 @@ export async function deleteMilestone(formData: FormData) {
   await prisma.milestone.deleteMany({ where: { id, journeyId } });
   revalidatePath("/firsts");
   revalidatePath("/journey");
+}
+
+/**
+ * Tell the circle about a first — one tap, from the Firsts page.
+ *
+ * A first is the household's: the Firsts page is theirs alone, and the
+ * grandparents never saw one unless somebody retyped it into Life. This makes
+ * it a Life post of kind MILESTONE, with its note and its photographs, sent
+ * through the ordinary post path so the circle is told exactly as they are
+ * for any other post. The card asks before it shares, and says afterwards
+ * that it has.
+ *
+ * Once only: a first already shared, whose post still exists, is not shared
+ * again. If that post was deleted, sharing it again is allowed.
+ */
+export async function shareMilestone(
+  milestoneId: string,
+): Promise<{ ok: true; postId: string } | { ok: false; error: string }> {
+  const { journeyId } = await requireParent();
+  const m = await prisma.milestone.findFirst({
+    where: { id: milestoneId, journeyId },
+    select: {
+      id: true,
+      kind: true,
+      title: true,
+      note: true,
+      occurredAt: true,
+      photoUrls: true,
+      postId: true,
+      child: { select: { name: true } },
+    },
+  });
+  if (!m) return { ok: false, error: "That first is no longer here." };
+  if (m.postId) {
+    const still = await prisma.post.findFirst({
+      where: { id: m.postId, journeyId },
+      select: { id: true },
+    });
+    if (still) return { ok: true, postId: still.id };
+  }
+
+  const made = await postWithId({
+    kind: "MILESTONE",
+    body: firstPostBody({
+      kind: m.kind,
+      title: m.title,
+      note: m.note,
+      childName: m.child?.name,
+      occurredAt: m.occurredAt,
+    }),
+    mediaUrls: m.photoUrls,
+  });
+  if (!made) return { ok: false, error: "That didn’t share. Try again in a moment." };
+
+  await prisma.milestone.update({ where: { id: m.id }, data: { postId: made.id } });
+  revalidatePath("/firsts");
+  return { ok: true, postId: made.id };
 }
