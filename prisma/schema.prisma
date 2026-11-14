@@ -1282,6 +1282,10 @@ model InvitationReply {
   /// Including themselves. 1 means "just me".
   partySize    Int              @default(1)
   note         String?
+  /// When the host's thank-you — the details and the useful links — was
+  /// emailed to this guest. Set once, so pressing the button again reaches
+  /// only the people who have replied since, never the same inbox twice.
+  thankedAt    DateTime?
   createdAt    DateTime         @default(now())
   updatedAt    DateTime         @updatedAt
   votes        InvitationVote[]

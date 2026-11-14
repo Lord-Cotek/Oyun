@@ -1,6 +1,8 @@
 import { randomBytes } from "node:crypto";
 import { prisma } from "@/lib/prisma";
 import { inviteState, isPoll, type InviteState } from "@/lib/invitations";
+import { HOUSEHOLD_ROLES } from "@/lib/roles";
+import { inOnIt, maySee, stillASurprise } from "@/lib/surprise";
 
 /**
  * ── Why these are not `randomId()` ───────────────────────────────────────
@@ -190,7 +192,7 @@ export async function getPublicInvitation(
 
 /** The host's view: same invitation, plus what only the host should see. */
 export async function getHostInvitations(journeyId: string) {
-  return prisma.invitation.findMany({
+  const rows = await prisma.invitation.findMany({
     where: { event: { journeyId } },
     orderBy: { event: { at: "asc" } },
     select: {
@@ -241,6 +243,39 @@ export async function getHostInvitations(journeyId: string) {
       },
     },
   });
+
+  /**
+   * For the emailed thank-you: how many guests could be sent it, and how
+   * many already have been. Counted in the database, so not one address
+   * leaves this function — a host learns "18 left an email", never which.
+   */
+  const ids = rows.map((r) => r.id);
+  const [waiting, thanked] = ids.length
+    ? await Promise.all([
+        prisma.invitationReply.groupBy({
+          by: ["invitationId"],
+          where: {
+            invitationId: { in: ids },
+            answer: { in: ["YES", "MAYBE"] },
+            email: { not: null },
+            thankedAt: null,
+          },
+          _count: { _all: true },
+        }),
+        prisma.invitationReply.groupBy({
+          by: ["invitationId"],
+          where: { invitationId: { in: ids }, thankedAt: { not: null } },
+          _count: { _all: true },
+        }),
+      ])
+    : [[], []];
+  const w = new Map(waiting.map((g) => [g.invitationId, g._count._all]));
+  const t = new Map(thanked.map((g) => [g.invitationId, g._count._all]));
+  return rows.map((r) => ({
+    ...r,
+    thanksWaiting: w.get(r.id) ?? 0,
+    thanksSent: t.get(r.id) ?? 0,
+  }));
 }
 
 /** The full link, for the share sheet and the WhatsApp message. */
@@ -249,4 +284,46 @@ export function inviteUrl(slug: string): string {
     process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ??
     "https://oyun.cotek.app";
   return `${base}/i/${slug}`;
+}
+
+/**
+ * Who may be told about replies to this day's invitation — a guest saying
+ * yes, the count the evening before.
+ *
+ * ── Why this is not simply "the household" ───────────────────────────────
+ * It was, and a surprise shower with an invitation on it then told the
+ * mother "Ada is coming to your surprise shower" the moment Ada replied. A
+ * day still being kept from somebody is told only to the people in on it —
+ * the one who planned it and the ones they asked to help — and only while
+ * they still belong to this journey. Once the day has come, it is an
+ * ordinary day again and the household hears as usual.
+ */
+export async function inviteAudience(eventId: string, now = new Date()): Promise<string[]> {
+  const e = await prisma.journeyEvent.findUnique({
+    where: { id: eventId },
+    select: {
+      journeyId: true,
+      surprise: true,
+      at: true,
+      createdById: true,
+      planners: { select: { userId: true } },
+    },
+  });
+  if (!e) return [];
+  // Whoever would ordinarily hear — the household — and, on a surprise, the
+  // helpers let in on it, who may be in the wider circle. Then the one rule:
+  // only those who may see this day at all.
+  const candidates = await prisma.membership.findMany({
+    where: {
+      journeyId: e.journeyId,
+      OR: [
+        { role: { in: HOUSEHOLD_ROLES } },
+        ...(stillASurprise(e, now) ? [{ userId: { in: inOnIt(e) } }] : []),
+      ],
+    },
+    select: { userId: true },
+  });
+  return Array.from(new Set(candidates.map((m) => m.userId))).filter((id) =>
+    maySee(e, id, now),
+  );
 }

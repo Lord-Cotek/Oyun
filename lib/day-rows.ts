@@ -48,10 +48,14 @@ export function toInviteRow(i: {
   }[];
   links: { id: string; kind: string; label: string; url: string }[];
   thankYou: string | null;
+  thanksWaiting?: number;
+  thanksSent?: number;
 }, extra: { registryUrl: string | null } = { registryUrl: null }): InviteRow {
   return {
     slug: i.slug,
     url: inviteUrl(i.slug),
+    thanksWaiting: i.thanksWaiting ?? 0,
+    thanksSent: i.thanksSent ?? 0,
     hostName: i.hostName,
     message: i.message,
     coverUrl: i.coverUrl,

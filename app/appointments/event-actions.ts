@@ -17,7 +17,7 @@ import { auth } from "@/lib/auth";
 import { getActiveMembership } from "@/lib/data";
 import { notify } from "@/lib/notify";
 import { isHousehold, HOUSEHOLD_ROLES } from "@/lib/roles";
-import { sendGuestDayEmail, sendInvitationEmail } from "@/lib/email";
+import { sendGuestDayEmail, sendGuestThankYouEmails, sendInvitationEmail } from "@/lib/email";
 import { toEventKind } from "@/lib/events-db";
 import { checkCoverUrl } from "@/lib/cover-url";
 import { newSlug, inviteUrl } from "@/lib/invitations-db";
@@ -30,6 +30,7 @@ import {
   parseAddresses,
   EMAIL_BATCH_MAX,
   EMAIL_TOTAL_MAX,
+  inviteState,
 } from "@/lib/invitations";
 
 type Result = { ok: true } | { ok: false; error: string };
@@ -531,6 +532,110 @@ export async function saveThankYou(
   if (n.count === 0) return { ok: false, error: "That invitation is not here." };
   revalidatePath("/appointments");
   return { ok: true };
+}
+
+/**
+ * Email the host's thank-you — the date, the place, the useful links — to
+ * every guest who said yes or maybe and left an address, and has not been
+ * sent it yet.
+ *
+ * ── Once each, even if the button is pressed twice ───────────────────────
+ * The guests are claimed before anything is sent: their `thankedAt` is
+ * stamped with this call's own moment, and only the rows carrying that exact
+ * stamp are emailed. Two presses at once cannot both claim the same guest,
+ * so nobody gets it twice. Anyone the provider refuses is un-stamped again,
+ * so the next press tries them rather than silently skipping them.
+ *
+ * The host is told numbers and never addresses — see getHostInvitations.
+ */
+export async function emailThankYou(
+  eventId: string,
+): Promise<{ ok: true; sent: number; failed: number } | { ok: false; error: string }> {
+  const who = await requireHouse();
+  if (!who) return { ok: false, error: "Only the two of you can send this." };
+
+  const inv = await prisma.invitation.findFirst({
+    where: { eventId, event: { journeyId: who.journeyId } },
+    select: {
+      id: true,
+      slug: true,
+      hostName: true,
+      thankYou: true,
+      closedAt: true,
+      revokedAt: true,
+      repliesBy: true,
+      settledAt: true,
+      _count: { select: { options: true } },
+      links: {
+        orderBy: [{ position: "asc" }, { createdAt: "asc" }],
+        select: { kind: true, label: true, url: true },
+      },
+      event: {
+        select: { title: true, at: true, hasTime: true, endsAt: true, where: true, cancelledAt: true },
+      },
+    },
+  });
+  if (!inv) return { ok: false, error: "That invitation is not here." };
+  if (inv.revokedAt) return { ok: false, error: "That link has been switched off." };
+  if (inv.event.cancelledAt) return { ok: false, error: "This day has been called off." };
+  if (inv._count.options > 0 && !inv.settledAt) {
+    return { ok: false, error: "Settle the day first — there is no date to thank them for yet." };
+  }
+  if (inviteState(inv, inv.event.at, inv.event.endsAt) === "past") {
+    return { ok: false, error: "The day has been. This one is for before it." };
+  }
+
+  const stamp = new Date();
+  await prisma.invitationReply.updateMany({
+    where: {
+      invitationId: inv.id,
+      answer: { in: ["YES", "MAYBE"] },
+      email: { not: null },
+      thankedAt: null,
+    },
+    data: { thankedAt: stamp },
+  });
+  const claimed = await prisma.invitationReply.findMany({
+    where: { invitationId: inv.id, thankedAt: stamp },
+    select: { id: true, name: true, email: true, answer: true },
+  });
+  if (claimed.length === 0) {
+    return { ok: false, error: "Everybody who left an email has already had it." };
+  }
+
+  // One email per address, even if the same person replied twice.
+  const byAddress = new Map<string, { email: string; name: string; answer: string }>();
+  for (const r of claimed) {
+    const key = r.email!.trim().toLowerCase();
+    if (!byAddress.has(key)) byAddress.set(key, { email: r.email!.trim(), name: r.name, answer: r.answer });
+  }
+
+  const accepted = await sendGuestThankYouEmails({
+    guests: [...byAddress.values()],
+    title: inv.event.title,
+    when: whenWords(inv.event.at, inv.event.hasTime, inv.event.endsAt),
+    where: inv.event.where,
+    hostName: inv.hostName,
+    note: inv.thankYou,
+    links: inv.links,
+    url: inviteUrl(inv.slug),
+  });
+  const went = new Set(accepted.map((a) => a.trim().toLowerCase()));
+  const refused = claimed.filter((r) => !went.has(r.email!.trim().toLowerCase())).map((r) => r.id);
+  if (refused.length > 0) {
+    await prisma.invitationReply.updateMany({
+      where: { id: { in: refused }, thankedAt: stamp },
+      data: { thankedAt: null },
+    });
+  }
+
+  revalidatePath("/appointments");
+  if (went.size === 0) {
+    return { ok: false, error: "The emails could not be sent just now. Nobody was marked as sent — try again in a while." };
+  }
+  // Counted in guests, like everything the host is shown — two replies that
+  // share one address are two guests, even though one email reached both.
+  return { ok: true, sent: claimed.length - refused.length, failed: refused.length };
 }
 
 export async function setInvitationClosed(

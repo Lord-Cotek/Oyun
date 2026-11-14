@@ -16,8 +16,7 @@ import {
   REPLIES_MAX,
   isPoll,
 } from "@/lib/invitations";
-import { guestCookieName, newGuestToken } from "@/lib/invitations-db";
-import { HOUSEHOLD_ROLES } from "@/lib/roles";
+import { guestCookieName, inviteAudience, newGuestToken } from "@/lib/invitations-db";
 
 type Result = { ok: true } | { ok: false; error: string };
 
@@ -235,15 +234,13 @@ async function tellTheHouse(
   const word =
     answer === "YES" ? "is coming" : answer === "MAYBE" ? "hopes to come" : "can't come";
   // The mother and the one beside her — the people whose day it is. The wider
-  // circle is not told who replied to a shower they may not be at.
-  const keepers = await prisma.membership.findMany({
-    where: { journeyId: event.journeyId, role: { in: HOUSEHOLD_ROLES } },
-    select: { userId: true },
-  });
-  for (const k of keepers) {
+  // circle is not told who replied to a shower they may not be at. And on a
+  // surprise, only the people planning it: see inviteAudience.
+  const audience = await inviteAudience(event.id);
+  for (const userId of audience) {
     try {
       await notify({
-        userId: k.userId,
+        userId,
         type: "appointment",
         title: `${name} ${word} to ${event.title}.`,
         href: dayPath(event.id),

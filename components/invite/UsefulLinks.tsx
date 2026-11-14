@@ -267,7 +267,7 @@ export function UsefulLinks({
             className="mt-1.5 w-full resize-y rounded-lg border border-border bg-bg px-3 py-2 prose-serif-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none"
           />
         </label>
-        <div className="mt-1.5 flex items-center gap-3">
+        <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1">
           <button
             type="button"
             disabled={noteSaved === "saving" || note.trim() === (thankYou ?? "").trim()}
@@ -280,7 +280,7 @@ export function UsefulLinks({
                 else router.refresh();
               });
             }}
-            className="font-mono text-[0.68rem] text-accent underline underline-offset-4 disabled:text-muted disabled:no-underline"
+            className="shrink-0 whitespace-nowrap font-mono text-[0.68rem] text-accent underline underline-offset-4 disabled:text-muted disabled:no-underline"
           >
             {noteSaved === "saving" ? "Saving…" : noteSaved === "saved" ? "Saved" : "Save the thank-you"}
           </button>

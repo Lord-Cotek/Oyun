@@ -182,7 +182,7 @@ export function GuestReply({
           {answer !== "NO" && (
             <label className="block">
               <span className="mb-1.5 block font-mono text-[0.6rem] uppercase tracking-widest text-muted">
-                Email, if you want reminding
+                Email, for the details and a reminder
               </span>
               <input
                 type="email"
@@ -193,9 +193,10 @@ export function GuestReply({
                 className={inputClass}
               />
               <span className="mt-1.5 block prose-serif-xs text-muted">
-                Two messages and nothing else: the evening before and on the
-                morning — and a word if the day moves. No account, no list.
-                Taking your reply back removes it.
+                Only about this day: a thank-you with the details once you
+                have replied, a reminder the evening before and on the morning
+                — and a word if it moves. No account, no list. Taking your
+                reply back removes it.
               </span>
             </label>
           )}

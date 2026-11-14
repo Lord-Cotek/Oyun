@@ -94,6 +94,65 @@ async function sendEmail(opts: {
   }
 }
 
+/**
+ * Many emails in one request, for the host's thank-you to every guest.
+ *
+ * ── Why not a loop over sendEmail ────────────────────────────────────────
+ * Forty guests one at a time is forty round trips inside one tap — long
+ * enough for a server function to be cut off halfway, leaving a host with
+ * no idea who got it — and fast enough to trip the provider's per-second
+ * limit. Resend's batch endpoint takes up to a hundred in one call and
+ * either accepts the lot or refuses the lot, so the answer is always whole.
+ *
+ * Returns the addresses that were accepted, so the caller marks exactly
+ * those as sent.
+ */
+const BATCH_MAX = 100;
+async function sendEmailBatch(
+  items: { to: string; subject: string; html: string; text: string }[],
+  kind: string,
+): Promise<string[]> {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    console.warn("[email] RESEND_API_KEY not set — skipping batch.");
+    for (const i of items) await recordDelivery(kind, i.to, false, "no mail provider configured");
+    return [];
+  }
+  const accepted: string[] = [];
+  for (let at = 0; at < items.length; at += BATCH_MAX) {
+    const chunk = items.slice(at, at + BATCH_MAX);
+    try {
+      const res = await fetch(`${RESEND_ENDPOINT.replace(/\/+$/, "")}/batch`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+        body: JSON.stringify(
+          chunk.map((i) => ({
+            from: fromAddress(),
+            to: [i.to],
+            subject: i.subject,
+            html: i.html,
+            text: i.text,
+          })),
+        ),
+      });
+      if (!res.ok) {
+        const said = await res.text();
+        console.error("[email] Resend batch error", res.status, said);
+        for (const i of chunk) await recordDelivery(kind, i.to, false, `${res.status} ${said}`);
+        continue;
+      }
+      for (const i of chunk) {
+        await recordDelivery(kind, i.to, true);
+        accepted.push(i.to);
+      }
+    } catch (err) {
+      console.error("[email] batch failed", err);
+      for (const i of chunk) await recordDelivery(kind, i.to, false, String(err));
+    }
+  }
+  return accepted;
+}
+
 const shell = (inner: string) => `
   <div style="background:#0B0E14;padding:32px 0;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;">
     <div style="max-width:520px;margin:0 auto;background:#12151D;border:1px solid #232833;border-radius:16px;padding:32px;color:#ECE8DE;">
@@ -713,4 +772,105 @@ export async function sendBroadcastEmail({
     .join("\n");
 
   return sendEmail({ to, subject, html, text, kind: "broadcast" });
+}
+
+
+/**
+ * The host's thank-you, emailed to every guest who replied and left an
+ * address — with the date, the place and the useful links in it.
+ *
+ * ── Why it is allowed at all ─────────────────────────────────────────────
+ * A guest gave their address for messages about this one day, and the reply
+ * form says so. This is one of them: it is about the day, it carries what
+ * they need to get there, and it goes once — the caller stamps each guest so
+ * a second press reaches only people who have replied since. Like every
+ * other guest email it says why it came and how to stop.
+ *
+ * Returns the addresses accepted by the provider.
+ */
+export async function sendGuestThankYouEmails({
+  guests,
+  title,
+  when,
+  where,
+  hostName,
+  note,
+  links,
+  url,
+}: {
+  guests: { email: string; name: string; answer: string }[];
+  title: string;
+  when: string;
+  where?: string | null;
+  hostName: string;
+  note?: string | null;
+  links: LinkLike[];
+  url: string;
+}): Promise<string[]> {
+  const useful = links
+    .map((l) => ({ label: linkLabel(l.kind, l.label), mark: LINK_META[toLinkKind(l.kind)].mark, href: cleanUrl(l.url) }))
+    .filter((l): l is { label: string; mark: string; href: string } => l.href !== null);
+  const own = note?.trim() || null;
+
+  const items = guests.map((g) => {
+    const greeting = g.name?.trim() || "Hello";
+    const maybe = g.answer === "MAYBE";
+    const lead = maybe
+      ? "Thank you for letting us know you hope to come."
+      : "Thank you for saying you'll be there.";
+    const html = shell(`
+    <p style="font-size:16px;line-height:1.6;color:#ECE9DF;">${escapeHtml(greeting)},</p>
+    <p style="font-size:15px;line-height:1.7;color:#ECE9DF;margin:0 0 4px;">${escapeHtml(lead)}</p>
+    ${own ? `<p style="font-size:15px;line-height:1.7;color:#ECE9DF;margin:12px 0 2px;white-space:pre-wrap;">${escapeHtml(own)}</p><p style="font-size:12px;color:#8B9086;margin:0;">— ${escapeHtml(hostName)}</p>` : ""}
+    <div style="height:20px;"></div>
+    <p style="font-family:Georgia,'Times New Roman',serif;font-size:24px;line-height:1.25;color:#ECE9DF;margin:0 0 10px;">${escapeHtml(title)}</p>
+    <p style="font-size:15px;line-height:1.7;color:#ECE9DF;margin:0;">${escapeHtml(when)}</p>
+    ${where ? `<p style="font-size:14px;line-height:1.7;color:#8B9086;margin:4px 0 0;">${escapeHtml(where)}</p>` : ""}
+    ${
+      useful.length > 0
+        ? `<p style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#8B9086;margin:22px 0 8px;">Everything you'll need</p>
+    ${useful
+      .map(
+        (l) =>
+          `<p style="margin:0 0 8px;"><a href="${escapeHtml(l.href)}" style="display:inline-block;border:1px solid #3A3F4A;border-radius:10px;padding:10px 14px;color:#ECE9DF;text-decoration:none;font-size:14px;">${l.mark}&nbsp; ${escapeHtml(l.label)}</a></p>`,
+      )
+      .join("")}`
+        : ""
+    }
+    <p style="margin:24px 0;">
+      <a href="${url}" style="display:inline-block;background:#CF7D43;color:#120D08;text-decoration:none;font-weight:600;padding:12px 20px;border-radius:8px;font-size:14px;">See the invitation</a>
+    </p>
+    <p style="font-size:12px;line-height:1.7;color:#8B9086;">
+      You are getting this because you replied to ${escapeHtml(hostName)}'s invitation
+      and left this address. Open the invitation and take your reply back to stop —
+      that removes your address with it. It is used for nothing else.
+    </p>
+  `);
+    const text = [
+      `${greeting},`,
+      "",
+      lead,
+      own ? "" : null,
+      own,
+      own ? `— ${hostName}` : null,
+      "",
+      title,
+      when,
+      where ?? null,
+      useful.length > 0 ? "" : null,
+      useful.length > 0 ? "Everything you'll need:" : null,
+      ...useful.map((l) => `${l.mark} ${l.label}: ${l.href}`),
+      "",
+      `See the invitation: ${url}`,
+      "",
+      `You are getting this because you replied to ${hostName}'s invitation and left this address.`,
+      "Open the invitation and take your reply back to stop — that removes your",
+      "address with it. It is used for nothing else.",
+    ]
+      .filter((l): l is string => l !== null)
+      .join("\n");
+    return { to: g.email, subject: `Thank you — ${title}`, html, text };
+  });
+
+  return sendEmailBatch(items, "guest-thanks");
 }

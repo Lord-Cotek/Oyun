@@ -11,9 +11,8 @@ import {
   type ReminderStage,
 } from "@/lib/appointments";
 import { nudgeDueToday } from "@/lib/nudges";
-import { inviteUrl } from "@/lib/invitations-db";
+import { inviteAudience, inviteUrl } from "@/lib/invitations-db";
 import { countForHost, headCount, whenWords } from "@/lib/invitations";
-import { HOUSEHOLD_ROLES } from "@/lib/roles";
 import { appointmentPath, dayPath } from "@/lib/open-item";
 
 export const runtime = "nodejs";
@@ -383,10 +382,9 @@ async function tellTheHosts(now: Date) {
   let sent = 0;
   for (const inv of invitations) {
     const c = headCount(inv.replies);
-    const keepers = await prisma.membership.findMany({
-      where: { journeyId: inv.event.journeyId, role: { in: HOUSEHOLD_ROLES } },
-      select: { userId: true },
-    });
+    // The household — or, on a day still being kept as a surprise, only the
+    // people in on it. See inviteAudience.
+    const keepers = (await inviteAudience(inv.event.id, now)).map((userId) => ({ userId }));
 
     // The things guests actually wrote, which is where "we'll be late" and
     // "I'm bringing the cake" live. Capped, because this is a nudge.

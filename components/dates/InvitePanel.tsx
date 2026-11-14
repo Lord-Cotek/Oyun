@@ -10,6 +10,7 @@ import {
   restoreInvitation,
   removeReply,
   emailInvitation,
+  emailThankYou,
 } from "@/app/appointments/event-actions";
 import {
   HOST_NAME_MAX,
@@ -60,6 +61,10 @@ export type InviteRow = {
    * the invitation is one tap rather than a trip to copy a link.
    */
   registryUrl: string | null;
+  /** Guests who said yes or maybe, left an email, and have not had the thank-you. */
+  thanksWaiting: number;
+  /** Guests the thank-you has already been emailed to. */
+  thanksSent: number;
 };
 
 const inputClass =
@@ -357,6 +362,9 @@ export function InvitePanel({
               links={invite.links}
               note={invite.thankYou}
               replied={count.comingReplies + count.hopingReplies}
+              onEmail={() => emailThankYou(eventId)}
+              emailWaiting={invite.thanksWaiting}
+              emailSent={invite.thanksSent}
             />
           )}
 
@@ -451,8 +459,9 @@ export function InvitePanel({
               like — the other mothers, the friends coming round; they need no
               account. Nothing else about your journey is reachable from it,
               and you can switch it off whenever you want. Anyone who leaves an
-              address is reminded the evening before and on the morning, and
-              told straight away if you move the day.
+              address can be sent your thank-you with the details, is reminded
+              the evening before and on the morning, and told straight away if
+              you move the day.
             </p>
           )}
 
