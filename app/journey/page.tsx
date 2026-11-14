@@ -645,7 +645,8 @@ export default async function JourneyPage() {
                     {mood.label}
                   </p>
                   <p className="mt-2 prose-serif-xs text-muted">
-                    {latest?.note?.trim() ? `"${latest.note}"` : mood.blurb}
+                    {/* Her words only when she chose to share them. */}
+                    {latest?.shareNote && latest.note?.trim() ? `"${latest.note}"` : mood.blurb}
                   </p>
                   {latest && latestReactions && (
                     <div className="mt-4 border-t border-border pt-4">

@@ -35,9 +35,11 @@ export async function addCheckIn(formData: FormData) {
   const moodRaw = String(formData.get("mood") ?? "");
   const note = String(formData.get("note") ?? "").trim() || null;
   if (!(moodRaw in Mood)) throw new Error("Please choose how you are.");
+  // Only meaningful with a note to share; an empty note shares nothing.
+  const shareNote = !!note && formData.get("shareNote") === "on";
 
   await prisma.checkIn.create({
-    data: { journeyId, userId, mood: moodRaw as Mood, note },
+    data: { journeyId, userId, mood: moodRaw as Mood, note, shareNote },
   });
   revalidatePath("/care");
   revalidatePath("/journey");

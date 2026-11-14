@@ -31,12 +31,16 @@ export async function GET(req: Request) {
   weekAgo.setUTCDate(weekAgo.getUTCDate() - 7);
 
   const journeys = await prisma.journey.findMany({
+    // Not a family after a loss. "This week on your journey — Week 31 … one
+    // thing to do" is the last email a bereaved mother should open, and the
+    // daily job already holds back for the same reason.
+    where: { status: "ACTIVE" },
     include: {
       owner: { select: { id: true, name: true } },
       memberships: {
         include: {
           user: {
-            select: { id: true, name: true, email: true, weeklyDigest: true },
+            select: { id: true, name: true, email: true, weeklyDigest: true, suspendedAt: true },
           },
         },
       },
@@ -65,7 +69,8 @@ export async function GET(req: Request) {
 
     for (const m of journey.memberships) {
       const u = m.user;
-      if (!u.email || !u.weeklyDigest) continue;
+      // A suspended account gets nothing from the app until it is restored.
+      if (!u.email || !u.weeklyDigest || u.suspendedAt) continue;
 
       let subject: string;
       let intro: string;

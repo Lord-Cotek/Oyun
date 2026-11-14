@@ -178,16 +178,27 @@ async function gather({ userId, journeyId, role }: ExportScope) {
     }),
     // Her care journal — how she was, day by day. Hers and his, no one else's.
     inHouse
-      ? prisma.checkIn.findMany({
-          where: j,
-          select: {
-            mood: true,
-            note: true,
-            createdAt: true,
-            user: { select: { name: true } },
-          },
-          orderBy: byNewest,
-        })
+      ? prisma.checkIn
+          .findMany({
+            where: j,
+            select: {
+              mood: true,
+              note: true,
+              shareNote: true,
+              userId: true,
+              createdAt: true,
+              user: { select: { name: true } },
+            },
+            orderBy: byNewest,
+          })
+          // Her notes are hers: in anybody else's copy only the ones she
+          // chose to share, the same rule as the screens. The mood stays.
+          .then((rows) =>
+            rows.map(({ shareNote, userId: author, ...c }) => ({
+              ...c,
+              note: author === userId || shareNote ? c.note : null,
+            })),
+          )
       : [],
     inHouse
       ? prisma.appointment.findMany({

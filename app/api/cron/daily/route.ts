@@ -1,6 +1,13 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { notify } from "@/lib/notify";
+import { CATEGORY_FIELDS, shouldInterrupt } from "@/lib/notify-prefs";
+
+/** The notification switches, so an email can respect them as the push does. */
+const PREF_SELECT = Object.fromEntries(CATEGORY_FIELDS.map((f) => [f, true])) as Record<
+  (typeof CATEGORY_FIELDS)[number],
+  true
+>;
 import { sendNotificationEmail, sendGuestDayEmail } from "@/lib/email";
 import {
   dueStage,
@@ -81,6 +88,7 @@ export async function GET(req: Request) {
                   name: true,
                   email: true,
                   notifyByEmail: true,
+                  ...PREF_SELECT,
                 },
               },
             },
@@ -130,7 +138,14 @@ export async function GET(req: Request) {
       // Email only where somebody asked for email, and only for the two
       // stages where an email is genuinely useful. A "this morning" email
       // arrives after they have already left the house.
-      if (m.user.email && m.user.notifyByEmail && stage !== "morning") {
+      // And only if they have not switched these reminders off — the email
+      // used to skip the check notify() makes for the push.
+      if (
+        m.user.email &&
+        m.user.notifyByEmail &&
+        stage !== "morning" &&
+        shouldInterrupt("appointment_reminder", m.user)
+      ) {
         await sendNotificationEmail({
           to: m.user.email,
           name: m.user.name,
@@ -167,7 +182,7 @@ export async function GET(req: Request) {
       doneAt: true,
       remindedAt: true,
       journey: { select: { status: true } },
-      user: { select: { id: true, name: true, email: true, notifyByEmail: true } },
+      user: { select: { id: true, name: true, email: true, notifyByEmail: true, ...PREF_SELECT } },
     },
   });
 
@@ -183,7 +198,7 @@ export async function GET(req: Request) {
       body: "You asked to be reminded of this today.",
       href: "/journey",
     });
-    if (n.user.email && n.user.notifyByEmail) {
+    if (n.user.email && n.user.notifyByEmail && shouldInterrupt("nudge", n.user)) {
       await sendNotificationEmail({
         to: n.user.email,
         name: n.user.name,

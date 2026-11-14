@@ -694,6 +694,11 @@ model CheckIn {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   mood      Mood
   note      String?
+  /// Whether the note travels with the mood to the people who see how she
+  /// is — the partner and the circle. Off unless she ticks it: the Care page
+  /// promises her notes are kept for her, and her words about a hard day are
+  /// the most private thing in the app. The mood itself is shared as before.
+  shareNote Boolean  @default(false)
   createdAt DateTime @default(now())
 
   @@index([journeyId, createdAt])

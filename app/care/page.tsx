@@ -35,11 +35,16 @@ export default async function CarePage() {
   const bw = babyWords(active.journey.babyCount, active.journey.babyName);
 
   const [checkIns, letters, coupleLetters] = await Promise.all([
-    prisma.checkIn.findMany({
-      where: { journeyId },
-      orderBy: { createdAt: "asc" },
-      take: 60,
-    }),
+    // The newest sixty, put back in date order for the chart. This used to
+    // take the OLDEST sixty, so after two months the chart, "Latest" and the
+    // circle's reactions all stopped moving.
+    prisma.checkIn
+      .findMany({
+        where: { journeyId },
+        orderBy: { createdAt: "desc" },
+        take: 60,
+      })
+      .then((rows) => rows.reverse()),
     prisma.letter.findMany({
       where: { journeyId, toBaby: true },
       orderBy: { createdAt: "desc" },

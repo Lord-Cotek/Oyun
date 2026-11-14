@@ -86,7 +86,12 @@ export async function updateNotifications(_prev: unknown, formData: FormData): P
       ...Object.fromEntries(CATEGORY_FIELDS.map((f) => [f, on(f)])),
       // Clamped rather than trusted: this comes from a form, and an hour of
       // 25 would mean a note that never arrives, silently, for ever.
-      morningHour: Math.min(23, Math.max(0, Number(formData.get("morningHour")) || 7)),
+      // `|| 7` used to turn midnight (0) into 7am; only a missing or
+      // unreadable value falls back now.
+      morningHour: (() => {
+        const h = Number.parseInt(String(formData.get("morningHour") ?? ""), 10);
+        return Number.isFinite(h) ? Math.min(23, Math.max(0, h)) : 7;
+      })(),
     },
   });
   revalidatePath("/settings");

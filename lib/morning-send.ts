@@ -88,9 +88,11 @@ export async function sendMorningNotes(now = new Date()): Promise<MorningRun> {
       timeZone: true,
       morningHour: true,
       memberships: {
+        // Oldest first, as the journey switcher orders them.
+        orderBy: { createdAt: "asc" },
         select: {
           role: true,
-          journey: { select: { dueDate: true, status: true } },
+          journey: { select: { dueDate: true, status: true, ownerId: true } },
         },
       },
     },
@@ -101,10 +103,16 @@ export async function sendMorningNotes(now = new Date()): Promise<MorningRun> {
     if (hour !== person.morningHour) continue;
     run.considered += 1;
 
-    // The journey they are actually in. Somebody in more than one gets the
-    // note for the first — a second note the same morning would be the very
-    // thing this is trying not to be.
-    const membership = person.memberships[0];
+    // The journey they are actually in. Somebody in more than one gets ONE
+    // note — a second the same morning would be the very thing this is trying
+    // not to be — and it is for their own journey first, the same choice
+    // getActiveMembership makes. It used to take whichever row came back
+    // first, so a mother who was also in her sister's circle could wake to
+    // her sister's note instead of her own.
+    const membership =
+      person.memberships.find((m) => m.journey?.ownerId === person.id) ??
+      person.memberships.find((m) => m.role === "PARTNER") ??
+      person.memberships[0];
     if (!membership?.journey) {
       run.silent += 1;
       continue;
