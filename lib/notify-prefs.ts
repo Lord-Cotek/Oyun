@@ -70,6 +70,8 @@ export const CATEGORY_OF: Record<NotificationType, NotifyCategory> = {
 
   // The journey itself
   invite_accepted: "house",
+  // Somebody's place in the circle changing, or somebody leaving it.
+  membership: "house",
   // Somebody taking something off the registry. Housekeeping rather than the
   // diary: it is an arrangement being made, the same shape as an invitation
   // being accepted, and it is only ever sent to the two who keep the journey.

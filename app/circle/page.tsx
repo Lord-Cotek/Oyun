@@ -3,7 +3,8 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getActiveMembership, getJourneyMembers } from "@/lib/data";
-import { ROLE_LABEL, isHousehold } from "@/lib/roles";
+import { INVITABLE_ROLES, ROLE_LABEL, SUPPORTER_ROLES, isHousehold, isSupporter } from "@/lib/roles";
+import { MemberRole } from "@/components/circle/MemberRole";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Card } from "@/components/ui/Card";
 import { Eyebrow } from "@/components/ui/Eyebrow";
@@ -166,6 +167,26 @@ export default async function CirclePage() {
                       // mother from her own journey — leaving is a different
                       // act from being taken out, and belongs in settings.
                       removeId={me || m.role === "MOTHER" ? undefined : m.id}
+                      // Either of them moves somebody between the circle's
+                      // roles; only she makes somebody her partner or
+                      // changes that — see changeMemberRole.
+                      roleControl={
+                        me || m.role === "MOTHER" ? null : isMother ? (
+                          <MemberRole
+                            membershipId={m.id}
+                            name={m.user.name ?? m.user.email ?? "them"}
+                            role={m.role}
+                            options={INVITABLE_ROLES.map((r) => ({ value: r, label: ROLE_LABEL[r] }))}
+                          />
+                        ) : isSupporter(m.role) ? (
+                          <MemberRole
+                            membershipId={m.id}
+                            name={m.user.name ?? m.user.email ?? "them"}
+                            role={m.role}
+                            options={SUPPORTER_ROLES.map((r) => ({ value: r, label: ROLE_LABEL[r] }))}
+                          />
+                        ) : null
+                      }
                     />
                   );
                 })}
@@ -235,12 +256,14 @@ function MemberRow({
   role,
   photoUrl,
   removeId,
+  roleControl,
 }: {
   name: string;
   sub: string;
   role: string;
   photoUrl?: string | null;
   removeId?: string;
+  roleControl?: React.ReactNode;
 }) {
   return (
     <li className="flex items-center justify-between gap-3 rounded-lg border border-border bg-bg p-3">
@@ -253,10 +276,17 @@ function MemberRow({
         />
         <div className="min-w-0">
           <p className="truncate font-mono text-sm text-ink">{name}</p>
-          <p className="truncate font-mono text-[0.68rem] text-muted">
-            {ROLE_LABEL[role]}
-            {sub ? ` · ${sub}` : ""}
-          </p>
+          {roleControl ? (
+            <div className="mt-1 flex flex-wrap items-center gap-2">
+              {roleControl}
+              {sub && <span className="truncate font-mono text-[0.68rem] text-muted">{sub}</span>}
+            </div>
+          ) : (
+            <p className="truncate font-mono text-[0.68rem] text-muted">
+              {ROLE_LABEL[role]}
+              {sub ? ` · ${sub}` : ""}
+            </p>
+          )}
         </div>
       </div>
       {/* A dialog: this takes away everything they can still see, and the

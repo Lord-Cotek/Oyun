@@ -18,7 +18,8 @@ export type NotificationType =
   | "appointment"
   | "appointment_reminder"
   | "nudge"
-  | "morning";
+  | "morning"
+  | "membership";
 
 interface NotifyInput {
   userId: string;

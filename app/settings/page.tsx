@@ -25,6 +25,7 @@ import {
 import { PushToggle } from "@/components/PushToggle";
 import { MarkLoss } from "@/components/settings/MarkLoss";
 import { DeleteAccount } from "@/components/settings/DeleteAccount";
+import { LeaveCircle } from "@/components/settings/LeaveCircle";
 import { ExportButton } from "@/components/settings/ExportButton";
 import { RaiseConcern } from "@/components/settings/RaiseConcern";
 import { isOn } from "@/lib/flags";
@@ -178,6 +179,13 @@ export default async function SettingsPage() {
             <Card className="border-accent2/20 p-8">
               <Eyebrow className="mb-4 text-accent2">If the road turns hard</Eyebrow>
               <MarkLoss />
+            </Card>
+          )}
+
+          {active && !isMother && (
+            <Card className="p-8">
+              <Eyebrow className="mb-3">Your place in the circle</Eyebrow>
+              <LeaveCircle motherName={active.journey.owner?.name?.split(" ")[0] ?? "her"} />
             </Card>
           )}
 
