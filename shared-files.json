@@ -200,7 +200,31 @@
     "app/api/cron/morning/route.ts",
     "components/share/ClaimYours.tsx",
     "lib/notify-href.ts",
-  "lib/day-words.ts",
-  "components/ui/BackLink.tsx"
+    "lib/day-words.ts",
+    "components/ui/BackLink.tsx",
+    "components/invite/GuestLinks.tsx",
+    {
+      "path": "components/invite/UsefulLinks.tsx",
+      "substitutions": [
+        [
+          "@/app/dates/actions",
+          "@/app/appointments/event-actions"
+        ]
+      ]
+    },
+    {
+      "path": "lib/invite-links.ts",
+      "substitutions": [
+        [
+          "    label: \"Gift list\",",
+          "    label: \"The registry\","
+        ],
+        [
+          "    hint: \"A wishlist or registry, if there is one — so nobody has to ask what to bring as a present.\",",
+          "    hint: \"Where the gifts are, if you have a list.\","
+        ]
+      ]
+    },
+    "components/invite/ThankGuests.tsx"
   ]
 }
