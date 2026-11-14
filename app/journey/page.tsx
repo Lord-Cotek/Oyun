@@ -1,3 +1,4 @@
+import { letterOpenScope } from "@/lib/letters-seal";
 import type { Metadata } from "next";
 import { surprisesImHelpingWith } from "@/lib/events-db";
 import { HelpingWith } from "@/components/dates/HelpingWith";
@@ -557,7 +558,8 @@ export default async function JourneyPage() {
     getSupportSummary(journey.id, session.user.id),
     getCoupleLetters(journey.id, session.user.id),
     prisma.letter.findMany({
-      where: { journeyId: journey.id, toBaby: true },
+      // A sealed letter is not here until its day — see lib/letters-seal.ts.
+      where: { journeyId: journey.id, toBaby: true, AND: [letterOpenScope(session.user.id)] },
       orderBy: { createdAt: "desc" },
       take: 20,
       include: { author: { select: { id: true, name: true } } },

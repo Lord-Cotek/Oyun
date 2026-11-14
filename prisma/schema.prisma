@@ -725,6 +725,11 @@ model Letter {
   /// the letters written to them must not go with it — they are the most
   /// irreplaceable thing in this app, and a letter that quietly becomes a
   /// letter to all of them is a far better failure than a letter that is gone.
+  /// Sealed until this day: an envelope to everyone but its writer until
+  /// then — see lib/letters-seal.ts. Null is an ordinary letter.
+  openOn    DateTime?     @db.Date
+  /// When the household was told it had opened, so it is said once.
+  openedToldAt DateTime?
   childId   String?
   child     Child?        @relation(fields: [childId], references: [id], onDelete: SetNull)
   createdAt DateTime      @default(now())

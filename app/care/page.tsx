@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { letterOpenScope } from "@/lib/letters-seal";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -46,7 +47,7 @@ export default async function CarePage() {
       })
       .then((rows) => rows.reverse()),
     prisma.letter.findMany({
-      where: { journeyId, toBaby: true },
+      where: { journeyId, toBaby: true, AND: [letterOpenScope(session.user.id)] },
       orderBy: { createdAt: "desc" },
       take: 20,
       include: { author: { select: { id: true, name: true } } },

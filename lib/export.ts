@@ -22,6 +22,7 @@
  * plainly that the pictures live there and not in here.
  */
 import { BOOKS } from "@/lib/bible";
+import { letterOpenScope } from "@/lib/letters-seal";
 import { prisma } from "@/lib/prisma";
 import { isHousehold } from "@/lib/roles";
 import { postScope } from "@/lib/post-visibility";
@@ -154,7 +155,8 @@ async function gather({ userId, journeyId, role }: ExportScope) {
     // Letters to the baby are the household's own.
     inHouse
       ? prisma.letter.findMany({
-          where: j,
+          // A sealed letter is left out of anybody else's copy until its day.
+          where: { ...j, AND: [letterOpenScope(userId)] },
           select: {
             body: true,
             toBaby: true,

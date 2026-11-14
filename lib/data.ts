@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { isSealedFor, stillSealed } from "@/lib/letters-seal";
 import { prisma } from "@/lib/prisma";
 import { type Role } from "@prisma/client";
 import { getReactionsFor } from "@/lib/reactions";
@@ -165,7 +166,8 @@ export async function getOneLetter(
     where: { id: letterId, journeyId },
     include: { author: { select: { id: true, name: true } } },
   });
-  if (!l) return null;
+  // A sealed letter has no page of its own until its day.
+  if (!l || isSealedFor(l, viewerId)) return null;
 
   const [reactions, replies] = await Promise.all([
     getReactionsFor("LETTER", [l.id], viewerId),
@@ -287,6 +289,8 @@ export async function getBabyLetters(
 ) {
   const limit = opts.limit ?? 30;
   const letters = await prisma.letter.findMany({
+    // Every letter, sealed ones included — they are shown as envelopes in
+    // their place, with the words left behind on the server.
     where: { journeyId, toBaby: true },
     orderBy: { createdAt: "desc" },
     take: limit,
@@ -302,17 +306,25 @@ export async function getBabyLetters(
     getReactionsFor("LETTER", ids, viewerId),
     getRepliesFor(ids),
   ]);
-  return letters.map((l) => ({
-    id: l.id,
-    body: l.body,
-    createdAt: l.createdAt.toISOString(),
-    authorId: l.authorId,
-    authorName: l.author.name ?? null,
-    childId: l.child?.id ?? null,
-    childName: l.child?.name ?? null,
-    reactions: reactions[l.id] ?? { counts: {}, mine: [] },
-    replies: replies[l.id] ?? [],
-  }));
+  return letters.map((l) => {
+    const sealed = isSealedFor(l, viewerId);
+    return {
+      id: l.id,
+      // Never the words of a letter still sealed to this reader.
+      body: sealed ? "" : l.body,
+      sealed,
+      openOn: l.openOn ? l.openOn.toISOString() : null,
+      /** The writer's own letter, still sealed to everyone else. */
+      sealedForOthers: !sealed && stillSealed(l.openOn),
+      createdAt: l.createdAt.toISOString(),
+      authorId: l.authorId,
+      authorName: l.author.name ?? null,
+      childId: l.child?.id ?? null,
+      childName: l.child?.name ?? null,
+      reactions: sealed ? { counts: {}, mine: [] } : reactions[l.id] ?? { counts: {}, mine: [] },
+      replies: sealed ? [] : replies[l.id] ?? [],
+    };
+  });
 }
 
 export type BabyLetter = Awaited<ReturnType<typeof getBabyLetters>>[number];
@@ -362,7 +374,13 @@ export async function getOnThisDay(
       include: { child: { select: { name: true } } },
     }),
     prisma.letter.findMany({
-      where: { journeyId, toBaby: true, createdAt: { lt: startOfYear } },
+      // Memories are only of letters already opened.
+      where: {
+        journeyId,
+        toBaby: true,
+        createdAt: { lt: startOfYear },
+        OR: [{ openOn: null }, { openOn: { lte: new Date() } }],
+      },
       orderBy: { createdAt: "desc" },
       take: 300,
       include: { author: { select: { name: true } } },

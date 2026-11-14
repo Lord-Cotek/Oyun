@@ -33,6 +33,7 @@ export function LetterForm({
 }) {
   const formRef = useRef<HTMLFormElement>(null);
   const [childId, setChildId] = useState("all");
+  const [sealing, setSealing] = useState(false);
 
   return (
     <form
@@ -41,6 +42,7 @@ export function LetterForm({
         await addLetter(fd);
         formRef.current?.reset();
         setChildId("all");
+        setSealing(false);
       }}
       className="space-y-3"
     >
@@ -75,6 +77,39 @@ export function LetterForm({
         placeholder={placeholder ?? "Dear little one…"}
         className="w-full resize-none rounded-lg border border-border bg-bg px-3.5 py-2.5 prose-serif-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none"
       />
+      {/* ── Sealed until a day ─────────────────────────────────────────
+          For the letters meant to wait: "open on your first birthday". An
+          envelope to everyone else until then; the writer can always
+          reread their own. */}
+      <label className="flex items-center gap-2.5 font-mono text-[0.68rem] text-muted">
+        <input
+          type="checkbox"
+          checked={sealing}
+          onChange={(e) => setSealing(e.target.checked)}
+          className="h-4 w-4 accent-[color:var(--accent)]"
+        />
+        Seal it until a day
+      </label>
+      {sealing && (
+        <div className="rounded-lg border border-border/80 bg-bg/40 p-3">
+          <label htmlFor="letter-open-on" className="mb-1 block font-mono text-[0.6rem] uppercase tracking-widest text-muted">
+            Opens on
+          </label>
+          <input
+            id="letter-open-on"
+            type="date"
+            name="openOn"
+            required
+            min={new Date(Date.now() + 86_400_000).toISOString().slice(0, 10)}
+            className="w-full rounded-lg border border-border bg-bg px-3 py-2 font-mono text-sm text-ink focus:border-accent focus:outline-none"
+          />
+          <p className="mt-1.5 prose-serif-xs text-muted">
+            A first birthday, the first day of school, an eighteenth. Until
+            then it is a sealed envelope to everyone but you, and you will
+            both be told the morning it opens.
+          </p>
+        </div>
+      )}
       <Submit />
     </form>
   );

@@ -3,6 +3,7 @@ import { FirstStep, FirstStepFocus } from "@/components/ui/FirstStep";
 import { Reactions } from "@/components/Reactions";
 import { LetterReplies } from "@/components/letters/LetterReplies";
 import { type BabyLetter } from "@/lib/data";
+import { openOnWords } from "@/lib/letters-seal";
 
 export type BabyLetterView = BabyLetter;
 
@@ -49,6 +50,29 @@ export function BabyLetters({
               l.authorId === viewerId
                 ? "You"
                 : l.authorName?.trim().split(/\s+/)[0] || "Someone";
+            // ── Still sealed to this reader ──────────────────────────────
+            // An envelope in its place: who, and the day it opens. The words
+            // never left the server.
+            if (l.sealed) {
+              return (
+                <div
+                  key={l.id}
+                  id={`letter-${l.id}`}
+                  className="notif-target flex items-center gap-3 rounded-lg border border-dashed border-accent/40 bg-accent/[0.04] p-4"
+                >
+                  <span aria-hidden="true" className="text-2xl">✉︎</span>
+                  <div className="min-w-0">
+                    <p className="font-serif text-base text-ink">
+                      A sealed letter from {who}
+                      {l.childName ? ` to ${l.childName}` : ""}
+                    </p>
+                    <p className="font-mono text-[0.66rem] uppercase tracking-widest text-muted">
+                      Opens {l.openOn ? openOnWords(l.openOn) : "soon"}
+                    </p>
+                  </div>
+                </div>
+              );
+            }
             return (
               // The anchor CoupleLetters has always had and this did not,
               // which is why search results and older notifications about a
@@ -58,6 +82,11 @@ export function BabyLetters({
                 id={`letter-${l.id}`}
                 className="notif-target rounded-lg border border-border bg-bg p-4"
               >
+                {l.sealedForOthers && l.openOn && (
+                  <p className="mb-2 font-mono text-[0.6rem] uppercase tracking-widest text-accent">
+                    ✉︎ Sealed to everyone else until {openOnWords(l.openOn)}
+                  </p>
+                )}
                 <p className="whitespace-pre-wrap font-serif text-base leading-relaxed text-ink">
                   {l.body}
                 </p>

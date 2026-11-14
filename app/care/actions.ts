@@ -9,6 +9,7 @@ import { notify } from "@/lib/notify";
 import { letterHref } from "@/lib/letter-access";
 import { MAX_PHOTOS } from "@/lib/photos";
 import { babyWords } from "@/lib/babies";
+import { openOnWords, readOpenOn } from "@/lib/letters-seal";
 import { Mood, MilestoneKind } from "@prisma/client";
 import { postWithId } from "@/app/life/actions";
 import { firstPostBody } from "@/lib/firsts";
@@ -73,8 +74,10 @@ export async function addLetter(formData: FormData) {
     childName = child?.name ?? null;
   }
 
+  // Sealed until a day they choose — a letter to the baby only.
+  const openOn = toBaby ? readOpenOn(formData.get("openOn")) : null;
   const written = await prisma.letter.create({
-    data: { journeyId, authorId: userId, body, toBaby, childId },
+    data: { journeyId, authorId: userId, body, toBaby, childId, openOn },
   });
 
   // Let the other parent know a new keepsake letter is waiting for them.
@@ -107,8 +110,11 @@ export async function addLetter(formData: FormData) {
       await notify({
         userId: o.userId,
         type: "encouragement",
-        title: `${who} wrote a letter to ${toWhom}.`,
-        href: letterHref(written.id),
+        title: openOn
+          ? `${who} wrote a sealed letter to ${toWhom} — it opens on ${openOnWords(openOn)}.`
+          : `${who} wrote a letter to ${toWhom}.`,
+        // A sealed letter has no page to open yet; the room shows its envelope.
+        href: openOn ? "/letters" : letterHref(written.id),
       });
     }
   }

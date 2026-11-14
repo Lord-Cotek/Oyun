@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { letterOpenScope } from "@/lib/letters-seal";
 import { type Role } from "@prisma/client";
 import { isHousehold } from "@/lib/roles";
 import { postScope } from "@/lib/post-visibility";
@@ -233,7 +234,8 @@ const SOURCES: Source[] = [
     visible: (c) => isHousehold(c.role),
     run: async (q, c) => {
       const rows = await prisma.letter.findMany({
-        where: { journeyId: c.journeyId, body: like(q) },
+        // Searching must not open a sealed letter early.
+        where: { journeyId: c.journeyId, body: like(q), AND: [letterOpenScope(c.userId)] },
         orderBy: { createdAt: "desc" },
         take: PER_SOURCE,
         select: {

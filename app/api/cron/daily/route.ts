@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { notify } from "@/lib/notify";
+import { letterHref } from "@/lib/letter-access";
 import { CATEGORY_FIELDS, shouldInterrupt } from "@/lib/notify-prefs";
 
 /** The notification switches, so an email can respect them as the push does. */
@@ -220,6 +221,7 @@ export async function GET(req: Request) {
 
   const guests = await remindGuests(now);
   const hosts = await tellTheHosts(now);
+  const lettersOpened = await tellLettersOpening(now);
 
   return NextResponse.json({
     ok: true,
@@ -228,7 +230,55 @@ export async function GET(req: Request) {
     nudges: nudgesSent,
     ...guests,
     hostDigests: hosts,
+    lettersOpened,
   });
+}
+
+/**
+ * The morning a sealed letter opens, the two of them are told — once.
+ *
+ * Today or yesterday only, so a missed run still says it the next morning
+ * and nothing older is suddenly announced. Not to a family after a loss:
+ * the letter still opens, quietly, but the app does not announce it.
+ */
+async function tellLettersOpening(now: Date) {
+  const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+  const letters = await prisma.letter.findMany({
+    where: {
+      openOn: { lte: today, gte: new Date(today.getTime() - 86_400_000) },
+      openedToldAt: null,
+    },
+    select: {
+      id: true,
+      createdAt: true,
+      journeyId: true,
+      author: { select: { name: true } },
+      child: { select: { name: true } },
+      journey: { select: { status: true } },
+    },
+  });
+  let told = 0;
+  for (const l of letters) {
+    if (l.journey.status === "ACTIVE") {
+      const keepers = await prisma.membership.findMany({
+        where: { journeyId: l.journeyId, role: { in: ["MOTHER", "PARTNER"] } },
+        select: { userId: true },
+      });
+      const who = l.author.name?.trim().split(/\s+/)[0] || "Someone";
+      for (const k of keepers) {
+        await notify({
+          userId: k.userId,
+          type: "encouragement",
+          title: `A letter opens today${l.child?.name ? ` — to ${l.child.name}` : ""} ✉︎`,
+          body: `${who} sealed it on ${l.createdAt.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" })}.`,
+          href: letterHref(l.id),
+        });
+      }
+      told += 1;
+    }
+    await prisma.letter.update({ where: { id: l.id }, data: { openedToldAt: new Date() } });
+  }
+  return told;
 }
 
 /**

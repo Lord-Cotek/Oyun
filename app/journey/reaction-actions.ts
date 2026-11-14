@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { isSealedFor } from "@/lib/letters-seal";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { notify } from "@/lib/notify";
@@ -52,9 +53,10 @@ export async function toggleReaction(
   } else if (targetType === "LETTER") {
     const l = await prisma.letter.findUnique({
       where: { id: targetId },
-      select: { journeyId: true, authorId: true },
+      select: { journeyId: true, authorId: true, openOn: true },
     });
-    if (!l) return { ok: false };
+    // Nobody reacts to words they are not allowed to read yet.
+    if (!l || isSealedFor(l, userId)) return { ok: false };
     journeyId = l.journeyId;
     authorId = l.authorId;
   } else if (targetType === "PRAYER") {

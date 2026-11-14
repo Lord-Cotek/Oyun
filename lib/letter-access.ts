@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { isSealedFor } from "@/lib/letters-seal";
 import { letterPath } from "@/lib/open-item";
 
 /**
@@ -35,9 +36,11 @@ export async function letterAccess(
 ): Promise<LetterAccess> {
   const letter = await prisma.letter.findUnique({
     where: { id: letterId },
-    select: { journeyId: true, authorId: true, toBaby: true },
+    select: { journeyId: true, authorId: true, toBaby: true, openOn: true },
   });
   if (!letter) return { ok: false };
+  // Sealed to everyone but its writer until its day — replies included.
+  if (isSealedFor(letter, userId)) return { ok: false };
 
   const member = await prisma.membership.findFirst({
     where: { journeyId: letter.journeyId, userId },
