@@ -55,7 +55,7 @@ export function parseWhen(when: string, now = new Date()): Date | null {
 /**
  * Whether this reminder should be told this morning.
  *
- * Only on the day itself, and only once. The "only on the day" part matters
+ * On the day (or the day after, if it was missed), and only once. The limit matters
  * for a reason that has nothing to do with taste: every reminder that existed
  * before this worked has a due date months in the past and no stamp. A window
  * of "anything overdue" would greet those people with a pile of reminders on
@@ -66,9 +66,21 @@ export function nudgeDueToday(
   now = new Date(),
 ): boolean {
   if (n.doneAt || n.remindedAt) return false;
-  const sameDay =
-    n.dueAt.getUTCFullYear() === now.getUTCFullYear() &&
-    n.dueAt.getUTCMonth() === now.getUTCMonth() &&
-    n.dueAt.getUTCDate() === now.getUTCDate();
-  return sameDay;
+  // Today, or yesterday — and no further back. A reminder set for "today"
+  // after this morning's run has a due time already behind it, and without
+  // the day's grace it was silently dropped; so was anything due on a
+  // morning the run did not happen. One day late is late; never is lost.
+  // Months-old rows still stay quiet, for the reason above.
+  const startOfYesterday = Date.UTC(
+    now.getUTCFullYear(),
+    now.getUTCMonth(),
+    now.getUTCDate() - 1,
+  );
+  const endOfToday = Date.UTC(
+    now.getUTCFullYear(),
+    now.getUTCMonth(),
+    now.getUTCDate() + 1,
+  );
+  const t = n.dueAt.getTime();
+  return t >= startOfYesterday && t < endOfToday;
 }

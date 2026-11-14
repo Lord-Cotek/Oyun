@@ -173,7 +173,9 @@ export async function GET(req: Request) {
     where: {
       doneAt: null,
       remindedAt: null,
-      dueAt: { gte: new Date(now.getTime() - 86_400_000), lte: new Date(now.getTime() + 86_400_000) },
+      // Two days back: the rule in lib/nudges.ts decides what is due, this
+      // only has to be wide enough to hand it yesterday's.
+      dueAt: { gte: new Date(now.getTime() - 2 * 86_400_000), lte: new Date(now.getTime() + 86_400_000) },
     },
     select: {
       id: true,
