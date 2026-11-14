@@ -88,6 +88,7 @@ model User {
 
   personalWorshipDays PersonalWorshipDay[]
   assistantUses   AssistantUse[]
+  ownMorningSent  OwnMorningSent[]
 }
 
 /// A small emoji reaction on an encouragement or a check-in.
@@ -1618,4 +1619,19 @@ model AssistantUse {
   createdAt DateTime @default(now())
 
   @@index([userId, createdAt])
+}
+
+/// One reminder told to one person on their own morning — so the hourly run,
+/// which reaches each person at their own hour in their own time zone, says
+/// each thing once. `key` names what was told, e.g. "nudge:<id>:<day>",
+/// "appt:<id>:<day>", "day:<source>:<id>:<day>". Swept after two weeks.
+model OwnMorningSent {
+  id     String   @id @default(cuid())
+  userId String
+  user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  key    String
+  sentAt DateTime @default(now())
+
+  @@unique([userId, key])
+  @@index([sentAt])
 }

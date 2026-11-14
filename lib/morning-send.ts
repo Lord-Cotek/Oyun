@@ -49,7 +49,7 @@ export interface MorningRun {
  * note arriving at an odd hour is a smaller fault than the whole run dying
  * because one row holds a typo.
  */
-function localNow(now: Date, timeZone: string | null): { hour: number; day: Date } {
+export function localNow(now: Date, timeZone: string | null): { hour: number; day: Date } {
   const zone = timeZone || "UTC";
   let parts: Intl.DateTimeFormatPart[];
   try {

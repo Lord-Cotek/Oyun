@@ -15,10 +15,8 @@ import {
   reminderLead,
   appointmentTitle,
   whenLabel,
-  timeLabel,
   type ReminderStage,
 } from "@/lib/appointments";
-import { nudgeDueToday } from "@/lib/nudges";
 import { inviteAudience, inviteUrl } from "@/lib/invitations-db";
 import { countForHost, headCount, whenWords } from "@/lib/invitations";
 import { appointmentPath, dayPath } from "@/lib/open-item";
@@ -117,13 +115,14 @@ export async function GET(req: Request) {
 
     const stage = dueStage(a, now);
     if (!stage) continue;
+    // "This morning" is sent by the hourly run at each person's own morning,
+    // in their own time zone — see lib/own-morning.ts. At 07:00 UTC it
+    // arrived after a nine o'clock scan in Dubai.
+    if (stage === "morning") continue;
 
     const name = appointmentTitle(a.kind, a.title);
     const when = whenLabel(a.at, a.hasTime, now);
-    const title =
-      stage === "morning"
-        ? `${name} today${timeLabel(a.at, a.hasTime) ? ` at ${timeLabel(a.at, a.hasTime)}` : ""}.`
-        : `${reminderLead(stage)}: ${name}, ${when}.`;
+    const title = `${reminderLead(stage)}: ${name}, ${when}.`;
     const body = a.where ? `At ${a.where}.` : undefined;
 
     for (const m of a.journey.memberships) {
@@ -144,7 +143,6 @@ export async function GET(req: Request) {
       if (
         m.user.email &&
         m.user.notifyByEmail &&
-        stage !== "morning" &&
         shouldInterrupt("appointment_reminder", m.user)
       ) {
         await sendNotificationEmail({
@@ -167,57 +165,8 @@ export async function GET(req: Request) {
   }
 
   // ── Reminders people set for themselves ─────────────────────────────────
-  // Only the one who set it is told, and only on the morning it is due. See
-  // `nudgeDueToday` for why "anything overdue" would have been a cruelty to
-  // every account that predates this working.
-  const nudges = await prisma.nudge.findMany({
-    where: {
-      doneAt: null,
-      remindedAt: null,
-      // Two days back: the rule in lib/nudges.ts decides what is due, this
-      // only has to be wide enough to hand it yesterday's.
-      dueAt: { gte: new Date(now.getTime() - 2 * 86_400_000), lte: new Date(now.getTime() + 86_400_000) },
-    },
-    select: {
-      id: true,
-      text: true,
-      dueAt: true,
-      doneAt: true,
-      remindedAt: true,
-      journey: { select: { status: true } },
-      user: { select: { id: true, name: true, email: true, notifyByEmail: true, ...PREF_SELECT } },
-    },
-  });
-
-  let nudgesSent = 0;
-  for (const n of nudges) {
-    if (n.journey.status !== "ACTIVE") continue;
-    if (!nudgeDueToday(n, now)) continue;
-
-    await notify({
-      userId: n.user.id,
-      type: "nudge",
-      title: n.text,
-      body: "You asked to be reminded of this today.",
-      href: "/journey",
-    });
-    if (n.user.email && n.user.notifyByEmail && shouldInterrupt("nudge", n.user)) {
-      await sendNotificationEmail({
-        to: n.user.email,
-        name: n.user.name,
-        title: n.text,
-        body: "You asked to be reminded of this today.",
-        href: "/journey",
-      }).catch(() => {});
-    }
-
-    // Stamped last, for the same reason as the appointments above.
-    await prisma.nudge.update({
-      where: { id: n.id },
-      data: { remindedAt: new Date() },
-    });
-    nudgesSent += 1;
-  }
+  // Told at each person's own morning, in their own time zone, by the hourly
+  // run — see lib/own-morning.ts. Not here any more.
 
   const guests = await remindGuests(now);
   const hosts = await tellTheHosts(now);
@@ -228,7 +177,6 @@ export async function GET(req: Request) {
     ok: true,
     reminders: sent,
     notified: people,
-    nudges: nudgesSent,
     ...guests,
     hostDigests: hosts,
     lettersOpened,

@@ -213,6 +213,12 @@ export function NotificationForm({
                 <span className="prose-serif-xs text-muted">your time</span>
               </label>
             )}
+            {c.id === "morning" && (
+              <p className="mt-1 pl-1 prose-serif-xs text-muted">
+                Your own reminders and “today at…” for an appointment come at
+                this hour too.
+              </p>
+            )}
           </div>
         ))}
       </div>

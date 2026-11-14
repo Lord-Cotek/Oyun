@@ -139,7 +139,8 @@ export default async function AppointmentsPage() {
             </li>
             <li>
               <span className="text-ink">On the morning</span>, only when the
-              letter gave a time. Otherwise there is nothing useful to add.
+              letter gave a time — at the hour you chose for your morning note,
+              in your own time zone. Otherwise there is nothing useful to add.
             </li>
             <li>
               <span className="text-ink">A week ahead</span>, only for scans,
