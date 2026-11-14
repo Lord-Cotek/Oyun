@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { openRegistryUrl } from "@/lib/registry-db";
 import { notFound, redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { getActiveMembership } from "@/lib/data";
@@ -50,10 +51,13 @@ export default async function OneDay({ params }: { params: { id: string } }) {
 
   // The host's own view of the invitation, when this day has one. Same shape
   // as the book's, through the same mapping.
+  const registryUrl = await openRegistryUrl(active.journey.id);
   const invite =
     (await getHostInvitations(active.journey.id))
       .filter((i) => i.eventId === day.sourceId)
-      .map(toInviteRow)[0] ?? null;
+      // An arrow, not `.map(toInviteRow)`: map passes the index as the
+      // second argument, and toInviteRow's second argument is not an index.
+      .map((i) => toInviteRow(i, { registryUrl }))[0] ?? null;
   const row = toDayRow(day, invite);
 
   return (

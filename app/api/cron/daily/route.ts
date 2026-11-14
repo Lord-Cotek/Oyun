@@ -264,6 +264,12 @@ async function remindGuests(now: Date) {
       hostName: true,
       remindedDayBeforeAt: true,
       remindedMorningAt: true,
+      // The map pin and the potluck sheet, which is what somebody looks for
+      // the evening before.
+      links: {
+        orderBy: [{ position: "asc" }, { createdAt: "asc" }],
+        select: { kind: true, label: true, url: true },
+      },
       event: {
         select: {
           id: true,
@@ -313,6 +319,7 @@ async function remindGuests(now: Date) {
           where: inv.event.where,
           hostName: inv.hostName,
           url: inviteUrl(inv.slug),
+          links: inv.links,
           note:
             r.answer === "MAYBE"
               ? "You said you hoped to come. If you now know either way, the invitation still takes a change."

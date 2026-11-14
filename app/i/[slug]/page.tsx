@@ -17,6 +17,7 @@ import { Arches } from "@/components/ui/Marks";
 import { GuestReply } from "@/components/invite/GuestReply";
 import { GuestPoll } from "@/components/invite/GuestPoll";
 import { AddToMyOyun } from "@/components/invite/AddToMyOyun";
+import { GuestLinks } from "@/components/invite/GuestLinks";
 import { auth } from "@/lib/auth";
 import { getActiveMembership } from "@/lib/data";
 import { isHousehold } from "@/lib/roles";
@@ -123,6 +124,17 @@ export default async function InvitationPage({
   const count = headCount(i.replies);
   const coming = i.replies.filter((r) => r.answer === "YES");
   const open = i.state === "open" && !i.event.cancelled;
+  /**
+   * Whether to thank this guest and hand them the links. Only for a yes or a
+   * maybe to a settled day that is still to come — a "no" is not thanked for
+   * coming, and a poll vote is not yet a promise to be anywhere.
+   */
+  const thanked =
+    !!mine &&
+    !i.poll &&
+    !i.event.cancelled &&
+    i.state !== "past" &&
+    (mine.answer === "YES" || mine.answer === "MAYBE");
 
   return (
     <main className="relative min-h-[100dvh]">
@@ -229,9 +241,61 @@ export default async function InvitationPage({
               {canCopyToDiary && <AddToMyOyun slug={i.slug} />}
             </div>
           )}
+
+          {/* The host's useful links, beside the date — unless this guest has
+              already said yes, in which case they are in the thank-you just
+              below, and saying them twice would only push the reply down. */}
+          {!i.event.cancelled && i.state !== "past" && !thanked && i.links.length > 0 && (
+            <div className="mt-8">
+              <Eyebrow className="mb-3">Everything you need</Eyebrow>
+              <GuestLinks links={i.links} />
+            </div>
+          )}
         </div>
 
-        <div className="mt-10 rounded-2xl border border-border bg-surface p-6 md:p-8">
+        {/* ── The thank-you, for somebody who has said yes ─────────────────
+            The reply used to end at "Sent. They will see it." and the page
+            had nothing more to say — so the guest closed it, and the map pin
+            and the potluck sheet further up went unseen. This is the moment
+            they are most attentive and most grateful, so it thanks them by
+            name, in the host's own words when there are some, and hands them
+            everything they will need on the day. It is still here when they
+            come back, because their browser remembers their reply. */}
+        {thanked && mine && (
+          <div className="mt-10 rounded-2xl border border-accent/30 bg-accent/[0.05] p-6 md:p-8">
+            <p className="font-serif text-2xl leading-tight text-ink">
+              {mine.answer === "YES"
+                ? `Thank you, ${firstName(mine.name)} 💛`
+                : `Thank you, ${firstName(mine.name)} — we hope you can make it`}
+            </p>
+            <p className="mt-2 whitespace-pre-wrap prose-serif-sm text-ink/90">
+              {i.thankYou?.trim()
+                ? i.thankYou.trim()
+                : mine.answer === "YES"
+                  ? `${i.hostName} can’t wait to see you.`
+                  : `${i.hostName} will be glad to see you if the day works out.`}
+            </p>
+            {i.thankYou?.trim() && (
+              <p className="mt-1 font-mono text-[0.66rem] text-muted">— {i.hostName}</p>
+            )}
+            {i.links.length > 0 && (
+              <>
+                <p className="mt-5 font-mono text-[0.6rem] uppercase tracking-widest text-muted">
+                  Everything you’ll need
+                </p>
+                <GuestLinks links={i.links} className="mt-2" />
+              </>
+            )}
+            <p className="mt-4 prose-serif-xs text-muted">
+              This page keeps all of it. Come back to the same link any time —
+              your reply is below if anything changes.
+            </p>
+          </div>
+        )}
+
+        <div
+          className={`${thanked ? "mt-6" : "mt-10"} rounded-2xl border border-border bg-surface p-6 md:p-8`}
+        >
           {i.event.cancelled ? (
             <p className="prose-serif-sm text-muted">
               This day has been called off. There is nothing to reply to — do
@@ -316,4 +380,14 @@ export default async function InvitationPage({
       </div>
     </main>
   );
+}
+
+/**
+ * "Ada" from "Ada Obi", for the thank-you. A guest typed their own name, so
+ * whatever they typed first is what they go by — and a single word, or
+ * nothing usable, is used as it is.
+ */
+function firstName(name: string): string {
+  const first = name.trim().split(/\s+/)[0] ?? "";
+  return first || name.trim() || "friend";
 }

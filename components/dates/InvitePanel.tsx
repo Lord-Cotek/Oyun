@@ -23,6 +23,8 @@ import { ShareInvite } from "@/components/invite/ShareInvite";
 import { PollPanel, type PollOption } from "@/components/dates/PollPanel";
 import { ConfirmButton } from "@/components/ui/Confirm";
 import { CoverPicker } from "@/components/ui/CoverPicker";
+import { UsefulLinks } from "@/components/invite/UsefulLinks";
+import { ThankGuests } from "@/components/invite/ThankGuests";
 
 export type InviteRow = {
   slug: string;
@@ -49,6 +51,15 @@ export type InviteRow = {
     partySize: number;
     note: string | null;
   }[];
+  /** Directions, the registry, what to bring — in the order guests see them. */
+  links: { id: string; kind: string; label: string; url: string }[];
+  /** The host's own word to a guest who has just said yes. */
+  thankYou: string | null;
+  /**
+   * This family's own registry, when they have one open — so adding it to
+   * the invitation is one tap rather than a trip to copy a link.
+   */
+  registryUrl: string | null;
 };
 
 const inputClass =
@@ -332,6 +343,30 @@ export function InvitePanel({
                 </div>
               )}
             </div>
+          )}
+
+          {/* ── Reaching the ones who already replied ───────────────────────
+              Directly under who replied, because that list is what makes a
+              host think "half of them never saw the map". */}
+          {!invite.revoked && count && (
+            <ThankGuests
+              title={title}
+              when={when}
+              where={where}
+              url={invite.url}
+              links={invite.links}
+              note={invite.thankYou}
+              replied={count.comingReplies + count.hopingReplies}
+            />
+          )}
+
+          {!invite.revoked && (
+            <UsefulLinks
+              eventId={eventId}
+              links={invite.links}
+              thankYou={invite.thankYou}
+              registryUrl={invite.registryUrl}
+            />
           )}
 
           {invite.options.length === 0 && (

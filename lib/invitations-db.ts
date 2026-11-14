@@ -74,6 +74,10 @@ export type PublicInvitation = {
     partySize: number;
     note: string | null;
   }[];
+  /** Directions, the registry, what to bring — in the host's order. */
+  links: { id: string; kind: string; label: string; url: string }[];
+  /** The host's own word to somebody who has just said yes. */
+  thankYou: string | null;
 };
 
 /**
@@ -139,6 +143,14 @@ export async function getPublicInvitation(
           note: true,
         },
       },
+      // The host put these here for guests to use, so they are part of the
+      // public page by definition — but still named field by field, for the
+      // reason at the top of this function.
+      links: {
+        orderBy: [{ position: "asc" }, { createdAt: "asc" }],
+        select: { id: true, kind: true, label: true, url: true },
+      },
+      thankYou: true,
     },
   });
   if (!i || i.revokedAt) return null;
@@ -171,6 +183,8 @@ export async function getPublicInvitation(
       cancelled: i.event.cancelledAt !== null,
     },
     replies: i.replies,
+    links: i.links,
+    thankYou: i.thankYou,
   };
 }
 
@@ -195,6 +209,11 @@ export async function getHostInvitations(journeyId: string) {
       settledAt: true,
       // A count, never the addresses — see the field's own comment.
       emailsSentCount: true,
+      thankYou: true,
+      links: {
+        orderBy: [{ position: "asc" }, { createdAt: "asc" }],
+        select: { id: true, kind: true, label: true, url: true },
+      },
       options: {
         orderBy: { at: "asc" },
         select: {

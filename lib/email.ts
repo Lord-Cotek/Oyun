@@ -1,6 +1,7 @@
 import { type Role } from "@prisma/client";
 import { autolinkHtml } from "@/lib/linkify";
 import { PROMISE_SHORT } from "@/lib/promise";
+import { LINK_META, cleanUrl, linkLabel, toLinkKind, type LinkLike } from "@/lib/invite-links";
 
 /**
  * Email via the Resend HTTP API (uses RESEND_API_KEY directly — no SMTP).
@@ -344,6 +345,7 @@ export async function sendGuestDayEmail({
   hostName,
   url,
   note,
+  links = [],
 }: {
   to: string;
   name?: string | null;
@@ -355,7 +357,17 @@ export async function sendGuestDayEmail({
   /** Null where there is nothing left to open — a day that has been called off. */
   url: string | null;
   note?: string | null;
+  /**
+   * The host's useful links — directions, the registry, what to bring. The
+   * evening before is exactly when somebody looks for the map pin, so they
+   * are in the reminder itself rather than one more tap away. Re-checked
+   * here, since an email is a page that cannot be corrected once sent.
+   */
+  links?: LinkLike[];
 }): Promise<boolean> {
+  const useful = links
+    .map((l) => ({ label: linkLabel(l.kind, l.label), mark: LINK_META[toLinkKind(l.kind)].mark, href: cleanUrl(l.url) }))
+    .filter((l): l is { label: string; mark: string; href: string } => l.href !== null);
   // The whole name as they typed it. Taking the first word turns "Auntie Bisi"
   // into "Auntie," which is nobody's name — and a guest wrote down exactly
   // what they want to be called, so there is nothing here worth guessing at.
@@ -367,6 +379,17 @@ export async function sendGuestDayEmail({
     <p style="font-size:15px;line-height:1.7;color:#ECE9DF;margin:0;">${escapeHtml(when)}</p>
     ${where ? `<p style="font-size:14px;line-height:1.7;color:#8B9086;margin:4px 0 0;">${escapeHtml(where)}</p>` : ""}
     ${note ? `<p style="font-size:14px;line-height:1.7;color:#ECE9DF;margin-top:16px;">${autolinkHtml(note, "#E6A94E")}</p>` : ""}
+    ${
+      useful.length > 0
+        ? `<p style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#8B9086;margin:20px 0 6px;">Everything you'll need</p>
+    ${useful
+      .map(
+        (l) =>
+          `<p style="font-size:14px;line-height:1.6;margin:0 0 6px;">${l.mark} <a href="${escapeHtml(l.href)}" style="color:#E6A94E;">${escapeHtml(l.label)}</a></p>`,
+      )
+      .join("")}`
+        : ""
+    }
     ${
       url
         ? `<p style="margin:24px 0;">
@@ -396,6 +419,9 @@ export async function sendGuestDayEmail({
     where ?? null,
     note ? "" : null,
     note ?? null,
+    useful.length > 0 ? "" : null,
+    useful.length > 0 ? "Everything you'll need:" : null,
+    ...useful.map((l) => `${l.mark} ${l.label}: ${l.href}`),
     "",
     url ? `See the invitation: ${url}` : null,
     url ? "" : null,

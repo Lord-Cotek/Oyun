@@ -1,5 +1,13 @@
 "use server";
 
+import {
+  LINKS_MAX,
+  LINK_LABEL_MAX,
+  LINK_META,
+  THANK_YOU_MAX,
+  cleanUrl,
+  toLinkKind,
+} from "@/lib/invite-links";
 import { dayPath } from "@/lib/open-item";
 import { redirect } from "next/navigation";
 import { PLANNERS_MAX, maySee } from "@/lib/surprise";
@@ -402,6 +410,125 @@ export async function setInvitationCover(
     data: { coverUrl: value },
   });
   if (n.count === 0) return { ok: false };
+  revalidatePath("/appointments");
+  return { ok: true };
+}
+
+// ── The useful links ──────────────────────────────────────────────────────
+//
+// Directions, the registry, what to bring. Every one of these is scoped by
+// `invitation: { event: { journeyId } }`, like everything else in this file,
+// so an id belonging to another family changes nothing and says so.
+
+/** Add one. Refused past LINKS_MAX, and for anything that is not a web link. */
+export async function addInviteLink(
+  eventId: string,
+  formData: FormData,
+): Promise<Result> {
+  const who = await requireHouse();
+  if (!who) return { ok: false, error: "Only the two of you can change this." };
+
+  const invitation = await prisma.invitation.findFirst({
+    where: { eventId, event: { journeyId: who.journeyId } },
+    select: { id: true, _count: { select: { links: true } } },
+  });
+  if (!invitation) return { ok: false, error: "That invitation is not here." };
+  if (invitation._count.links >= LINKS_MAX) {
+    return { ok: false, error: `That is ${LINKS_MAX} links — the most one invitation holds.` };
+  }
+
+  const kind = toLinkKind(formData.get("kind"));
+  const url = cleanUrl(formData.get("url"));
+  if (!url) {
+    return {
+      ok: false,
+      error: "That does not look like a web link. Paste the whole address — it usually starts https://",
+    };
+  }
+  const typed = String(formData.get("label") ?? "").replace(/\s+/g, " ").trim();
+  const label = typed.slice(0, LINK_LABEL_MAX) || LINK_META[kind].label;
+  if (!label) return { ok: false, error: "Give it a name, so a guest knows what it is." };
+
+  const last = await prisma.invitationLink.findFirst({
+    where: { invitationId: invitation.id },
+    orderBy: { position: "desc" },
+    select: { position: true },
+  });
+  await prisma.invitationLink.create({
+    data: {
+      invitationId: invitation.id,
+      kind,
+      label,
+      url,
+      position: (last?.position ?? -1) + 1,
+    },
+  });
+  revalidatePath("/appointments");
+  return { ok: true };
+}
+
+export async function removeInviteLink(linkId: string): Promise<Result> {
+  const who = await requireHouse();
+  if (!who) return { ok: false, error: "Only the two of you can change this." };
+  const n = await prisma.invitationLink.deleteMany({
+    where: { id: linkId, invitation: { event: { journeyId: who.journeyId } } },
+  });
+  if (n.count === 0) return { ok: false, error: "That link is not here." };
+  revalidatePath("/appointments");
+  return { ok: true };
+}
+
+/**
+ * Move one up or down. Directions usually belong first — it is the one a
+ * guest needs on the day — but that is the host's call, not ours.
+ */
+export async function moveInviteLink(
+  linkId: string,
+  dir: "up" | "down",
+): Promise<Result> {
+  const who = await requireHouse();
+  if (!who) return { ok: false, error: "Only the two of you can change this." };
+  const link = await prisma.invitationLink.findFirst({
+    where: { id: linkId, invitation: { event: { journeyId: who.journeyId } } },
+    select: { id: true, invitationId: true },
+  });
+  if (!link) return { ok: false, error: "That link is not here." };
+
+  const all = await prisma.invitationLink.findMany({
+    where: { invitationId: link.invitationId },
+    orderBy: [{ position: "asc" }, { createdAt: "asc" }],
+    select: { id: true },
+  });
+  const at = all.findIndex((l) => l.id === linkId);
+  const to = dir === "up" ? at - 1 : at + 1;
+  if (at < 0 || to < 0 || to >= all.length) return { ok: true };
+  const order = all.map((l) => l.id);
+  [order[at], order[to]] = [order[to], order[at]];
+
+  // Renumbered whole rather than swapped, so two rows that ever shared a
+  // position cannot leave the order ambiguous.
+  await prisma.$transaction(
+    order.map((id, position) =>
+      prisma.invitationLink.update({ where: { id }, data: { position } }),
+    ),
+  );
+  revalidatePath("/appointments");
+  return { ok: true };
+}
+
+/** The host's own word to somebody who has just said yes. Empty clears it. */
+export async function saveThankYou(
+  eventId: string,
+  text: string,
+): Promise<Result> {
+  const who = await requireHouse();
+  if (!who) return { ok: false, error: "Only the two of you can change this." };
+  const value = text.trim().slice(0, THANK_YOU_MAX) || null;
+  const n = await prisma.invitation.updateMany({
+    where: { eventId, event: { journeyId: who.journeyId } },
+    data: { thankYou: value },
+  });
+  if (n.count === 0) return { ok: false, error: "That invitation is not here." };
   revalidatePath("/appointments");
   return { ok: true };
 }

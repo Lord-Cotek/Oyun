@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { openRegistryUrl } from "@/lib/registry-db";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
@@ -49,7 +50,7 @@ export default async function AppointmentsPage() {
   }));
 
 
-  const [upcoming, past, diary, invitations, sharedPhotos] = await Promise.all([
+  const [upcoming, past, diary, invitations, sharedPhotos, registryUrl] = await Promise.all([
     getUpcomingAppointments(active.journey.id, session.user.id),
     getPastAppointments(active.journey.id, session.user.id),
     getDiary(active.journey.id, session.user.id),
@@ -67,6 +68,8 @@ export default async function AppointmentsPage() {
       take: 30,
       select: { mediaUrls: true },
     }),
+    // So the invitation can offer this family's own registry in one tap.
+    openRegistryUrl(active.journey.id),
   ]);
 
   /**
@@ -85,7 +88,7 @@ export default async function AppointmentsPage() {
   ).slice(0, 18);
 
   const byEvent = new Map<string, InviteRow>(
-    invitations.map((i) => [i.eventId, toInviteRow(i)]),
+    invitations.map((i) => [i.eventId, toInviteRow(i, { registryUrl })]),
   );
 
   const rows: DayRow[] = diary.map((d) =>

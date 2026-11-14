@@ -1195,6 +1195,44 @@ model Invitation {
   updatedAt           DateTime           @updatedAt
   replies             InvitationReply[]
   options             InvitationOption[]
+
+  /// Directions, the registry, what to bring — see InvitationLink.
+  links               InvitationLink[]
+  /// The host's own word to a guest who has just said yes, shown above the
+  /// links on the confirmation. Optional; without it the page says a plain
+  /// thank-you in the app's own voice.
+  thankYou            String?
+}
+
+/// One thing a guest will want before the day: the map pin, the registry,
+/// the potluck sign-up.
+///
+/// ── Why these are their own rows and not part of the message ─────────────
+/// They used to live in the message, as bare links in a paragraph. Guests
+/// read the date, tapped "I'll be there", and closed the page — and on the
+/// day the host was answering "where exactly is it?" and "what should I
+/// bring?" in the family group one person at a time. A link in a paragraph
+/// is a link nobody sees.
+///
+/// As rows they can be shown where people actually look: as buttons beside
+/// the date, on the thank-you a guest sees the moment they reply, in the
+/// message the host sends to the people who said yes, and in the reminder
+/// the evening before.
+///
+/// `kind` is a string, like RegistryItem.kind, so a fifth kind later is not
+/// a migration that rewrites a column other rows are sitting in.
+model InvitationLink {
+  id           String     @id @default(cuid())
+  invitationId String
+  invitation   Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+  /// DIRECTIONS | REGISTRY | BRING | OTHER — see lib/invite-links.ts.
+  kind         String     @default("OTHER")
+  label        String
+  url          String
+  position     Int        @default(0)
+  createdAt    DateTime   @default(now())
+
+  @@index([invitationId, position])
 }
 
 /// One of the days being offered in a "which day suits?".

@@ -197,6 +197,22 @@ export function memberClaimToken(userId: string): string {
  * exists for, and the address is the one thing on the registry the circle
  * needs more than the family does.
  */
+/**
+ * This family's registry, as the link a guest follows — or null.
+ *
+ * For the invitation's "add our registry" button: the one link a host should
+ * not have to go and copy, because the app already knows it. Null when there
+ * is no registry, or when it has been finished — a finished list is a
+ * record, and sending a party's guests to it would be sending them nowhere.
+ */
+export async function openRegistryUrl(journeyId: string): Promise<string | null> {
+  const r = await prisma.registry.findUnique({
+    where: { journeyId },
+    select: { slug: true, closedAt: true },
+  });
+  return r && !r.closedAt ? registryUrl(r.slug) : null;
+}
+
 export async function isJourneyMember(
   journeyId: string,
   session: { user?: { id?: string | null } } | null,

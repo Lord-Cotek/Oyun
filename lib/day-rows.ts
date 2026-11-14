@@ -46,7 +46,9 @@ export function toInviteRow(i: {
     partySize: number;
     note: string | null;
   }[];
-}): InviteRow {
+  links: { id: string; kind: string; label: string; url: string }[];
+  thankYou: string | null;
+}, extra: { registryUrl: string | null } = { registryUrl: null }): InviteRow {
   return {
     slug: i.slug,
     url: inviteUrl(i.slug),
@@ -75,6 +77,9 @@ export function toInviteRow(i: {
       partySize: r.partySize,
       note: r.note,
     })),
+    links: i.links,
+    thankYou: i.thankYou,
+    registryUrl: extra.registryUrl,
   };
 }
 
