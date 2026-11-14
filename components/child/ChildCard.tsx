@@ -82,7 +82,7 @@ export function ChildCard({ child }: { child: Child }) {
         <ConfirmDialog
           open={removing}
           title={`Remove ${child.name || "this child"}?`}
-          body="Everything kept under their name goes with them — their firsts, their measurements, the milestones written about them. It cannot be undone."
+          body="Their name, birth date, photograph and note are removed, and that cannot be undone. Their firsts, milestones and letters are kept — they simply stop being filed under this child."
           confirmWord="Remove them"
           busy={going}
           onCancel={() => setRemoving(false)}

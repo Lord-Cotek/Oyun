@@ -2,10 +2,12 @@
 
 import { useEffect, useState } from "react";
 
-type BeforeInstallPromptEvent = Event & {
-  prompt: () => Promise<void>;
-  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
-};
+import {
+  type InstallPromptEvent,
+  installPrompt,
+  onInstallPrompt,
+  spendInstallPrompt,
+} from "@/lib/install-prompt";
 
 /**
  * "Install Oyun" affordance. On Chromium (Android/desktop) it uses the native
@@ -13,7 +15,7 @@ type BeforeInstallPromptEvent = Event & {
  * Add-to-Home-Screen steps. Hidden entirely once installed.
  */
 export function InstallButton({ className = "" }: { className?: string }) {
-  const [deferred, setDeferred] = useState<BeforeInstallPromptEvent | null>(null);
+  const [deferred, setDeferred] = useState<InstallPromptEvent | null>(null);
   const [installed, setInstalled] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
   const [showIOS, setShowIOS] = useState(false);
@@ -44,18 +46,17 @@ export function InstallButton({ className = "" }: { className?: string }) {
     const ios = /iphone|ipad|ipod/.test(ua) && !/crios|fxios/.test(ua);
     setIsIOS(ios);
 
-    const onPrompt = (e: Event) => {
-      e.preventDefault();
-      setDeferred(e as BeforeInstallPromptEvent);
-    };
+    // Caught at start-up by PwaRegister, usually long before this menu was
+    // opened — see lib/install-prompt.ts.
+    setDeferred(installPrompt());
+    const off = onInstallPrompt(setDeferred);
     const onInstalled = () => {
       setInstalled(true);
       setDeferred(null);
     };
-    window.addEventListener("beforeinstallprompt", onPrompt);
     window.addEventListener("appinstalled", onInstalled);
     return () => {
-      window.removeEventListener("beforeinstallprompt", onPrompt);
+      off();
       window.removeEventListener("appinstalled", onInstalled);
     };
   }, []);
@@ -68,7 +69,7 @@ export function InstallButton({ className = "" }: { className?: string }) {
     if (deferred) {
       await deferred.prompt();
       await deferred.userChoice;
-      setDeferred(null);
+      spendInstallPrompt();
     } else if (isIOS) {
       setShowIOS((v) => !v);
     }

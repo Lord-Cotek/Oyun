@@ -1,10 +1,13 @@
 "use client";
 
 import { useEffect } from "react";
+import { captureInstallPrompt } from "@/lib/install-prompt";
 
 /** Registers the service worker so Oyun is installable and works offline. */
 export function PwaRegister() {
   useEffect(() => {
+    // First thing, before anything can be missed — see lib/install-prompt.ts.
+    captureInstallPrompt();
     if (!("serviceWorker" in navigator)) return;
     const onLoad = () => {
       navigator.serviceWorker

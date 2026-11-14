@@ -234,6 +234,17 @@
     "components/settings/ConfirmEmailNote.tsx",
     "app/sign-in/actions.ts",
     "scripts/db-sync.mjs",
+    "lib/install-prompt.ts",
+    {
+      "path": "components/InstallButton.tsx",
+      "code": true,
+      "substitutions": [
+        [
+          "IdileNative",
+          "ÌdíléNative"
+        ]
+      ]
+    },
     {
       "path": "app/confirm-email/page.tsx",
       "substitutions": [
