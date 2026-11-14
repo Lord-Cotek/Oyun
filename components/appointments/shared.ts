@@ -19,6 +19,17 @@ export type Appt = {
   cancelledAt: Date | null;
   addedBy: string | null;
   mine: boolean;
+  /**
+   * The last visit of the same kind, for an appointment still ahead: what
+   * was said, and what she had meant to ask. Null when there is nothing
+   * useful to carry forward.
+   */
+  lastTime?: {
+    at: Date;
+    who: string | null;
+    outcome: string | null;
+    questions: string | null;
+  } | null;
 };
 
 /** yyyy-mm-dd / hh:mm from a stored instant, for putting back in the form. */

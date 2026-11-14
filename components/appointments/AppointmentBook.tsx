@@ -21,6 +21,7 @@ import {
   cancelAppointment,
   deleteAppointment,
   askCircleToPray,
+  carryQuestions,
 } from "@/app/appointments/actions";
 
 import { type Appt, dateValue, timeValue } from "@/components/appointments/shared";
@@ -28,6 +29,16 @@ import { ConfirmButton } from "@/components/ui/Confirm";
 import { AppointmentForm } from "@/components/appointments/AppointmentForm";
 
 type Res = { ok: boolean; error?: string };
+
+/** Whether every one of last time's questions is already on this visit's list. */
+function allCarried(now: string | null, then: string): boolean {
+  const have = new Set((now ?? "").split("\n").map((l) => l.trim().toLowerCase()).filter(Boolean));
+  return then
+    .split("\n")
+    .map((l) => l.trim().toLowerCase())
+    .filter(Boolean)
+    .every((l) => have.has(l));
+}
 
 const TONE: Record<string, string> = {
   amber: "border-tone-amber/40 bg-tone-amber/[0.06] text-tone-amber",
@@ -287,6 +298,43 @@ function Row({
         <p className="mt-2 whitespace-pre-wrap prose-serif-xs text-muted">
           {a.notes}
         </p>
+      )}
+
+      {/* ── Last time ──────────────────────────────────────────────────
+          The previous visit of the same kind, brought forward: what was said
+          then, and what she had meant to ask. One tap puts those questions
+          into this visit's list. */}
+      {!past && a.lastTime && (a.lastTime.outcome || a.lastTime.questions) && (
+        <div className="mt-3 rounded-lg border border-border/80 bg-bg/40 px-3 py-2.5">
+          <p className="font-mono text-[0.58rem] uppercase tracking-widest text-muted">
+            Last time · {new Date(a.lastTime.at).toLocaleDateString(undefined, { day: "numeric", month: "short" })}
+            {a.lastTime.who ? ` · ${a.lastTime.who}` : ""}
+          </p>
+          {a.lastTime.outcome && (
+            <p className="mt-1 font-serif text-sm italic leading-relaxed text-ink/90">
+              {a.lastTime.outcome}
+            </p>
+          )}
+          {a.lastTime.questions && (
+            <>
+              <p className="mt-2 font-mono text-[0.58rem] uppercase tracking-widest text-muted">
+                You meant to ask then
+              </p>
+              <p className="mt-0.5 whitespace-pre-wrap font-mono text-xs leading-relaxed text-muted">
+                {a.lastTime.questions}
+              </p>
+              {!allCarried(a.questions, a.lastTime.questions) && (
+                <button
+                  type="button"
+                  onClick={() => run(() => carryQuestions(a.id, a.lastTime!.questions!))}
+                  className="mt-1.5 font-mono text-[0.66rem] text-accent underline underline-offset-4"
+                >
+                  Ask these again this time
+                </button>
+              )}
+            </>
+          )}
+        </div>
       )}
 
       {/* The things you mean to ask and forget the moment you sit down. */}

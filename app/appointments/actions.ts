@@ -260,3 +260,55 @@ export async function askCircleToPray(id: string): Promise<AppointmentResult> {
   revalidatePath("/prayer");
   return { ok: true };
 }
+
+/**
+ * Bring last time's questions into this appointment's "To ask".
+ *
+ * Added beneath whatever is already there, and only the lines that are not
+ * already in it — pressing it twice, or carrying forward a question she has
+ * already copied across by hand, does not write it out twice.
+ */
+export async function carryQuestions(id: string, fromText: string): Promise<AppointmentResult> {
+  const { active } = await requireHousehold();
+  const appt = await prisma.appointment.findFirst({
+    where: { id, journeyId: active.journey.id, attendedAt: null, cancelledAt: null },
+    select: { id: true, questions: true, kind: true, at: true },
+  });
+  if (!appt) return { ok: false, error: "That appointment is gone." };
+  // The text is re-read from the database, not trusted from the browser: the
+  // last visit of this kind, as the book itself computes it.
+  const last = await prisma.appointment.findFirst({
+    where: {
+      journeyId: active.journey.id,
+      kind: appt.kind,
+      cancelledAt: null,
+      at: { lt: appt.at },
+      id: { not: appt.id },
+      // The same "last time" the book shows: a visit that has happened.
+      OR: [
+        { attendedAt: { not: null } },
+        { at: { lt: new Date(new Date().setUTCHours(0, 0, 0, 0)) } },
+      ],
+      AND: [{ OR: [{ outcome: { not: null } }, { questions: { not: null } }] }],
+    },
+    orderBy: { at: "desc" },
+    select: { questions: true },
+  });
+  const source = (last?.questions ?? "").trim();
+  if (!source || source !== fromText.trim()) {
+    return { ok: false, error: "Those questions have changed — refresh and try again." };
+  }
+  const have = (appt.questions ?? "").split("\n").map((l) => l.trim()).filter(Boolean);
+  const seen = new Set(have.map((l) => l.toLowerCase()));
+  const adding = source
+    .split("\n")
+    .map((l) => l.trim())
+    .filter((l) => l && !seen.has(l.toLowerCase()));
+  if (adding.length === 0) return { ok: true };
+  await prisma.appointment.update({
+    where: { id },
+    data: { questions: [...have, ...adding].join("\n").slice(0, TEXT_MAX) },
+  });
+  refresh();
+  return { ok: true };
+}

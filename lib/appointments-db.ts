@@ -23,6 +23,17 @@ export interface AppointmentView {
   cancelledAt: Date | null;
   addedBy: string | null;
   mine: boolean;
+  /**
+   * The last visit of the same kind, for an appointment still ahead: what
+   * was said, and what she had meant to ask. Null when there is nothing
+   * useful to carry forward.
+   */
+  lastTime?: {
+    at: Date;
+    who: string | null;
+    outcome: string | null;
+    questions: string | null;
+  } | null;
 }
 
 function shape(
@@ -109,7 +120,50 @@ export async function getUpcomingAppointments(
     select: FIELDS,
     take,
   });
-  return rows.map((r) => shape(r, viewerId));
+
+  /**
+   * Carrying the last visit forward.
+   *
+   * The second growth scan is the one where "what did they say about the
+   * fluid last time?" and the question she never got round to asking
+   * actually matter, and both were written down — in an appointment now
+   * buried in the past list. So each one ahead brings the most recent
+   * earlier visit of the same kind with it, when that visit has an outcome
+   * or questions worth seeing again.
+   */
+  const kinds = Array.from(new Set(rows.map((r) => r.kind)));
+  const earlier = kinds.length
+    ? await prisma.appointment.findMany({
+        where: {
+          journeyId,
+          kind: { in: kinds },
+          cancelledAt: null,
+          OR: [{ attendedAt: { not: null } }, { at: { lt: startOfToday(now) } }],
+          AND: [{ OR: [{ outcome: { not: null } }, { questions: { not: null } }] }],
+        },
+        orderBy: { at: "desc" },
+        select: { kind: true, at: true, who: true, outcome: true, questions: true },
+        take: 60,
+      })
+    : [];
+  const lastOf = new Map<AppointmentKind, (typeof earlier)[number]>();
+  for (const e of earlier) if (!lastOf.has(e.kind)) lastOf.set(e.kind, e);
+
+  return rows.map((r) => {
+    const last = lastOf.get(r.kind);
+    return {
+      ...shape(r, viewerId),
+      lastTime:
+        last && last.at < r.at
+          ? {
+              at: last.at,
+              who: last.who,
+              outcome: last.outcome?.trim() || null,
+              questions: last.questions?.trim() || null,
+            }
+          : null,
+    };
+  });
 }
 
 /**
