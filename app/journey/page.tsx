@@ -1,4 +1,6 @@
 import { letterOpenScope } from "@/lib/letters-seal";
+import { BirthAnnouncement } from "@/components/journey/BirthAnnouncement";
+import { birthVerses } from "@/app/journey/birth-actions";
 import { MoreFold } from "@/components/ui/MoreFold";
 import type { Metadata } from "next";
 import { surprisesImHelpingWith } from "@/lib/events-db";
@@ -197,6 +199,27 @@ export default async function JourneyPage() {
   const canSetCover = isHousehold(role);
 
   const position = computePosition(journey.dueDate);
+
+  // The announcement card: for the two of them, in the first two months
+  // after the birth, until they have made it. See BirthAnnouncement.
+  const birthMilestone = isHousehold(role)
+    ? await prisma.milestone.findFirst({
+        where: { journeyId: journey.id, kind: "BIRTH" },
+        orderBy: { occurredAt: "desc" },
+        select: { postId: true, occurredAt: true },
+      })
+    : null;
+  const announce =
+    !!birthMilestone &&
+    !birthMilestone.postId &&
+    Date.now() - birthMilestone.occurredAt.getTime() < 60 * 86_400_000
+      ? {
+          names: (await prisma.child.findMany({ where: { journeyId: journey.id }, orderBy: { createdAt: "asc" }, select: { name: true } }))
+            .map((c) => c.name)
+            .join(" & "),
+          verses: await birthVerses(),
+        }
+      : null;
   const { stage } = position;
 
   const stageLabel = position.born
@@ -270,6 +293,11 @@ export default async function JourneyPage() {
           {showBirth && (
             <div className="mb-6 animate-fade-up">
               <BirthMoment babyCount={journey.babyCount} overdue={position.born} />
+            </div>
+          )}
+          {announce && (
+            <div className="mb-6 animate-fade-up">
+              <BirthAnnouncement names={announce.names} verses={announce.verses} />
             </div>
           )}
           {/* ── The way in ──────────────────────────────────────────────
@@ -589,10 +617,28 @@ export default async function JourneyPage() {
   );
   const partnerFirst = session.user.name?.trim().split(/\s+/)[0] ?? null;
 
+  const partnerShowBirth =
+    active.role === "PARTNER" &&
+    journey.status === "ACTIVE" &&
+    (position.born || position.daysToGo <= 21) &&
+    (await prisma.milestone.count({ where: { journeyId: journey.id, kind: "BIRTH" } })) === 0;
+
   return (
     <>
       <SiteHeader active="journey" showCare={false} />
       <main className="mx-auto max-w-shell px-6 pb-10">
+        {/* He can record the birth too — on the day he is often the one
+            holding the phone. The same moment, the same once-only rule. */}
+        {partnerShowBirth && (
+          <div className="mb-6 animate-fade-up">
+            <BirthMoment babyCount={journey.babyCount} overdue={position.born} />
+          </div>
+        )}
+        {announce && (
+          <div className="mb-6 animate-fade-up">
+            <BirthAnnouncement names={announce.names} verses={announce.verses} />
+          </div>
+        )}
         {/* The same way in as the mother sees, from the other side of it.
             A partner opens this app as often as she does, and leaving this
             view on the old surface-coloured card would have meant half the

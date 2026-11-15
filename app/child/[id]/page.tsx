@@ -84,6 +84,12 @@ export default async function OneChild({ params }: { params: { id: string } }) {
   ]);
 
   const born = child.birthDate && child.birthDate.getTime() <= Date.now() ? child.birthDate : null;
+  // "Twelve days early": against the date she was first given, kept when the
+  // birth was recorded (Journey.originalDueDate).
+  const due = active.journey.originalDueDate;
+  const offset = born && due ? Math.round((due.getTime() - born.getTime()) / 86_400_000) : 0;
+  const earlyLate =
+    offset > 0 ? `${offset} day${offset === 1 ? "" : "s"} early` : offset < 0 ? `${-offset} day${offset === -1 ? "" : "s"} late` : born && due ? "on the day" : null;
   const age = born ? exactAge(born, new Date()) : null;
   const photoPosts = firsts
     .filter((f) => f.photoUrls.length > 0)
@@ -106,7 +112,7 @@ export default async function OneChild({ params }: { params: { id: string } }) {
           <div className="min-w-0">
             <h1 className="font-serif text-3xl leading-tight text-ink">{child.name}</h1>
             <p className="mt-1 font-mono text-xs text-muted">
-              {born ? `Born ${fmt(born)}${age ? ` · ${age} old` : ""}` : "On the way"}
+              {born ? `Born ${fmt(born)}${earlyLate ? ` · ${earlyLate}` : ""}${age ? ` · ${age} old` : ""}` : "On the way"}
             </p>
           </div>
         </div>

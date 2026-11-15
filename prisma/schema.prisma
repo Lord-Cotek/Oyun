@@ -274,15 +274,18 @@ enum MilestoneKind {
 
 /// The mother owns one active Journey.
 model Journey {
-  id        String        @id @default(cuid())
-  ownerId   String
-  owner     User          @relation("JourneyOwner", fields: [ownerId], references: [id], onDelete: Cascade)
-  dueDate   DateTime
-  babyName  String?
-  babyCount Int           @default(1)
-  status    JourneyStatus @default(ACTIVE)
-  lossAt    DateTime?
-  createdAt DateTime      @default(now())
+  id              String        @id @default(cuid())
+  ownerId         String
+  owner           User          @relation("JourneyOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  dueDate         DateTime
+  /// The due date as it was before the birth was recorded, so "twelve days
+  /// early" is never lost when `dueDate` becomes the day they arrived.
+  originalDueDate DateTime?
+  babyName        String?
+  babyCount       Int           @default(1)
+  status          JourneyStatus @default(ACTIVE)
+  lossAt          DateTime?
+  createdAt       DateTime      @default(now())
   /// The photograph at the top of the home screen.
   ///
   /// Null means "whatever was shared most recently", which is what this did
@@ -290,7 +293,7 @@ model Journey {
   /// answer, because the first thing you see every day should not change
   /// because somebody posted a screenshot. Setting this pins one picture;
   /// clearing it goes back to following the feed.
-  coverUrl  String?
+  coverUrl        String?
 
   // Scripture Journey — a chosen reading plan that advances by completion.
   readingPlanId    String?

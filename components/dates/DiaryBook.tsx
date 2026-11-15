@@ -2,7 +2,7 @@
 
 import { headCount } from "@/lib/invitations";
 import { clockRange, whenWords } from "@/lib/day-words";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useRef } from "react";
 import { InOnIt, type Housemate } from "@/components/dates/InOnIt";
 import { Linked } from "@/components/ui/Linked";
 import { plainLinks } from "@/lib/linkify";
@@ -48,6 +48,26 @@ const KINDS = [
   { value: "CELEBRATION", label: "A celebration" },
   { value: "OTHER", label: "Something else" },
 ];
+
+export type PresetContext = { babyName: string | null; birthISO: string | null };
+
+/**
+ * One tap to start the days a new family most often holds. Each fills the
+ * form — nothing is saved until they press the button — and a naming
+ * ceremony lands on the eighth day if the birth is already recorded.
+ */
+function presetsFor(ctx: PresetContext) {
+  const name = ctx.babyName?.trim() || "our baby";
+  const eighth = ctx.birthISO
+    ? new Date(new Date(ctx.birthISO).getTime() + 7 * 86_400_000).toISOString().slice(0, 10)
+    : null;
+  return [
+    { label: "Naming ceremony", title: `Naming ceremony for ${name}`, kind: "CELEBRATION", date: eighth, note: `Join us on the eighth day as we give ${name} their names, and pray over them together.` },
+    { label: "Dedication", title: `Dedication of ${name}`, kind: "CHURCH", date: null, note: `We are dedicating ${name} to the Lord. Come and stand with us in prayer.` },
+    { label: "Thanksgiving", title: `Thanksgiving for ${name}`, kind: "CHURCH", date: null, note: `Come and give thanks with us for ${name}'s safe arrival.` },
+    { label: "Baby shower", title: "Baby shower", kind: "SHOWER", date: null, note: "" },
+  ];
+}
 
 function dayWords(days: number): string {
   if (days < 0) return "Gone";
@@ -109,7 +129,15 @@ function inviteSummary(i: InviteRow): string {
  * wrote down herself are solid, and those are the ones that can carry an
  * invitation. Nobody RSVPs to a growth scan.
  */
-export function DiaryBook({ rows: days, canEdit }: { rows: DayRow[]; canEdit: boolean }) {
+export function DiaryBook({
+  rows: days,
+  canEdit,
+  preset,
+}: {
+  rows: DayRow[];
+  canEdit: boolean;
+  preset?: PresetContext;
+}) {
   /**
    * What the day panel is currently offering to add, if anything.
    *
@@ -270,6 +298,7 @@ export function DiaryBook({ rows: days, canEdit }: { rows: DayRow[]; canEdit: bo
                 onDone={() => setAdding(null)}
                 defaultDate={addDate}
                 submitLabel="Put it in the diary"
+                preset={preset}
               />
             </div>
           )}
@@ -285,19 +314,36 @@ function EventForm({
   onDone,
   submitLabel,
   defaultDate,
+  preset,
 }: {
   day?: DayRow;
   onDone: () => void;
   submitLabel: string;
   /** yyyy-mm-dd, when the form was opened from a day on the calendar. */
   defaultDate?: string | null;
+  /** For a new day: offer the common ones — see presetsFor. */
+  preset?: PresetContext;
 }) {
+  const formRef = useRef<HTMLFormElement>(null);
+  function usePreset(p: ReturnType<typeof presetsFor>[number]) {
+    const f = formRef.current;
+    if (!f) return;
+    const set = (n: string, v: string) => {
+      const el = f.elements.namedItem(n) as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null;
+      if (el) el.value = v;
+    };
+    set("title", p.title);
+    set("kind", p.kind);
+    if (p.date) set("date", p.date);
+    if (p.note) set("note", p.note);
+  }
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const at = day ? new Date(day.atISO) : null;
 
   return (
     <form
+      ref={formRef}
       action={async (fd) => {
         setBusy(true);
         setError(null);
@@ -309,6 +355,20 @@ function EventForm({
       className="space-y-3"
     >
       {day && <input type="hidden" name="id" value={day.sourceId} />}
+      {!day && preset && (
+        <div className="flex flex-wrap gap-2" aria-label="Start from">
+          {presetsFor(preset).map((p) => (
+            <button
+              key={p.label}
+              type="button"
+              onClick={() => usePreset(p)}
+              className="inline-flex min-h-11 items-center rounded-full border border-border px-3.5 font-mono text-xs text-muted transition-colors hover:border-accent hover:text-ink"
+            >
+              {p.label}
+            </button>
+          ))}
+        </div>
+      )}
 
       <input
         name="title"
@@ -457,9 +517,12 @@ export function OwnDays({
   canEdit,
   housemates,
   coverChoices = [],
+  preset,
 }: {
   days: DayRow[];
   canEdit: boolean;
+  /** Offer the common days (a naming, a dedication) when adding one. */
+  preset?: PresetContext;
   /** Everybody in this journey, so a surprise can be planned with one of them. */
   housemates: Housemate[];
   /** Photographs already on this journey, for an invitation's header. */
@@ -503,6 +566,7 @@ export function OwnDays({
             onDone={() => setAdding(false)}
             defaultDate={null}
             submitLabel="Put it in the diary"
+            preset={preset}
           />
         </div>
       )}

@@ -95,6 +95,15 @@ export default async function AppointmentsPage() {
     toDayRow(d, byEvent.get(d.sourceId) ?? null),
   );
 
+  // For the "start from" buttons on a new day: the baby's name and, once
+  // recorded, the birth — so a naming ceremony lands on the eighth day.
+  const birth = await prisma.milestone.findFirst({
+    where: { journeyId: active.journey.id, kind: "BIRTH" },
+    orderBy: { occurredAt: "desc" },
+    select: { occurredAt: true },
+  });
+  const preset = { babyName: active.journey.babyName, birthISO: birth?.occurredAt.toISOString() ?? null };
+
   return (
     <>
       <SiteHeader active="appointments" />
@@ -112,7 +121,7 @@ export default async function AppointmentsPage() {
             ones she is called to, and the ones she arranges. Holding both in
             one list was what made people ask which was which. */}
         <Card className="mt-8 p-8">
-          <DiaryBook rows={rows} canEdit />
+          <DiaryBook rows={rows} canEdit preset={preset} />
         </Card>
 
         <Card className="mt-6 p-8">
@@ -125,7 +134,7 @@ export default async function AppointmentsPage() {
         </Card>
 
         <Card className="mt-6 p-8">
-          <OwnDays days={rows} canEdit housemates={housemates} coverChoices={coverChoices} />
+          <OwnDays days={rows} canEdit housemates={housemates} coverChoices={coverChoices} preset={preset} />
         </Card>
 
         <div className="mt-6 rounded-2xl border border-border bg-surface/60 p-6">
