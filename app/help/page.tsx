@@ -347,6 +347,18 @@ export default async function HelpPage() {
             the person who wrote something can change its words.
           </Q>
 
+          <Q q="Can we pray for someone by name — even outside the family?">
+            Yes. On{" "}
+            <Link href="/worship#praying-for" className="text-accent underline underline-offset-4">Worship</Link>
+            , under <span className="text-ink">People we&rsquo;re praying for</span>,
+            add anyone — a grandmother, a neighbour, a colleague, a missionary —
+            with what to pray for. A few are named in worship each day, and
+            everyone comes round in turn, so a long list is never a roll-call.
+            Mark a prayer answered and it is given thanks for in worship for a
+            week. The list is kept by the two of you; a name reaches the circle only if
+            you tick <span className="text-ink">Share this name with the circle</span>.
+          </Q>
+
           <Q q="Can I download our photos?">
             Yes. Open{" "}
             <Link href="/life?view=photos" className="text-accent underline underline-offset-4">Life &rarr; Photos</Link>

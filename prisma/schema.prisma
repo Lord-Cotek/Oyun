@@ -325,6 +325,7 @@ model Journey {
   postShares     PostShare[]
   shareHellos    ShareHello[]
   joinRequests   JoinRequest[]
+  prayingFor     PrayingFor[]
   handovers      Handover[]
   /// Who sees how she is — her check-in mood: "HOUSEHOLD" (the one walking
   /// beside her), "CIRCLE" (them and the wider circle) or "ME" (nobody but
@@ -1749,4 +1750,26 @@ model Handover {
   createdAt     DateTime  @default(now())
 
   @@index([journeyId])
+}
+
+/// Someone this family is praying for by name — in the family or outside it
+/// — with what they asked for. Kept by those who keep the journey; the circle
+/// sees a name only when `withCircle` is set. A few come round in worship each
+/// night (lib/praying-for.ts). Finished ones are kept, not deleted, so the
+/// family can look back on what God did.
+model PrayingFor {
+  id         String    @id @default(cuid())
+  journeyId  String
+  journey    Journey   @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  addedById  String
+  name       String
+  request    String?
+  withCircle Boolean   @default(false)
+  answeredAt DateTime?
+  answerNote String?
+  stoppedAt  DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@index([journeyId, createdAt])
 }

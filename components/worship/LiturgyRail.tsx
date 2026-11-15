@@ -25,7 +25,7 @@ export type Station = {
   body?: string; // a mono paragraph (reflection, prayer prompt)
   /** This family's own: their open requests, this week's days — named, so
    *  worship meets the week they are actually living. */
-  points?: { heading: string; items: string[] };
+  points?: PointGroup | PointGroup[];
   note?: string; // small muted footnote
   author?: string; // attribution, e.g. a hymn's author + year
   lyrics?: string[]; // full verses, revealed behind a "Full lyrics" toggle
@@ -33,6 +33,9 @@ export type Station = {
   share?: { path: string; title: string; text: string }; // shareable to WhatsApp etc.
   tone?: "accent" | "accent2";
 };
+
+/** A heading and the names or needs under it, e.g. "Tonight, by name". */
+export type PointGroup = { heading: string; items: string[] };
 
 export function LiturgyRail({
   stations,
@@ -174,19 +177,22 @@ export function LiturgyRail({
                         {s.body}
                       </p>
                     )}
-                    {s.points && s.points.items.length > 0 && (
-                      <div className="mt-4 rounded-xl border border-border bg-bg/50 p-4">
-                        <p className="eyebrow mb-2 text-muted">{s.points.heading}</p>
-                        <ul className="space-y-1.5">
-                          {s.points.items.map((it, i) => (
-                            <li key={i} className="flex gap-2 prose-serif-sm text-ink">
-                              <span aria-hidden className="text-accent">·</span>
-                              <span>{it}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
+                    {([] as PointGroup[])
+                      .concat(s.points ?? [])
+                      .filter((g) => g.items.length > 0)
+                      .map((g) => (
+                        <div key={g.heading} className="mt-4 rounded-xl border border-border bg-bg/50 p-4">
+                          <p className="eyebrow mb-2 text-muted">{g.heading}</p>
+                          <ul className="space-y-1.5">
+                            {g.items.map((it, i) => (
+                              <li key={i} className="flex gap-2 prose-serif-sm text-ink">
+                                <span aria-hidden className="text-accent">·</span>
+                                <span>{it}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ))}
                     {s.note && (
                       <p className="mt-3 font-mono text-[0.7rem] leading-relaxed text-muted">
                         {s.note}

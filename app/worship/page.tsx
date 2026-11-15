@@ -45,6 +45,17 @@ import { Arches, Rays } from "@/components/ui/Marks";
 import { ProgressRing } from "@/components/ui/ProgressRing";
 import { AnimatedNumber } from "@/components/ui/AnimatedNumber";
 import { LiturgyRail, type Station } from "@/components/worship/LiturgyRail";
+import { PrayingFor } from "@/components/worship/PrayingFor";
+import { prayingScope } from "@/lib/praying-scope";
+import { loadPrayingFor } from "@/lib/praying-for-db";
+import {
+  addPrayingFor,
+  answerPrayingFor,
+  editPrayingFor,
+  removePrayingFor,
+  resumePrayingFor,
+  stopPrayingFor,
+} from "@/app/worship/praying-actions";
 import { bookBySlug } from "@/lib/bible";
 import { bookIntro } from "@/lib/book-intros";
 
@@ -139,6 +150,24 @@ export default async function WorshipPage({
           select: { kind: true, title: true, at: true },
         })
       : Promise.resolve([]),
+  ]);
+  // The people this family prays for by name — see lib/praying-for.ts. A
+  // few each day in "Pray together", everyone in turn.
+  const scope = await prayingScope();
+  const [praying, familyNames] = await Promise.all([
+    scope ? loadPrayingFor(scope) : null,
+    scope?.canKeep ? Promise.all([
+          prisma.child.findMany({ where: { journeyId: active.journey.id }, select: { name: true } }),
+          prisma.membership.findMany({ where: { journeyId: active.journey.id }, select: { user: { select: { name: true } } } }),
+        ]).then(([kids, people]) =>
+          Array.from(
+            new Set(
+              [...kids.map((k) => k.name), active.journey.babyName ?? "", ...people.map((m) => m.user.name ?? "")]
+                .map((n) => n.trim())
+                .filter(Boolean),
+            ),
+          ),
+        ) : Promise.resolve([] as string[]),
   ]);
   const prayPoints = [
     ...openRequests.map((r) => r.title),
@@ -374,7 +403,11 @@ export default async function WorshipPage({
       icon: "flame",
       eyebrow: "Pray together",
       body: liturgy.pray,
-      points: prayPoints.length ? { heading: "And today, for this family", items: prayPoints } : undefined,
+      points: [
+        { heading: "Today, by name", items: praying?.tonightLines ?? [] },
+        { heading: "Give thanks", items: praying?.thanksLines ?? [] },
+        { heading: "And today, for this family", items: prayPoints },
+      ],
     },
     {
       id: "sing",
@@ -501,6 +534,23 @@ export default async function WorshipPage({
             }
           />
         </section>
+
+        {praying && scope && (scope.canKeep || praying.views.length > 0) && (
+          <section className="mt-6" id="praying-for">
+            <PrayingFor
+              items={praying.views}
+              suggestions={familyNames}
+              canKeep={scope.canKeep}
+              circleWord="the circle"
+              onAdd={addPrayingFor}
+              onEdit={editPrayingFor}
+              onAnswer={answerPrayingFor}
+              onStop={stopPrayingFor}
+              onResume={resumePrayingFor}
+              onRemove={removePrayingFor}
+            />
+          </section>
+        )}
 
         <section className="mt-10">
           <ScriptureJourney

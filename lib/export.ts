@@ -254,7 +254,17 @@ async function gather({ userId, journeyId, role }: ExportScope) {
     }),
   ]);
 
+  // The people this family prays for by name — the whole list for those who
+  // keep it, only the names shared with the circle for anyone else, exactly
+  // as the worship page shows it.
+  const prayingFor = await prisma.prayingFor.findMany({
+    where: { ...j, ...(inHouse ? {} : { withCircle: true }) },
+    orderBy: { createdAt: "asc" },
+    select: { name: true, request: true, createdAt: true, answeredAt: true, answerNote: true, stoppedAt: true },
+  });
+
   return {
+    prayingFor,
     you,
     journey,
     members,
@@ -478,6 +488,22 @@ function chapters(g: Gathered): Chapter[] {
       html: g.worshipDays.length
         ? `<p class="days">${g.worshipDays.map((w) => day(w.day)).join(" · ")}</p>`
         : "",
+    },
+    {
+      slug: "praying-for",
+      title: "Praying for",
+      blurb: `The people this family carried by name — ${g.prayingFor.length} in all.`,
+      rows: g.prayingFor,
+      html: g.prayingFor
+        .map(
+          (p) =>
+            `<article><h3>${esc(p.name)}</h3><p class="meta">Since ${day(p.createdAt)}${
+              p.answeredAt ? ` · answered ${day(p.answeredAt)}` : p.stoppedAt ? ` · finished ${day(p.stoppedAt)}` : ""
+            }</p>${p.request ? `<p>${esc(p.request)}</p>` : ""}${
+              p.answerNote ? `<div class="answer">${esc(p.answerNote)}</div>` : ""
+            }</article>`,
+        )
+        .join(""),
     },
     {
       slug: "scripture",
