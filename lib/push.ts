@@ -1,4 +1,5 @@
 import webpush from "web-push";
+import { isPushEndpoint } from "@/lib/push-endpoint";
 import { prisma } from "@/lib/prisma";
 
 const PUBLIC_KEY = process.env.VAPID_PUBLIC_KEY;
@@ -37,6 +38,12 @@ export async function sendPushToUser(userId: string, payload: PushPayload): Prom
   await Promise.all(
     subs.map(async (s) => {
       try {
+        // Never to an address that is not a push service, even one stored
+        // before the subscribe route checked — see lib/push-endpoint.ts.
+        if (!isPushEndpoint(s.endpoint)) {
+          await prisma.pushSubscription.delete({ where: { id: s.id } }).catch(() => {});
+          return;
+        }
         await webpush.sendNotification(
           { endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } },
           JSON.stringify(payload),

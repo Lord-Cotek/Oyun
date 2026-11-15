@@ -1,6 +1,33 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  /**
+   * Security headers on every response.
+   *
+   * - No framing: nobody can load these pages inside their own site and
+   *   trick a tap ("clickjacking"), least of all the admin centre.
+   * - nosniff: a file is only ever what it says it is.
+   * - Referrer: other sites learn only that somebody came from here, never
+   *   the page — and from the pages whose address IS the key (an invitation,
+   *   a shared post, a registry, a reset or confirmation link) not even that.
+   * - HSTS: once seen over HTTPS, never over anything less.
+   * - Permissions: no camera, microphone or location; nothing here uses them.
+   */
+  async headers() {
+    const base = [
+      { key: "X-Frame-Options", value: "DENY" },
+      { key: "Content-Security-Policy", value: "frame-ancestors 'none'" },
+      { key: "X-Content-Type-Options", value: "nosniff" },
+      { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+      { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains" },
+      { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), browsing-topics=()" },
+    ];
+    const keyed = ["/i/:path*", "/p/:path*", "/r/:path*", "/reset-password", "/confirm-email", "/unsubscribe"];
+    return [
+      { source: "/:path*", headers: base },
+      ...keyed.map((source) => ({ source, headers: [{ key: "Referrer-Policy", value: "no-referrer" }] })),
+    ];
+  },
   experimental: {
     serverActions: {
       bodySizeLimit: "8mb",

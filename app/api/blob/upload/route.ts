@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
 import { auth } from "@/lib/auth";
+import { HOUR, allowAll } from "@/lib/rate-limit";
 
 export const runtime = "nodejs";
 
@@ -48,6 +49,14 @@ export async function POST(request: Request): Promise<NextResponse> {
       onBeforeGenerateToken: async () => {
         const session = await auth();
         if (!session?.user?.id) throw new Error("Please sign in to share media.");
+        // Per person: plenty for a day's photographs, not a script filling
+        // the storage bill. Counted as uploads begun, since the size of each
+        // is already capped below.
+        const ok = await allowAll([
+          [`upload:h:${session.user.id}`, 150, HOUR],
+          [`upload:d:${session.user.id}`, 500, 24 * HOUR],
+        ]);
+        if (!ok) throw new Error("That is a lot of uploads for one day. Please try again later.");
         return {
           allowedContentTypes: ALLOWED_CONTENT_TYPES,
           maximumSizeInBytes: MAX_BYTES,
