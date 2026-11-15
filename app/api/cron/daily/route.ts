@@ -20,6 +20,8 @@ import {
 import { inviteAudience, inviteUrl } from "@/lib/invitations-db";
 import { countForHost, headCount, whenWords } from "@/lib/invitations";
 import { appointmentPath, dayPath } from "@/lib/open-item";
+import { isOn } from "@/lib/flags";
+import { recordRun, type Budget } from "@/lib/cron-run";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -32,8 +34,9 @@ export const maxDuration = 60;
  * $CRON_SECRET`; anything else is refused.
  *
  * ── Why this can be run twice without harm ───────────────────────────────
- * Every send stamps its own column on the appointment, and `dueStage` returns
- * null for a stage already stamped. So a retry, a double-schedule, or a
+ * Every send first CLAIMS its own column on the appointment (an update that
+ * only succeeds while the column is empty), and `dueStage` returns null for
+ * a stage already stamped. So a retry, a double-schedule, or a
  * manual poke sends nothing a second time. That matters more here than in
  * most jobs: the failure mode of a reminder system is not silence, it is
  * pestering somebody until they turn it off — and then they get nothing at
@@ -51,12 +54,24 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const result = await recordRun("daily", maxDuration, (budget) => runDaily(budget));
+  return NextResponse.json({ ok: true, ...result });
+}
+
+/**
+ * Each part answers to its own switch in the admin centre, so pausing one
+ * does not silence the others. A part that is off says so in the result.
+ */
+async function runDaily(budget: Budget) {
+  const off: string[] = [];
+  const apptsOn = await isOn("appointment-reminders");
+  if (!apptsOn) off.push("appointment-reminders");
   const now = new Date();
   // A generous window either side of today, then `dueStage` decides precisely.
   const from = new Date(now.getTime() - 2 * 86_400_000);
   const to = new Date(now.getTime() + 9 * 86_400_000);
 
-  const appointments = await prisma.appointment.findMany({
+  const appointments = !apptsOn ? [] : await prisma.appointment.findMany({
     where: {
       at: { gte: from, lte: to },
       attendedAt: null,
@@ -108,6 +123,7 @@ export async function GET(req: Request) {
   let people = 0;
 
   for (const a of appointments) {
+    if (budget.out()) { budget.stopped(); break; }
     // A journey that ended in loss is left entirely alone. Reminding a
     // grieving mother about next Tuesday's antenatal check would be a cruelty
     // no feature is worth.
@@ -119,6 +135,14 @@ export async function GET(req: Request) {
     // in their own time zone — see lib/own-morning.ts. At 07:00 UTC it
     // arrived after a nine o'clock scan in Dubai.
     if (stage === "morning") continue;
+
+    // Claimed before anything is sent: only the run that fills this stage's
+    // stamp sends it, so a retry or a second sweep never repeats it.
+    const claimed = await prisma.appointment.updateMany({
+      where: { id: a.id, [STAMP[stage]]: null },
+      data: { [STAMP[stage]]: new Date() },
+    });
+    if (claimed.count === 0) continue;
 
     const name = appointmentTitle(a.kind, a.title);
     const when = whenLabel(a.at, a.hasTime, now);
@@ -155,12 +179,6 @@ export async function GET(req: Request) {
       }
     }
 
-    // Stamp last: if anything above threw, the next run tries again rather
-    // than silently swallowing the reminder.
-    await prisma.appointment.update({
-      where: { id: a.id },
-      data: { [STAMP[stage]]: new Date() },
-    });
     sent += 1;
   }
 
@@ -168,20 +186,25 @@ export async function GET(req: Request) {
   // Told at each person's own morning, in their own time zone, by the hourly
   // run — see lib/own-morning.ts. Not here any more.
 
-  const guests = await remindGuests(now);
-  const hosts = await tellTheHosts(now);
-  const lettersOpened = await tellLettersOpening(now);
-  const afterNudges = await nudgeAfterTheDay(now);
+  const guestsOn = await isOn("guest-reminders");
+  if (!guestsOn) off.push("guest-reminders");
+  const lettersOn = await isOn("letter-openings");
+  if (!lettersOn) off.push("letter-openings");
+  const guests = guestsOn && !budget.out() ? await remindGuests(now, budget) : {};
+  const hosts = guestsOn && !budget.out() ? await tellTheHosts(now, budget) : 0;
+  const lettersOpened = lettersOn && !budget.out() ? await tellLettersOpening(now, budget) : 0;
+  const afterNudges = guestsOn && !budget.out() ? await nudgeAfterTheDay(now, budget) : 0;
+  if (budget.out()) budget.stopped();
 
-  return NextResponse.json({
-    ok: true,
+  return {
     reminders: sent,
     notified: people,
     ...guests,
     hostDigests: hosts,
     lettersOpened,
     afterNudges,
-  });
+    ...(off.length ? { off } : {}),
+  };
 }
 
 /**
@@ -191,7 +214,7 @@ export async function GET(req: Request) {
  * the replies (a surprise's planners, until it has passed — which by now it
  * has).
  */
-async function nudgeAfterTheDay(now: Date) {
+async function nudgeAfterTheDay(now: Date, budget?: Budget) {
   const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
   const yesterday = new Date(today.getTime() - 86_400_000);
   const invitations = await prisma.invitation.findMany({
@@ -205,6 +228,13 @@ async function nudgeAfterTheDay(now: Date) {
   });
   let nudged = 0;
   for (const inv of invitations) {
+    if (budget?.out()) { budget.stopped(); break; }
+    // Claimed first: only the run that flips afterNudgedAt from empty sends.
+    const claim = await prisma.invitation.updateMany({
+      where: { id: inv.id, afterNudgedAt: null },
+      data: { afterNudgedAt: new Date() },
+    });
+    if (claim.count === 0) continue;
     for (const userId of await inviteAudience(inv.event.id, now)) {
       await notify({
         userId,
@@ -214,7 +244,6 @@ async function nudgeAfterTheDay(now: Date) {
         href: dayPath(inv.event.id),
       });
     }
-    await prisma.invitation.update({ where: { id: inv.id }, data: { afterNudgedAt: new Date() } });
     nudged += 1;
   }
   return nudged;
@@ -227,7 +256,7 @@ async function nudgeAfterTheDay(now: Date) {
  * and nothing older is suddenly announced. Not to a family after a loss:
  * the letter still opens, quietly, but the app does not announce it.
  */
-async function tellLettersOpening(now: Date) {
+async function tellLettersOpening(now: Date, budget?: Budget) {
   const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
   const letters = await prisma.letter.findMany({
     where: {
@@ -245,6 +274,13 @@ async function tellLettersOpening(now: Date) {
   });
   let told = 0;
   for (const l of letters) {
+    if (budget?.out()) { budget.stopped(); break; }
+    // Claimed first — see the appointments above.
+    const claimed = await prisma.letter.updateMany({
+      where: { id: l.id, openedToldAt: null },
+      data: { openedToldAt: new Date() },
+    });
+    if (claimed.count === 0) continue;
     if (l.journey.status === "ACTIVE") {
       const keepers = await prisma.membership.findMany({
         where: { journeyId: l.journeyId, role: { in: ["MOTHER", "PARTNER"] } },
@@ -262,7 +298,6 @@ async function tellLettersOpening(now: Date) {
       }
       told += 1;
     }
-    await prisma.letter.update({ where: { id: l.id }, data: { openedToldAt: new Date() } });
   }
   return told;
 }
@@ -288,7 +323,7 @@ async function tellLettersOpening(now: Date) {
  * bargain the appointment reminders make, and the right one: the cost of a
  * retry loop here is somebody getting the same email four times.
  */
-async function remindGuests(now: Date) {
+async function remindGuests(now: Date, budget?: Budget) {
   const startOfToday = new Date(
     Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
   );
@@ -345,6 +380,8 @@ async function remindGuests(now: Date) {
   let guests = 0;
 
   for (const inv of invitations) {
+
+    if (budget?.out()) { budget.stopped(); break; }
     const away = Math.round(
       (Date.UTC(
         inv.event.at.getUTCFullYear(),
@@ -357,6 +394,14 @@ async function remindGuests(now: Date) {
     if (away !== 0 && away !== 1) continue;
     const today = away === 0;
     if (today ? inv.remindedMorningAt : inv.remindedDayBeforeAt) continue;
+    // Claimed first — see the appointments above.
+    const claimed = await prisma.invitation.updateMany({
+      where: today
+        ? { id: inv.id, remindedMorningAt: null }
+        : { id: inv.id, remindedDayBeforeAt: null },
+      data: today ? { remindedMorningAt: new Date() } : { remindedDayBeforeAt: new Date() },
+    });
+    if (claimed.count === 0) continue;
 
     if (inv.replies.length > 0) {
       const when = whenWords(inv.event.at, inv.event.hasTime, inv.event.endsAt);
@@ -381,14 +426,6 @@ async function remindGuests(now: Date) {
       }
     }
 
-    // Stamped last, so anything that threw above is tried again tomorrow
-    // rather than being silently marked as done.
-    await prisma.invitation.update({
-      where: { id: inv.id },
-      data: today
-        ? { remindedMorningAt: new Date() }
-        : { remindedDayBeforeAt: new Date() },
-    });
     stages += 1;
   }
 
@@ -407,7 +444,7 @@ async function remindGuests(now: Date) {
  * What must not go out is a digest for an invitation whose placeholder date
  * happens to fall tomorrow while nobody has chosen anything.
  */
-async function tellTheHosts(now: Date) {
+async function tellTheHosts(now: Date, budget?: Budget) {
   const startOfTomorrow = new Date(
     Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1),
   );
@@ -434,6 +471,13 @@ async function tellTheHosts(now: Date) {
 
   let sent = 0;
   for (const inv of invitations) {
+    if (budget?.out()) { budget.stopped(); break; }
+    // Claimed first — see the appointments above.
+    const claimed = await prisma.invitation.updateMany({
+      where: { id: inv.id, hostDigestAt: null },
+      data: { hostDigestAt: new Date() },
+    });
+    if (claimed.count === 0) continue;
     const c = headCount(inv.replies);
     // The household — or, on a day still being kept as a surprise, only the
     // people in on it. See inviteAudience.
@@ -473,10 +517,6 @@ async function tellTheHosts(now: Date) {
       });
     }
 
-    await prisma.invitation.update({
-      where: { id: inv.id },
-      data: { hostDigestAt: new Date() },
-    });
     sent += 1;
   }
   return sent;

@@ -26,11 +26,11 @@ model User {
   /// defaults to true so nobody who was already being told stops being told.
   /// Switching one off silences the push and the email; the notification is
   /// still written down and still appears in the bell.
-  notifyCircle Boolean @default(true)
-  notifyHer    Boolean @default(true)
-  notifyDates  Boolean @default(true)
-  notifyDiary  Boolean @default(true)
-  notifyHouse  Boolean @default(true)
+  notifyCircle  Boolean @default(true)
+  notifyHer     Boolean @default(true)
+  notifyDates   Boolean @default(true)
+  notifyDiary   Boolean @default(true)
+  notifyHouse   Boolean @default(true)
   /// The one note each morning, written for the seat this person sits in.
   /// Its own switch so that turning off a daily devotional does not also turn
   /// off the reminder about Tuesday's scan.
@@ -43,10 +43,10 @@ model User {
   /// Null means we have not met them in a browser yet; the sender falls back
   /// to UTC, which is wrong for most of the world and is why this is captured
   /// on the very first page they load.
-  timeZone      String?
+  timeZone    String?
   /// The hour, in THEIR day, they would like it. Seven in the morning unless
   /// they say otherwise.
-  morningHour   Int     @default(7)
+  morningHour Int     @default(7)
 
   /// Set when an operator has suspended this account — see the admin centre.
   ///
@@ -57,41 +57,42 @@ model User {
   suspendedAt     DateTime?
   suspendedReason String?
 
-  accounts          Account[]
-  sessions          Session[]
-  memberships       Membership[]
-  ownedJourneys     Journey[]             @relation("JourneyOwner")
-  checkIns          CheckIn[]
-  letters           Letter[]
-  nudges            Nudge[]
-  encouragements    Encouragement[]
-  supportDays       SupportDay[]
-  notifications     Notification[]
-  prayerRequests    PrayerRequest[]
-  appointments      Appointment[]
-  prayerPrays       PrayerPray[]
-  pushSubscriptions PushSubscription[]
-  morningsSent      MorningSent[]
-  joinRequests      JoinRequest[]
-  nativePushTokens  NativePushToken[]
-  remembrances      Remembrance[]
-  reactions         Reaction[]
-  readingNotes      ReadingNote[]
-  posts             Post[]
-  postComments      PostComment[]
-  attributedComments PostComment[] @relation("CommentAttributedBy")
-  postReactions     PostReaction[]
-  commentReactions  PostCommentReaction[]
+  accounts           Account[]
+  sessions           Session[]
+  memberships        Membership[]
+  ownedJourneys      Journey[]             @relation("JourneyOwner")
+  checkIns           CheckIn[]
+  letters            Letter[]
+  nudges             Nudge[]
+  encouragements     Encouragement[]
+  supportDays        SupportDay[]
+  notifications      Notification[]
+  prayerRequests     PrayerRequest[]
+  appointments       Appointment[]
+  prayerPrays        PrayerPray[]
+  pushSubscriptions  PushSubscription[]
+  morningsSent       MorningSent[]
+  joinRequests       JoinRequest[]
+  nativePushTokens   NativePushToken[]
+  remembrances       Remembrance[]
+  reactions          Reaction[]
+  readingNotes       ReadingNote[]
+  posts              Post[]
+  postComments       PostComment[]
+  attributedComments PostComment[]         @relation("CommentAttributedBy")
+  postReactions      PostReaction[]
+  commentReactions   PostCommentReaction[]
 
-  createdAt     DateTime       @default(now())
-  journeyEvents JourneyEvent[] @relation("JourneyEventCreator")
-  surprisesInOn     SurprisePlanner[]
+  createdAt     DateTime          @default(now())
+  journeyEvents JourneyEvent[]    @relation("JourneyEventCreator")
+  surprisesInOn SurprisePlanner[]
   letterReplies LetterReply[]
   postShares    PostShare[]
 
   personalWorshipDays PersonalWorshipDay[]
-  assistantUses   AssistantUse[]
-  ownMorningSent  OwnMorningSent[]
+  assistantUses       AssistantUse[]
+  ownMorningSent      OwnMorningSent[]
+  weeklySent          WeeklySent[]
 }
 
 /// A small emoji reaction on an encouragement or a check-in.
@@ -321,7 +322,7 @@ model Journey {
   /// her). Hers to choose on the Care page. The Care page always promised
   /// her mood went to "the one supporting you", so that is the default; the
   /// circle sees it only if she opens it to them.
-  moodAudience    String         @default("HOUSEHOLD")
+  moodAudience   String          @default("HOUSEHOLD")
 }
 
 /// The family feed — an update, a praise, a prayer, or a milestone that the
@@ -455,7 +456,7 @@ model ShareHello {
   /// that browser, and still the reason the same person cannot post again
   /// into an empty slot.
   convertedAt DateTime?
-  replies    PostComment[]
+  replies     PostComment[]
 
   @@unique([shareId, guestToken])
   @@index([journeyId, createdAt])
@@ -523,14 +524,14 @@ model PostComment {
   /// itself, and because a hello is seen only by the household while a reply
   /// is seen by the whole circle — a real change, and the sort that should
   /// leave a trace.
-  fromHelloId     String?
-  fromHello       ShareHello?  @relation(fields: [fromHelloId], references: [id], onDelete: SetNull)
+  fromHelloId    String?
+  fromHello      ShareHello? @relation(fields: [fromHelloId], references: [id], onDelete: SetNull)
   /// Who matched the hello to this person, when it was not the person
   /// themselves. Null means they claimed their own words. Stored because this
   /// is the one place in either app where somebody can put another person's
   /// words into a room, and that should never be unattributable.
-  attributedById  String?
-  attributedBy    User?        @relation("CommentAttributedBy", fields: [attributedById], references: [id], onDelete: SetNull)
+  attributedById String?
+  attributedBy   User?       @relation("CommentAttributedBy", fields: [attributedById], references: [id], onDelete: SetNull)
 
   /// The reply this one answers, when somebody wanted to say something to one
   /// person rather than to the post.
@@ -547,9 +548,9 @@ model PostComment {
   /// shame. Cascade would delete them outright, which is one person reaching
   /// across and removing another person's words — and that is not a trade a
   /// family app gets to make on their behalf.
-  parentId  String?
-  parent    PostComment?  @relation("CommentThread", fields: [parentId], references: [id], onDelete: SetNull)
-  replies   PostComment[] @relation("CommentThread")
+  parentId String?
+  parent   PostComment?  @relation("CommentThread", fields: [parentId], references: [id], onDelete: SetNull)
+  replies  PostComment[] @relation("CommentThread")
 
   reactions PostCommentReaction[]
 
@@ -717,13 +718,13 @@ model CheckIn {
 
 /// Letters to the baby / to each other.
 model Letter {
-  id        String        @id @default(cuid())
-  journeyId String
-  journey   Journey       @relation(fields: [journeyId], references: [id], onDelete: Cascade)
-  authorId  String
-  author    User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  body      String
-  toBaby    Boolean       @default(true)
+  id           String        @id @default(cuid())
+  journeyId    String
+  journey      Journey       @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  authorId     String
+  author       User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  body         String
+  toBaby       Boolean       @default(true)
   /// Which of them it is written to, once there is more than one of them.
   ///
   /// Null means all of them, which is what a letter written during the
@@ -737,13 +738,13 @@ model Letter {
   /// letter to all of them is a far better failure than a letter that is gone.
   /// Sealed until this day: an envelope to everyone but its writer until
   /// then — see lib/letters-seal.ts. Null is an ordinary letter.
-  openOn    DateTime?     @db.Date
+  openOn       DateTime?     @db.Date
   /// When the household was told it had opened, so it is said once.
   openedToldAt DateTime?
-  childId   String?
-  child     Child?        @relation(fields: [childId], references: [id], onDelete: SetNull)
-  createdAt DateTime      @default(now())
-  replies   LetterReply[]
+  childId      String?
+  child        Child?        @relation(fields: [childId], references: [id], onDelete: SetNull)
+  createdAt    DateTime      @default(now())
+  replies      LetterReply[]
 
   @@index([journeyId, createdAt])
 }
@@ -914,10 +915,10 @@ model Registry {
 ///           shop changes its markup. So it points, and the shop keeps its
 ///           own record of what has been bought from it.
 model RegistryItem {
-  id         String   @id @default(cuid())
+  id         String    @id @default(cuid())
   registryId String
-  registry   Registry @relation(fields: [registryId], references: [id], onDelete: Cascade)
-  kind       String   @default("THING")
+  registry   Registry  @relation(fields: [registryId], references: [id], onDelete: Cascade)
+  kind       String    @default("THING")
   title      String
   note       String?
   /// Where it is sold. Read once when she pastes it — see lib/link-preview.ts
@@ -929,16 +930,16 @@ model RegistryItem {
   /// that is a note to a guest, not an amount anybody is charged.
   price      String?
   /// How many are wanted. Two of the same sleepsuit is a real answer.
-  quantity   Int      @default(1)
+  quantity   Int       @default(1)
   /// The handful of things that actually matter, said so plainly.
-  mostNeeded Boolean  @default(false)
-  position   Int      @default(0)
+  mostNeeded Boolean   @default(false)
+  position   Int       @default(0)
   /// A rota, for a hand rather than a thing: dinners for the first fortnight
   /// home, one person a day. The first day and how many days; each day takes
   /// one person, chosen by the guest. Null on everything that is not a rota.
   rotaStart  DateTime? @db.Date
   rotaDays   Int?
-  createdAt  DateTime @default(now())
+  createdAt  DateTime  @default(now())
 
   claims RegistryClaim[]
 
@@ -1102,17 +1103,17 @@ enum JourneyEventKind {
 /// at. They are different rows because they are different things, and only
 /// one of them is something you can invite people to.
 model JourneyEvent {
-  id               String           @id @default(cuid())
+  id               String            @id @default(cuid())
   journeyId        String
-  journey          Journey          @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  journey          Journey           @relation(fields: [journeyId], references: [id], onDelete: Cascade)
   createdById      String
-  createdBy        User             @relation("JourneyEventCreator", fields: [createdById], references: [id], onDelete: Cascade)
-  kind             JourneyEventKind @default(GATHERING)
+  createdBy        User              @relation("JourneyEventCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  kind             JourneyEventKind  @default(GATHERING)
   title            String
   at               DateTime
   /// "Saturday afternoon" is a real answer, and inventing 09:00 would become a
   /// wrong morning reminder later.
-  hasTime          Boolean          @default(true)
+  hasTime          Boolean           @default(true)
   /// When it finishes, where anybody said. Optional for the same reason.
   endsAt           DateTime?
   where            String?
@@ -1124,7 +1125,7 @@ model JourneyEvent {
   ///
   /// The whole rule lives in lib/surprise.ts, checked by
   /// `npm run verify:surprise`.
-  surprise         Boolean          @default(false)
+  surprise         Boolean           @default(false)
   /// The others who are in on it. Empty for an ordinary day.
   planners         SurprisePlanner[]
   note             String?
@@ -1136,8 +1137,8 @@ model JourneyEvent {
   fromInvitationId String?
   /// Set only when somebody deliberately makes this day shareable.
   invitation       Invitation?
-  createdAt        DateTime         @default(now())
-  updatedAt        DateTime         @updatedAt
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
 
   @@index([journeyId, at])
   @@index([at])
@@ -1230,22 +1231,22 @@ model Invitation {
   options             InvitationOption[]
 
   /// Directions, the registry, what to bring — see InvitationLink.
-  links               InvitationLink[]
+  links    InvitationLink[]
   /// The host's own word to a guest who has just said yes, shown above the
   /// links on the confirmation. Optional; without it the page says a plain
   /// thank-you in the app's own voice.
-  thankYou            String?
+  thankYou String?
 
   /// After the day: photographs from it, shown on the invitation page to
   /// anyone holding the link — the host is told exactly that when adding
   /// them. Only this app's own storage or pictures already in the family,
   /// by the same rule as coverUrl.
-  afterPhotos         String[]           @default([])
+  afterPhotos   String[]  @default([])
   /// After the day: the host's thank-you for coming.
-  afterNote           String?
+  afterNote     String?
   /// When the host was nudged, the morning after, to add photos and say
   /// thank you. Once.
-  afterNudgedAt       DateTime?
+  afterNudgedAt DateTime?
 }
 
 /// One thing a guest will want before the day: the map pin, the registry,
@@ -1309,36 +1310,36 @@ model InvitationVote {
 
 /// One guest's answer. No account, and never one.
 model InvitationReply {
-  id           String           @id @default(cuid())
-  invitationId String
-  invitation   Invitation       @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+  id             String           @id @default(cuid())
+  invitationId   String
+  invitation     Invitation       @relation(fields: [invitationId], references: [id], onDelete: Cascade)
   /// The guest's own secret, kept in their browser. It is what lets somebody
   /// change their mind — real people tap twice, and without it the second tap
   /// makes a second guest — and what stops one guest editing another's reply.
-  token        String           @unique
-  name         String
+  token          String           @unique
+  name           String
   /// Optional, and the only contact detail this app will ever hold for
   /// somebody who is not in it. Used for this one day and nothing else.
-  email        String?
+  email          String?
   /// "YES" | "MAYBE" | "NO". A string rather than an enum so another answer
   /// could be added without a migration that rewrites the column.
-  answer       String
+  answer         String
   /// Including themselves. 1 means "just me".
-  partySize    Int              @default(1)
-  note         String?
+  partySize      Int              @default(1)
+  note           String?
   /// When the host's thank-you — the details and the useful links — was
   /// emailed to this guest. Set once, so pressing the button again reaches
   /// only the people who have replied since, never the same inbox twice.
-  thankedAt    DateTime?
+  thankedAt      DateTime?
   /// Whether this guest agreed to a thank-you after the day. True only for
   /// replies made on a form that said so, with an address — a guest who
   /// replied before that promise existed is never emailed afterwards.
-  afterConsent Boolean          @default(false)
+  afterConsent   Boolean          @default(false)
   /// When the after-the-day thank-you was emailed to them. Once.
   afterThankedAt DateTime?
-  createdAt    DateTime         @default(now())
-  updatedAt    DateTime         @updatedAt
-  votes        InvitationVote[]
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  votes          InvitationVote[]
 
   @@index([invitationId, createdAt])
 }
@@ -1466,15 +1467,15 @@ model Broadcast {
   createdAt DateTime @default(now())
 
   /// Set the moment sending begins, so a second press cannot start it twice.
-  startedAt DateTime?
+  startedAt   DateTime?
   /// Set when the last batch went.
-  finishedAt DateTime?
+  finishedAt  DateTime?
   /// How many it has actually been handed to the mail provider for.
-  sentCount Int @default(0)
+  sentCount   Int       @default(0)
   /// How many the provider refused.
-  failedCount Int @default(0)
+  failedCount Int       @default(0)
   /// Where the walk got to. Null before it starts.
-  cursor String?
+  cursor      String?
 
   @@index([createdAt])
 }
@@ -1547,7 +1548,7 @@ model FeatureFlag {
 /// If that is not enough to resolve something, the answer is to talk to the
 /// family, not to widen the queue.
 model Concern {
-  id     String @id @default(cuid())
+  id     String  @id @default(cuid())
   /// The account that raised it. Null if they were signed out.
   userId String?
   /// The address to write back to.
@@ -1570,7 +1571,6 @@ model Concern {
   @@index([state, createdAt])
   @@index([email])
 }
-
 
 /// Somebody else who is in on a surprise.
 ///
@@ -1596,7 +1596,6 @@ model SurprisePlanner {
   @@id([eventId, userId])
   @@index([userId])
 }
-
 
 /// One morning note, to one person, on one day.
 ///
@@ -1668,4 +1667,36 @@ model RateHit {
   at  DateTime @default(now())
 
   @@index([key, at])
+}
+
+/// One run of a scheduled job — see lib/cron-run.ts. Read by the admin
+/// centre's health page; holds counts and an error message, never anybody's
+/// words.
+model CronRun {
+  id         String    @id @default(cuid())
+  job        String
+  startedAt  DateTime  @default(now())
+  finishedAt DateTime?
+  /// Null while running (or if the function was killed mid-run).
+  ok         Boolean?
+  /// Stopped early for time; the next sweep finishes the rest.
+  more       Boolean   @default(false)
+  summary    String?
+  error      String?
+
+  @@index([job, startedAt])
+  @@index([startedAt])
+}
+
+/// This person has been sent this week's email. Claimed before the send so
+/// a retry or second sweep never sends it twice — see lib/cron-run.ts.
+model WeeklySent {
+  userId String
+  user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// The Monday of the week and the family it was about: "YYYY-MM-DD/<id>".
+  week   String
+  sentAt DateTime @default(now())
+
+  @@id([userId, week])
+  @@index([week])
 }

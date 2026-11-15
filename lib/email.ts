@@ -66,6 +66,11 @@ async function sendEmail(opts: {
   }
   try {
     const res = await fetch(RESEND_ENDPOINT, {
+      // Never cached. Next.js caches fetch() by default, and two identical
+      // emails used to come back as the first one's "sent" without a
+      // request leaving the building — a resend, or a retry after the
+      // provider refused, was silently swallowed.
+      cache: "no-store",
       method: "POST",
       headers: {
         Authorization: `Bearer ${apiKey}`,
@@ -123,6 +128,11 @@ async function sendEmailBatch(
     const chunk = items.slice(at, at + BATCH_MAX);
     try {
       const res = await fetch(`${RESEND_ENDPOINT.replace(/\/+$/, "")}/batch`, {
+      // Never cached. Next.js caches fetch() by default, and two identical
+      // emails used to come back as the first one's "sent" without a
+      // request leaving the building — a resend, or a retry after the
+      // provider refused, was silently swallowed.
+      cache: "no-store",
         method: "POST",
         headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
         body: JSON.stringify(

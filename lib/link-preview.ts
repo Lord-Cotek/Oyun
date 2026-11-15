@@ -672,6 +672,7 @@ export async function readLink(raw: string): Promise<LinkPreview> {
         return { ...bare, failed: "That address could not be opened." };
       }
       let res = await fetch(current.toString(), {
+        cache: "no-store",
         redirect: "manual",
         signal: controller.signal,
         headers: browserHeaders(),
@@ -682,6 +683,7 @@ export async function readLink(raw: string): Promise<LinkPreview> {
       if ((res.status === 403 || res.status === 429) && !triedAsPreview) {
         triedAsPreview = true;
         res = await fetch(current.toString(), {
+        cache: "no-store",
           redirect: "manual",
           signal: controller.signal,
           headers: previewHeaders(),

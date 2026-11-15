@@ -44,7 +44,7 @@ export const FLAGS: FlagSpec[] = [
   {
     key: "weekly-digest",
     label: "The weekly email",
-    what: "Sends the Saturday summary. Turn it off to stop the next one going out without waiting for a deploy.",
+    what: "Sends the Monday summary. Turn it off to stop the next one going out without waiting for a deploy.",
     fallback: true,
   },
   {
@@ -57,6 +57,30 @@ export const FLAGS: FlagSpec[] = [
     key: "morning-note",
     label: "The morning note",
     what: "Sends one note a day to each person, at their own chosen hour — the day's verse and the one line written for their part in it. Turn it off to stop the next one going out without waiting for a deploy.",
+    fallback: true,
+  },
+  {
+    key: "appointment-reminders",
+    label: "Appointment reminders",
+    what: "Tells her and her partner about an appointment a week before, the day before and on the morning. Turn it off if they start going out wrong.",
+    fallback: true,
+  },
+  {
+    key: "personal-reminders",
+    label: "Personal reminders",
+    what: "Tells each person about the reminders they set for themselves, at their own morning.",
+    fallback: true,
+  },
+  {
+    key: "guest-reminders",
+    label: "Guest and host reminders",
+    what: "Emails guests who replied the day before and on the day, tells the hosts who is coming the day before, and asks the hosts how it went the morning after.",
+    fallback: true,
+  },
+  {
+    key: "letter-openings",
+    label: "Letters opening",
+    what: "Tells her and her partner the morning a sealed letter opens.",
     fallback: true,
   },
   {

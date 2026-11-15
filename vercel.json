@@ -11,6 +11,14 @@
     {
       "path": "/api/cron/morning",
       "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/cron/daily?sweep=2",
+      "schedule": "30 7 * * *"
+    },
+    {
+      "path": "/api/cron/weekly?sweep=2",
+      "schedule": "30 13 * * 1"
     }
   ]
 }

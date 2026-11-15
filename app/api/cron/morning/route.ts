@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { sendMorningNotes } from "@/lib/morning-send";
 import { sendOwnMornings } from "@/lib/own-morning";
 import { isOn } from "@/lib/flags";
+import { recordRun } from "@/lib/cron-run";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -21,16 +22,18 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // Reminders at each person's own morning — their hour, their time zone.
-  // Not behind the morning note's switch: somebody who turned the note off
-  // still asked to be reminded. See lib/own-morning.ts.
-  const reminders = await sendOwnMornings();
+  const result = await recordRun("morning", maxDuration, async () => {
+    // Reminders at each person's own morning — their hour, their time zone.
+    // Not behind the morning note's switch: somebody who turned the note off
+    // still asked to be reminded. See lib/own-morning.ts.
+    const reminders = await sendOwnMornings();
 
-  // Checked before any work, so it can be stopped from the admin centre
-  // without waiting for a deploy. Said out loud rather than silently skipped.
-  if (!(await isOn("morning-note"))) {
-    return NextResponse.json({ skipped: "the morning note is switched off", reminders });
-  }
-
-  return NextResponse.json({ ok: true, ...(await sendMorningNotes()), reminders });
+    // Checked before any work, so it can be stopped from the admin centre
+    // without waiting for a deploy. Said out loud rather than silently skipped.
+    if (!(await isOn("morning-note"))) {
+      return { skipped: "the morning note is switched off", reminders };
+    }
+    return { ...(await sendMorningNotes()), reminders };
+  });
+  return NextResponse.json({ ok: true, ...result });
 }

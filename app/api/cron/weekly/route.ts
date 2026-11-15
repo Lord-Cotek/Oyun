@@ -5,6 +5,7 @@ import { computePosition } from "@/lib/stage";
 import { MOOD_META } from "@/lib/moods";
 import { sendWeeklyDigest, type DigestSection } from "@/lib/email";
 import { isOn } from "@/lib/flags";
+import { claimWeekly, recordRun, releaseWeekly, weekKey, type Budget } from "@/lib/cron-run";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -28,6 +29,13 @@ export async function GET(req: Request) {
     return NextResponse.json({ skipped: "the weekly email is switched off" });
   }
 
+  const result = await recordRun("weekly", maxDuration, (budget) => runWeekly(budget));
+  return NextResponse.json({ ok: true, ...result });
+}
+
+async function runWeekly(budget: Budget) {
+  const week = weekKey();
+
   const weekAgo = new Date();
   weekAgo.setUTCDate(weekAgo.getUTCDate() - 7);
 
@@ -50,7 +58,7 @@ export async function GET(req: Request) {
 
   let sent = 0;
 
-  for (const journey of journeys) {
+  every: for (const journey of journeys) {
     const position = computePosition(journey.dueDate);
     const stage = position.stage;
     const motherName = journey.owner.name ?? "her";
@@ -72,6 +80,7 @@ export async function GET(req: Request) {
       const u = m.user;
       // A suspended account gets nothing from the app until it is restored.
       if (!u.email || !u.weeklyDigest || u.suspendedAt) continue;
+      if (budget.out()) { budget.stopped(); break every; }
 
       let subject: string;
       let intro: string;
@@ -115,6 +124,9 @@ export async function GET(req: Request) {
         }
       }
 
+      // Claimed before the send, given back if the provider refuses — so a
+      // retry or the second sweep never sends twice and never skips anyone.
+      if (!(await claimWeekly(u.id, week, journey.id))) continue;
       const ok = await sendWeeklyDigest({
         to: u.email,
         name: u.name,
@@ -126,8 +138,9 @@ export async function GET(req: Request) {
         ctaHref: "/journey",
       });
       if (ok) sent += 1;
+      else await releaseWeekly(u.id, week, journey.id);
     }
   }
 
-  return NextResponse.json({ ok: true, journeys: journeys.length, sent });
+  return { journeys: journeys.length, sent };
 }

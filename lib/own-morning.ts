@@ -6,6 +6,7 @@ import { nudgeDueToday } from "@/lib/nudges";
 import { appointmentTitle, timeLabel } from "@/lib/appointments";
 import { appointmentPath } from "@/lib/open-item";
 import { localNow } from "@/lib/morning-send";
+import { isOn } from "@/lib/flags";
 
 /**
  * The reminders that belong to a person's own morning — at their hour, in
@@ -44,6 +45,10 @@ async function once(userId: string, key: string): Promise<boolean> {
 
 export async function sendOwnMornings(now = new Date()) {
   const run = { people: 0, nudges: 0, appointments: 0 };
+  // Each part answers to its own switch in the admin centre.
+  const nudgesOn = await isOn("personal-reminders");
+  const apptsOn = await isOn("appointment-reminders");
+  if (!nudgesOn && !apptsOn) return run;
   const people = await prisma.user.findMany({
     where: { suspendedAt: null, memberships: { some: {} } },
     select: {
@@ -70,7 +75,7 @@ export async function sendOwnMornings(now = new Date()) {
     const theirNoon = new Date(`${dayKey}T12:00:00.000Z`);
 
     // ── Their own reminders ──────────────────────────────────────────────
-    const nudges = await prisma.nudge.findMany({
+    const nudges = !nudgesOn ? [] : await prisma.nudge.findMany({
       where: {
         userId: p.id,
         doneAt: null,
@@ -107,7 +112,7 @@ export async function sendOwnMornings(now = new Date()) {
     const household = p.memberships.filter(
       (m) => (m.role === "MOTHER" || m.role === "PARTNER") && m.journey.status === "ACTIVE",
     );
-    if (household.length === 0) continue;
+    if (household.length === 0 || !apptsOn) continue;
     const appts = await prisma.appointment.findMany({
       where: {
         journeyId: { in: household.map((m) => m.journeyId) },
