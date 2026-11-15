@@ -907,7 +907,7 @@ function Composer({
               }`}
             >
               {tags.length === 0
-                ? "Who's in this?"
+                ? "Tag someone"
                 : tags.length === 1
                   ? `With ${tagOptions.find((o) => o.key === tags[0])?.name ?? "1 person"}`
                   : `With ${tags.length} people`}
@@ -1320,7 +1320,7 @@ function PostItem({
       {/* Who's in it — each name to their own page, where there is one. */}
       {post.tags.length > 0 && (
         <p className="mt-3 font-mono text-[0.68rem] text-muted">
-          <span className="sr-only">Who&rsquo;s in this: </span>
+          <span className="sr-only">Tagged: </span>
           With{" "}
           {post.tags.map((t, i) => (
             <span key={t.key}>
@@ -1426,7 +1426,7 @@ function PostItem({
                 }}
                 className="py-2.5 underline underline-offset-4 hover:text-accent"
               >
-                Who&rsquo;s in this?
+                Tag someone
               </Pressable>
             )}
             {/* A dialog, not two taps: a post carries its photographs and

@@ -19,8 +19,8 @@ export function TaggedPosts({ name, posts }: { name: string; posts: TaggedPost[]
       <p className="eyebrow mb-3 text-muted">In Life</p>
       {posts.length === 0 ? (
         <p className="prose-serif-sm text-muted">
-          Nothing yet. Tag {first} in a Life post — <span className="text-ink">Who&rsquo;s in this?</span> — and it
-          gathers here.
+          Nothing yet. Press <span className="text-ink">Tag someone</span> on a Life post and choose {first} —
+          it gathers here.
         </p>
       ) : (
         <ul className="space-y-2.5">

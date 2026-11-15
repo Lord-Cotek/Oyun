@@ -28,7 +28,7 @@ export function WhoIsIn({
     onChange(selected.includes(key) ? selected.filter((k) => k !== key) : full ? selected : [...selected, key]);
   const told = options.filter((o) => o.hasAccount && selected.includes(o.key)).length;
   return (
-    <div className="rounded-xl border border-border bg-bg/50 p-3" role="group" aria-label="Who's in this?">
+    <div className="rounded-xl border border-border bg-bg/50 p-3" role="group" aria-label="Tag someone">
       <div className="flex flex-wrap gap-1.5">
         {options.map((o) => {
           const blocked = justUs && o.outsideJustUs;
