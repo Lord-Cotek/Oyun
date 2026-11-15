@@ -1,4 +1,5 @@
 import { letterOpenScope } from "@/lib/letters-seal";
+import { MoreFold } from "@/components/ui/MoreFold";
 import type { Metadata } from "next";
 import { surprisesImHelpingWith } from "@/lib/events-db";
 import { HelpingWith } from "@/components/dates/HelpingWith";
@@ -425,16 +426,6 @@ export default async function JourneyPage() {
             </div>
           )}
 
-          <div className="mt-6">
-            <LatestFromFamily posts={familyPosts} greeting={todayLabel} />
-          </div>
-
-          {memories.length > 0 && (
-            <div className="mt-6">
-              <OnThisDay items={memories} />
-            </div>
-          )}
-
           <div className="mt-4">
             <DailyVerse />
           </div>
@@ -512,9 +503,24 @@ export default async function JourneyPage() {
             </div>
           </div>
 
-          <div className="mt-4">
-            <FamilyWorship showCatechism={position.born} streak={worship} />
-          </div>
+          {/* The day's things above; the rest one tap away — see MoreFold. */}
+          <MoreFold
+            storageKey="journey-more"
+            title="More from your journey"
+            hint="The family's latest, this day in years past, and family worship"
+          >
+            <div className="mt-6">
+              <LatestFromFamily posts={familyPosts} greeting={todayLabel} />
+            </div>
+            {memories.length > 0 && (
+              <div className="mt-6">
+                <OnThisDay items={memories} />
+              </div>
+            )}
+            <div className="mt-6">
+              <FamilyWorship showCatechism={position.born} streak={worship} />
+            </div>
+          </MoreFold>
         </main>
       </>
     );
@@ -729,16 +735,6 @@ export default async function JourneyPage() {
           </div>
         )}
 
-        <div className="mt-6">
-          <LatestFromFamily posts={familyPosts} greeting={todayLabel} />
-        </div>
-
-        {memories.length > 0 && (
-          <div className="mt-6">
-            <OnThisDay items={memories} />
-          </div>
-        )}
-
         <div className="mt-6 grid gap-4 lg:grid-cols-[1.4fr_1fr]">
           <div className="space-y-4">
             <Card className="border-accent/30 bg-accent/[0.06] p-8">
@@ -818,9 +814,23 @@ export default async function JourneyPage() {
           </div>
         </div>
 
-        <div className="mt-4">
-          <FamilyWorship showCatechism={position.born} streak={worship} />
-        </div>
+        <MoreFold
+          storageKey="journey-more"
+          title="More from the journey"
+          hint="The family's latest, this day in years past, and family worship"
+        >
+          <div className="mt-6">
+            <LatestFromFamily posts={familyPosts} greeting={todayLabel} />
+          </div>
+          {memories.length > 0 && (
+            <div className="mt-6">
+              <OnThisDay items={memories} />
+            </div>
+          )}
+          <div className="mt-6">
+            <FamilyWorship showCatechism={position.born} streak={worship} />
+          </div>
+        </MoreFold>
       </main>
     </>
   );

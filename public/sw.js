@@ -4,10 +4,19 @@
 // per-user and per-session. Caching them would let one signed-in account see
 // another account's rendered pages. We only cache static, fingerprinted assets
 // (which are identical for every user), and always let pages hit the network.
-const CACHE = "oyun-v2";
+const CACHE = "oyun-v3";
+// The one page kept for offline use: static, the same for everybody, and
+// holding nothing about anyone. Never a real page.
+const OFFLINE = "/offline.html";
 
-self.addEventListener("install", () => {
-  self.skipWaiting();
+self.addEventListener("install", (event) => {
+  event.waitUntil(
+    (async () => {
+      const cache = await caches.open(CACHE);
+      await cache.add(new Request(OFFLINE, { cache: "reload" })).catch(() => {});
+      await self.skipWaiting();
+    })(),
+  );
 });
 
 self.addEventListener("activate", (event) => {
@@ -69,7 +78,15 @@ self.addEventListener("fetch", (event) => {
 
   // Never intercept navigations, HTML, or API calls — always fresh from network.
   const accept = req.headers.get("accept") || "";
-  if (req.mode === "navigate" || accept.includes("text/html")) return;
+  if (req.mode === "navigate") {
+    // Always the network, never a stored page. Only when the network cannot
+    // be reached at all does the static offline page stand in.
+    event.respondWith(
+      fetch(req).catch(async () => (await caches.match(OFFLINE)) || Response.error()),
+    );
+    return;
+  }
+  if (accept.includes("text/html")) return;
   if (url.pathname.startsWith("/api/")) return;
 
   // Only cache static, fingerprinted assets that are identical for every user.

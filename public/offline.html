@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Offline — Oyun</title>
+<style>
+  :root { --bg:#f6f3ec; --ink:#1d1c19; --muted:#6b675f; --border:#ddd7cb; --accent:#C98A3A; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#111210; --ink:#ece9df; --muted:#9a968c; --border:#2a2c27; } }
+  * { box-sizing:border-box; }
+  body { margin:0; min-height:100dvh; display:flex; align-items:center; justify-content:center;
+         background:var(--bg); color:var(--ink); font-family:Georgia,"Times New Roman",serif; padding:24px; }
+  main { max-width:26rem; text-align:center; }
+  .eyebrow { font-family:ui-monospace,Menlo,monospace; font-size:11px; letter-spacing:3px; text-transform:uppercase; color:var(--accent); }
+  h1 { font-weight:400; font-size:28px; margin:14px 0 10px; text-wrap:balance; }
+  p { color:var(--muted); line-height:1.6; font-size:16px; margin:0 0 8px; }
+  .row { margin-top:24px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+  button, a { font-family:ui-monospace,Menlo,monospace; font-size:14px; min-height:44px; padding:0 18px; border-radius:10px;
+              display:inline-flex; align-items:center; text-decoration:none; cursor:pointer; }
+  button { background:var(--accent); color:#111; border:0; }
+  a { color:var(--ink); border:1px solid var(--border); }
+  button:focus-visible, a:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+</style>
+</head>
+<body>
+<main>
+  <p class="eyebrow">Oyun</p>
+  <h1>You&rsquo;re offline just now.</h1>
+  <p>Your family&rsquo;s pages are never kept on this phone &mdash; on purpose, so nobody else who picks it up can read them.</p>
+  <p>They will open again as soon as there is a connection.</p>
+  <div class="row">
+    <button type="button" onclick="location.reload()">Try again</button>
+    <a href="/journey">Go home</a>
+  </div>
+</main>
+<script>window.addEventListener("online", function () { location.reload(); });</script>
+</body>
+</html>

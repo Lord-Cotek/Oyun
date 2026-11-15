@@ -28,7 +28,12 @@ export type IconName =
   | "image"
   | "gift"
   | "grid"
-  | "rows";
+  | "rows"
+  | "share"
+  | "lock"
+  | "paper"
+  | "compass"
+  | "houses";
 
 const PATHS: Record<IconName, string> = {
   // A box with a ribbon over it: the lid, the body, the ribbon down the
@@ -40,6 +45,17 @@ const PATHS: Record<IconName, string> = {
   // drawn as the shapes they produce rather than as arrows or menus.
   grid: "M4 4h7v7H4z M13 4h7v7h-7z M4 13h7v7H4z M13 13h7v7h-7z",
   rows: "M4 5h16v4H4z M4 15h16v4H4z",
+  // Three nodes joined by two lines — the ordinary "sent somewhere else".
+  share:
+    "M18 8a3 3 0 100-6 3 3 0 000 6zM6 15a3 3 0 100-6 3 3 0 000 6zM18 22a3 3 0 100-6 3 3 0 000 6zM8.6 13.5l6.8 4M15.4 6.5l-6.8 4",
+  // A padlock — kept, private, only for the one it is for.
+  lock: "M6 11h12v10H6z M8.5 11V7.5a3.5 3.5 0 0 1 7 0V11 M12 15v2",
+  // A single page with a folded corner — a document, a certificate.
+  paper: "M7 3h7l4 4v14H7z M14 3v4h4 M10 12h5 M10 16h5",
+  // Two roofs side by side — houses that are neighbours.
+  houses: "M2 12l5-4 5 4 M3.5 11v8h7v-8 M12 12l5-4 5 4 M13.5 11v8h7v-8",
+  // Points the way — help, finding your bearings.
+  compass: "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z M15.5 8.5l-2 5-5 2 2-5z",
   image:
     "M4 5h16v14H4z M4 16l4.5-4.5 3.5 3.5 3-3L20 17 M15.4 9.6a1.1 1.1 0 1 0 0-2.2 1.1 1.1 0 0 0 0 2.2",
   book: "M3 5c3-1 6-1 9 1 3-2 6-2 9-1v13c-3-1-6-1-9 1-3-2-6-2-9-1V5z M12 7v13",

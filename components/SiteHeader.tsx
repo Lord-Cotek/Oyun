@@ -149,7 +149,8 @@ export async function SiteHeader({
     "/firsts": "sparkles",
     "/circle": "users",
     "/registry": "gift",
-    "/help": "question",
+    "/shared": "share",
+    "/help": "compass",
     "/settings": "settings",
   };
   const navTabs: Tab[] = links.map((l) => ({
@@ -170,6 +171,13 @@ export async function SiteHeader({
 
   return (
     <>
+    {/* For a keyboard or a screen reader: past the menus, straight to the page. */}
+    <a
+      href="#page"
+      className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[80] focus:rounded-lg focus:bg-accent focus:px-4 focus:py-3 focus:font-mono focus:text-sm focus:text-on-accent"
+    >
+      Skip to the page
+    </a>
     <header className="sticky top-0 z-30 safe-top border-b border-[var(--glass-hairline)] bg-[var(--glass-tint)] shadow-[var(--shadow-1)] backdrop-blur-xl backdrop-saturate-150">
       <div className="mx-auto flex h-16 max-w-shell items-center justify-between gap-2 px-4 sm:px-6">
         <div className="flex min-w-0 items-center gap-2 sm:gap-3">
@@ -213,6 +221,8 @@ export async function SiteHeader({
       </div>
     </header>
 
+    {/* Where "Skip to the page" lands: just past the header. */}
+    <span id="page" tabIndex={-1} className="block outline-none" />
     {/* Primary nav on phones & tablets — hidden on lg (top nav takes over) */}
     <TabBar tabs={tabs} more={moreItems} />
     </>

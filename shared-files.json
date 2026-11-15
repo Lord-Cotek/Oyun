@@ -246,6 +246,7 @@
     "app/admintc/health/page.tsx",
     "docs/backup-and-restore.md",
     "components/ui/EditInPlace.tsx",
+    "components/ui/MoreFold.tsx",
     "app/api/unsubscribe/route.ts",
     "app/unsubscribe/actions.ts",
     "app/unsubscribe/page.tsx",

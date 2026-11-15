@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { ErrorNav } from "@/components/ErrorNav";
 import { reportError } from "@/lib/report-error";
 import { Button } from "@/components/ui/Button";
 import { Eyebrow } from "@/components/ui/Eyebrow";
@@ -51,6 +52,7 @@ export default function Error({
             Go home
           </Button>
         </div>
+        <ErrorNav />
       </div>
     </main>
   );

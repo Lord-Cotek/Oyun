@@ -45,7 +45,10 @@ export function JourneySwitcher({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex max-w-[9rem] items-center gap-1 rounded-lg border border-border bg-surface px-2.5 py-1.5 font-mono text-xs text-ink transition-colors hover:border-accent sm:max-w-[12rem]"
+        aria-expanded={open}
+        aria-haspopup="menu"
+        aria-label={`Switch journey — now ${active?.label ?? "Journey"}`}
+        className="flex min-h-11 max-w-[9rem] items-center gap-1 rounded-lg border border-border bg-surface px-2.5 py-1.5 font-mono text-xs text-ink transition-colors hover:border-accent sm:max-w-[12rem]"
       >
         <span className="truncate">{active?.label ?? "Journey"}</span>
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>

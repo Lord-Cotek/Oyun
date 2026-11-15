@@ -72,7 +72,7 @@ export function NotificationBell({ initialUnread }: { initialUnread: number }) {
         type="button"
         onClick={toggle}
         aria-label="Notifications"
-        className="relative inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-surface text-muted transition-colors hover:border-accent hover:text-accent"
+        className="relative inline-flex h-11 w-11 items-center justify-center rounded-full border border-border bg-surface text-muted transition-colors hover:border-accent hover:text-accent"
       >
         <BellIcon />
         {unread > 0 && (
