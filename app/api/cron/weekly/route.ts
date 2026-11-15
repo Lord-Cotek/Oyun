@@ -43,8 +43,9 @@ async function runWeekly(budget: Budget) {
   const journeys = await prisma.journey.findMany({
     // Not a family after a loss. "This week on your journey — Week 31 … one
     // thing to do" is the last email a bereaved mother should open, and the
-    // daily job already holds back for the same reason.
-    where: { status: "ACTIVE" },
+    // daily job already holds back for the same reason. Nor one completed at
+    // the second birthday, which would otherwise get "month 24" every week.
+    where: { status: "ACTIVE", completedAt: null },
     include: {
       owner: { select: { id: true, name: true } },
       memberships: {

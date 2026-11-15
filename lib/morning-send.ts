@@ -92,7 +92,7 @@ export async function sendMorningNotes(now = new Date()): Promise<MorningRun> {
         orderBy: { createdAt: "asc" },
         select: {
           role: true,
-          journey: { select: { dueDate: true, status: true, ownerId: true } },
+          journey: { select: { dueDate: true, status: true, ownerId: true, completedAt: true } },
         },
       },
     },
@@ -109,10 +109,13 @@ export async function sendMorningNotes(now = new Date()): Promise<MorningRun> {
     // getActiveMembership makes. It used to take whichever row came back
     // first, so a mother who was also in her sister's circle could wake to
     // her sister's note instead of her own.
+    // A journey completed at the second birthday has said its last morning
+    // word; somebody still walking another one hears about that one instead.
+    const live = person.memberships.filter((m) => m.journey && !m.journey.completedAt);
     const membership =
-      person.memberships.find((m) => m.journey?.ownerId === person.id) ??
-      person.memberships.find((m) => m.role === "PARTNER") ??
-      person.memberships[0];
+      live.find((m) => m.journey?.ownerId === person.id) ??
+      live.find((m) => m.role === "PARTNER") ??
+      live[0];
     if (!membership?.journey) {
       run.silent += 1;
       continue;

@@ -240,6 +240,7 @@
     "app/api/push/subscribe/route.ts",
     "app/api/blob/upload/route.ts",
     "lib/health.ts",
+    "lib/handover-bundle.ts",
     "lib/report-error.ts",
     "app/api/errors/route.ts",
     "app/global-error.tsx",

@@ -281,6 +281,11 @@ model Journey {
   /// The due date as it was before the birth was recorded, so "twelve days
   /// early" is never lost when `dueDate` becomes the day they arrived.
   originalDueDate DateTime?
+  /// The child's second birthday: the journey is complete. The morning note
+  /// and weekly email stop (month 24 would otherwise repeat for ever); the
+  /// journey itself stays readable for good. Not a status — every non-ACTIVE
+  /// status is read as a loss.
+  completedAt     DateTime?
   babyName        String?
   babyCount       Int           @default(1)
   status          JourneyStatus @default(ACTIVE)
@@ -320,6 +325,7 @@ model Journey {
   postShares     PostShare[]
   shareHellos    ShareHello[]
   joinRequests   JoinRequest[]
+  handovers      Handover[]
   /// Who sees how she is — her check-in mood: "HOUSEHOLD" (the one walking
   /// beside her), "CIRCLE" (them and the wider circle) or "ME" (nobody but
   /// her). Hers to choose on the Care page. The Care page always promised
@@ -1717,4 +1723,30 @@ model ErrorEvent {
   digest  String?
 
   @@index([at])
+}
+
+/// A pass to carry the family on to Ìdílé.
+///
+/// The link holds a random token; only its hash is kept here, so a copy of
+/// the database opens nothing. Ìdílé reads the family from Oyun server to
+/// server with HANDOVER_SECRET — what goes across never travels in the link —
+/// and only for an account whose confirmed email is `forEmail`. One use,
+/// seven days.
+model Handover {
+  id            String    @id @default(cuid())
+  journeyId     String
+  journey       Journey   @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  createdById   String
+  tokenHash     String    @unique
+  forEmail      String
+  withPartner   Boolean   @default(false)
+  withLetters   Boolean   @default(false)
+  withFirsts    Boolean   @default(false)
+  /// Members of the circle she chose to invite along.
+  circleUserIds String[]  @default([])
+  expiresAt     DateTime
+  claimedAt     DateTime?
+  createdAt     DateTime  @default(now())
+
+  @@index([journeyId])
 }

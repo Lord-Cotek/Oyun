@@ -251,14 +251,12 @@ export default async function JourneyPage() {
     const showBirth =
       birthRecorded === 0 && (position.born || position.daysToGo <= 21);
 
-    // Once the little one has arrived, offer to continue in Ìdílé — the sibling
-    // app for family discipleship. Loose link only (no shared data); pre-fills
-    // the child's name + birthday. Shown only when NEXT_PUBLIC_IDILE_URL is set.
-    const idileUrl = process.env.NEXT_PUBLIC_IDILE_URL;
-    const idileHandoff =
-      idileUrl && position.born
-        ? `${idileUrl}/welcome?name=${encodeURIComponent(journey.babyName ?? "")}&born=${encodeURIComponent(journey.dueDate.toISOString().slice(0, 10))}`
-        : null;
+    // Once the little one has arrived, offer to carry the family on to Ìdílé
+    // — the sibling app for family discipleship. The handover page decides
+    // how (a full handover when both apps share HANDOVER_SECRET, otherwise
+    // the plain link). Shown only when NEXT_PUBLIC_IDILE_URL is set.
+    const idileHandoff = process.env.NEXT_PUBLIC_IDILE_URL && position.born ? "/handover" : null;
+    const complete = !!journey.completedAt;
 
     // Warm hero details.
     const motherName = journey.owner.name?.trim().split(/\s+/)[0] ?? null;
@@ -270,7 +268,9 @@ export default async function JourneyPage() {
       ? (position.month ?? 0) / 24
       : ((position.week ?? 0) + (position.dayInWeek ?? 0) / 7) / 40;
     const months = position.month ?? 0;
-    const heroSubtitle: React.ReactNode = position.born ? (
+    const heroSubtitle: React.ReactNode = complete ? (
+      `Two years. The journey is complete — and everything here stays for you to read, always.`
+    ) : position.born ? (
       `${bw.subject} — ${months} month${months === 1 ? "" : "s"} into the world. Welcome.`
     ) : sizePhrase ? (
       <>
@@ -510,21 +510,19 @@ export default async function JourneyPage() {
 
               {idileHandoff && (
                 <Card className="border-accent/30 bg-accent/[0.06]">
-                  <Eyebrow className="mb-3">As they grow</Eyebrow>
+                  <Eyebrow className="mb-3">{complete ? "The next chapter" : "As they grow"}</Eyebrow>
                   <p className="mb-4 prose-serif-xs text-muted">
+                    {complete
+                      ? "Oyun's road ends at the second birthday. "
+                      : ""}
                     Ìdílé — Oyun&rsquo;s sibling — carries the family on through
                     childhood: family worship, catechism, Scripture memory, and
                     shepherding the heart. Bring{" "}
-                    {journey.babyName ?? bw.subjectLower} home to start.
+                    {journey.babyName ?? bw.subjectLower} home, with their
+                    firsts and your letters.
                   </p>
-                  <Button
-                    href={idileHandoff}
-                    variant="ghost"
-                    className="w-full"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Continue in Ìdílé
+                  <Button href={idileHandoff} variant={complete ? "primary" : "ghost"} className="w-full">
+                    Bring the family to Ìdílé
                   </Button>
                 </Card>
               )}

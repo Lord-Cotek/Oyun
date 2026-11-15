@@ -78,6 +78,12 @@ export const FLAGS: FlagSpec[] = [
     fallback: true,
   },
   {
+    key: "second-birthday",
+    label: "Second birthday",
+    what: "Marks a journey complete on the child's second birthday and sends the two who keep it one warm word.",
+    fallback: true,
+  },
+  {
     key: "letter-openings",
     label: "Letters opening",
     what: "Tells her and her partner the morning a sealed letter opens.",
