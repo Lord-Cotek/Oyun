@@ -97,6 +97,8 @@ export async function sendOnePass(broadcastId: string): Promise<SendPass> {
     if (!p.email) continue;
     const ok = await sendBroadcastEmail({
       to: p.email,
+      // A notice to everyone is not optional; one to those who opted in is.
+      userId: audience === "ALL" ? undefined : p.id,
       name: p.name,
       subject: b.subject,
       body: b.body,

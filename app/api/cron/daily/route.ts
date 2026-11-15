@@ -171,6 +171,7 @@ async function runDaily(budget: Budget) {
       ) {
         await sendNotificationEmail({
           to: m.user.email,
+          userId: m.user.id,
           name: m.user.name,
           title,
           body,

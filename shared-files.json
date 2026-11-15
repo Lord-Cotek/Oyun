@@ -235,6 +235,11 @@
     "app/sign-in/actions.ts",
     "scripts/db-sync.mjs",
     "lib/cron-run.ts",
+    "lib/unsubscribe.ts",
+    "app/api/unsubscribe/route.ts",
+    "app/unsubscribe/actions.ts",
+    "app/unsubscribe/page.tsx",
+    "app/unsubscribe/UnsubscribeButton.tsx",
     ".github/workflows/checks.yml",
     "lib/install-prompt.ts",
     {

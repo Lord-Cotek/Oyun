@@ -129,6 +129,7 @@ async function runWeekly(budget: Budget) {
       if (!(await claimWeekly(u.id, week, journey.id))) continue;
       const ok = await sendWeeklyDigest({
         to: u.email,
+        userId: u.id,
         name: u.name,
         subject,
         intro,

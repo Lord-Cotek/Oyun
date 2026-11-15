@@ -88,6 +88,7 @@ export async function notify(input: NotifyInput): Promise<void> {
     if (input.email && user?.email && user.notifyByEmail) {
       await sendNotificationEmail({
         to: user.email,
+        userId: input.userId,
         name: user.name,
         title: input.title,
         body: input.body ?? "",

@@ -1,4 +1,5 @@
 import { type Role } from "@prisma/client";
+import { unsubHeaders, unsubPageUrl, type UnsubKind } from "@/lib/unsubscribe";
 import { autolinkHtml } from "@/lib/linkify";
 import { PROMISE_SHORT } from "@/lib/promise";
 import { LINK_META, cleanUrl, linkLabel, toLinkKind, type LinkLike } from "@/lib/invite-links";
@@ -57,12 +58,34 @@ async function sendEmail(opts: {
   text: string;
   /** Which template this is. Named in code — never anything a user typed. */
   kind: string;
+  /**
+   * For an optional email: whose it is and which switch it answers to. Adds
+   * the one-click headers and a line at the foot — see lib/unsubscribe.ts.
+   */
+  unsubscribe?: { userId: string; kind: UnsubKind };
 }): Promise<boolean> {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
     console.warn("[email] RESEND_API_KEY not set — skipping send.");
     await recordDelivery(opts.kind, opts.to, false, "no mail provider configured");
     return false;
+  }
+  let html = opts.html;
+  let text = opts.text;
+  let headers: Record<string, string> | undefined;
+  if (opts.unsubscribe) {
+    const { userId, kind } = opts.unsubscribe;
+    const page = unsubPageUrl(SITE_URL, userId, kind);
+    headers = unsubHeaders(SITE_URL, userId, kind);
+    const what = kind === "weekly" ? "the weekly email" : "emails like this";
+    const foot = `<div style="text-align:center;font-size:11px;line-height:1.6;color:#8A9099;padding:16px 0 0;">Not wanted? <a href="${page}" style="color:#8A9099;text-decoration:underline;">Stop ${what}</a>.</div>`;
+    // Inside the outer band, under the card.
+    const at = html.lastIndexOf("</div>");
+    html = at >= 0 ? html.slice(0, at) + foot + html.slice(at) : html + foot;
+    text = `${text}
+
+—
+Stop ${what}: ${page}`;
   }
   try {
     const res = await fetch(RESEND_ENDPOINT, {
@@ -80,8 +103,9 @@ async function sendEmail(opts: {
         from: fromAddress(),
         to: [opts.to],
         subject: opts.subject,
-        html: opts.html,
-        text: opts.text,
+        html,
+        text,
+        ...(headers ? { headers } : {}),
       }),
     });
     if (!res.ok) {
@@ -289,12 +313,15 @@ export async function sendInviteEmail({
 
 export async function sendNotificationEmail({
   to,
+  userId,
   name,
   title,
   body,
   href,
 }: {
   to: string;
+  /** Whose email this is, so it can carry its own unsubscribe link. */
+  userId?: string;
   name?: string | null;
   title: string;
   body?: string;
@@ -310,7 +337,7 @@ export async function sendNotificationEmail({
     </p>
   `);
   const text = `${title}\n${body ?? ""}\n\nOpen Oyun: ${link}`;
-  return sendEmail({ to, subject: title, html, text, kind: "notification" });
+  return sendEmail({ to, subject: title, html, text, kind: "notification", unsubscribe: userId ? { userId, kind: "email" } : undefined });
 }
 
 export interface DigestSection {
@@ -320,6 +347,7 @@ export interface DigestSection {
 
 export async function sendWeeklyDigest({
   to,
+  userId,
   name,
   subject,
   intro,
@@ -329,6 +357,7 @@ export async function sendWeeklyDigest({
   ctaHref,
 }: {
   to: string;
+  userId?: string;
   name?: string | null;
   subject: string;
   intro: string;
@@ -378,7 +407,7 @@ export async function sendWeeklyDigest({
     `\n${ctaLabel}: ${link}`,
   ].join("\n");
 
-  return sendEmail({ to, subject, html, text, kind: "weekly-digest" });
+  return sendEmail({ to, subject, html, text, kind: "weekly-digest", unsubscribe: userId ? { userId, kind: "weekly" } : undefined });
 }
 
 function escapeHtml(s: string): string {
@@ -748,11 +777,15 @@ export async function sendExportLinkEmail({
  */
 export async function sendBroadcastEmail({
   to,
+  userId,
   name,
   subject,
   body,
 }: {
   to: string;
+  /** Set only for an announcement to those who opted in; one sent to
+   *  everyone (a service notice) carries no unsubscribe. */
+  userId?: string;
   name: string | null;
   subject: string;
   body: string;
@@ -781,7 +814,7 @@ export async function sendBroadcastEmail({
     .filter((s, i) => !(i === 0 && !s))
     .join("\n");
 
-  return sendEmail({ to, subject, html, text, kind: "broadcast" });
+  return sendEmail({ to, subject, html, text, kind: "broadcast", unsubscribe: userId ? { userId, kind: "email" } : undefined });
 }
 
 

@@ -98,6 +98,7 @@ export async function sendOwnMornings(now = new Date()) {
       if (p.email && p.notifyByEmail && shouldInterrupt("nudge", p)) {
         await sendNotificationEmail({
           to: p.email,
+          userId: p.id,
           name: p.name,
           title: n.text,
           body: "You asked to be reminded of this today.",
