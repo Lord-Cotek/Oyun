@@ -234,6 +234,7 @@
     "components/settings/ConfirmEmailNote.tsx",
     "app/sign-in/actions.ts",
     "scripts/db-sync.mjs",
+    ".github/workflows/checks.yml",
     "lib/install-prompt.ts",
     {
       "path": "components/InstallButton.tsx",

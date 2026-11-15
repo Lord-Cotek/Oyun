@@ -5,7 +5,8 @@
   "description": "Oyun \u2014 a Christian companion for the whole journey, guided by Agbebi.",
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && node scripts/db-sync.mjs scripts/move-classes.mjs && next build",
+    "build": "prisma generate && npm run -s verify && tsc --noEmit && node scripts/db-sync.mjs scripts/move-classes.mjs && next build",
+    "verify": "npm run -s verify:scripture && npm run -s verify:links && npm run -s verify:admin && npm run -s verify:surprise",
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
