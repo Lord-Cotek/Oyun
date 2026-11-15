@@ -5,6 +5,8 @@ import { auth } from "@/lib/auth";
 import { getActiveMembership } from "@/lib/data";
 import { ROLE_LABEL, isHousehold } from "@/lib/roles";
 import { NUDGE_CAP } from "@/lib/nudges";
+import { HANDOVER_TTL_DAYS } from "@/lib/handover-bundle";
+import { yorubaOffered } from "@/lib/lang";
 import { SiteHeader } from "@/components/SiteHeader";
 import { PageHero } from "@/components/ui/PageHero";
 import { Card } from "@/components/ui/Card";
@@ -75,6 +77,7 @@ export default async function HelpPage() {
   const home = isHousehold(active.role);
   const isMother = active.role === "MOTHER";
   const inLoss = active.journey.status === "LOSS";
+  const offersYoruba = await yorubaOffered();
 
   return (
     <>
@@ -133,8 +136,8 @@ export default async function HelpPage() {
             )}
             {home && !inLoss && (
               <Room name="Nursery" href="/child">
-                Each child&rsquo;s profile — their name, their birth day, a
-                photo. Both parents keep it.
+                A page for each child — their exact age, their firsts with
+                photos, and the letters you may read. Both parents keep it.
               </Room>
             )}
             {home && !inLoss && (
@@ -145,9 +148,9 @@ export default async function HelpPage() {
             )}
             {isMother && !inLoss && (
               <Room name="Care" href="/care" aside="Hers.">
-                How her heart is today, and her own letters. He sees how she is
-                on his home page when she shares a check-in; he does not write
-                here.
+                How her heart is today, and her own letters. She chooses who
+                sees how she is: her partner (the usual), the circle too, or
+                nobody. He does not write here.
               </Room>
             )}
             {isMother && (
@@ -156,8 +159,8 @@ export default async function HelpPage() {
               </Room>
             )}
             <Room name="Settings" href="/settings">
-              Your name, your email, whether email reaches you, and installing
-              the app to your phone.
+              Your name, your email, whether email reaches you, installing
+              the app to your phone{offersYoruba ? ", and English or Yorùbá" : ""}.
             </Room>
           </div>
         </Card>
@@ -325,8 +328,88 @@ export default async function HelpPage() {
             No. Turn email off in{" "}
             <Link href="/settings" className="text-accent underline underline-offset-4">Settings</Link>{" "}
             and you still get every notification in the app and on your phone.
-            Nothing is lost, only the inbox is spared.
+            Nothing is lost, only the inbox is spared. Every email also has an{" "}
+            <span className="text-ink">Unsubscribe</span> link at the bottom
+            that works in one tap.
           </Q>
+
+          <Q q="Can I sign in without my password?">
+            Yes. On the sign-in page, press{" "}
+            <span className="text-ink">Email me a code instead</span>, and type
+            the six numbers that arrive. The code works for ten minutes. Your
+            password still works as it always has.
+          </Q>
+
+          <Q q="Can I change something I have written?">
+            Yes. Press <span className="text-ink">Edit</span> beside your own
+            letter, prayer request, check-in or reminder, change the words and
+            save. The date, the photos and every reply stay as they were. Only
+            the person who wrote something can change its words.
+          </Q>
+
+          <Q q="Can I download our photos?">
+            Yes. Open{" "}
+            <Link href="/life?view=photos" className="text-accent underline underline-offset-4">Life &rarr; Photos</Link>
+            , choose a year at the top, and press{" "}
+            <span className="text-ink">Download</span>. You get one file with
+            every photo of that year you can see, each named by the day it was
+            shared. A big year comes in a few parts.
+          </Q>
+
+          {isMother && !inLoss && (
+            <Q q="Who sees how I am?">
+              You decide, on{" "}
+              <Link href="/care" className="text-accent underline underline-offset-4">Care</Link>
+              : your partner only (the usual), your partner and the circle, or
+              nobody but you. The weekly email follows the same choice, and
+              only ever mentions this week&rsquo;s check-in.
+            </Q>
+          )}
+
+          {home && !inLoss && (
+            <>
+              <Q q="How do we record the birth?">
+                From three weeks before the due date, your journey page asks
+                whether the little one has arrived. Either of you can answer,
+                once: the day and their names. The date you were first given
+                is kept, so each child&rsquo;s page can say how early or late
+                they came. Then the page offers to announce the birth to the
+                circle, with a verse if you like.
+              </Q>
+
+              <Q q="Can we make a book of the year?">
+                Yes. In <Link href="/life" className="text-accent underline underline-offset-4">Life</Link>,
+                choose a year and press{" "}
+                <span className="text-ink">Make it into a book to keep</span>{" "}
+                (it names the year):
+                a cover, each month in order with its photos, the year&rsquo;s
+                firsts, and a closing verse. Press{" "}
+                <span className="text-ink">Print, or save as PDF</span> to
+                print it at home or send it to a photo printer.
+              </Q>
+
+              <Q q="What happens at the second birthday?">
+                Oyun walks with you to the second birthday. On the day, the two
+                of you get one word of celebration and the journey is marked
+                complete: the morning note and the weekly email stop, and
+                everything you wrote stays here to read, always.
+              </Q>
+            </>
+          )}
+
+          {isMother && !inLoss && (
+            <Q q="How do we carry on in Ìdílé?">
+              Once the little one has arrived, your journey page offers{" "}
+              <span className="text-ink">Bring the family to Ìdílé</span>.
+              Choose what comes with you — the children with their real
+              birthdays, an invitation for your partner, the firsts with their
+              photos, your own letters (a sealed one stays sealed until its
+              day), and anyone from the circle you want to invite — then sign
+              in to Ìdílé with the email you chose. The link works once, for{" "}
+              {HANDOVER_TTL_DAYS} days. Letters others wrote stay here, where
+              they can always be read. Nothing in Oyun is changed or removed.
+            </Q>
+          )}
 
           <Q q="What if the worst happens?">
             The journey can be marked as loss, and the whole app changes. It
@@ -352,7 +435,8 @@ export default async function HelpPage() {
             in any browser with no app at all, and the same records again as
             data if you ever want them somewhere else. Photographs are linked
             rather than packed in — a family&rsquo;s pictures run to hundreds of
-            megabytes — so save those down separately if you want them for good.
+            megabytes — so download them a year at a time from Life &rarr; Photos
+            if you want them for good.
             What comes out is exactly what you can see in the app: a husband or
             partner gets the letters, the care journal and the appointments;
             someone in the circle gets life and prayer and what they themselves
