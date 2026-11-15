@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Card } from "@/components/ui/Card";
 import { Avatar } from "@/components/ui/Avatar";
 import { Icon } from "@/components/ui/Icon";
@@ -42,7 +43,9 @@ export function ChildCard({ child }: { child: Child }) {
         <Avatar name={child.name} photoUrl={child.photoUrl} tone="accent2" size={64} />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <p className="font-serif text-2xl leading-tight text-ink">{child.name}</p>
+            <Link href={`/child/${child.id}`} className="font-serif text-2xl leading-tight text-ink underline-offset-4 hover:text-accent hover:underline">
+              {child.name}
+            </Link>
             {onTheWay && (
               <span className="rounded-full border border-accent/40 bg-accent/10 px-2 py-0.5 font-mono text-[0.6rem] uppercase tracking-widest text-accent">
                 On the way

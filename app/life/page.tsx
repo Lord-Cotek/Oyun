@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { PhotoGrid } from "@/components/feed/PhotoGrid";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -38,7 +40,7 @@ export const metadata: Metadata = {
 export default async function LifePage({
   searchParams,
 }: {
-  searchParams: { year?: string };
+  searchParams: { year?: string; view?: string };
 }) {
   const session = await auth();
   if (!session?.user?.id) redirect("/sign-in?callbackUrl=/life");
@@ -50,6 +52,9 @@ export default async function LifePage({
   const asked = Number(searchParams.year);
   const year =
     Number.isInteger(asked) && asked > 1900 && asked < 2200 ? asked : undefined;
+  // "Photos" shows every picture from the entries this person can see, as a
+  // grid; the diary is the default. Same query, so the same rules.
+  const photos = searchParams.view === "photos";
 
   // ── Why "Our story so far" is the household's alone ───────────────────
   // Six numbers, and only one of them — the diary count — was ever scoped to
@@ -65,7 +70,7 @@ export default async function LifePage({
   const ours = isHousehold(active.role);
 
   const [posts, years, story, circle] = await Promise.all([
-    loadFeed(active.journey.id, session.user.id, active.role, 40, year),
+    loadFeed(active.journey.id, session.user.id, active.role, photos ? 200 : 40, year),
     diaryYears(active.journey.id, active.role),
     ours
       ? storySoFar(active.journey.id, active.journey.createdAt, active.role)
@@ -112,6 +117,25 @@ export default async function LifePage({
 
         <YearStrip years={years} active={year} />
 
+        <div className="mt-4 flex gap-2" role="tablist" aria-label="How to see it">
+          {[
+            { label: "Diary", on: !photos, href: year ? `/life?year=${year}` : "/life" },
+            { label: "Photos", on: photos, href: year ? `/life?year=${year}&view=photos` : "/life?view=photos" },
+          ].map((t) => (
+            <Link
+              key={t.label}
+              href={t.href}
+              role="tab"
+              aria-selected={t.on}
+              className={`inline-flex min-h-11 items-center rounded-full border px-4 font-mono text-xs transition-colors ${
+                t.on ? "border-accent bg-accent/10 text-accent" : "border-border text-muted hover:text-ink"
+              }`}
+            >
+              {t.label}
+            </Link>
+          ))}
+        </div>
+
         {story?.worthTelling && (
           <div className="mt-5 max-w-2xl">
             <StorySoFar story={story} />
@@ -132,6 +156,13 @@ export default async function LifePage({
               )}
             </p>
           )}
+          {photos ? (
+            <PhotoGrid
+              posts={posts
+                .filter((p) => p.media.length > 0)
+                .map((p) => ({ id: p.id, body: p.body, author: p.author, when: p.when, media: p.media }))}
+            />
+          ) : (
           <Feed
             posts={posts}
             onCreate={createPost}
@@ -155,6 +186,7 @@ export default async function LifePage({
             canKeepToHousehold={seesHouseholdOnly(active.role)}
             composerPlaceholder="Share something with your circle…"
           />
+          )}
         </div>
       </main>
     </>

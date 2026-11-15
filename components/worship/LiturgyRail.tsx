@@ -23,6 +23,9 @@ export type Station = {
   title?: string; // a serif line (a question to talk over, a hymn, a catechism Q)
   answer?: string; // catechism answer
   body?: string; // a mono paragraph (reflection, prayer prompt)
+  /** This family's own: their open requests, this week's days — named, so
+   *  worship meets the week they are actually living. */
+  points?: { heading: string; items: string[] };
   note?: string; // small muted footnote
   author?: string; // attribution, e.g. a hymn's author + year
   lyrics?: string[]; // full verses, revealed behind a "Full lyrics" toggle
@@ -170,6 +173,19 @@ export function LiturgyRail({
                       >
                         {s.body}
                       </p>
+                    )}
+                    {s.points && s.points.items.length > 0 && (
+                      <div className="mt-4 rounded-xl border border-border bg-bg/50 p-4">
+                        <p className="eyebrow mb-2 text-muted">{s.points.heading}</p>
+                        <ul className="space-y-1.5">
+                          {s.points.items.map((it, i) => (
+                            <li key={i} className="flex gap-2 prose-serif-sm text-ink">
+                              <span aria-hidden className="text-accent">·</span>
+                              <span>{it}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
                     )}
                     {s.note && (
                       <p className="mt-3 font-mono text-[0.7rem] leading-relaxed text-muted">

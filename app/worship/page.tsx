@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { appointmentTitle } from "@/lib/appointments";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -116,6 +117,35 @@ export default async function WorshipPage({
    * that on their own rather than trusting this page to hide a button.
    */
   const keeper = isHousehold(active.role);
+
+  // This family's own week, for "Pray together": the open prayer requests
+  // everyone here can already see on the prayer wall, and — for the two of
+  // them only, because a scan date is health information — the next seven
+  // days' appointments.
+  const weekAhead = new Date(Date.now() + 7 * 86_400_000);
+  const [openRequests, weekAppointments] = await Promise.all([
+    prisma.prayerRequest.findMany({
+      where: { journeyId: active.journey.id, answeredAt: null },
+      orderBy: { createdAt: "desc" },
+      take: 4,
+      select: { title: true },
+    }),
+    // Never after a loss: a leftover scan date is the last thing to name here.
+    keeper && active.journey.status === "ACTIVE"
+      ? prisma.appointment.findMany({
+          where: { journeyId: active.journey.id, cancelledAt: null, at: { gte: new Date(), lte: weekAhead } },
+          orderBy: { at: "asc" },
+          take: 3,
+          select: { kind: true, title: true, at: true },
+        })
+      : Promise.resolve([]),
+  ]);
+  const prayPoints = [
+    ...openRequests.map((r) => r.title),
+    ...weekAppointments.map(
+      (a) => `${appointmentTitle(a.kind, a.title)} — ${a.at.toLocaleDateString("en-GB", { weekday: "long", timeZone: "UTC" })}`,
+    ),
+  ];
   // Only used to address the circle warmly. A journey whose owner never set a
   // name gets a phrase rather than a blank or a guess.
   const motherName = active.journey.owner?.name?.trim() || "the family";
@@ -344,6 +374,7 @@ export default async function WorshipPage({
       icon: "flame",
       eyebrow: "Pray together",
       body: liturgy.pray,
+      points: prayPoints.length ? { heading: "And today, for this family", items: prayPoints } : undefined,
     },
     {
       id: "sing",
