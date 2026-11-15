@@ -7,6 +7,9 @@ import { Eyebrow } from "@/components/ui/Eyebrow";
 import { OyunMark } from "@/components/ui/OyunMark";
 import { Verse } from "@/components/ui/Verse";
 import { SignInForm } from "@/components/SignInForm";
+import { LanguageSwitch } from "@/components/LanguageSwitch";
+import { getLang, yorubaOffered } from "@/lib/lang";
+import { sayIn, wordsFor } from "@/lib/i18n";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
 export const metadata: Metadata = {
@@ -25,6 +28,9 @@ export default async function SignInPage({
 
   const justReset = searchParams.reset === "1";
   const invited = !!searchParams.callbackUrl?.includes("invite=");
+  const [lang, offered] = await Promise.all([getLang(), yorubaOffered()]);
+  const words = wordsFor(lang);
+  const w = (en: string) => sayIn(words, en);
 
   return (
     <main className="md:grid md:min-h-[100dvh] md:grid-cols-2">
@@ -56,15 +62,15 @@ export default async function SignInPage({
             <span className="font-serif text-xl text-ink">Oyun</span>
           </Link>
 
-          <div className="rounded-2xl border border-border bg-surface p-8">
-            <Eyebrow className="mb-4">Enter Oyun</Eyebrow>
+          <div className="rounded-2xl border border-border bg-surface p-8" lang={lang === "yo" ? "yo" : undefined}>
+            <Eyebrow className="mb-4">{w("Enter Oyun")}</Eyebrow>
             <h1 className="font-serif text-3xl leading-snug text-ink">
-              {invited ? "Sign in to join." : "Welcome back."}
+              {invited ? w("Sign in to join.") : w("Welcome back.")}
             </h1>
             <p className="mt-3 prose-serif-sm text-muted">
               {invited
-                ? "You already have an account with this email — sign in, and you'll accept the invitation next."
-                : "Sign in with your email and password to continue your journey."}
+                ? w("You already have an account with this email — sign in, and you'll accept the invitation next.")
+                : w("Sign in with your email and password to continue your journey.")}
             </p>
             {justReset && (
               <p className="prose-serif-xs mt-4 rounded-lg border border-positive/40 bg-positive/10 px-3 py-2 text-positive">
@@ -74,8 +80,10 @@ export default async function SignInPage({
             <SignInForm
               callbackUrl={searchParams.callbackUrl}
               initialEmail={searchParams.email}
+              words={words}
             />
           </div>
+          {offered && <LanguageSwitch current={lang} className="mt-5 justify-center" />}
 
           <p className="prose-serif-xs mt-6 text-muted md:hidden">
             {PROMISE_SHORT}

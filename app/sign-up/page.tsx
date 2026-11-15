@@ -7,6 +7,9 @@ import { Eyebrow } from "@/components/ui/Eyebrow";
 import { OyunMark } from "@/components/ui/OyunMark";
 import { Verse } from "@/components/ui/Verse";
 import { SignUpForm } from "@/components/SignUpForm";
+import { LanguageSwitch } from "@/components/LanguageSwitch";
+import { getLang, yorubaOffered } from "@/lib/lang";
+import { sayIn, wordsFor } from "@/lib/i18n";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
 export const metadata: Metadata = {
@@ -24,6 +27,9 @@ export default async function SignUpPage({
   if (session?.user) redirect("/journey");
 
   const invited = !!searchParams.callbackUrl?.includes("invite=");
+  const [lang, offered] = await Promise.all([getLang(), yorubaOffered()]);
+  const words = wordsFor(lang);
+  const w = (en: string) => sayIn(words, en);
 
   return (
     <main className="md:grid md:min-h-[100dvh] md:grid-cols-2">
@@ -55,23 +61,25 @@ export default async function SignUpPage({
             <span className="font-serif text-xl text-ink">Oyun</span>
           </Link>
 
-          <div className="rounded-2xl border border-border bg-surface p-8">
+          <div className="rounded-2xl border border-border bg-surface p-8" lang={lang === "yo" ? "yo" : undefined}>
             <Eyebrow className="mb-4">
-              {invited ? "You've been invited" : "Begin the journey"}
+              {invited ? w("You've been invited") : w("Begin the journey")}
             </Eyebrow>
             <h1 className="font-serif text-3xl leading-snug text-ink">
-              {invited ? "Create your account to join." : "Create your account."}
+              {invited ? w("Create your account to join.") : w("Create your account.")}
             </h1>
             <p className="mt-3 prose-serif-sm text-muted">
               {invited
-                ? "Set a name and password below. Once you're in, you'll accept the invitation and step into how to support and pray for her."
-                : "We'll send you a warm welcome, then set you where you are on the journey. No account is ever a promise of outcome — only a companion for the road."}
+                ? w("Set a name and password below. Once you're in, you'll accept the invitation and step into how to support and pray for her.")
+                : w("We'll send you a warm welcome, then set you where you are on the journey. No account is ever a promise of outcome — only a companion for the road.")}
             </p>
             <SignUpForm
               callbackUrl={searchParams.callbackUrl}
               initialEmail={searchParams.email}
+              words={words}
             />
           </div>
+          {offered && <LanguageSwitch current={lang} className="mt-5 justify-center" />}
 
           <p className="prose-serif-xs mt-6 text-muted md:hidden">
             {PROMISE_SHORT}

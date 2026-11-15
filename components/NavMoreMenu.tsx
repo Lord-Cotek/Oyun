@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { sayIn, type Words } from "@/lib/i18n";
 import Link from "next/link";
 import { signOut } from "next-auth/react";
 import { InstallButton } from "@/components/InstallButton";
@@ -19,9 +20,12 @@ import { InstallButton } from "@/components/InstallButton";
 export function NavMoreMenu({
   items,
   current,
+  words,
 }: {
   items: { href: string; label: string; current: boolean }[];
   current: boolean;
+  /** The reader's language, when it is not English — see lib/i18n.ts. */
+  words?: Words;
 }) {
   const [open, setOpen] = useState(false);
   const box = useRef<HTMLDivElement | null>(null);
@@ -53,7 +57,7 @@ export function NavMoreMenu({
           current || open ? "bg-surface text-accent" : "text-muted hover:text-ink"
         }`}
       >
-        More
+        {sayIn(words, "More")}
       </button>
 
       {open && (
@@ -85,7 +89,7 @@ export function NavMoreMenu({
               onClick={() => signOut({ callbackUrl: "/" })}
               className="w-full rounded-lg px-2 py-2 text-left tracking-wide text-muted transition-colors hover:bg-bg hover:text-ink"
             >
-              Sign out
+              {sayIn(words, "Sign out")}
             </button>
           </div>
         </div>

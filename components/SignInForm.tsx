@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { requestSignInCode } from "@/app/sign-in/actions";
+import { sayIn, type Words } from "@/lib/i18n";
 
 /**
  * Only somewhere inside this app. A callback URL arrives in the address bar,
@@ -24,10 +25,14 @@ function safeNext(url: string | null | undefined, fallback: string): string {
 export function SignInForm({
   callbackUrl,
   initialEmail,
+  words,
 }: {
   callbackUrl?: string;
   initialEmail?: string;
+  /** The reader's language, when it is not English — see lib/i18n.ts. */
+  words?: Words;
 }) {
+  const w = (en: string) => sayIn(words, en);
   const [email, setEmail] = useState(initialEmail ?? "");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
@@ -43,7 +48,7 @@ export function SignInForm({
     if (!email.trim() || busy) return;
     setBusy(true);
     setError(null);
-    const r = await requestSignInCode(email.trim()).catch(() => ({ ok: false as const, error: "Something went wrong. Please try again." }));
+    const r = await requestSignInCode(email.trim()).catch(() => ({ ok: false as const, error: w("Something went wrong. Please try again.") }));
     setBusy(false);
     if (r.ok) setCodeSent(true);
     else setError(r.error);
@@ -63,13 +68,13 @@ export function SignInForm({
         callbackUrl: home,
       });
       if (res?.error) {
-        setError("That code didn't work. Check it, or send a new one.");
+        setError(w("That code didn't work. Check it, or send a new one."));
         setBusy(false);
       } else {
         window.location.href = safeNext(res?.url, home);
       }
     } catch {
-      setError("Something went wrong. Please try again.");
+      setError(w("Something went wrong. Please try again."));
       setBusy(false);
     }
   }
@@ -87,13 +92,13 @@ export function SignInForm({
         callbackUrl: callbackUrl ?? "/journey",
       });
       if (res?.error) {
-        setError("That email or password doesn't match. Please try again.");
+        setError(w("That email or password doesn't match. Please try again."));
         setBusy(false);
       } else {
         window.location.href = safeNext(res?.url, home);
       }
     } catch {
-      setError("Something went wrong. Please try again.");
+      setError(w("Something went wrong. Please try again."));
       setBusy(false);
     }
   }
@@ -106,7 +111,7 @@ export function SignInForm({
     return (
       <form onSubmit={signInWithCode} className="mt-6 space-y-3">
         <label className="block">
-          <span className="eyebrow mb-2 block text-muted">Email</span>
+          <span className="eyebrow mb-2 block text-muted">{w("Email")}</span>
           <input
             type="email"
             required
@@ -122,7 +127,7 @@ export function SignInForm({
         </label>
         {codeSent && (
           <label className="block">
-            <span className="eyebrow mb-2 block text-muted">The 6-digit code</span>
+            <span className="eyebrow mb-2 block text-muted">{w("The 6-digit code")}</span>
             <input
               id="sign-in-code"
               inputMode="numeric"
@@ -147,7 +152,7 @@ export function SignInForm({
           disabled={busy}
           className="w-full rounded-lg bg-accent px-5 py-3 font-mono text-sm font-medium text-on-accent transition-colors hover:bg-accent-deep disabled:opacity-50"
         >
-          {busy ? "One moment…" : codeSent ? "Sign in" : "Email me a code"}
+          {busy ? w("One moment…") : codeSent ? w("Sign in") : w("Email me a code")}
         </button>
         <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
           <button
@@ -158,7 +163,7 @@ export function SignInForm({
             }}
             className="font-mono text-xs text-accent underline underline-offset-4"
           >
-            Use my password instead
+            {w("Use my password instead")}
           </button>
           {codeSent && (
             <button
@@ -167,7 +172,7 @@ export function SignInForm({
               onClick={sendCode}
               className="font-mono text-xs text-muted underline underline-offset-4 hover:text-accent"
             >
-              Send a new code
+              {w("Send a new code")}
             </button>
           )}
         </div>
@@ -178,7 +183,7 @@ export function SignInForm({
   return (
     <form onSubmit={onSubmit} className="mt-6 space-y-3">
       <label className="block">
-        <span className="eyebrow mb-2 block text-muted">Email</span>
+        <span className="eyebrow mb-2 block text-muted">{w("Email")}</span>
         <input
           type="email"
           required
@@ -190,14 +195,14 @@ export function SignInForm({
         />
       </label>
       <label className="block">
-        <span className="eyebrow mb-2 block text-muted">Password</span>
+        <span className="eyebrow mb-2 block text-muted">{w("Password")}</span>
         <input
           type="password"
           required
           autoComplete="current-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder="Your password"
+          placeholder={w("Your password")}
           className="prose-serif-sm w-full rounded-lg border border-border bg-bg px-4 py-3 text-ink placeholder:text-muted focus:border-accent focus:outline-none"
         />
       </label>
@@ -211,13 +216,13 @@ export function SignInForm({
           }}
           className="font-mono text-xs text-muted underline underline-offset-4 hover:text-accent"
         >
-          Email me a code instead
+          {w("Email me a code instead")}
         </button>
         <Link
           href="/forgot-password"
           className="font-mono text-xs text-muted underline underline-offset-4 hover:text-accent"
         >
-          Forgot password?
+          {w("Forgot password?")}
         </Link>
       </div>
       <button
@@ -225,12 +230,12 @@ export function SignInForm({
         disabled={busy}
         className="w-full rounded-lg bg-accent px-5 py-3 font-mono text-sm font-medium text-on-accent transition-colors hover:bg-accent-deep disabled:opacity-50"
       >
-        {busy ? "Signing in…" : "Sign in"}
+        {busy ? w("Signing in…") : w("Sign in")}
       </button>
       <p className="pt-1 text-center font-mono text-xs text-muted">
-        New to Oyun?{" "}
+        {w("New to Oyun?")}{" "}
         <Link href={signUpHref} className="text-accent underline underline-offset-4">
-          Create an account
+          {w("Create an account")}
         </Link>
       </p>
     </form>

@@ -28,6 +28,8 @@ import { DeleteAccount } from "@/components/settings/DeleteAccount";
 import { LeaveCircle } from "@/components/settings/LeaveCircle";
 import { ExportButton } from "@/components/settings/ExportButton";
 import { RaiseConcern } from "@/components/settings/RaiseConcern";
+import { LanguageSwitch } from "@/components/LanguageSwitch";
+import { getLang, yorubaOffered } from "@/lib/lang";
 import { isOn } from "@/lib/flags";
 
 export const metadata: Metadata = {
@@ -41,6 +43,7 @@ function toDateInput(d: Date): string {
 }
 
 export default async function SettingsPage() {
+  const [lang, offered] = await Promise.all([getLang(), yorubaOffered()]);
   const session = await auth();
   if (!session?.user?.id) redirect("/sign-in?callbackUrl=/settings");
 
@@ -109,6 +112,15 @@ export default async function SettingsPage() {
             <Eyebrow className="mb-4">Password</Eyebrow>
             <PasswordForm />
           </Card>
+
+          {/* Offered only while the "yoruba" switch is on — see lib/i18n.ts. */}
+          {offered && (
+            <Card className="p-8">
+              <Eyebrow className="mb-4">Language · Èdè</Eyebrow>
+              <p className="mb-4 prose-serif-xs text-muted">Signing in and the menus, on this device.</p>
+              <LanguageSwitch current={lang} />
+            </Card>
+          )}
 
           <Card className="p-8">
             <Eyebrow className="mb-4">Notifications</Eyebrow>

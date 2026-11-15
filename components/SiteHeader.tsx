@@ -10,6 +10,8 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getActiveMembership, getMyJourneys } from "@/lib/data";
 import { circleSeesRegistry } from "@/lib/registry";
+import { getLang } from "@/lib/lang";
+import { sayIn, wordsFor } from "@/lib/i18n";
 
 type ActiveKey =
   | "journey"
@@ -126,6 +128,12 @@ export async function SiteHeader({
     { href: "/help", label: "How this works", current: active === "help" },
     { href: "/settings", label: "Settings", current: active === "settings" },
   ];
+  // The menus in the reader's language — see lib/i18n.ts. English as written
+  // unless they chose Yorùbá and the switch for it is on.
+  const lang = await getLang();
+  const words = wordsFor(lang);
+  const say = (en: string) => sayIn(words, en);
+  for (const l of links) l.label = say(l.label);
 
   // Desktop: the daily rooms stay inline, the rest go under More. Eleven links
   // measured 1042px inside a 1024px screen, so the last simply fell off the
@@ -155,7 +163,7 @@ export async function SiteHeader({
   };
   const navTabs: Tab[] = links.map((l) => ({
     href: l.href,
-    label: l.href === "/journey" ? "Home" : l.label,
+    label: l.href === "/journey" ? say("Home") : l.label,
     icon: ICON_BY_HREF[l.href] ?? "star",
   }));
   // Keep Settings in the More sheet (never a primary tab) so the sheet — and
@@ -178,7 +186,7 @@ export async function SiteHeader({
     >
       Skip to the page
     </a>
-    <header className="sticky top-0 z-30 safe-top border-b border-[var(--glass-hairline)] bg-[var(--glass-tint)] shadow-[var(--shadow-1)] backdrop-blur-xl backdrop-saturate-150">
+    <header lang={lang === "yo" ? "yo" : undefined} className="sticky top-0 z-30 safe-top border-b border-[var(--glass-hairline)] bg-[var(--glass-tint)] shadow-[var(--shadow-1)] backdrop-blur-xl backdrop-saturate-150">
       <div className="mx-auto flex h-16 max-w-shell items-center justify-between gap-2 px-4 sm:px-6">
         <div className="flex min-w-0 items-center gap-2 sm:gap-3">
           <Link href="/journey" className="flex shrink-0 items-center gap-2.5">
@@ -201,14 +209,15 @@ export async function SiteHeader({
             <NavMoreMenu
               items={deskSecondary}
               current={deskSecondary.some((l) => l.current)}
+              words={words}
             />
           </nav>
 
           {/* Always-visible controls */}
           <Link
             href="/search"
-            aria-label="Search"
-            title="Search"
+            aria-label={say("Search")}
+            title={say("Search")}
             // 44pt. It was 18px of icon in 8px of padding — 34px, and the
             // first thing a thumb reaches for at the top of every screen.
             className="inline-flex h-11 w-11 items-center justify-center rounded-lg text-muted transition-colors hover:bg-surface hover:text-ink"
@@ -224,7 +233,7 @@ export async function SiteHeader({
     {/* Where "Skip to the page" lands: just past the header. */}
     <span id="page" tabIndex={-1} className="block outline-none" />
     {/* Primary nav on phones & tablets — hidden on lg (top nav takes over) */}
-    <TabBar tabs={tabs} more={moreItems} />
+    <TabBar tabs={tabs} more={moreItems} words={words} />
     </>
   );
 }

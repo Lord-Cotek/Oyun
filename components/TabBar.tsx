@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { sayIn, type Words } from "@/lib/i18n";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
@@ -16,7 +17,16 @@ type MoreItem = { href: string; label: string; icon: IconName };
  * current section. Up to four primary tabs plus a "More" sheet for the rest.
  * Hidden on lg, where the top nav takes over.
  */
-export function TabBar({ tabs, more }: { tabs: Tab[]; more: MoreItem[] }) {
+export function TabBar({
+  tabs,
+  more,
+  words,
+}: {
+  tabs: Tab[];
+  more: MoreItem[];
+  /** The reader's language, when it is not English — see lib/i18n.ts. */
+  words?: Words;
+}) {
   const pathname = usePathname() || "/";
   const [sheet, setSheet] = useState(false);
 
@@ -41,6 +51,7 @@ export function TabBar({ tabs, more }: { tabs: Tab[]; more: MoreItem[] }) {
     <>
       <nav
         aria-label="Primary"
+        lang={words ? "yo" : undefined}
         className="safe-bottom fixed inset-x-0 bottom-0 z-30 border-t border-[var(--glass-hairline)] bg-[var(--glass-tint)] shadow-[0_-10px_30px_-14px_rgba(0,0,0,0.55)] backdrop-blur-xl backdrop-saturate-150 lg:hidden"
       >
         <ul className="mx-auto flex max-w-shell items-stretch justify-around px-1">
@@ -99,7 +110,7 @@ export function TabBar({ tabs, more }: { tabs: Tab[]; more: MoreItem[] }) {
                       : "text-muted group-hover:text-ink"
                   }`}
                 >
-                  More
+                  {sayIn(words, "More")}
                 </span>
               </button>
             </li>
@@ -153,7 +164,7 @@ export function TabBar({ tabs, more }: { tabs: Tab[]; more: MoreItem[] }) {
                 }}
                 className="rounded-lg px-4 py-2 font-mono text-sm text-muted transition-colors hover:text-ink"
               >
-                Sign out
+                {sayIn(words, "Sign out")}
               </button>
             </div>
           </div>

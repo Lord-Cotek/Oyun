@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { sayIn, type Words } from "@/lib/i18n";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { registerUser } from "@/app/sign-up/actions";
@@ -8,10 +9,14 @@ import { registerUser } from "@/app/sign-up/actions";
 export function SignUpForm({
   callbackUrl,
   initialEmail,
+  words,
 }: {
   callbackUrl?: string;
   initialEmail?: string;
+  /** The reader's language, when it is not English — see lib/i18n.ts. */
+  words?: Words;
 }) {
+  const w = (en: string) => sayIn(words, en);
   const [name, setName] = useState("");
   const [email, setEmail] = useState(initialEmail ?? "");
   const [password, setPassword] = useState("");
@@ -31,7 +36,7 @@ export function SignUpForm({
 
     const res = await registerUser(null, fd);
     if (!res.ok) {
-      setError(res.error ?? "We couldn't create your account.");
+      setError(res.error ?? w("We couldn't create your account."));
       setBusy(false);
       return;
     }
@@ -63,7 +68,7 @@ export function SignUpForm({
   return (
     <form onSubmit={onSubmit} className="mt-6 space-y-3">
       <label className="block">
-        <span className="eyebrow mb-2 block text-muted">Your name</span>
+        <span className="eyebrow mb-2 block text-muted">{w("Your name")}</span>
         <input
           type="text"
           autoComplete="name"
@@ -74,7 +79,7 @@ export function SignUpForm({
         />
       </label>
       <label className="block">
-        <span className="eyebrow mb-2 block text-muted">Email</span>
+        <span className="eyebrow mb-2 block text-muted">{w("Email")}</span>
         <input
           type="email"
           required
@@ -86,7 +91,7 @@ export function SignUpForm({
         />
       </label>
       <label className="block">
-        <span className="eyebrow mb-2 block text-muted">Password</span>
+        <span className="eyebrow mb-2 block text-muted">{w("Password")}</span>
         <input
           type="password"
           required
@@ -94,7 +99,7 @@ export function SignUpForm({
           minLength={8}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder="At least 8 characters"
+          placeholder={w("At least 8 characters")}
           className="prose-serif-sm w-full rounded-lg border border-border bg-bg px-4 py-3 text-ink placeholder:text-muted focus:border-accent focus:outline-none"
         />
       </label>
@@ -104,12 +109,12 @@ export function SignUpForm({
         disabled={busy}
         className="w-full rounded-lg bg-accent px-5 py-3 font-mono text-sm font-medium text-on-accent transition-colors hover:bg-accent-deep disabled:opacity-50"
       >
-        {busy ? "Creating your account…" : "Create account"}
+        {busy ? w("Creating your account…") : w("Create account")}
       </button>
       <p className="prose-serif-xs pt-1 text-center text-muted">
-        Already have an account?{" "}
+        {w("Already have an account?")}{" "}
         <Link href={signInHref} className="text-accent underline underline-offset-4">
-          Sign in
+          {w("Sign in")}
         </Link>
       </p>
     </form>

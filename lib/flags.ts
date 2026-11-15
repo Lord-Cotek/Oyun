@@ -42,6 +42,12 @@ export interface FlagSpec {
  */
 export const FLAGS: FlagSpec[] = [
   {
+    key: "yoruba",
+    label: "Yorùbá",
+    what: "Offers Yorùbá for signing in and the menus (lib/i18n.ts). Off until a Yorùbá speaker has read every line.",
+    fallback: false,
+  },
+  {
     key: "weekly-digest",
     label: "The weekly email",
     what: "Sends the Monday summary. Turn it off to stop the next one going out without waiting for a deploy.",
