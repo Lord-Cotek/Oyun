@@ -288,3 +288,77 @@ export async function shareMilestone(
   revalidatePath("/firsts");
   return { ok: true, postId: made.id };
 }
+
+// ── Changing what you wrote ───────────────────────────────────────────────
+// Letters and check-ins are their writer's own words. Only the writer may
+// change them or take them away — not the other parent, not anybody else.
+
+type EditResult = { ok: true } | { ok: false; error: string };
+
+async function requireWriter() {
+  const session = await auth();
+  if (!session?.user?.id) redirect("/sign-in");
+  const active = await getActiveMembership(session.user.id);
+  if (!active) redirect("/journey");
+  return { userId: session.user.id, journeyId: active.journey.id };
+}
+
+export async function editLetter(formData: FormData): Promise<EditResult> {
+  const { userId, journeyId } = await requireWriter();
+  const id = String(formData.get("id") ?? "");
+  const body = String(formData.get("body") ?? "").trim().slice(0, 20000);
+  if (!body) return { ok: false, error: "A letter needs a few words." };
+  const r = await prisma.letter.updateMany({ where: { id, journeyId, authorId: userId }, data: { body } });
+  if (r.count === 0) return { ok: false, error: "Only whoever wrote it can change it." };
+  revalidatePath(`/letters/${id}`);
+  revalidatePath("/letters");
+  revalidatePath("/care");
+  return { ok: true };
+}
+
+/** Take a letter back. Its replies and reactions go with it. */
+export async function deleteOwnLetter(formData: FormData): Promise<EditResult> {
+  const { userId, journeyId } = await requireWriter();
+  const id = String(formData.get("id") ?? "");
+  const l = await prisma.letter.findFirst({ where: { id, journeyId, authorId: userId }, select: { id: true } });
+  if (!l) return { ok: false, error: "Only whoever wrote it can remove it." };
+  await prisma.$transaction([
+    prisma.reaction.deleteMany({ where: { targetType: "LETTER", targetId: id } }),
+    prisma.letter.delete({ where: { id } }),
+  ]);
+  revalidatePath("/letters");
+  revalidatePath("/care");
+  return { ok: true };
+}
+
+export async function editCheckIn(formData: FormData): Promise<EditResult> {
+  const { userId, journeyId } = await requireMother();
+  const id = String(formData.get("id") ?? "");
+  const moodRaw = String(formData.get("mood") ?? "");
+  if (!(moodRaw in Mood)) return { ok: false, error: "Choose how you were." };
+  const note = String(formData.get("note") ?? "").trim().slice(0, 4000) || null;
+  const r = await prisma.checkIn.updateMany({
+    where: { id, journeyId, userId },
+    // A note taken away cannot still be shared.
+    data: { mood: moodRaw as Mood, note, ...(note ? {} : { shareNote: false }) },
+  });
+  if (r.count === 0) return { ok: false, error: "That check-in is no longer here." };
+  revalidatePath(`/care/checkin/${id}`);
+  revalidatePath("/care");
+  revalidatePath("/journey");
+  return { ok: true };
+}
+
+export async function deleteCheckIn(formData: FormData): Promise<EditResult> {
+  const { userId, journeyId } = await requireMother();
+  const id = String(formData.get("id") ?? "");
+  const c = await prisma.checkIn.findFirst({ where: { id, journeyId, userId }, select: { id: true } });
+  if (!c) return { ok: false, error: "That check-in is no longer here." };
+  await prisma.$transaction([
+    prisma.reaction.deleteMany({ where: { targetType: "CHECKIN", targetId: id } }),
+    prisma.checkIn.delete({ where: { id } }),
+  ]);
+  revalidatePath("/care");
+  revalidatePath("/journey");
+  return { ok: true };
+}

@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { NUDGE_CAP } from "@/lib/nudges";
 import { isSealedFor, stillSealed } from "@/lib/letters-seal";
 import { prisma } from "@/lib/prisma";
 import { type Role } from "@prisma/client";
@@ -604,7 +605,9 @@ export async function getOpenNudges(journeyId: string, userId: string) {
   return prisma.nudge.findMany({
     where: { journeyId, userId, doneAt: null },
     orderBy: { dueAt: "asc" },
-    take: 10,
+    // Every open one. This used to stop at 10 while 12 could be open, so the
+    // last two simply never showed.
+    take: NUDGE_CAP,
   });
 }
 

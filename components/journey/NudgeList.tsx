@@ -1,9 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { startTransition, useState } from "react";
+import { EditInPlace, dateInputValue } from "@/components/ui/EditInPlace";
 import {
   completeNudge,
   dropNudge,
+  editNudge,
+  snoozeNudge,
   setNudge,
 } from "@/app/journey/support-actions";
 import { NUDGE_TEXT_MAX, NUDGE_WHENS } from "@/lib/nudges";
@@ -114,6 +117,33 @@ export function NudgeList({
                   >
                     {day.text}
                   </p>
+                  {/* Not today, or not quite right: move it on, or change it. */}
+                  <div className="mt-1 flex flex-wrap items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => startTransition(() => snoozeNudge(n.id, 1))}
+                      className="font-mono text-[0.62rem] text-muted underline-offset-2 hover:text-accent hover:underline"
+                    >
+                      Tomorrow
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => startTransition(() => snoozeNudge(n.id, 7))}
+                      className="font-mono text-[0.62rem] text-muted underline-offset-2 hover:text-accent hover:underline"
+                    >
+                      Next week
+                    </button>
+                    <EditInPlace
+                      describe={`this reminder: ${n.text}`}
+                      action={editNudge}
+                      hidden={{ id: n.id }}
+                      className="font-mono text-[0.62rem] text-muted underline-offset-2 hover:text-accent hover:underline"
+                      fields={[
+                        { name: "text", label: "Remind me to", kind: "text", value: n.text, max: NUDGE_TEXT_MAX, required: true },
+                        { name: "when", label: "On", kind: "date", value: dateInputValue(n.dueAt), required: true },
+                      ]}
+                    />
+                  </div>
                 </div>
                 {/* Armed before it fires — this sits in a scrolling list and
                     used to go on the first touch. See ConfirmButton. */}

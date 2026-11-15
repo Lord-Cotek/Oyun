@@ -11,7 +11,7 @@
  */
 
 /** At most this many open at once — a list, not a backlog. */
-export const NUDGE_CAP = 12;
+export const NUDGE_CAP = 30;
 export const NUDGE_TEXT_MAX = 160;
 
 /** The hour of the morning a reminder is due, in UTC. */

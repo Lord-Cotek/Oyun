@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { CheckInOwnerTools } from "@/components/care/CheckInOwnerTools";
 import { notFound, redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { getActiveMembership, getOneCheckIn } from "@/lib/data";
@@ -84,6 +85,7 @@ export default async function OneCheckIn({
                 year: "numeric",
               })}
             </p>
+            {mine && <CheckInOwnerTools id={c.id} mood={c.mood} note={c.note} />}
 
             <div className="mt-6 border-t border-border pt-5">
               <p className="eyebrow mb-3 text-muted">

@@ -49,6 +49,7 @@ export default async function PrayerPage() {
     prayerCount: r.prayerCount,
     didIPray: r.didIPray,
     canManage: r.authorId === session.user.id || isMother,
+    mine: r.authorId === session.user.id,
     reactions: reactions[r.id] ?? { counts: {}, mine: [] },
   }));
 

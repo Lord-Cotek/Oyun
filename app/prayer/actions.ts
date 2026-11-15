@@ -117,3 +117,19 @@ export async function deletePrayerRequest(formData: FormData) {
   await prisma.prayerRequest.delete({ where: { id: requestId } });
   revalidatePath("/prayer");
 }
+
+/** The asker's own words, changed by the asker. */
+export async function editPrayerRequest(formData: FormData): Promise<{ ok: true } | { ok: false; error: string }> {
+  const { userId, journeyId } = await requireMember();
+  const id = String(formData.get("id") ?? "");
+  const title = String(formData.get("title") ?? "").trim().slice(0, 200);
+  if (!title) return { ok: false, error: "A request needs a few words." };
+  const r = await prisma.prayerRequest.updateMany({
+    where: { id, journeyId, authorId: userId },
+    data: { title, body: String(formData.get("body") ?? "").trim().slice(0, 4000) || null },
+  });
+  if (r.count === 0) return { ok: false, error: "Only whoever asked can change it." };
+  revalidatePath("/prayer");
+  revalidatePath(`/prayer/${id}`);
+  return { ok: true };
+}

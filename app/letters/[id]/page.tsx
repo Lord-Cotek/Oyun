@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { LetterOwnerTools } from "@/components/letters/LetterOwnerTools";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
@@ -103,6 +104,7 @@ export default async function OneLetter({
                   align="end"
                 />
               </div>
+              {mine && <LetterOwnerTools id={letter.id} body={letter.body} />}
               <LetterReplies
                 letterId={letter.id}
                 replies={letter.replies}

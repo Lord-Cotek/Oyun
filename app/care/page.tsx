@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { letterOpenScope } from "@/lib/letters-seal";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
@@ -131,6 +132,35 @@ export default async function CarePage() {
               <p className="eyebrow mb-4 text-muted">Over time</p>
               <MoodChart data={points} />
             </div>
+            {checkIns.length > 0 && (
+              <div className="mt-8 border-t border-border pt-6">
+                <p className="eyebrow mb-3 text-muted">Recent check-ins</p>
+                {/* Each opens on its own page, where it can be changed or
+                    taken away. */}
+                <ul className="divide-y divide-border">
+                  {[...checkIns].reverse().slice(0, 8).map((c) => (
+                    <li key={c.id}>
+                      <Link
+                        href={`/care/checkin/${c.id}`}
+                        className="flex items-baseline justify-between gap-3 py-2.5 transition-colors hover:text-accent"
+                      >
+                        <span className="min-w-0">
+                          <span className="font-mono text-sm text-ink">{MOOD_META[c.mood].label}</span>
+                          {c.note && (
+                            <span className="ml-2 truncate prose-serif-xs text-muted">
+                              {c.note.length > 70 ? `${c.note.slice(0, 70)}…` : c.note}
+                            </span>
+                          )}
+                        </span>
+                        <span className="shrink-0 font-mono text-[0.62rem] uppercase tracking-widest text-muted">
+                          {c.createdAt.toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
+                        </span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
             {latestCheckIn && latestReactions && (
               <div
                 id={`checkin-${latestCheckIn.id}`}

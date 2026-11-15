@@ -153,3 +153,40 @@ export async function sendEncouragement(formData: FormData) {
   revalidatePath("/journey");
   revalidatePath("/care");
 }
+
+/**
+ * Change a reminder of your own: its words, its day.
+ * Only yours — the same rule as ticking it off or removing it.
+ */
+export async function editNudge(formData: FormData): Promise<{ ok: true } | { ok: false; error: string }> {
+  const { userId } = await requireMember();
+  const id = String(formData.get("id") ?? "");
+  const text = String(formData.get("text") ?? "").trim();
+  if (!text) return { ok: false, error: "Write what you want to remember." };
+  if (text.length > NUDGE_TEXT_MAX) return { ok: false, error: "Keep it to a line — it is a nudge, not a note." };
+  const dueAt = parseWhen(String(formData.get("when") ?? "").trim());
+  if (!dueAt) return { ok: false, error: "Choose a day." };
+  // A new day means it should be told again on that day.
+  const r = await prisma.nudge.updateMany({
+    where: { id, userId, doneAt: null },
+    data: { text, dueAt, remindedAt: null },
+  });
+  if (r.count === 0) return { ok: false, error: "That reminder is no longer here." };
+  revalidatePath("/journey");
+  return { ok: true };
+}
+
+/** Not today: move it on by a day or a week, and it will be told again then. */
+export async function snoozeNudge(id: string, days: 1 | 7): Promise<void> {
+  const { userId } = await requireMember();
+  if (days !== 1 && days !== 7) return;
+  const r = await prisma.nudge.findFirst({ where: { id, userId, doneAt: null }, select: { dueAt: true } });
+  if (!r) return;
+  const base = parseWhen("today")!;
+  const from = r.dueAt.getTime() > base.getTime() ? r.dueAt : base;
+  await prisma.nudge.updateMany({
+    where: { id, userId, doneAt: null },
+    data: { dueAt: new Date(from.getTime() + days * 86_400_000), remindedAt: null },
+  });
+  revalidatePath("/journey");
+}

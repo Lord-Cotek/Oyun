@@ -1,6 +1,7 @@
 "use client";
 
-import { prayForRequest, markAnswered, deletePrayerRequest } from "@/app/prayer/actions";
+import { prayForRequest, markAnswered, deletePrayerRequest, editPrayerRequest } from "@/app/prayer/actions";
+import { EditInPlace } from "@/components/ui/EditInPlace";
 import { Card } from "@/components/ui/Card";
 import { HoldToPray } from "@/components/ui/HoldToPray";
 import { Reactions } from "@/components/Reactions";
@@ -18,6 +19,8 @@ export type PrayerItem = {
   prayerCount: number;
   didIPray: boolean;
   canManage: boolean;
+  /** The viewer asked it — the only one who may change its words. */
+  mine?: boolean;
   reactions: ReactionData;
 };
 
@@ -74,6 +77,17 @@ export function PrayerCard({ item }: { item: PrayerItem }) {
               Mark answered
             </button>
           </form>
+        )}
+        {item.mine && !item.answered && (
+          <EditInPlace
+            describe={`this prayer request: ${item.title}`}
+            action={editPrayerRequest}
+            hidden={{ id: item.id }}
+            fields={[
+              { name: "title", label: "The request", kind: "text", value: item.title, max: 200, required: true },
+              { name: "body", label: "More, if you want to say it", kind: "textarea", value: item.body ?? "", max: 4000, rows: 3 },
+            ]}
+          />
         )}
         {item.canManage && (
           <div className="ml-auto">

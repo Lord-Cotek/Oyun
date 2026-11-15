@@ -245,6 +245,7 @@
     "app/global-error.tsx",
     "app/admintc/health/page.tsx",
     "docs/backup-and-restore.md",
+    "components/ui/EditInPlace.tsx",
     "app/api/unsubscribe/route.ts",
     "app/unsubscribe/actions.ts",
     "app/unsubscribe/page.tsx",
