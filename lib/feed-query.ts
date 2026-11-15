@@ -71,6 +71,8 @@ export interface FeedPost {
   authorImage: string | null;
   mine: boolean;
   when: string;
+  /** When it was written, exactly — for file names and printing. */
+  at: string;
   reactions: FeedReaction[];
   comments: FeedComment[];
   /**
@@ -282,6 +284,7 @@ export async function loadFeed(
       authorImage: p.author.image ?? null,
       mine: p.authorId === viewerId,
       when: relative(p.createdAt, now),
+      at: p.createdAt.toISOString(),
       householdOnly: p.householdOnly,
       canShare: canSharePost(isHousehold(role), p, viewerId),
       // The link is the family's business, not the circle's: somebody who can

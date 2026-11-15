@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { PhotoGrid } from "@/components/feed/PhotoGrid";
+import { DownloadYear } from "@/components/feed/DownloadYear";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
@@ -155,6 +156,24 @@ export default async function LifePage({
                 </>
               )}
             </p>
+          )}
+          {photos && !year && years.length > 0 && posts.some((p) => p.media.length > 0) && (
+            <p className="mb-4 font-mono text-[0.68rem] text-muted">Choose a year above to download its photos.</p>
+          )}
+          {year && isHousehold(active.role) && posts.length > 0 && (
+            <Link
+              href={`/book/${year}`}
+              className="mb-4 inline-flex min-h-11 items-center font-mono text-xs text-accent underline underline-offset-4"
+            >
+              Make {year} into a book to keep →
+            </Link>
+          )}
+          {photos && year && (
+            <DownloadYear
+              year={year}
+              title={(active.journey.babyName?.trim() || "Our journey")}
+              items={posts.flatMap((p) => p.media.map((m) => ({ url: m.url, at: p.at, type: m.type === "video" ? ("video" as const) : ("image" as const) })))}
+            />
           )}
           {photos ? (
             <PhotoGrid
