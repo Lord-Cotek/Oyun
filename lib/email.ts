@@ -1093,3 +1093,27 @@ export async function sendSignInCodeEmail({
   ].join("\n");
   return sendEmail({ to, subject: `${spaced} is your Oyun sign-in code`, html, text, kind: "sign-in-code" });
 }
+
+/**
+ * A plain note to the super-admins that something is wrong — see
+ * lib/health.ts. Never carries anybody's words: a job name, an error
+ * message cut short, a page address.
+ */
+export async function sendAdminAlert({
+  to,
+  subject,
+  lines,
+}: {
+  to: string;
+  subject: string;
+  lines: string[];
+}): Promise<boolean> {
+  const link = `${SITE_URL}/admintc/health`;
+  const html = shell(`
+    <p style="font-size:15px;line-height:1.7;">${escapeHtml(subject)}</p>
+    ${lines.map((l) => `<p style="font-size:13px;line-height:1.7;color:#8A9099;margin:6px 0;">${escapeHtml(l)}</p>`).join("")}
+    <p style="margin:20px 0 0;"><a href="${link}" style="color:#8A9099;">Open the health page</a></p>
+  `);
+  const text = [subject, "", ...lines, "", `Health page: ${link}`].join("\n");
+  return sendEmail({ to, subject: `[Oyun] ${subject}`, html, text, kind: "admin-alert" });
+}

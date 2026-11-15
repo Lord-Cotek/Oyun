@@ -22,6 +22,7 @@ import { countForHost, headCount, whenWords } from "@/lib/invitations";
 import { appointmentPath, dayPath } from "@/lib/open-item";
 import { isOn } from "@/lib/flags";
 import { recordRun, type Budget } from "@/lib/cron-run";
+import { tidyLogs } from "@/lib/health";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -195,9 +196,12 @@ async function runDaily(budget: Budget) {
   const hosts = guestsOn && !budget.out() ? await tellTheHosts(now, budget) : 0;
   const lettersOpened = lettersOn && !budget.out() ? await tellLettersOpening(now, budget) : 0;
   const afterNudges = guestsOn && !budget.out() ? await nudgeAfterTheDay(now, budget) : 0;
+  // Old operational logs out — see tidyLogs. Never anything a family wrote.
+  const tidied = budget.out() ? {} : await tidyLogs().catch(() => ({}));
   if (budget.out()) budget.stopped();
 
   return {
+    tidied,
     reminders: sent,
     notified: people,
     ...guests,

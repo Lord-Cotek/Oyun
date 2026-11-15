@@ -1700,3 +1700,18 @@ model WeeklySent {
   @@id([userId, week])
   @@index([week])
 }
+
+/// Something that broke — see lib/health.ts. A message cut short and the page
+/// it happened on; never the words of anything a family wrote. Kept 30 days.
+model ErrorEvent {
+  id      String   @id @default(cuid())
+  at      DateTime @default(now())
+  /// "client" | "server" | "job"
+  where   String
+  message String
+  path    String?
+  /// Next's error digest, to find the full error in the server logs.
+  digest  String?
+
+  @@index([at])
+}

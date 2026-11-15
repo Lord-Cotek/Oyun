@@ -38,6 +38,7 @@ const tabs = [
   { href: "/admintc/people", label: "Find a person" },
   { href: "/admintc/concerns", label: "Concerns" },
   { href: "/admintc/broadcast", label: "Broadcast" },
+  { href: "/admintc/health", label: "Health" },
   { href: "/admintc/emails", label: "Emails" },
   { href: "/admintc/flags", label: "Switches" },
   { href: "/admintc/audit", label: "What was done" },

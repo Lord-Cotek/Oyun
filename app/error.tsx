@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { reportError } from "@/lib/report-error";
 import { Button } from "@/components/ui/Button";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { OyunMark } from "@/components/ui/OyunMark";
@@ -18,8 +19,10 @@ export default function Error({
   reset: () => void;
 }) {
   useEffect(() => {
-    // Surface for logs without leaking details to the reader.
+    // Surface for logs without leaking details to the reader, and tell the
+    // server so somebody knows before a family has to say so.
     console.error(error);
+    reportError(error);
   }, [error]);
 
   return (

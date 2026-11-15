@@ -66,6 +66,8 @@ export async function recordRun<T extends Record<string, unknown>>(
     }
     return out;
   } catch (e) {
+    const { jobFailed } = await import("@/lib/health");
+    await jobFailed(job, e instanceof Error ? `${e.name}: ${e.message}` : String(e));
     if (row) {
       await prisma.cronRun
         .update({
