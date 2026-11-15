@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { tagOptions } from "@/lib/post-tags";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
@@ -18,6 +19,8 @@ import {
   toggleReaction,
   toggleCommentReaction,
   setPostAudience,
+  setPostTags,
+  untagMyself,
 } from "@/app/life/actions";
 import {
   sharePost,
@@ -104,6 +107,8 @@ export default async function OnePost({
       })
     : null;
 
+  // Who could be tagged in a post — see lib/tags.ts.
+  const taggable = await tagOptions(active.journey.id, session.user.id);
   return (
     <>
       <SiteHeader active="life" />
@@ -127,6 +132,9 @@ export default async function OnePost({
             onReact={toggleReaction}
             onReactToComment={toggleCommentReaction}
             onSetAudience={setPostAudience}
+            tagOptions={taggable}
+            onSetTags={setPostTags}
+            onUntagMe={untagMyself}
             onSharePost={sharePost}
             onRevokeShare={revokeShare}
             onHideHello={hideHello}

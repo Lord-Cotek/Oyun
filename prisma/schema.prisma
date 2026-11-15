@@ -93,6 +93,7 @@ model User {
   assistantUses       AssistantUse[]
   ownMorningSent      OwnMorningSent[]
   weeklySent          WeeklySent[]
+  postTags            PostTag[]            @relation("PostTagUser")
 }
 
 /// A small emoji reaction on an encouragement or a check-in.
@@ -383,6 +384,7 @@ model Post {
   shares    PostShare[]
 
   hellos ShareHello[]
+  tags   PostTag[]
 
   @@index([journeyId, createdAt])
 }
@@ -670,6 +672,7 @@ model Child {
   createdAt  DateTime    @default(now())
   milestones Milestone[]
   letters    Letter[]
+  postTags   PostTag[]
 
   @@index([journeyId])
 }
@@ -1772,4 +1775,25 @@ model PrayingFor {
   updatedAt  DateTime  @updatedAt
 
   @@index([journeyId, createdAt])
+}
+
+/// Who is in a Life post. A child of the family, or a member by their
+/// account — never both on one row. Only the post's author tags; anyone
+/// tagged may take their own tag off. A member is told once, and only when
+/// they can see the post. Each child's page gathers the posts they are in.
+model PostTag {
+  id        String   @id @default(cuid())
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  childId   String?
+  child     Child?   @relation(fields: [childId], references: [id], onDelete: Cascade)
+  userId    String?
+  user      User?    @relation("PostTagUser", fields: [userId], references: [id], onDelete: Cascade)
+  addedById String
+  createdAt DateTime @default(now())
+
+  @@unique([postId, childId])
+  @@unique([postId, userId])
+  @@index([childId])
+  @@index([userId])
 }

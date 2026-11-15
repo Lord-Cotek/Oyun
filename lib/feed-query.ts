@@ -1,4 +1,6 @@
 import { yearBounds } from "./story";
+import { loadTags } from "./post-tags";
+import type { PostTagView } from "./tags";
 import { prisma } from "./prisma";
 import { postScope } from "./post-visibility";
 import { isHousehold } from "./roles";
@@ -73,6 +75,8 @@ export interface FeedPost {
   when: string;
   /** When it was written, exactly — for file names and printing. */
   at: string;
+  /** Who's in it — see lib/tags.ts. */
+  tags: PostTagView[];
   reactions: FeedReaction[];
   comments: FeedComment[];
   /**
@@ -260,6 +264,7 @@ export async function loadFeed(
     },
   });
   const now = new Date();
+  const tagMap = await loadTags(posts.map((p) => p.id), viewerId, role);
 
   return posts.map((p) => {
     return {
@@ -285,6 +290,7 @@ export async function loadFeed(
       mine: p.authorId === viewerId,
       when: relative(p.createdAt, now),
       at: p.createdAt.toISOString(),
+      tags: tagMap.get(p.id) ?? [],
       householdOnly: p.householdOnly,
       canShare: canSharePost(isHousehold(role), p, viewerId),
       // The link is the family's business, not the circle's: somebody who can

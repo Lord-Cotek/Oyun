@@ -25,6 +25,8 @@ import {
   type PostKind,
 } from "@/lib/feed";
 import type { FeedPost, FeedComment, MediaItem } from "@/lib/feed-query";
+import type { TagOption } from "@/lib/tags";
+import { WhoIsIn } from "@/components/feed/WhoIsIn";
 import { Lightbox } from "@/components/media/Lightbox";
 import { Pressable } from "@/components/ui/Pressable";
 import { ReactionRow } from "@/components/feed/ReactionRow";
@@ -50,7 +52,11 @@ type CreateFn = (input: {
   /** One per mediaUrl, in the same order; "" where there is none. */
   posterUrls?: string[];
   householdOnly?: boolean;
+  /** Who's in it — keys from lib/tags.ts. */
+  tags?: string[];
 }) => Promise<void>;
+type TagsFn = (input: { postId: string; keys: string[] }) => Promise<{ ok: boolean; error?: string }>;
+type UntagFn = (postId: string) => Promise<{ ok: boolean }>;
 type AudienceFn = (input: {
   id: string;
   householdOnly: boolean;
@@ -97,6 +103,10 @@ interface Actions {
   onAttributeHello?: AttributeHelloFn;
   /** Everybody in the circle, for the above. */
   circle?: CircleMember[];
+  /** Who could be tagged in a post — see lib/tags.ts. None: no tagging. */
+  tagOptions?: TagOption[];
+  onSetTags?: TagsFn;
+  onUntagMe?: UntagFn;
 }
 
 export function Feed({
@@ -142,6 +152,7 @@ export function Feed({
           onCreate={actions.onCreate}
           placeholder={composerPlaceholder}
           canKeepToHousehold={canKeepToHousehold}
+          tagOptions={actions.tagOptions ?? []}
         />
       )}
       {posts.length === 0 ? (
@@ -331,10 +342,12 @@ function UploadBar({
 
 function Composer({
   onCreate,
+  tagOptions = [],
   placeholder,
   canKeepToHousehold,
 }: {
   onCreate: CreateFn;
+  tagOptions?: TagOption[];
   placeholder: string;
   canKeepToHousehold: boolean;
 }) {
@@ -346,6 +359,8 @@ function Composer({
    * is its own decision, and the default is the one the diary has always had.
    */
   const [householdOnly, setHouseholdOnly] = useState(false);
+  const [tags, setTags] = useState<string[]>([]);
+  const [tagging, setTagging] = useState(false);
   const [body, setBody] = useState("");
   const [picked, setPicked] = useState<Picked[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -702,10 +717,15 @@ function Composer({
         mediaUrls: urls,
         posterUrls: posters,
         householdOnly,
+        // Nobody the post would be hidden from: the toggle can change after
+        // the names were ticked.
+        tags: tags.filter((k) => !(householdOnly && tagOptions.find((o) => o.key === k)?.outsideJustUs)),
       });
       setBody("");
       setKind("UPDATE");
       setHouseholdOnly(false);
+      setTags([]);
+      setTagging(false);
       setRestored(null);
       forgetDraft();
       clearAll();
@@ -877,6 +897,22 @@ function Composer({
             to. It sat with Photos and Video, which are attachments, and that
             put it in the wrong sentence. */}
         <div className="flex items-center gap-4">
+          {tagOptions.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setTagging((v) => !v)}
+              aria-expanded={tagging}
+              className={`inline-flex items-center gap-1.5 font-mono text-[0.68rem] transition-colors ${
+                tags.length ? "text-accent" : "text-muted hover:text-accent"
+              }`}
+            >
+              {tags.length === 0
+                ? "Who's in this?"
+                : tags.length === 1
+                  ? `With ${tagOptions.find((o) => o.key === tags[0])?.name ?? "1 person"}`
+                  : `With ${tags.length} people`}
+            </button>
+          )}
           {canKeepToHousehold && (
             <button
               type="button"
@@ -921,6 +957,11 @@ function Composer({
         <p className="mt-2 font-mono text-[0.62rem] leading-relaxed text-muted">
           {JUST_US.hint}
         </p>
+      )}
+      {tagging && tagOptions.length > 0 && (
+        <div className="mt-3">
+          <WhoIsIn options={tagOptions} selected={tags} onChange={setTags} justUs={householdOnly} />
+        </div>
       )}
     </div>
   );
@@ -1133,6 +1174,9 @@ function PostItem({
   onHideHello,
   onAttributeHello,
   circle,
+  tagOptions = [],
+  onSetTags,
+  onUntagMe,
   alone = false,
 }: {
   post: FeedPost;
@@ -1154,6 +1198,10 @@ function PostItem({
   // half-typed boxes in one thread is how people lose what they wrote.
   const [answering, setAnswering] = useState<string | null>(null);
   const hasMedia = post.media.length > 0;
+  const [tagEditing, setTagEditing] = useState(false);
+  const [tagDraft, setTagDraft] = useState<string[]>(post.tags.map((t) => t.key));
+  const [tagError, setTagError] = useState<string | null>(null);
+  const meTagged = post.tags.some((t) => t.isMe);
 
 
   return (
@@ -1269,6 +1317,70 @@ function PostItem({
         </>
       )}
 
+      {/* Who's in it — each name to their own page, where there is one. */}
+      {post.tags.length > 0 && (
+        <p className="mt-3 font-mono text-[0.68rem] text-muted">
+          <span className="sr-only">Who&rsquo;s in this: </span>
+          With{" "}
+          {post.tags.map((t, i) => (
+            <span key={t.key}>
+              {t.href ? (
+                <Link href={t.href} className="text-ink/80 underline-offset-4 hover:text-accent hover:underline">
+                  {t.name}
+                </Link>
+              ) : (
+                <span className="text-ink/80">{t.name}</span>
+              )}
+              {i < post.tags.length - 2 ? ", " : i === post.tags.length - 2 ? " and " : ""}
+            </span>
+          ))}
+          {meTagged && onUntagMe && (
+            <button
+              type="button"
+              disabled={pending}
+              onClick={() => start(async () => { await onUntagMe(post.id); })}
+              className="ml-3 underline underline-offset-4 hover:text-accent disabled:opacity-50"
+            >
+              Remove my tag
+            </button>
+          )}
+        </p>
+      )}
+      {tagEditing && (
+        <div className="mt-3 space-y-2">
+          <WhoIsIn options={tagOptions} selected={tagDraft} onChange={setTagDraft} justUs={post.householdOnly} />
+          {tagError && <p role="alert" className="font-mono text-xs text-negative">{tagError}</p>}
+          <div className="flex gap-2">
+            <button
+              type="button"
+              disabled={pending}
+              onClick={() =>
+                start(async () => {
+                  setTagError(null);
+                  const r = await onSetTags!({ postId: post.id, keys: tagDraft }).catch(() => ({ ok: false, error: "That did not save. Please try again." }));
+                  if (r.ok) setTagEditing(false);
+                  else setTagError(r.error ?? "That did not save. Please try again.");
+                })
+              }
+              className="btn-primary rounded-lg px-4 py-2 font-mono text-xs font-medium text-on-accent disabled:opacity-40"
+            >
+              Save
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setTagEditing(false);
+                setTagDraft(post.tags.map((t) => t.key));
+                setTagError(null);
+              }}
+              className="rounded-lg px-3 py-2 font-mono text-xs text-muted hover:text-ink"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* reactions — they move the moment you tap, and move back if the
           server never heard about it */}
       <ReactionRow
@@ -1304,6 +1416,19 @@ function PostItem({
             >
               Edit
             </Pressable>
+            {onSetTags && tagOptions.length > 0 && (
+              <Pressable
+                press="none"
+                type="button"
+                onClick={() => {
+                  setTagDraft(post.tags.map((t) => t.key));
+                  setTagEditing((v) => !v);
+                }}
+                className="py-2.5 underline underline-offset-4 hover:text-accent"
+              >
+                Who&rsquo;s in this?
+              </Pressable>
+            )}
             {/* A dialog, not two taps: a post carries its photographs and
                 videos with it, and the family came here to keep those. */}
             <Pressable

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { tagOptions } from "@/lib/post-tags";
 import { PhotoGrid } from "@/components/feed/PhotoGrid";
 import { DownloadYear } from "@/components/feed/DownloadYear";
 import Link from "next/link";
@@ -30,6 +31,8 @@ import {
   toggleReaction,
   toggleCommentReaction,
   setPostAudience,
+  setPostTags,
+  untagMyself,
 } from "./actions";
 
 export const metadata: Metadata = {
@@ -90,6 +93,8 @@ export default async function LifePage({
       : null,
   ]);
 
+  // Who could be tagged in a post — see lib/tags.ts.
+  const taggable = await tagOptions(active.journey.id, session.user.id);
   return (
     <>
       <SiteHeader active="life" />
@@ -192,6 +197,9 @@ export default async function LifePage({
             onReact={toggleReaction}
             onReactToComment={toggleCommentReaction}
             onSetAudience={setPostAudience}
+            tagOptions={taggable}
+            onSetTags={setPostTags}
+            onUntagMe={untagMyself}
             onSharePost={sharePost}
             onRevokeShare={revokeShare}
             onHideHello={hideHello}

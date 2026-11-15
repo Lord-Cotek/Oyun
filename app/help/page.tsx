@@ -359,6 +359,16 @@ export default async function HelpPage() {
             you tick <span className="text-ink">Share this name with the circle</span>.
           </Q>
 
+          <Q q="Can I tag people in a post?">
+            Yes. When you write in Life, press{" "}
+            <span className="text-ink">Who&rsquo;s in this?</span> and tick
+            your children and anyone in the journey. Anyone with their own account is told they were tagged —
+            once, and only if they can see the post: a &ldquo;just us&rdquo;
+            post greys out the people it is hidden from. Each child&rsquo;s page in the Nursery gathers every post they are in. You can change
+            who is in a post you wrote, and anyone tagged can press{" "}
+            <span className="text-ink">Remove my tag</span>.
+          </Q>
+
           <Q q="Can I download our photos?">
             Yes. Open{" "}
             <Link href="/life?view=photos" className="text-accent underline underline-offset-4">Life &rarr; Photos</Link>

@@ -1,4 +1,7 @@
 import type { Metadata } from "next";
+import { TaggedPosts } from "@/components/feed/TaggedPosts";
+import { postScope } from "@/lib/post-visibility";
+import { mediaTypeFromUrl } from "@/lib/feed-query";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
@@ -83,6 +86,13 @@ export default async function OneChild({ params }: { params: { id: string } }) {
     ),
   ]);
 
+  // The Life posts this child is in — see lib/tags.ts.
+  const inLife = await prisma.post.findMany({
+    where: { journeyId: active.journey.id, ...postScope(active.role), tags: { some: { childId: child.id } } },
+    orderBy: { createdAt: "desc" },
+    take: 30,
+    select: { id: true, body: true, createdAt: true, mediaUrls: true, imageUrl: true, author: { select: { name: true } } },
+  });
   const born = child.birthDate && child.birthDate.getTime() <= Date.now() ? child.birthDate : null;
   // "Twelve days early": against the date she was first given, kept when the
   // birth was recorded (Journey.originalDueDate).
@@ -147,6 +157,19 @@ export default async function OneChild({ params }: { params: { id: string } }) {
                 <PhotoGrid posts={photoPosts} />
               </Card>
             )}
+
+            <Card>
+              <TaggedPosts
+                name={child.name}
+                posts={inLife.map((p) => ({
+                  id: p.id,
+                  at: p.createdAt.toISOString(),
+                  author: p.author.name ?? "Someone",
+                  body: p.body,
+                  photo: (p.mediaUrls.length ? p.mediaUrls : p.imageUrl ? [p.imageUrl] : []).find((u) => mediaTypeFromUrl(u) === "image") ?? null,
+                }))}
+              />
+            </Card>
           </div>
 
           <div className="min-w-0 space-y-4">

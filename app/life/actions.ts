@@ -10,6 +10,7 @@ import { mediaTypeFromUrl } from "@/lib/feed-query";
 import { notify } from "@/lib/notify";
 import { postScope, seesHouseholdOnly } from "@/lib/post-visibility";
 import { postPath } from "@/lib/share-open";
+import { setTags, tagOptions, untagMe } from "@/lib/post-tags";
 
 /** Keep only well-formed Vercel Blob URLs, in order, capped. */
 function cleanMediaUrls(urls: unknown): string[] {
@@ -79,6 +80,8 @@ export async function postWithId(input: {
   /** One per mediaUrl, same order; "" where there is none. */
   posterUrls?: string[];
   householdOnly?: boolean;
+  /** Who's in it — keys from lib/tags.ts. */
+  tags?: string[];
 }) {
   const { userId, journeyId, role } = await member();
   const body = (input.body ?? "").trim();
@@ -102,6 +105,16 @@ export async function postWithId(input: {
     },
   });
 
+  // Who's in it. Anyone the post is hidden from is left out rather than the
+  // post failing — the composer already greys them out.
+  let tagged: string[] = [];
+  if (input.tags?.length) {
+    const opts = await tagOptions(journeyId, userId).catch(() => []);
+    const hidden = new Set(opts.filter((o) => householdOnly && o.outsideJustUs).map((o) => o.key));
+    const r = await setTags(journeyId, made.id, userId, input.tags.filter((k) => !hidden.has(k))).catch(() => null);
+    if (r?.ok) tagged = r.told;
+  }
+
   // Let the rest of the circle know — in the bell and, where enabled, a push.
   try {
     const [author, others] = await Promise.all([
@@ -114,10 +127,12 @@ export async function postWithId(input: {
     // A notification carries the opening words of the post in it. Telling the
     // circle about a post they cannot open would be the leak the toggle
     // exists to prevent, said out loud on their lock screen.
-    const told = householdOnly
+    // Anybody tagged hears it said to them instead, below — never both.
+    const told = (householdOnly
       ? others.filter((o) => seesHouseholdOnly(o.role))
-      : others;
-    if (told.length) {
+      : others
+    ).filter((o) => !tagged.includes(o.userId));
+    if (told.length || tagged.length) {
       const hasVideo = mediaUrls.some((u) => mediaTypeFromUrl(u) === "video");
       const mediaWord =
         mediaUrls.length === 0
@@ -138,6 +153,17 @@ export async function postWithId(input: {
             userId: o.userId,
             type: "post",
             title: `${author?.name ?? "Someone"} shared with the family`,
+            body: snip,
+            href: postPath(made.id),
+          }),
+        ),
+      );
+      await Promise.all(
+        tagged.map((uid) =>
+          notify({
+            userId: uid,
+            type: "post",
+            title: `${author?.name ?? "Someone"} tagged you in a post`,
             body: snip,
             href: postPath(made.id),
           }),
@@ -423,4 +449,51 @@ export async function toggleCommentReaction(input: {
     }
   }
   revalidatePath("/life");
+}
+
+/**
+ * Say who is in a post you wrote. Anyone newly tagged who can see it is
+ * told, once. See lib/tags.ts.
+ */
+export async function setPostTags(input: { postId: string; keys: string[] }): Promise<{ ok: boolean; error?: string }> {
+  const { userId, journeyId } = await member();
+  const postId = String(input.postId ?? "").slice(0, 40);
+  const r = await setTags(journeyId, postId, userId, input.keys);
+  if (!r.ok) return r;
+  if (r.told.length) {
+    try {
+      const [author, post] = await Promise.all([
+        prisma.user.findUnique({ where: { id: userId }, select: { name: true } }),
+        prisma.post.findUnique({ where: { id: postId }, select: { body: true, mediaUrls: true } }),
+      ]);
+      const body = post?.body?.trim() ?? "";
+      const snip = body ? (body.length > 90 ? `${body.slice(0, 90)}…` : body) : post?.mediaUrls.length ? "A photo you are in" : "A moment you are in";
+      await Promise.all(
+        r.told.map((uid) =>
+          notify({
+            userId: uid,
+            type: "post",
+            title: `${author?.name ?? "Someone"} tagged you in a post`,
+            body: snip,
+            href: postPath(postId),
+          }),
+        ),
+      );
+    } catch {
+      // A missed notice must never undo the tagging.
+    }
+  }
+  revalidatePath("/life");
+  revalidatePath(`/life/${postId}`);
+  return { ok: true };
+}
+
+/** Take your own tag off a post — anyone tagged may. */
+export async function untagMyself(postId: string): Promise<{ ok: boolean }> {
+  const { userId, journeyId } = await member();
+  const id = String(postId ?? "").slice(0, 40);
+  const ok = await untagMe(journeyId, id, userId);
+  revalidatePath("/life");
+  revalidatePath(`/life/${id}`);
+  return { ok };
 }
