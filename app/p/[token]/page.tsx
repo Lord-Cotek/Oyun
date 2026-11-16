@@ -23,6 +23,9 @@ import { SHARE_WORDS, OPEN_WORDS } from "@/lib/post-share";
 import { KIND_LABEL } from "@/lib/feed";
 import { OyunMark } from "@/components/ui/OyunMark";
 import { Eyebrow } from "@/components/ui/Eyebrow";
+import { announcementForToken } from "@/lib/announcement-db";
+import { STYLES, headingNames, longDate } from "@/lib/announcement";
+import { AnnouncementCard } from "@/components/announce/AnnouncementCard";
 
 /**
  * One post, for somebody outside the app.
@@ -53,6 +56,19 @@ export async function generateMetadata({
   // post's own first line, which is what the family wrote and meant to send —
   // not a summary the app invented on their behalf.
   const line = shared.body.trim().split("\n")[0].slice(0, 140);
+  // A birth announcement reads as one in the preview, too.
+  const ann = await announcementForToken(params.token);
+  if (ann) {
+    const title = `Welcome to the world, ${headingNames(ann.babies)}`;
+    const description = `Born ${longDate(ann.bornOn)} · with love from ${shared.household}`;
+    return {
+      title,
+      description,
+      robots,
+      openGraph: { title, description, type: "article" },
+      twitter: { card: "summary_large_image", title, description },
+    };
+  }
   return {
     title: `${shared.household} shared a moment`,
     description: line,
@@ -153,6 +169,72 @@ export default async function SharedPost({
     month: "long",
     year: "numeric",
   });
+
+  // A birth announcement is its own page: the card first, then the ways in.
+  const ann = await announcementForToken(params.token);
+  if (ann) {
+    const st = STYLES[ann.style];
+    return (
+      <main
+        className="min-h-[100dvh] px-4 pb-16 sm:px-6"
+        style={{ background: `radial-gradient(120% 60% at 50% 0%, ${st.edge} 0%, transparent 70%)` }}
+      >
+        <div className="mx-auto max-w-xl">
+          <header className="flex items-center justify-center gap-2 py-6">
+            <OyunMark className="h-7 w-7" />
+            <span className="font-mono text-[0.68rem] uppercase tracking-widest text-muted">Oyun</span>
+          </header>
+
+          <AnnouncementCard data={ann} />
+
+          <p className="mx-auto mt-5 max-w-md text-center prose-serif-xs text-muted">
+            Sent to you by {shared.household}. Please share it only with people who know them.
+          </p>
+
+          {!viewerId && (
+            <section className="mt-6 rounded-2xl border border-accent/30 bg-accent/[0.05] p-5 text-center">
+              <p className="font-serif text-lg leading-snug text-ink">Already in their circle?</p>
+              <p className="mt-1 prose-serif-sm text-muted">Open Oyun to see every photograph and reply to them there.</p>
+              <Link
+                href={openPath(params.token)}
+                className="mt-4 inline-flex min-h-11 items-center rounded-lg bg-accent px-5 font-mono text-[0.68rem] uppercase tracking-widest text-on-accent transition-colors hover:bg-accent-deep"
+              >
+                Open in Oyun →
+              </Link>
+            </section>
+          )}
+
+          {/* A word of welcome — read by the family and by nobody else. */}
+          <GuestHello token={params.token} mine={mine} onSay={sayHello} onUnsay={unsayHello} />
+
+          {/* And the door. It asks; it does not open. */}
+          <AskToJoin token={params.token} who={shared.household} asked={asked} me={me} onAsk={askToJoin} />
+
+          <section className="mt-8 rounded-2xl border border-border bg-surface p-6 text-center">
+            <p className="font-serif text-xl text-ink">Expecting a little one of your own?</p>
+            <p className="mx-auto mt-2 max-w-sm prose-serif-sm text-muted">
+              Oyun is a quiet companion from the first weeks to the second birthday — Scripture for each week, prayer, and the
+              people who love you, all in one place.
+            </p>
+            <div className="mt-4 flex flex-wrap justify-center gap-3">
+              <Link
+                href="/sign-up"
+                className="inline-flex min-h-11 items-center rounded-lg bg-accent px-5 font-mono text-[0.68rem] uppercase tracking-widest text-on-accent hover:bg-accent-deep"
+              >
+                Begin your journey
+              </Link>
+              <Link
+                href="/"
+                className="inline-flex min-h-11 items-center rounded-lg border border-border px-5 font-mono text-[0.68rem] uppercase tracking-widest text-accent hover:border-accent"
+              >
+                What Oyun is
+              </Link>
+            </div>
+          </section>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="mx-auto min-h-[100dvh] max-w-2xl px-6 pb-16">

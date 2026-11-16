@@ -1,91 +1,60 @@
-"use client";
-
-import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
-import { announceBirth } from "@/app/journey/birth-actions";
-import { uploadOneToBlob, filesFromForm } from "@/lib/blob-client";
+import Link from "next/link";
 
 /**
- * Tell people, warmly, in your own words. Shown on the home page for a few
- * weeks after the birth until the announcement is made. It posts to Life;
- * from there "Share outside" makes a private link for anyone not in the app.
+ * On the journey page, for the first weeks after the birth: an invitation to
+ * make the announcement, and once it is made, a way back to it. The card
+ * itself is made at /journey/announce — see components/announce.
  */
 export function BirthAnnouncement({
   names,
-  verses,
+  made,
+  link,
+  cover,
 }: {
   names: string;
-  verses: { ref: string; text: string }[];
+  made: boolean;
+  /** The private link, once there is one. */
+  link: string | null;
+  cover: string | null;
 }) {
-  const router = useRouter();
-  const [error, setError] = useState<string | null>(null);
-  const [pending, start] = useTransition();
-  const input =
-    "w-full rounded-lg border border-border bg-bg px-3 py-2 font-mono text-sm text-ink focus:border-accent focus:outline-none";
-  return (
-    <section className="rounded-2xl border border-accent/40 bg-accent/[0.06] p-6">
-      <p className="eyebrow mb-2 text-accent">Tell people</p>
-      <h2 className="font-serif text-2xl text-ink">Announce the birth</h2>
-      <p className="mt-1 prose-serif-sm text-muted">
-        A card with the name, the day, a verse and a photograph if you like — shared with your
-        circle in Life, and from there by a private link to anyone else.
-      </p>
-      <form
-        className="mt-4 space-y-3"
-        onSubmit={(e) => {
-          e.preventDefault();
-          const form = e.currentTarget;
-          setError(null);
-          start(async () => {
-            try {
-              const fd = new FormData(form);
-              const files = filesFromForm(form, "photo");
-              fd.delete("photo");
-              if (files.length) {
-                const url = await uploadOneToBlob(files, "announcements");
-                if (url) fd.set("photoUrl", url);
-              }
-              const r = await announceBirth(fd);
-              if (r.ok) router.push(`/life/${r.postId}`);
-              else setError(r.error);
-            } catch {
-              setError("That did not post. Try again in a moment.");
-            }
-          });
-        }}
-      >
-        <label className="block" htmlFor="ann-names">
-          <span className="eyebrow mb-1 block text-muted">Name</span>
-          <input id="ann-names" name="names" defaultValue={names} maxLength={120} className={input} />
-        </label>
-        <label className="block" htmlFor="ann-verse">
-          <span className="eyebrow mb-1 block text-muted">A verse</span>
-          <select id="ann-verse" name="verse" className={input} defaultValue={verses[0]?.ref}>
-            {verses.map((v) => (
-              <option key={v.ref} value={v.ref}>
-                {v.ref} — {v.text.slice(0, 50)}…
-              </option>
-            ))}
-            <option value="">No verse</option>
-          </select>
-        </label>
-        <label className="block" htmlFor="ann-message">
-          <span className="eyebrow mb-1 block text-muted">A few words (optional)</span>
-          <textarea id="ann-message" name="message" rows={3} maxLength={1000} className={`${input} resize-y`} />
-        </label>
-        <label className="block" htmlFor="ann-photo">
-          <span className="eyebrow mb-1 block text-muted">A photograph (optional)</span>
-          <input id="ann-photo" name="photo" type="file" accept="image/*" className="font-mono text-xs text-muted" />
-        </label>
-        {error && <p className="font-mono text-xs text-negative" role="alert">{error}</p>}
-        <button
-          type="submit"
-          disabled={pending}
-          className="rounded-lg bg-accent px-5 py-2.5 font-mono text-sm font-medium text-on-accent hover:bg-accent-deep disabled:opacity-50"
+  if (!made) {
+    return (
+      <section className="rounded-2xl border border-accent/40 bg-accent/[0.06] p-6">
+        <p className="eyebrow mb-2 text-accent">Tell people</p>
+        <h2 className="font-serif text-2xl text-ink">Announce {names ? names : "the birth"}</h2>
+        <p className="mt-1 max-w-prose prose-serif-sm text-muted">
+          A beautiful card with their names and what each one means, the day, your photographs, a verse and your own words —
+          for your circle in Life, and a private link for everyone else.
+        </p>
+        <Link
+          href="/journey/announce"
+          className="mt-4 inline-flex min-h-11 items-center rounded-lg bg-accent px-5 font-mono text-sm font-medium text-on-accent hover:bg-accent-deep"
         >
-          {pending ? "Posting…" : "Share the news"}
-        </button>
-      </form>
+          Make the announcement
+        </Link>
+      </section>
+    );
+  }
+  return (
+    <section className="flex items-center gap-4 rounded-2xl border border-border bg-surface p-4">
+      {cover && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={cover} alt="" className="h-16 w-16 shrink-0 rounded-xl object-cover" />
+      )}
+      <div className="min-w-0 flex-1">
+        <p className="eyebrow text-muted">Your announcement</p>
+        <p className="truncate font-serif text-lg text-ink">{names}</p>
+        <div className="mt-1 flex flex-wrap gap-x-4 font-mono text-[0.68rem]">
+          {link && (
+            <a href={link} target="_blank" rel="noopener noreferrer" className="text-accent underline-offset-4 hover:underline">
+              Open the card
+            </a>
+          )}
+          <Link href="/journey/announce" className="text-muted underline-offset-4 hover:text-accent hover:underline">
+            Edit or share
+          </Link>
+        </div>
+      </div>
     </section>
   );
 }

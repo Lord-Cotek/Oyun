@@ -9,7 +9,9 @@ import { NativePush } from "@/components/NativePush";
 import { KnowTheHour } from "@/components/KnowTheHour";
 
 const playfair = Playfair_Display({
-  subsets: ["latin"],
+  // latin-ext and vietnamese carry ọ, ẹ, ṣ and the tone marks Yorùbá names
+  // use; without them those letters fall back to another face mid-word.
+  subsets: ["latin", "latin-ext", "vietnamese"],
   display: "swap",
   variable: "--font-playfair",
 });
@@ -30,7 +32,7 @@ const playfair = Playfair_Display({
  * for: eyebrows, counts, timestamps, figures in a column.
  */
 const literata = Literata({
-  subsets: ["latin"],
+  subsets: ["latin", "latin-ext", "vietnamese"],
   display: "swap",
   variable: "--font-literata",
 });

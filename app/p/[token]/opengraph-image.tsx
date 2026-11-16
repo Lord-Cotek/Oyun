@@ -1,5 +1,7 @@
 import { ImageResponse } from "next/og";
 import { getSharedPost } from "@/lib/post-share-db";
+import { announcementForToken } from "@/lib/announcement-db";
+import { STYLES, headingNames, longDate } from "@/lib/announcement";
 
 export const runtime = "nodejs";
 export const alt = "A moment shared from Oyun";
@@ -42,6 +44,49 @@ export default async function Image({
   params: { token: string };
 }) {
   const shared = await getSharedPost(params.token);
+  const ann = shared ? await announcementForToken(params.token) : null;
+
+  // A birth announcement previews as the card it is: the first photograph,
+  // and beside it the names and the day, in the colours the parents chose.
+  if (shared && ann) {
+    const st = STYLES[ann.style];
+    const names = headingNames(ann.babies);
+    const nameSize = names.length <= 14 ? 84 : names.length <= 26 ? 66 : 52;
+    const photo = ann.photoUrls[0];
+    return new ImageResponse(
+      (
+        <div style={{ width: "100%", height: "100%", display: "flex", background: st.paper, color: st.ink }}>
+          {photo && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={photo} alt="" width={520} height={630} style={{ width: 520, height: 630, objectFit: "cover" }} />
+          )}
+          <div
+            style={{
+              flex: 1,
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: photo ? "flex-start" : "center",
+              textAlign: photo ? "left" : "center",
+              padding: photo ? "60px 64px" : "60px 90px",
+              borderLeft: photo ? `1px solid ${st.edge}` : "none",
+            }}
+          >
+            <div style={{ fontSize: 22, letterSpacing: 8, textTransform: "uppercase", color: st.accent }}>
+              With joy and thanksgiving
+            </div>
+            <div style={{ marginTop: 26, fontSize: 36, color: st.soft }}>Welcome to the world</div>
+            <div style={{ marginTop: 10, fontSize: nameSize, lineHeight: 1.08, color: st.ink }}>{names}</div>
+            <div style={{ marginTop: 30, fontSize: 30, color: st.ink }}>
+              {`Born ${longDate(ann.bornOn)}${ann.timeOfBirth ? ` · ${ann.timeOfBirth}` : ""}`}
+            </div>
+            <div style={{ marginTop: 34, fontSize: 22, color: st.soft }}>{`With love from ${shared.household}`}</div>
+          </div>
+        </div>
+      ),
+      { ...size },
+    );
+  }
 
   const heading = shared
     ? `${shared.household} shared a moment`

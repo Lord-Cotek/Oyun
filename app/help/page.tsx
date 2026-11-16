@@ -395,8 +395,11 @@ export default async function HelpPage() {
                 whether the little one has arrived. Either of you can answer,
                 once: the day and their names. The date you were first given
                 is kept, so each child&rsquo;s page can say how early or late
-                they came. Then the page offers to announce the birth to the
-                circle, with a verse if you like.
+                they came. Then the page offers to make the announcement: a card
+                with their names and what each one means, the day, your
+                photographs, a verse and your own words — in Life for your
+                circle, and a private link for everyone else, where they can
+                send a word of welcome and ask to join your circle.
               </Q>
 
               <Q q="Can we make a book of the year?">

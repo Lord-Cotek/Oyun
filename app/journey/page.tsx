@@ -1,6 +1,7 @@
 import { letterOpenScope } from "@/lib/letters-seal";
 import { BirthAnnouncement } from "@/components/journey/BirthAnnouncement";
-import { birthVerses } from "@/app/journey/birth-actions";
+import { getAnnouncement, liveShareToken } from "@/lib/announcement-db";
+import { sharePath } from "@/lib/post-share";
 import { MoreFold } from "@/components/ui/MoreFold";
 import type { Metadata } from "next";
 import { surprisesImHelpingWith } from "@/lib/events-db";
@@ -209,15 +210,25 @@ export default async function JourneyPage() {
         select: { postId: true, occurredAt: true },
       })
     : null;
+  // For the first two months after the birth: an invitation to make the
+  // announcement, then a way back to it. See components/announce.
+  const announceRow =
+    birthMilestone && Date.now() - birthMilestone.occurredAt.getTime() < 60 * 86_400_000
+      ? await getAnnouncement(journey.id)
+      : null;
+  const announceToken = announceRow?.postId ? await liveShareToken(announceRow.postId) : null;
   const announce =
-    !!birthMilestone &&
-    !birthMilestone.postId &&
-    Date.now() - birthMilestone.occurredAt.getTime() < 60 * 86_400_000
+    birthMilestone && Date.now() - birthMilestone.occurredAt.getTime() < 60 * 86_400_000
       ? {
-          names: (await prisma.child.findMany({ where: { journeyId: journey.id }, orderBy: { createdAt: "asc" }, select: { name: true } }))
-            .map((c) => c.name)
-            .join(" & "),
-          verses: await birthVerses(),
+          names:
+            announceRow && Array.isArray(announceRow.babies)
+              ? (announceRow.babies as { fullName?: string }[]).map((b) => b.fullName ?? "").filter(Boolean).join(" & ")
+              : (await prisma.child.findMany({ where: { journeyId: journey.id }, orderBy: { createdAt: "asc" }, select: { name: true } }))
+                  .map((c) => c.name)
+                  .join(" & "),
+          made: !!announceRow,
+          link: announceToken ? sharePath(announceToken) : null,
+          cover: announceRow?.photoUrls[0] ?? null,
         }
       : null;
   const { stage } = position;
@@ -297,7 +308,7 @@ export default async function JourneyPage() {
           )}
           {announce && (
             <div className="mb-6 animate-fade-up">
-              <BirthAnnouncement names={announce.names} verses={announce.verses} />
+              <BirthAnnouncement names={announce.names} made={announce.made} link={announce.link} cover={announce.cover} />
             </div>
           )}
           {/* ── The way in ──────────────────────────────────────────────
@@ -634,7 +645,7 @@ export default async function JourneyPage() {
         )}
         {announce && (
           <div className="mb-6 animate-fade-up">
-            <BirthAnnouncement names={announce.names} verses={announce.verses} />
+            <BirthAnnouncement names={announce.names} made={announce.made} link={announce.link} cover={announce.cover} />
           </div>
         )}
         {/* The same way in as the mother sees, from the other side of it.

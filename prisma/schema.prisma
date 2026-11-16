@@ -306,34 +306,35 @@ model Journey {
   readingProgress  Int       @default(0)
   readingUpdatedAt DateTime?
 
-  memberships    Membership[]
-  registry       Registry?
-  invites        Invite[]
-  checkIns       CheckIn[]
-  letters        Letter[]
-  milestones     Milestone[]
-  nudges         Nudge[]
-  encouragements Encouragement[]
-  supportDays    SupportDay[]
-  children       Child[]
-  prayerRequests PrayerRequest[]
-  remembrances   Remembrance[]
-  worshipDays    WorshipDay[]
-  readingNotes   ReadingNote[]
-  posts          Post[]
-  appointments   Appointment[]
-  journeyEvents  JourneyEvent[]
-  postShares     PostShare[]
-  shareHellos    ShareHello[]
-  joinRequests   JoinRequest[]
-  prayingFor     PrayingFor[]
-  handovers      Handover[]
+  memberships       Membership[]
+  registry          Registry?
+  invites           Invite[]
+  checkIns          CheckIn[]
+  letters           Letter[]
+  milestones        Milestone[]
+  nudges            Nudge[]
+  encouragements    Encouragement[]
+  supportDays       SupportDay[]
+  children          Child[]
+  prayerRequests    PrayerRequest[]
+  remembrances      Remembrance[]
+  worshipDays       WorshipDay[]
+  readingNotes      ReadingNote[]
+  posts             Post[]
+  appointments      Appointment[]
+  journeyEvents     JourneyEvent[]
+  postShares        PostShare[]
+  shareHellos       ShareHello[]
+  joinRequests      JoinRequest[]
+  prayingFor        PrayingFor[]
+  handovers         Handover[]
   /// Who sees how she is — her check-in mood: "HOUSEHOLD" (the one walking
   /// beside her), "CIRCLE" (them and the wider circle) or "ME" (nobody but
   /// her). Hers to choose on the Care page. The Care page always promised
   /// her mood went to "the one supporting you", so that is the default; the
   /// circle sees it only if she opens it to them.
-  moodAudience   String          @default("HOUSEHOLD")
+  moodAudience      String             @default("HOUSEHOLD")
+  birthAnnouncement BirthAnnouncement?
 }
 
 /// The family feed — an update, a praise, a prayer, or a milestone that the
@@ -1796,4 +1797,33 @@ model PostTag {
   @@unique([postId, userId])
   @@index([childId])
   @@index([userId])
+}
+
+/// The birth, told beautifully: names and what they mean, the day, a verse,
+/// the parents' own words and their photographs. One per journey, made by the
+/// mother or her partner. It becomes a Life post for the circle and a private
+/// link for everyone else (an ordinary PostShare, so welcomes, "ask to join"
+/// and closing the link all work as they do for any shared post). Editing it
+/// later changes the post and the page; the link stays the same.
+model BirthAnnouncement {
+  id          String   @id @default(cuid())
+  journeyId   String   @unique
+  journey     Journey  @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  /// The Life post it became.
+  postId      String?  @unique
+  /// [{ fullName, names: [{ name, meaning }] }] — one entry per baby. See
+  /// lib/announcement.ts, which checks every field on the way in.
+  babies      Json
+  bornOn      DateTime
+  timeOfBirth String?
+  weight      String?
+  place       String?
+  message     String?
+  signedAs    String?
+  verseRef    String?
+  photoUrls   String[] @default([])
+  style       String   @default("dawn")
+  createdById String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
