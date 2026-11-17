@@ -160,7 +160,7 @@ export default async function HealthCardPrint({ searchParams }: { searchParams: 
                   </p>
                 </div>
                 <p className="mt-3 font-mono text-[0.55rem] text-muted print:text-black/60">
-                  Printed {long(today)}{p.updatedAt ? ` · last changed ${long(p.updatedAt)}` : ""}
+                  Printed {long(today)}{p.updatedAt ? ` · last changed ${long(p.updatedAt)}${p.updatedBy ? ` by ${p.updatedBy}` : ""}` : ""}
                 </p>
               </section>
             );

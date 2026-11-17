@@ -3,7 +3,7 @@ import { computePosition, gestationLabel } from "@/lib/stage";
 import { EMPTY_HEALTH, healthHints, type HealthFields, type HealthHint } from "@/lib/health-card";
 
 export type HealthPerson = {
-  /** "me", "mother", "partner" or a child's id — what the editor saves against. */
+  /** "me", "user:<id>" for the other one of you, or a child's id — what the editor saves against. */
   target: string;
   kind: "mother" | "partner" | "child";
   name: string;
@@ -11,11 +11,13 @@ export type HealthPerson = {
   sub: string;
   fields: HealthFields;
   saved: boolean;
-  /** Each adult writes their own card; either parent writes a child's. */
+  /** Either of the two keeps every card — hers, his and the children's. */
   canEdit: boolean;
   /** Their card from an earlier journey, offered when this one is empty. */
   prefill: HealthFields | null;
   updatedAt: Date | null;
+  /** Who last changed it, when that was not the person the card is about. */
+  updatedBy: string | null;
 };
 
 const pick = (r: HealthFields): HealthFields => ({
@@ -76,20 +78,26 @@ export async function loadHealthCards(journeyId: string, viewerId: string) {
         orderBy: { updatedAt: "desc" },
       });
 
+  // The two of them, by id, to say who last changed a card.
+  const nameOf = new Map(journey.memberships.map((m) => [m.userId, m.user.name?.trim() || m.user.email || "One of you"]));
+  const changedBy = (r: { updatedById: string | null } | undefined, ownerId: string | null) =>
+    r?.updatedById && r.updatedById !== ownerId ? nameOf.get(r.updatedById) ?? null : null;
+
   const people: HealthPerson[] = [];
   for (const m of journey.memberships) {
     const r = byUser.get(m.userId);
     const isMe = m.userId === viewerId;
     people.push({
-      target: isMe ? "me" : m.role === "MOTHER" ? "mother" : "partner",
+      target: isMe ? "me" : `user:${m.userId}`,
       kind: m.role === "MOTHER" ? "mother" : "partner",
       name: m.user.name?.trim() || m.user.email || (m.role === "MOTHER" ? "Mother" : "Partner"),
       sub: m.role === "MOTHER" ? "Mother" : "Partner",
       fields: r ? pick(r) : { ...EMPTY_HEALTH },
       saved: !!r,
-      canEdit: isMe,
+      canEdit: true,
       prefill: isMe && earlier ? pick(earlier) : null,
       updatedAt: r?.updatedAt ?? null,
+      updatedBy: changedBy(r, m.userId),
     });
   }
   for (const c of journey.children) {
@@ -104,6 +112,7 @@ export async function loadHealthCards(journeyId: string, viewerId: string) {
       canEdit: true,
       prefill: null,
       updatedAt: r?.updatedAt ?? null,
+      updatedBy: changedBy(r, null),
     });
   }
 

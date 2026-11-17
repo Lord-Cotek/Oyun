@@ -12,9 +12,10 @@ type Result = { ok: true } | { ok: false; error: string };
 /**
  * Save a health card.
  *
- * `target` is "me" for your own card, or a child's id. Nobody writes another
- * adult's card — her partner can read hers, and she his, but each one's
- * words are their own. Nothing is sent to anyone when a card changes.
+ * `target` is "me" for your own card, "user:<id>" for the other one of you,
+ * or a child's id. Either of the two keeps every card — in a hurry it is
+ * often the other one who knows, or who has the time — and each card says
+ * who last changed it. Nothing is sent to anyone when a card changes.
  */
 export async function saveHealthCard(target: string, raw: Record<string, unknown>): Promise<Result> {
   const session = await auth();
@@ -27,10 +28,17 @@ export async function saveHealthCard(target: string, raw: Record<string, unknown
   const journeyId = active.journey.id;
   const data = { ...cleanHealth(raw && typeof raw === "object" ? raw : {}), updatedById: userId };
 
-  if (target === "me") {
+  if (target === "me" || target.startsWith("user:")) {
+    // Only the two who keep the journey have adult cards here.
+    const ownerId = target === "me" ? userId : target.slice(5, 69);
+    const member = await prisma.membership.findFirst({
+      where: { journeyId, userId: ownerId, role: { in: ["MOTHER", "PARTNER"] } },
+      select: { userId: true },
+    });
+    if (!member) return { ok: false, error: "That card is no longer on this journey." };
     await prisma.healthRecord.upsert({
-      where: { journeyId_userId: { journeyId, userId } },
-      create: { journeyId, userId, ...data },
+      where: { journeyId_userId: { journeyId, userId: member.userId } },
+      create: { journeyId, userId: member.userId, ...data },
       update: data,
     });
   } else {

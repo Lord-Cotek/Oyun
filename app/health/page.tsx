@@ -95,7 +95,7 @@ export default async function HealthPage() {
                 saved: p.saved,
                 canEdit: p.canEdit,
                 prefill: p.prefill,
-                updatedLabel: p.updatedAt ? short(p.updatedAt) : null,
+                updatedLabel: p.updatedAt ? `${short(p.updatedAt)}${p.updatedBy ? ` by ${p.updatedBy}` : ""}` : null,
                 printHref: `/health/card?who=${encodeURIComponent(p.target)}`,
               }}
             />

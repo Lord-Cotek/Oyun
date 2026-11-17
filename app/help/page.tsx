@@ -381,11 +381,11 @@ export default async function HelpPage() {
             <Q q="What goes on a health card, and who sees it?">
               Open{" "}
               <Link href="/health" className="text-accent underline underline-offset-4">Health</Link>{" "}
-              (under More). Each of you fills in your own card — blood group,
+              (under More). There is a card for each of you — blood group,
               genotype, allergies, conditions, medicines and supplements,
-              your hospital, midwife or doctor, and who to call — and either
-              of you fills in each child&rsquo;s once the birth is recorded.
-              You can read each other&rsquo;s card but only change your own.
+              hospital, midwife or doctor, and who to call — and one for each
+              child once the birth is recorded. Either of you can fill in or
+              change any of them, and each card shows who last changed it.
               Nobody in the circle sees any of it, and it is never sent in an
               email or a notification. If you are rhesus negative, or you both
               carry a sickle cell gene, the page says what to ask your midwife.

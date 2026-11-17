@@ -26,15 +26,15 @@ const PLACEHOLDER: Record<HealthPersonView["kind"], Partial<Record<keyof HealthF
     allergies: "e.g. penicillin, latex — or “none known”",
     conditions: "e.g. asthma, high blood pressure, gestational diabetes",
     medicines: "e.g. folic acid and iron daily",
-    careProvider: "Hospital or clinic, and your midwife or doctor",
+    careProvider: "Hospital or clinic, and the midwife or doctor",
     emergencyContact: "Name and phone number",
     notes: "Anything a nurse should know on arrival",
   },
   partner: {
     allergies: "e.g. penicillin — or “none known”",
     conditions: "e.g. asthma, sickle cell",
-    medicines: "Anything you take regularly",
-    careProvider: "Your clinic or doctor",
+    medicines: "Anything taken regularly",
+    careProvider: "Clinic or doctor",
     emergencyContact: "Name and phone number",
     notes: "Anything else worth knowing",
   },
@@ -176,9 +176,7 @@ export function HealthCardView({ person }: { person: HealthPersonView }) {
         </div>
       ) : (
         <p className="mt-4 prose-serif-xs text-muted">
-          {person.canEdit
-            ? "Nothing yet. Blood group, genotype, allergies and who to call are the ones that matter most in a hurry."
-            : `${person.name} hasn’t filled this in yet. Only they can.`}
+          Nothing yet. Blood group, genotype, allergies and who to call are the ones that matter most in a hurry.
         </p>
       )}
 
@@ -190,7 +188,6 @@ export function HealthCardView({ person }: { person: HealthPersonView }) {
             </Link>
           )}
           {person.updatedLabel && <span>Updated {person.updatedLabel}</span>}
-          {!person.canEdit && person.kind !== "child" && <span>Only {person.name} can change this card</span>}
         </div>
       )}
     </section>
