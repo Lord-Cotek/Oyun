@@ -26,7 +26,7 @@ export default async function HandoverPage({ searchParams }: { searchParams: { e
   const j = active.journey;
   if (!computePosition(j.dueDate).born) redirect("/journey");
 
-  const [children, members, myLetters, firsts, lastPass, me] = await Promise.all([
+  const [children, members, myLetters, firsts, lastPass, me, healthCards] = await Promise.all([
     prisma.child.findMany({ where: { journeyId: j.id }, orderBy: { createdAt: "asc" }, select: { name: true, birthDate: true } }),
     prisma.membership.findMany({
       where: { journeyId: j.id, role: { not: "MOTHER" } },
@@ -37,6 +37,8 @@ export default async function HandoverPage({ searchParams }: { searchParams: { e
     prisma.milestone.count({ where: { journeyId: j.id, kind: { not: "BIRTH" } } }),
     prisma.handover.findFirst({ where: { journeyId: j.id, claimedAt: { not: null } }, orderBy: { claimedAt: "desc" }, select: { claimedAt: true } }),
     prisma.user.findUnique({ where: { id: userId }, select: { email: true } }),
+    // Her own card and the children's — what a pass can carry.
+    prisma.healthRecord.count({ where: { journeyId: j.id, OR: [{ userId }, { childId: { not: null } }] } }),
   ]);
   const partner = members.find((m) => m.role === "PARTNER" && m.user.email);
   const circle = members.filter((m) => m.role !== "PARTNER" && m.user.email);
@@ -144,7 +146,15 @@ export default async function HandoverPage({ searchParams }: { searchParams: { e
                     </span>
                   </label>
                 )}
-                {!partner && firsts === 0 && myLetters === 0 && (
+                {healthCards > 0 && (
+                  <label className={row}>
+                    <input type="checkbox" name="withHealth" defaultChecked className={box} />
+                    <span className="prose-serif-xs text-ink">
+                      Health cards — yours and the children’s: blood group, genotype, allergies, who to call
+                    </span>
+                  </label>
+                )}
+                {!partner && firsts === 0 && myLetters === 0 && healthCards === 0 && (
                   <p className="prose-serif-xs text-muted">Just the children, this time.</p>
                 )}
               </div>

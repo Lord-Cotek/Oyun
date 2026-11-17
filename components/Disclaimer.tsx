@@ -29,7 +29,7 @@ export function Disclaimer() {
   const full = showsFullPromise(pathname);
 
   return (
-    <footer className="safe-bottom relative z-10 border-t border-border/60 bg-bg/60 px-6 py-5">
+    <footer className="safe-bottom relative z-10 print:hidden border-t border-border/60 bg-bg/60 px-6 py-5">
       <div className="mx-auto max-w-shell space-y-3">
         <p
           className={`prose-serif-xs max-w-prose text-muted ${

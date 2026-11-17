@@ -38,6 +38,7 @@ export async function startHandover(formData: FormData) {
     withPartner: formData.get("withPartner") === "on",
     withLetters: formData.get("withLetters") === "on",
     withFirsts: formData.get("withFirsts") === "on",
+    withHealth: formData.get("withHealth") === "on",
     circleUserIds: members.map((m) => m.userId),
   });
   redirect(`${base}/welcome/oyun?pass=${encodeURIComponent(pass)}`);

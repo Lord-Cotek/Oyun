@@ -40,6 +40,7 @@ export type PassChoices = {
   withPartner: boolean;
   withLetters: boolean;
   withFirsts: boolean;
+  withHealth: boolean;
   circleUserIds: string[];
 };
 
@@ -56,6 +57,7 @@ export async function createPass(journeyId: string, userId: string, c: PassChoic
       withPartner: c.withPartner,
       withLetters: c.withLetters,
       withFirsts: c.withFirsts,
+      withHealth: c.withHealth,
       circleUserIds: c.circleUserIds.slice(0, 60),
       expiresAt: new Date(Date.now() + HANDOVER_TTL_DAYS * 86_400_000),
     },
@@ -125,7 +127,7 @@ export async function buildBundle(raw: string): Promise<Found> {
     return [{ name: m.user.name ?? m.user.email, email: m.user.email, role }];
   });
 
-  const [firsts, letters] = await Promise.all([
+  const [firsts, letters, health] = await Promise.all([
     pass.withFirsts
       ? prisma.milestone.findMany({
           where: { journeyId: j.id, kind: { not: "BIRTH" } },
@@ -140,6 +142,15 @@ export async function buildBundle(raw: string): Promise<Found> {
           where: { journeyId: j.id, authorId: pass.createdById, toBaby: true },
           orderBy: { createdAt: "asc" },
           select: { childId: true, body: true, createdAt: true, openOn: true },
+        })
+      : [],
+    // Her own card and the children's. Her partner's card is his, and stays.
+    pass.withHealth
+      ? prisma.healthRecord.findMany({
+          where: {
+            journeyId: j.id,
+            OR: [{ userId: pass.createdById }, { childId: { in: j.children.map((c) => c.id) } }],
+          },
         })
       : [],
   ]);
@@ -163,6 +174,17 @@ export async function buildBundle(raw: string): Promise<Found> {
         note: f.note,
         occurredAt: f.occurredAt.toISOString(),
         photoUrls: f.photoUrls,
+      })),
+      health: health.map((h) => ({
+        childRef: h.childId,
+        bloodGroup: h.bloodGroup,
+        genotype: h.genotype,
+        allergies: h.allergies,
+        conditions: h.conditions,
+        medicines: h.medicines,
+        careProvider: h.careProvider,
+        emergencyContact: h.emergencyContact,
+        notes: h.notes,
       })),
       letters: letters.map((l) => {
         const opens = l.openOn ? ymd(l.openOn) : null;

@@ -94,6 +94,7 @@ model User {
   ownMorningSent      OwnMorningSent[]
   weeklySent          WeeklySent[]
   postTags            PostTag[]            @relation("PostTagUser")
+  healthRecords       HealthRecord[]
 }
 
 /// A small emoji reaction on an encouragement or a check-in.
@@ -335,6 +336,7 @@ model Journey {
   /// circle sees it only if she opens it to them.
   moodAudience      String             @default("HOUSEHOLD")
   birthAnnouncement BirthAnnouncement?
+  healthRecords     HealthRecord[]
 }
 
 /// The family feed — an update, a praise, a prayer, or a milestone that the
@@ -662,18 +664,19 @@ model PersonalWorshipDay {
 
 /// A child profile (0-2 years). One per baby — supports twins and multiples.
 model Child {
-  id         String      @id @default(cuid())
+  id         String        @id @default(cuid())
   journeyId  String
-  journey    Journey     @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  journey    Journey       @relation(fields: [journeyId], references: [id], onDelete: Cascade)
   name       String
   birthDate  DateTime?
   sex        String? // "boy" | "girl" | null
   photoUrl   String?
   note       String?
-  createdAt  DateTime    @default(now())
+  createdAt  DateTime      @default(now())
   milestones Milestone[]
   letters    Letter[]
   postTags   PostTag[]
+  health     HealthRecord?
 
   @@index([journeyId])
 }
@@ -1747,6 +1750,9 @@ model Handover {
   withPartner   Boolean   @default(false)
   withLetters   Boolean   @default(false)
   withFirsts    Boolean   @default(false)
+  /// Her own health card and the children's. Off unless she ticks it — a
+  /// pass made before cards existed never carries them.
+  withHealth    Boolean   @default(false)
   /// Members of the circle she chose to invite along.
   circleUserIds String[]  @default([])
   expiresAt     DateTime
@@ -1826,4 +1832,42 @@ model BirthAnnouncement {
   createdById String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+/// A health card — the few details worth reaching for in a hurry: blood group,
+/// genotype, allergies, what she is taking, who looks after her and who to
+/// call. One for the mother, one for her partner, one for each child.
+///
+/// Kept to the two of them: the circle never sees it, and nothing here is
+/// ever sent in an email or a notification. Each adult writes their own card;
+/// either parent writes a child's.
+///
+/// Exactly one of `userId` and `childId` is set. The shape follows Ìdílé's
+/// HealthRecord so the cards can travel with the family at the handover.
+model HealthRecord {
+  id               String   @id @default(cuid())
+  journeyId        String
+  journey          Journey  @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  /// The mother's or her partner's own card…
+  userId           String?
+  user             User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// …or a child's.
+  childId          String?  @unique
+  child            Child?   @relation(fields: [childId], references: [id], onDelete: Cascade)
+  bloodGroup       String? // e.g. O+, AB-
+  genotype         String? // e.g. AA, AS
+  allergies        String?
+  conditions       String?
+  /// What they take now — supplements in pregnancy, a child's medicine.
+  medicines        String?
+  /// The hospital or clinic, and the midwife or doctor.
+  careProvider     String?
+  emergencyContact String?
+  notes            String?
+  updatedById      String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@unique([journeyId, userId])
+  @@index([journeyId])
 }

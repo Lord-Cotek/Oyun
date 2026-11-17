@@ -45,6 +45,24 @@ export type HandoverLetter = {
   opensOn: string | null;
 };
 
+/**
+ * A health card. `childRef` names a child; null is the mother's own card.
+ * Ìdílé keeps blood group, genotype, allergies, conditions and who to call in
+ * fields of their own; medicines and the clinic go into its notes, so nothing
+ * she wrote is left behind. Older bundles have no cards at all.
+ */
+export type HandoverHealth = {
+  childRef: string | null;
+  bloodGroup: string | null;
+  genotype: string | null;
+  allergies: string | null;
+  conditions: string | null;
+  medicines: string | null;
+  careProvider: string | null;
+  emergencyContact: string | null;
+  notes: string | null;
+};
+
 export type HandoverPerson = { name: string; email: string };
 export type CircleRole = "FAMILY" | "FRIEND" | "MENTOR";
 
@@ -63,6 +81,7 @@ export type HandoverBundle = {
   circle: (HandoverPerson & { role: CircleRole })[];
   firsts: HandoverFirst[];
   letters: HandoverLetter[];
+  health: HandoverHealth[];
 };
 
 /** Only the hash of a pass is ever stored. */
@@ -170,5 +189,31 @@ export function parseBundle(raw: unknown): HandoverBundle | null {
       if (!body || !at) return [];
       return [{ childRef: childRef(l.childRef), body, writtenAt: at, opensOn: day(l.opensOn) }];
     }),
+    // One card per person at most: a child that is not in this bundle, or a
+    // second card for the same person, is dropped.
+    health: (() => {
+      const seen = new Set<string>();
+      return list(b.health, 13).flatMap((h) => {
+        const ref = h.childRef == null ? null : childRef(h.childRef);
+        if (h.childRef != null && !ref) return [];
+        const key = ref ?? "mother";
+        if (seen.has(key)) return [];
+        seen.add(key);
+        const bg = str(h.bloodGroup, 8);
+        const gt = str(h.genotype, 8);
+        const card: HandoverHealth = {
+          childRef: ref,
+          bloodGroup: bg && /^(A|B|AB|O)[+-]$/.test(bg) ? bg : null,
+          genotype: gt && /^(AA|AS|SS|AC|SC)$/.test(gt) ? gt : null,
+          allergies: str(h.allergies, 1000),
+          conditions: str(h.conditions, 1000),
+          medicines: str(h.medicines, 1000),
+          careProvider: str(h.careProvider, 300),
+          emergencyContact: str(h.emergencyContact, 300),
+          notes: str(h.notes, 2000),
+        };
+        return Object.values(card).some((v) => v) ? [card] : [];
+      });
+    })(),
   };
 }

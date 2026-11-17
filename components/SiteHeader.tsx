@@ -27,7 +27,8 @@ type ActiveKey =
   | "nursery"
   | "worship"
   | "registry"
-  | "shared";
+  | "shared"
+  | "health";
 
 export async function SiteHeader({
   active,
@@ -97,6 +98,11 @@ export async function SiteHeader({
     ...(showCare && isMother && !inLoss
       ? [{ href: "/care", label: "Care", current: active === "care" }]
       : []),
+    // The health cards are the two of theirs — hers, his, the children's —
+    // and stay theirs after a loss too: her own card still matters then.
+    ...(isHousehold
+      ? [{ href: "/health", label: "Health", current: active === "health" }]
+      : []),
     // The nursery and the firsts belong to both parents — he keeps these too.
     ...(isHousehold && !inLoss
       ? [{ href: "/child", label: "Nursery", current: active === "nursery" }]
@@ -153,6 +159,7 @@ export async function SiteHeader({
     "/worship": "flame",
     "/appointments": "calendar",
     "/care": "heart",
+    "/health": "pulse",
     "/child": "star",
     "/firsts": "sparkles",
     "/circle": "users",

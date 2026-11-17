@@ -146,6 +146,14 @@ export default async function HelpPage() {
                 in it.
               </Room>
             )}
+            {home && (
+              <Room name="Health" href="/health">
+                A health card each — hers, her partner&rsquo;s and the
+                children&rsquo;s: blood group, genotype, allergies, medicines,
+                hospital or clinic, and who to call. A card to print for the
+                hospital bag or whoever minds the baby. Just the two of you.
+              </Room>
+            )}
             {isMother && !inLoss && (
               <Room name="Care" href="/care" aside="Hers.">
                 How her heart is today, and her own letters. She chooses who
@@ -369,6 +377,26 @@ export default async function HelpPage() {
             <span className="text-ink">Remove my tag</span>.
           </Q>
 
+          {home && (
+            <Q q="What goes on a health card, and who sees it?">
+              Open{" "}
+              <Link href="/health" className="text-accent underline underline-offset-4">Health</Link>{" "}
+              (under More). Each of you fills in your own card — blood group,
+              genotype, allergies, conditions, medicines and supplements,
+              your hospital, midwife or doctor, and who to call — and either
+              of you fills in each child&rsquo;s once the birth is recorded.
+              You can read each other&rsquo;s card but only change your own.
+              Nobody in the circle sees any of it, and it is never sent in an
+              email or a notification. If you are rhesus negative, or you both
+              carry a sickle cell gene, the page says what to ask your midwife.
+              Press <span className="text-ink">Card to print</span> for a
+              hospital-bag card with how many weeks you are and your due date,
+              or <span className="text-ink">Emergency card</span> for a
+              child&rsquo;s card to leave with whoever is minding them —
+              printed, or saved as a PDF and sent.
+            </Q>
+          )}
+
           <Q q="Can I download our photos?">
             Yes. Open{" "}
             <Link href="/life?view=photos" className="text-accent underline underline-offset-4">Life &rarr; Photos</Link>
@@ -429,7 +457,8 @@ export default async function HelpPage() {
               Choose what comes with you — the children with their real
               birthdays, an invitation for your partner, the firsts with their
               photos, your own letters (a sealed one stays sealed until its
-              day), and anyone from the circle you want to invite — then sign
+              day), your health card and the children&rsquo;s, and anyone
+              from the circle you want to invite — then sign
               in to Ìdílé with the email you chose. The link works once, for{" "}
               {HANDOVER_TTL_DAYS} days. Letters others wrote stay here, where
               they can always be read. Nothing in Oyun is changed or removed.

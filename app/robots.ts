@@ -29,6 +29,7 @@ export default function robots(): MetadataRoute.Robots {
         // for the crawler that finds one pasted in a public forum.
         "/r",
         "/appointments",
+        "/health",
         "/dates",
       ],
     },

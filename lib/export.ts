@@ -263,8 +263,32 @@ async function gather({ userId, journeyId, role }: ExportScope) {
     select: { name: true, request: true, createdAt: true, answeredAt: true, answerNote: true, stoppedAt: true },
   });
 
+  // The health cards are the two of theirs, like the appointment book.
+  const health = inHouse
+    ? (
+        await prisma.healthRecord.findMany({
+          where: j,
+          orderBy: { createdAt: "asc" },
+          select: {
+            bloodGroup: true,
+            genotype: true,
+            allergies: true,
+            conditions: true,
+            medicines: true,
+            careProvider: true,
+            emergencyContact: true,
+            notes: true,
+            updatedAt: true,
+            user: { select: { name: true } },
+            child: { select: { name: true } },
+          },
+        })
+      ).map(({ user, child, ...r }) => ({ whose: child?.name ?? user?.name ?? "someone", ...r }))
+    : [];
+
   return {
     prayingFor,
+    health,
     you,
     journey,
     members,
@@ -481,6 +505,32 @@ function chapters(g: Gathered): Chapter[] {
       ),
     },
     {
+      slug: "health",
+      title: "Health cards",
+      blurb: "Blood group, genotype, allergies, medicines and who to call — as they stood on the day of this export.",
+      rows: g.health,
+      html: list(
+        g.health.map(
+          (h) =>
+            `<article><h3>${esc(h.whose)}</h3><p class="meta">Last changed ${day(h.updatedAt)}</p>${(
+              [
+                ["Blood group", h.bloodGroup],
+                ["Genotype", h.genotype],
+                ["Allergies", h.allergies],
+                ["Conditions", h.conditions],
+                ["Medicines and supplements", h.medicines],
+                ["Hospital, midwife or doctor", h.careProvider],
+                ["In an emergency, call", h.emergencyContact],
+                ["Good to know", h.notes],
+              ] as [string, string | null][]
+            )
+              .filter(([, v]) => v)
+              .map(([k, v]) => `<p><strong>${esc(k)}:</strong> ${esc(v)}</p>`)
+              .join("")}</article>`,
+        ),
+      ),
+    },
+    {
       slug: "worship",
       title: "Worship",
       blurb: `Every day this family gathered — ${g.worshipDays.length} in all.`,
@@ -685,7 +735,7 @@ WHAT IS NOT IN HERE
 ${
   inHouse
     ? "  Reminders anyone else set for themselves, and any reading note another\n  person marked private. Those were never yours to take."
-    : "  The rooms this family keeps between themselves — the letters, the care\n  journal, and the appointments. You are part of the circle around them, not\n  one of the two at the centre, and the export shows you exactly what the app\n  does."
+    : "  The rooms this family keeps between themselves — the letters, the care\n  journal, the appointments and the health cards. You are part of the circle around them, not\n  one of the two at the centre, and the export shows you exactly what the app\n  does."
 }
 
 These months belong to your family. They always did.
