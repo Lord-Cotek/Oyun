@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useTransition } from "react";
+import Link from "next/link";
 import { Icon, type IconName } from "@/components/ui/Icon";
 import { Verse } from "@/components/ui/Verse";
 import { ShareButton } from "@/components/ShareButton";
@@ -30,6 +31,9 @@ export type Station = {
   author?: string; // attribution, e.g. a hymn's author + year
   lyrics?: string[]; // full verses, revealed behind a "Full lyrics" toggle
   link?: { href: string; label: string }; // an external "listen / read more" link
+  /** A room in the app this station sends you to, e.g. Together — shown as a
+   *  button, so the station is a door and not only a mention of one. */
+  action?: { href: string; label: string };
   share?: { path: string; title: string; text: string }; // shareable to WhatsApp etc.
   tone?: "accent" | "accent2";
 };
@@ -213,14 +217,26 @@ export function LiturgyRail({
                       </div>
                     )}
 
-                    <button
-                      type="button"
-                      onClick={() => go(i + 1)}
-                      className="mt-5 inline-flex items-center gap-2 font-mono text-xs tracking-wide text-accent transition-transform hover:translate-x-0.5"
-                    >
-                      {i === stations.length - 1 ? "Bring it to a close" : "Continue"}
-                      <Arrow />
-                    </button>
+                    {s.action && (
+                      <Link
+                        href={s.action.href}
+                        className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-full bg-accent px-5 font-mono text-sm font-medium text-on-accent transition-colors hover:bg-accent-deep"
+                      >
+                        {s.action.label}
+                        <Arrow />
+                      </Link>
+                    )}
+
+                    <div>
+                      <button
+                        type="button"
+                        onClick={() => go(i + 1)}
+                        className={`${s.action ? "mt-4" : "mt-5"} inline-flex items-center gap-2 font-mono text-xs tracking-wide text-accent transition-transform hover:translate-x-0.5`}
+                      >
+                        {i === stations.length - 1 ? "Bring it to a close" : "Continue"}
+                        <Arrow />
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
