@@ -128,6 +128,21 @@ console.log("Medicines and doses");
   check(M.scheduleSummary({ scheduleKind: "TIMES", times: ["08:00", "20:00"], everyDays: null, startOn: "x", endOn: null }) === "Twice a day at 08:00 and 20:00", "the schedule reads as a sentence");
 }
 
+console.log("Tests checklist");
+{
+  const P = jiti(path.join(root, "lib/prenatal.ts"));
+  const keys = (t, c = [], f = { rhNegative: false, bothCarriers: false }) => P.itemsFor(t, c, f).map((i) => i.key);
+  const intl = keys("INTL"), ng = keys("NG");
+  check(intl.includes("TDAP") && intl.includes("GBS") && intl.includes("GTT") && !intl.includes("IPTP_1"), "International has Tdap, group B strep and the GTT, not malaria prevention");
+  check(ng.includes("IPTP_1") && ng.includes("TD_1") && ng.includes("GENOTYPE") && ng.includes("PCV") && !ng.includes("TDAP") && !ng.includes("GBS"), "Nigeria has IPTp, Td, genotype and PCV, not Tdap or group B strep");
+  check(!intl.includes("ANTI_D") && keys("INTL", [], { rhNegative: true, bothCarriers: false }).includes("ANTI_D"), "anti-D appears only when the health card says rhesus negative");
+  check(keys("NG", [], { rhNegative: false, bothCarriers: true }).includes("BABY_GENOTYPE_TALK"), "both parents carrying a sickle gene adds the genotype talk");
+  check(!intl.includes("CERVIX_LENGTH") && keys("INTL", ["CERVIX"]).includes("CERVIX_LENGTH"), "conditional checks appear only when switched on");
+  const s = (w, item, done = false) => P.statusOf(item, { born: false, week: w }, done);
+  check(s(20, { weeks: [18, 22] }) === "due" && s(16, { weeks: [18, 22] }) === "upcoming" && s(25, { weeks: [18, 22] }) === "past" && s(25, { weeks: [18, 22] }, true) === "done", "status by week: upcoming, due, past, done");
+  check(P.statusOf({ afterBirth: [6, 8] }, { born: true, weeksAfter: 7 }, false) === "due" && P.statusOf({ afterBirth: [6, 8] }, { born: false, week: 30 }, false) === "upcoming", "after-birth checks wait for the birth");
+}
+
 console.log("Kept from the assistant");
 {
   const { readFileSync, readdirSync, statSync, existsSync } = await import("node:fs");

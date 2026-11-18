@@ -446,6 +446,27 @@ export default async function HelpPage() {
             </Q>
           )}
 
+          {home && (
+            <Q q="What is the tests and vaccines checklist?">
+              <Link href="/health/tests" className="text-accent underline underline-offset-4">Health &rarr; Tests</Link>{" "}
+              lists what is usually checked in pregnancy and when — booking
+              bloods, scans, the glucose test, vaccines, swabs and the
+              postnatal check — grouped as due around now, coming up and
+              done. It is a typical schedule and says so; your clinic&rsquo;s
+              may differ. Choose <span className="text-ink">International</span>{" "}
+              (the usual WHO, UK and US pattern) or{" "}
+              <span className="text-ink">Nigeria</span> (genotype, PCV, tetanus,
+              malaria prevention and deworming). Mark a check done with its
+              date and result, link the appointment, and keep a photo or PDF
+              of the report. Hide what your clinic does not do, add what it
+              does, and switch on the checks that apply to you (cervical
+              length, diabetes follow-up, blood pressure monitoring, a fetal
+              heart scan, extra growth scans). If your health card says you
+              are rhesus negative, anti-D is added; if you both carry a sickle
+              cell gene, a talk about the baby&rsquo;s genotype is added.
+            </Q>
+          )}
+
           <Q q="Can I download our photos?">
             Yes. Open{" "}
             <Link href="/life?view=photos" className="text-accent underline underline-offset-4">Life &rarr; Photos</Link>

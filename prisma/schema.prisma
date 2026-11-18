@@ -344,6 +344,7 @@ model Journey {
   medicationPlans   MedicationPlan[]
   medicationDoses   MedicationDose[]
   healthChecksSent  HealthCheckSent[]
+  prenatalChecks    PrenatalCheck[]
 }
 
 /// The family feed — an update, a praise, a prayer, or a milestone that the
@@ -2082,4 +2083,39 @@ model HealthCheckSent {
   sentAt    DateTime @default(now())
 
   @@unique([journeyId, slotKey])
+}
+
+/// One item on the tests-and-vaccines checklist: done (with the date and the
+/// result), edited, hidden, or one the family added themselves.
+///
+/// ── Why most of the checklist is not in this table ───────────────────────
+/// The typical schedule lives in data/prenatal-schedule.ts and is read fresh
+/// every time, so an improvement to it reaches every family. A row exists
+/// only once a family has done something with an item — marked it done,
+/// changed its title or weeks, hidden it — or added one of their own
+/// (`key` null). Their row always wins over the template.
+model PrenatalCheck {
+  id            String    @id @default(cuid())
+  journeyId     String
+  journey       Journey   @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  /// The template item this is (see data/prenatal-schedule.ts), or null for
+  /// one the family added.
+  key           String?
+  title         String?
+  category      String?
+  weekFrom      Int?
+  weekTo        Int?
+  doneOn        DateTime? @db.Date
+  /// The result in words, and a number where there is one ("Hb 11.2").
+  result        String?
+  resultValue   String?
+  appointmentId String?
+  hidden        Boolean   @default(false)
+  notes         String?
+  createdById   String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@unique([journeyId, key])
+  @@index([journeyId])
 }
