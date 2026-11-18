@@ -23,11 +23,14 @@ export function ReportActions({
   period,
   withPhotos,
   isMother,
+  motherName,
   links,
 }: {
   period: { from: string; to: string };
   withPhotos: boolean;
   isMother: boolean;
+  /** Her first name, for telling her partner who can make a link. */
+  motherName: string;
   links: LinkRow[];
 }) {
   const router = useRouter();
@@ -175,6 +178,15 @@ export function ReportActions({
               </ul>
             </div>
           )}
+        </section>
+      )}
+
+      {!isMother && (
+        <section className="rounded-2xl border border-border bg-surface p-5 print:hidden">
+          <p className="eyebrow mb-1 text-muted">Share with the doctor</p>
+          <p className="prose-serif-xs text-muted">
+            A view-only link for the doctor can only be made by {motherName}, from her own Oyun account under Health &rarr; Report — the health log leaves the app only when she chooses. You can still print this report or save it as a PDF and send that.
+          </p>
         </section>
       )}
 

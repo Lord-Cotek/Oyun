@@ -140,7 +140,7 @@ export default async function ReportPage({ searchParams }: { searchParams: Recor
         {/* Not print-hidden as a whole: its controls hide themselves, and the
             QR block for a link just made prints above the report. */}
         <div className="mt-4 print:mb-3 print:mt-0">
-          <ReportActions period={period} withPhotos={photos} isMother={a.isMother} links={links} />
+          <ReportActions period={period} withPhotos={photos} isMother={a.isMother} motherName={a.motherName.split(" ")[0] || "Mum"} links={links} />
         </div>
         <p className="mb-3 mt-6 eyebrow text-muted print:hidden">Preview — exactly as it prints</p>
         <div className="overflow-x-auto rounded-xl border border-border print:overflow-visible print:rounded-none print:border-0">
