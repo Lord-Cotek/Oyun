@@ -19,9 +19,8 @@ import {
   type Units,
   type Verdict,
 } from "@/lib/health-log";
-import { discardHealthFile, registerHealthFile, saveReading } from "@/app/health/log/actions";
-import { isPdf, uploadHealthFile } from "@/lib/health-upload";
-import { isIos } from "@/lib/shell";
+import { discardHealthFile, saveReading } from "@/app/health/log/actions";
+import { HealthPhotoPicker } from "@/components/health/HealthPhotoPicker";
 
 export type EditReading = {
   id: string;
@@ -33,7 +32,6 @@ export type EditReading = {
   files: { id: string; contentType: string }[];
 };
 
-type Pending = { key: string; name: string; preview: string | null; pdf: boolean; id: string | null; error: string | null };
 
 /** "yyyy-mm-ddThh:mm" in the phone's own time — what a datetime-local wants. */
 function localInput(d: Date) {
@@ -90,16 +88,11 @@ export function ReadingSheet({
     ketones: d0.ketones as string | undefined,
   });
   const [note, setNote] = useState(edit?.note ?? "");
-  const [pending, setPending] = useState<Pending[]>([]);
-  const [removed, setRemoved] = useState<string[]>([]);
+  const [files, setFiles] = useState({ fileIds: [] as string[], removeFileIds: [] as string[], uploading: false });
   const [error, setError] = useState<string | null>(null);
   const [verdict, setVerdict] = useState<Verdict | null>(null);
   const [saving, start] = useTransition();
   const firstInput = useRef<HTMLInputElement>(null);
-  // iOS does not allow opening the camera straight from the app yet: the
-  // library picker only (it still offers the camera). Decided after mount.
-  const [ios, setIos] = useState(false);
-  useEffect(() => setIos(isIos()), []);
 
   // The slot follows the clock until somebody picks one themselves.
   useEffect(() => {
@@ -116,29 +109,11 @@ export function ReadingSheet({
     return () => window.removeEventListener("keydown", esc);
   });
 
-  const uploading = pending.some((p) => !p.id && !p.error);
-
-  async function addFiles(list: FileList | null) {
-    if (!list) return;
-    const files = Array.from(list).slice(0, Math.max(0, 6 - pending.length));
-    for (const f of files) {
-      const key = `${Date.now()}-${Math.random()}`;
-      const pdf = isPdf(f);
-      setPending((p) => [...p, { key, name: f.name, preview: pdf ? null : URL.createObjectURL(f), pdf, id: null, error: null }]);
-      try {
-        const up = await uploadHealthFile(f, journeyId);
-        const reg = await registerHealthFile(up);
-        if (!reg.ok) throw new Error(reg.error);
-        setPending((p) => p.map((x) => (x.key === key ? { ...x, id: reg.id } : x)));
-      } catch (e) {
-        setPending((p) => p.map((x) => (x.key === key ? { ...x, error: (e as Error).message || "That did not upload." } : x)));
-      }
-    }
-  }
+  const uploading = files.uploading;
 
   function close() {
     // Anything uploaded for a reading that was never saved goes straight back out.
-    if (!verdict) for (const p of pending) if (p.id) void discardHealthFile(p.id);
+    if (!verdict) for (const id of files.fileIds) void discardHealthFile(id);
     onClose();
   }
 
@@ -157,8 +132,8 @@ export function ReadingSheet({
         c,
         detail,
         note,
-        fileIds: pending.filter((p) => p.id).map((p) => p.id!),
-        removeFileIds: removed,
+        fileIds: files.fileIds,
+        removeFileIds: files.removeFileIds,
       });
       if (!r.ok) {
         setError(r.error);
@@ -328,61 +303,7 @@ export function ReadingSheet({
               <textarea id="hl-note" rows={2} value={note} onChange={(e) => setNote(e.target.value)} className="w-full resize-y rounded-lg border border-border bg-bg px-3 py-2.5 font-mono text-sm text-ink" />
             </label>
 
-            <div>
-              <span className="mb-1.5 block font-mono text-[0.62rem] uppercase tracking-widest text-muted">Photo proof (optional)</span>
-              <div className="flex flex-wrap gap-2">
-                {!ios && (
-                  <label className="inline-flex min-h-11 cursor-pointer items-center rounded-lg border border-border px-3 font-mono text-xs text-ink hover:border-accent">
-                    📷 Take a photo
-                    <input type="file" accept="image/*" capture="environment" className="sr-only" onChange={(e) => { void addFiles(e.target.files); e.target.value = ""; }} />
-                  </label>
-                )}
-                <label className="inline-flex min-h-11 cursor-pointer items-center rounded-lg border border-border px-3 font-mono text-xs text-ink hover:border-accent">
-                  {ios ? "Add a photo or PDF" : "Choose photo or PDF"}
-                  <input type="file" accept="image/jpeg,image/png,image/webp,image/heic,application/pdf" multiple className="sr-only" onChange={(e) => { void addFiles(e.target.files); e.target.value = ""; }} />
-                </label>
-              </div>
-              {(pending.length > 0 || (edit?.files.length ?? 0) > 0) && (
-                <ul className="mt-2 flex flex-wrap gap-2">
-                  {edit?.files.map((f) => {
-                    const gone = removed.includes(f.id);
-                    return (
-                      <li key={f.id} className={`relative h-16 w-16 overflow-hidden rounded-lg border border-border ${gone ? "opacity-30" : ""}`}>
-                        {f.contentType === "application/pdf" ? (
-                          <span className="flex h-full items-center justify-center font-mono text-[0.6rem] text-muted">PDF</span>
-                        ) : (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={`/api/health/file/${f.id}`} alt="" className="h-full w-full object-cover" />
-                        )}
-                        <button
-                          type="button"
-                          aria-label={gone ? "Keep this file" : "Remove this file"}
-                          onClick={() => setRemoved((r) => (gone ? r.filter((x) => x !== f.id) : [...r, f.id]))}
-                          className="absolute right-0 top-0 h-6 w-6 rounded-bl-lg bg-black/60 font-mono text-xs text-white"
-                        >
-                          {gone ? "↺" : "×"}
-                        </button>
-                      </li>
-                    );
-                  })}
-                  {pending.map((p) => (
-                    <li key={p.key} className="relative h-16 w-16 overflow-hidden rounded-lg border border-border" title={p.error ?? p.name}>
-                      {p.preview ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={p.preview} alt="" className="h-full w-full object-cover" />
-                      ) : (
-                        <span className="flex h-full items-center justify-center font-mono text-[0.6rem] text-muted">PDF</span>
-                      )}
-                      {!p.id && !p.error && <span className="absolute inset-0 flex items-center justify-center bg-black/40 font-mono text-[0.6rem] text-white">…</span>}
-                      {p.error && <span className="absolute inset-0 flex items-center justify-center bg-negative/70 px-1 text-center font-mono text-[0.55rem] text-white">failed</span>}
-                    </li>
-                  ))}
-                </ul>
-              )}
-              {pending.some((p) => p.error) && (
-                <p className="mt-1 font-mono text-[0.62rem] text-negative">{pending.find((p) => p.error)?.error}</p>
-              )}
-            </div>
+            <HealthPhotoPicker journeyId={journeyId} existing={edit?.files} onChange={setFiles} />
 
             {error && (
               <p role="alert" className="font-mono text-xs text-negative">
