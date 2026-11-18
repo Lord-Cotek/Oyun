@@ -11,6 +11,23 @@ const short = (ymd: string) => new Date(`${ymd}T12:00:00Z`).toLocaleDateString("
  * a symbol (▲ high, ▼ low, ‼ act now) as well as a colour, so a photocopy
  * loses nothing. No app chrome; it is printed from here as it stands.
  */
+const SITE_HOST = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://oyun.cotek.app").replace(/^https?:\/\//, "").replace(/\/+$/, "");
+
+/**
+ * The Oyun mark in fixed paper colours — black ring, deep amber curl — so it
+ * prints the same whichever theme the phone was in when the report was made.
+ */
+function PaperMark({ size = 22 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 120 120" aria-hidden="true">
+      <g transform="translate(60,60)">
+        <path d="M 0 -46 C 42 -46 56 -6 56 12 C 56 40 33 52 0 52 C -33 52 -56 40 -56 12 C -56 -6 -42 -46 0 -46" fill="none" stroke="#111" strokeWidth={7} strokeLinecap="round" />
+        <path d="M -3 -20 C 22 -18 30 8 18 28 C 11 40 -7 43 -17 33 C -26 24 -22 10 -10 10 C -3 10 -1 -4 -3 -20 Z" fill="#8f5410" />
+      </g>
+    </svg>
+  );
+}
+
 export function ReportDocument({ r, fileBase }: { r: Report; fileBase: string }) {
   const h = r.header;
   return (
@@ -27,6 +44,13 @@ export function ReportDocument({ r, fileBase }: { r: Report; fileBase: string })
       `}</style>
 
       <header className="hr-avoid border-b-2 border-black pb-3">
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <PaperMark />
+            <span className="text-lg font-semibold tracking-tight">Oyun</span>
+          </div>
+          <span className="text-[10px] text-neutral-600">{SITE_HOST}</span>
+        </div>
         <p className="text-[11px] uppercase tracking-[0.18em] text-neutral-600">Home health record — for the doctor</p>
         <h1 className="mt-1 text-2xl font-semibold">{h.name}</h1>
         <div className="mt-2 grid grid-cols-2 gap-x-6 gap-y-1 sm:grid-cols-3">
@@ -242,8 +266,20 @@ export function ReportDocument({ r, fileBase }: { r: Report; fileBase: string })
         </Section>
       )}
 
-      <footer className="mt-8 border-t border-neutral-400 pt-2 text-[11px] text-neutral-700">
-        Recorded at home by the patient&rsquo;s household. Not a diagnosis. Targets are those the household entered from their doctor&rsquo;s advice, or common defaults where none were entered.
+      <footer className="hr-avoid mt-8 border-t border-neutral-400 pt-3 text-[10.5px] leading-relaxed text-neutral-700">
+        <p className="mb-1 font-semibold text-neutral-900">About this record</p>
+        <p>
+          Every reading, dose, result and note in this report was entered by the patient — or, where she shares her log, her partner — in the Oyun app, as they recorded it at home. Oyun does not measure, check or verify any value, and cannot confirm the devices used or how readings were taken.
+        </p>
+        <p className="mt-1">
+          This is a home record to support a conversation with a clinician. It is not a diagnosis, a clinical record or medical advice. Targets shown are those the household entered from their doctor&rsquo;s advice, or common defaults where none were entered. Please confirm anything important with the patient and your own tests.
+        </p>
+        <div className="mt-3 flex items-center justify-between gap-3 text-neutral-500">
+          <span className="flex items-center gap-1.5">
+            <PaperMark size={14} /> Made with Oyun · {SITE_HOST}
+          </span>
+          <span>Generated {new Date(h.generated).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric", timeZone: h.tz })}</span>
+        </div>
       </footer>
     </article>
   );
