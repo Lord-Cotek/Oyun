@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { notify } from "@/lib/notify";
+import { sendNotificationEmail } from "@/lib/email";
 import { ensureDoses } from "@/lib/medication-db";
 import { localDay, zonedInstant } from "@/lib/medication";
 
@@ -27,7 +28,54 @@ const WINDOW_AFTER = 55 * 60_000;
 export async function sendHealthReminders(now = new Date()) {
   const doses = await remindDoses(now).catch(() => 0);
   const checks = await remindChecks(now).catch(() => 0);
-  return { doses, checks };
+  const weekly = await weeklyReportEmails(now).catch(() => 0);
+  return { doses, checks, weekly };
+}
+
+/** Sunday, 18:00–18:59 where she is. */
+export function isWeeklyReportHour(now: Date, tz: string): boolean {
+  const parts = new Intl.DateTimeFormat("en-GB", { weekday: "short", hour: "2-digit", hourCycle: "h23", timeZone: tz }).formatToParts(now);
+  const get = (t: string) => parts.find((p) => p.type === t)?.value;
+  return get("weekday") === "Sun" && Number(get("hour")) === 18;
+}
+
+/**
+ * Her Sunday-evening email, only if she turned it on: the week's report is
+ * ready. A link to the report page, which asks her to sign in — never a
+ * number, a medicine or a symptom in the email itself, because email is not
+ * a private place. Sent once (the same once-only record as the reading
+ * reminders), only while the journey is active, and only if she still has
+ * email notifications on (the email's own unsubscribe link turns those off).
+ */
+async function weeklyReportEmails(now: Date): Promise<number> {
+  const rows = await prisma.healthLogSettings.findMany({
+    where: { weeklyEmail: true },
+    select: { journeyId: true, journey: { select: { status: true, ownerId: true, owner: { select: { timeZone: true, email: true, name: true, notifyByEmail: true } } } } },
+  });
+  let sent = 0;
+  for (const r of rows) {
+    const o = r.journey.owner;
+    if (r.journey.status !== "ACTIVE" || !o.email || !o.notifyByEmail) continue;
+    const tz = o.timeZone || "UTC";
+    if (!isWeeklyReportHour(now, tz)) continue;
+    const slotKey = `weekly-report ${localDay(now, tz)}`;
+    if (await prisma.healthCheckSent.findUnique({ where: { journeyId_slotKey: { journeyId: r.journeyId, slotKey } }, select: { id: true } })) continue;
+    try {
+      await prisma.healthCheckSent.create({ data: { journeyId: r.journeyId, slotKey } });
+    } catch {
+      continue; // a run racing this one sent it
+    }
+    await sendNotificationEmail({
+      to: o.email,
+      userId: r.journey.ownerId,
+      name: o.name,
+      title: "Your week's health report is ready",
+      body: "Open it in Oyun to look over the week, print it, or send it to your doctor. For your privacy, nothing from your log is put in this email.",
+      href: "/health/report?p=week",
+    }).catch(() => false);
+    sent++;
+  }
+  return sent;
 }
 
 async function remindDoses(now: Date): Promise<number> {

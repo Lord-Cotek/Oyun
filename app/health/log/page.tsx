@@ -82,6 +82,7 @@ export default async function HealthLogPage() {
             customTargets={[...a.customTargets]}
             isMother={a.isMother}
             audience={a.audience}
+            weeklyEmail={a.weeklyEmail}
             urgentRecent={urgentRecent}
             checkTimes={a.checkTimes}
           />

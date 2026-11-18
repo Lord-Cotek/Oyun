@@ -158,6 +158,27 @@ console.log("Report downloads");
   check(R.daysIn({ from: "2026-02-27", to: "2026-03-02" }).join() === "2026-02-27,2026-02-28,2026-03-01,2026-03-02", "a period counts its days across a month end");
 }
 
+console.log("Report links");
+{
+  const L = jiti(path.join(root, "lib/health-report-link.ts"));
+  const now = new Date("2026-11-18T12:00:00Z");
+  check(L.linkIsOpen({ revokedAt: null, expiresAt: new Date("2026-11-19T12:00:00Z") }, now), "an unexpired, unclosed link is open");
+  check(!L.linkIsOpen({ revokedAt: null, expiresAt: new Date("2026-11-18T12:00:00Z") }, now), "it closes the moment it expires");
+  check(!L.linkIsOpen({ revokedAt: new Date("2026-11-18T11:00:00Z"), expiresAt: new Date("2026-11-25T12:00:00Z") }, now), "closing it stops it at once, whatever its date");
+  check(L.hashReportToken("abc") === L.hashReportToken("abc") && L.hashReportToken("abc") !== "abc" && L.hashReportToken("abc").length === 64, "only a sha-256 hash of the token is kept");
+  check(!L.looksLikeToken("../x") && !L.looksLikeToken("a b") && !L.looksLikeToken("x".repeat(101)) && L.looksLikeToken("Ab_9-z"), "anything that is not a token is refused before the database");
+}
+
+console.log("Weekly report email");
+{
+  const H = jiti(path.join(root, "lib/health-reminders.ts"));
+  // Sunday 22 Nov 2026, 14:30 UTC = 18:30 in Dubai, 14:30 in London, 09:30 in New York.
+  const sun = new Date("2026-11-22T14:30:00Z");
+  check(H.isWeeklyReportHour(sun, "Asia/Dubai") && !H.isWeeklyReportHour(sun, "Europe/London") && !H.isWeeklyReportHour(sun, "America/New_York"), "sent at six on Sunday evening where she is, not anywhere else's");
+  check(!H.isWeeklyReportHour(new Date("2026-11-21T14:30:00Z"), "Asia/Dubai"), "not on a Saturday");
+  check(H.isWeeklyReportHour(new Date("2026-11-22T17:10:00Z"), "Africa/Lagos"), "Lagos at 18:10 on Sunday");
+}
+
 console.log("Kept from the assistant");
 {
   const { readFileSync, readdirSync, statSync, existsSync } = await import("node:fs");

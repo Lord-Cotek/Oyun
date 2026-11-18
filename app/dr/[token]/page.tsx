@@ -38,7 +38,15 @@ export default async function DoctorReport({ params }: { params: { token: string
     <main className="mx-auto max-w-4xl px-4 py-6 print:max-w-none print:p-0">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3 print:hidden">
         <p className="font-mono text-xs text-muted">View-only health report, shared by the patient · open until {until}</p>
-        <PrintButton />
+        <div className="flex flex-wrap gap-2">
+          <PrintButton />
+          <a href={`/api/health/report-csv/${params.token}?kind=readings`} className="inline-flex min-h-11 items-center rounded-lg border border-border px-4 font-mono text-xs text-ink hover:border-accent">
+            Readings (CSV)
+          </a>
+          <a href={`/api/health/report-csv/${params.token}?kind=doses`} className="inline-flex min-h-11 items-center rounded-lg border border-border px-4 font-mono text-xs text-ink hover:border-accent">
+            Doses (CSV)
+          </a>
+        </div>
       </div>
       <div className="overflow-x-auto rounded-xl border border-border print:overflow-visible print:rounded-none print:border-0">
         <ReportDocument r={report} fileBase={`/api/health/report-file/${params.token}/`} />

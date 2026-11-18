@@ -489,7 +489,27 @@ export default async function HelpPage() {
               a QR code for it prints at the top of the report. Photos are
               included only if she ticks the photo appendix. Only she can
               make a link; her partner can print the report while she shares
-              the log.
+              the log. In the installed app, which cannot print, Mum&rsquo;s{" "}
+              <span className="text-ink">Save as PDF or print</span> opens the
+              report in your phone&rsquo;s browser through a private link that
+              lasts two hours.
+            </Q>
+          )}
+
+          {home && (
+            <Q q="Can I download or delete my health log?">
+              Yes — it is yours. In{" "}
+              <Link href="/health/log" className="text-accent underline underline-offset-4">Health &rarr; Log</Link>,
+              open <span className="text-ink">Units and privacy</span>.{" "}
+              <span className="text-ink">Download everything</span> gives you
+              one ZIP with your readings, doses, medicines and tests as
+              spreadsheets, and every photo and PDF you kept.{" "}
+              <span className="text-ink">Delete my whole health log</span>{" "}
+              removes all of it for good — from storage too — and closes any
+              report links; your health card stays. You can also ask for a
+              short email on Sunday evenings when your week&rsquo;s report is
+              ready: it is off unless you turn it on, and it is only a link —
+              no reading is ever put in an email. These are Mum&rsquo;s alone.
             </Q>
           )}
 

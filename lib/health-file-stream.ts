@@ -34,3 +34,19 @@ export async function streamHealthFile(file: { url: string; access: string; cont
     },
   });
 }
+
+/** The same fetch, whole, for the health log's own ZIP export. Null if storage has lost it. */
+export async function readHealthFile(file: { url: string; access: string }): Promise<Buffer | null> {
+  try {
+    if (file.access === "private") {
+      const { get } = await import("@vercel/blob");
+      const got = await get(file.url, { access: "private", useCache: false });
+      if (!got || got.statusCode !== 200) return null;
+      return Buffer.from(await new Response(got.stream).arrayBuffer());
+    }
+    const res = await fetch(file.url, { cache: "no-store" });
+    return res.ok ? Buffer.from(await res.arrayBuffer()) : null;
+  } catch {
+    return null;
+  }
+}

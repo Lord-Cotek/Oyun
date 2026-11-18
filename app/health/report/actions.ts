@@ -24,14 +24,18 @@ async function mother() {
  * leaves the app only this way, and only when she chooses. The token comes
  * from node:crypto and only its hash is stored, so the link is shown once.
  */
-export async function createReportLink(input: { from: string; to: string; withPhotos: boolean; label?: string; days?: number }): Promise<Result<{ path: string; expiresAt: string }>> {
+export async function createReportLink(input: { from: string; to: string; withPhotos: boolean; label?: string; days?: number; forPrinting?: boolean }): Promise<Result<{ path: string; expiresAt: string }>> {
   const a = await mother();
   if (!a) return { ok: false, error: "Only Mum can share her health report." };
   const ymd = /^\d{4}-\d{2}-\d{2}$/;
   if (!ymd.test(input.from) || !ymd.test(input.to) || input.to < input.from) return { ok: false, error: "Choose the period first." };
   const days = Math.min(30, Math.max(1, Math.round(Number(input.days) || 7)));
   const raw = randomBytes(24).toString("base64url");
-  const expiresAt = new Date(Date.now() + days * 86_400_000);
+  // In the installed app nothing can print or download, so "save as PDF"
+  // opens the report in the phone's own browser — which is not signed in —
+  // through a link of her own that lasts two hours. It is listed with her
+  // other links like any of them, and can be closed the same way.
+  const expiresAt = new Date(Date.now() + (input.forPrinting ? 2 * 3_600_000 : days * 86_400_000));
   await prisma.healthReportLink.create({
     data: {
       journeyId: a.journeyId,
@@ -40,7 +44,7 @@ export async function createReportLink(input: { from: string; to: string; withPh
       fromDay: new Date(`${input.from}T00:00:00.000Z`),
       toDay: new Date(`${input.to}T00:00:00.000Z`),
       withPhotos: input.withPhotos === true,
-      label: String(input.label ?? "").trim().slice(0, 80) || null,
+      label: input.forPrinting ? "To print or save on this phone" : String(input.label ?? "").trim().slice(0, 80) || null,
       expiresAt,
     },
   });

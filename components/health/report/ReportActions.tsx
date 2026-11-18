@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import QRCode from "qrcode";
 import { createReportLink, revokeReportLink } from "@/app/health/report/actions";
+import { isNativeShell } from "@/lib/shell";
 
 export type LinkRow = { id: string; label: string | null; period: string; expires: string; views: number; lastView: string | null; live: boolean; photos: boolean };
 
@@ -11,6 +12,12 @@ export type LinkRow = { id: string; label: string | null; period: string; expire
  * Getting the report out: print it (or save it as a PDF from the same
  * window), download the raw numbers, or — hers alone — make a view-only link
  * for the doctor, with a QR code that prints at the top of the report.
+ *
+ * Inside the installed app none of print, download or the share sheet
+ * reaches the page (WKWebView and Android's WebView give it none of them),
+ * and the phone's browser is not signed in. So there, for her, one button
+ * makes a two-hour link and opens it in the phone's browser, where Print,
+ * Save to Files and the CSVs all work. Her partner is told to use a browser.
  */
 export function ReportActions({
   period,
@@ -31,6 +38,21 @@ export function ReportActions({
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
   const q = `from=${period.from}&to=${period.to}`;
+  const [inShell, setInShell] = useState(false);
+  // After mounting: the server cannot know which shell this is.
+  useEffect(() => setInShell(isNativeShell()), []);
+
+  function openInBrowser() {
+    setError(null);
+    start(async () => {
+      const r = await createReportLink({ ...period, withPhotos, forPrinting: true });
+      if (!r.ok) return setError(r.error);
+      // Our own host is in the shell's allowNavigation, but a new window is
+      // handed to the system browser — which is the point.
+      window.open(`${window.location.origin}${r.path}`, "_blank", "noopener");
+      router.refresh();
+    });
+  }
 
   function make() {
     setError(null);
@@ -46,7 +68,24 @@ export function ReportActions({
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap gap-2 print:hidden">
+      {inShell && (
+        <div className="rounded-2xl border border-border bg-surface p-4 print:hidden">
+          {isMother ? (
+            <>
+              <button type="button" onClick={openInBrowser} disabled={pending} className="inline-flex min-h-11 items-center rounded-lg bg-accent px-4 font-mono text-xs font-medium text-on-accent disabled:opacity-60">
+                {pending ? "Opening…" : "Save as PDF or print ↗"}
+              </button>
+              <p className="mt-2 prose-serif-xs text-muted">
+                Opens this report in your phone&rsquo;s browser, where you can print it, save it to Files as a PDF, or download the numbers. It uses a private link of yours that stops working in two hours.
+              </p>
+            </>
+          ) : (
+            <p className="prose-serif-xs text-muted">To print or save this report as a PDF, open Oyun in your phone&rsquo;s browser and sign in there — the app itself cannot print.</p>
+          )}
+          {error && <p role="alert" className="mt-2 font-mono text-xs text-negative">{error}</p>}
+        </div>
+      )}
+      <div className={`flex-wrap gap-2 print:hidden ${inShell ? "hidden" : "flex"}`}>
         <button type="button" onClick={() => window.print()} className="inline-flex min-h-11 items-center rounded-lg bg-accent px-4 font-mono text-xs font-medium text-on-accent hover:bg-accent-deep">
           Print, or save as PDF
         </button>

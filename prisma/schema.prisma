@@ -1918,6 +1918,9 @@ model HealthLogSettings {
   /// glucose before breakfast, say. Sent to her only, outside quiet hours,
   /// and skipped when a reading was already taken just before.
   checkTimes  String[] @default([])
+  /// Her choice, off unless she turns it on: a Sunday-evening email saying
+  /// the week's report is ready. A link only — never a reading in the email.
+  weeklyEmail Boolean  @default(false)
   updatedById String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

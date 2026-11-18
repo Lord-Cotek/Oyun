@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { deleteHealthLog } from "@/lib/health-export";
 import { Prisma } from "@prisma/client";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -174,6 +175,33 @@ export async function saveUnits(input: { glucoseUnit?: string; weightUnit?: stri
 }
 
 /** Hers to decide: the two of them, or her alone. */
+/** Her Sunday-evening "your week's report is ready" email. Hers alone to switch. */
+export async function setWeeklyEmail(on: boolean): Promise<Result> {
+  const a = await access();
+  if (!a) return NOPE;
+  if (!a.isMother) return { ok: false, error: "Only Mum can choose this." };
+  await prisma.healthLogSettings.upsert({
+    where: { journeyId: a.journeyId },
+    create: { journeyId: a.journeyId, weeklyEmail: on === true, updatedById: a.userId },
+    update: { weeklyEmail: on === true, updatedById: a.userId },
+  });
+  refresh();
+  return { ok: true };
+}
+
+/**
+ * Delete the whole health log — readings, medicines, checklist, report links
+ * and every photo and PDF, from storage too. Hers alone, and final.
+ */
+export async function deleteWholeHealthLog(): Promise<Result> {
+  const a = await access();
+  if (!a) return NOPE;
+  if (!a.isMother) return { ok: false, error: "Only Mum can delete her health log." };
+  await deleteHealthLog(a.journeyId);
+  for (const p of ["/health", "/health/log", "/health/medicines", "/health/tests", "/health/report", "/journey"]) revalidatePath(p);
+  return { ok: true };
+}
+
 export async function setLogAudience(audience: "HOUSEHOLD" | "MOTHER"): Promise<Result> {
   const a = await access();
   if (!a) return NOPE;

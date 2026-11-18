@@ -38,7 +38,7 @@ type Stat = { label: string; count: number; avg: string | null; min: string | nu
  * A stand-in for the mother's own access — the report reads her log, in her
  * time zone, with her targets, whoever asked for it.
  */
-async function asMother(journeyId: string): Promise<LogAccess> {
+export async function asMother(journeyId: string): Promise<LogAccess> {
   const j = await prisma.journey.findUnique({ where: { id: journeyId }, select: { ownerId: true } });
   const a = await logAccess(j!.ownerId, journeyId);
   return { ...a!, timeZone: await motherTimeZone(journeyId) };

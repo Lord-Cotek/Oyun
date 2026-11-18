@@ -5,7 +5,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Lightbox } from "@/components/media/Lightbox";
 import { ConfirmButton } from "@/components/ui/Confirm";
 import { ReadingSheet, type EditReading } from "@/components/health/log/ReadingSheet";
-import { deleteReading, saveTargets, saveUnits, setLogAudience } from "@/app/health/log/actions";
+import { deleteReading, deleteWholeHealthLog, saveTargets, saveUnits, setLogAudience, setWeeklyEmail } from "@/app/health/log/actions";
+import { isNativeShell } from "@/lib/shell";
 import { saveCheckTimes } from "@/app/health/medicines/actions";
 import {
   DEFAULT_TARGETS,
@@ -54,6 +55,7 @@ export function LogHome({
   customTargets,
   isMother,
   audience,
+  weeklyEmail,
   urgentRecent,
   checkTimes,
 }: {
@@ -66,6 +68,7 @@ export function LogHome({
   customTargets: string[];
   isMother: boolean;
   audience: "HOUSEHOLD" | "MOTHER";
+  weeklyEmail: boolean;
   urgentRecent: ReadingView[];
   checkTimes: string[];
 }) {
@@ -194,7 +197,7 @@ export function LogHome({
 
       <TargetsPanel targets={targets} custom={customTargets} />
       {isMother && <CheckTimesPanel times={checkTimes} />}
-      <SettingsPanel units={units} isMother={isMother} audience={audience} />
+      <SettingsPanel units={units} isMother={isMother} audience={audience} weeklyEmail={weeklyEmail} />
 
       {sheet && <ReadingSheet startKind={sheet.kind} edit={sheet.edit} units={units} journeyId={journeyId} onClose={() => setSheet(null)} />}
       {lightbox && (
@@ -392,7 +395,7 @@ function CheckTimesPanel({ times }: { times: string[] }) {
   );
 }
 
-function SettingsPanel({ units, isMother, audience }: { units: Units; isMother: boolean; audience: "HOUSEHOLD" | "MOTHER" }) {
+function SettingsPanel({ units, isMother, audience, weeklyEmail }: { units: Units; isMother: boolean; audience: "HOUSEHOLD" | "MOTHER"; weeklyEmail: boolean }) {
   const router = useRouter();
   const [pending, start] = useTransition();
   const set = (patch: Partial<{ glucoseUnit: string; weightUnit: string; tempUnit: string }>) =>
@@ -431,10 +434,76 @@ function SettingsPanel({ units, isMother, audience }: { units: Units; isMother: 
           ) : (
             <p className="mt-1 prose-serif-xs text-muted">The two of you. Mum can choose to keep it to herself.</p>
           )}
-          <p className="mt-2 prose-serif-xs text-muted">Never the circle, and never Agbebi. It leaves the app only in a report link you make yourself.</p>
+          <p className="mt-2 prose-serif-xs text-muted">Never the circle, and never Agbebi. It leaves the app only when you print it, download it, or make a report link yourself.</p>
         </div>
+        {isMother && (
+          <div className="border-t border-border pt-3">
+            <label className="flex min-h-11 cursor-pointer items-start gap-3">
+              <input
+                id="hl-weekly"
+                type="checkbox"
+                defaultChecked={weeklyEmail}
+                onChange={(e) => { const on = e.target.checked; start(async () => { await setWeeklyEmail(on); router.refresh(); }); }}
+                className="mt-1 h-4 w-4 accent-[var(--accent)]"
+              />
+              <span className="prose-serif-xs text-ink">
+                Email me on Sunday evenings when my week&rsquo;s report is ready
+                <span className="block text-muted">Just a link to open it in Oyun — no readings are ever put in an email. Needs email notifications on in Settings.</span>
+              </span>
+            </label>
+          </div>
+        )}
+        {isMother && <YourData />}
       </div>
     </details>
+  );
+}
+
+/**
+ * Hers to take and hers to end: the whole log as one ZIP, or gone for good.
+ * In the installed app a download cannot happen (and the phone's browser is
+ * not signed in), so there it says where to do it instead.
+ */
+function YourData() {
+  const router = useRouter();
+  const [inShell, setInShell] = useState(false);
+  const [gone, setGone] = useState(false);
+  useEffect(() => setInShell(isNativeShell()), []);
+  return (
+    <div className="border-t border-border pt-3">
+      <p className="font-mono text-[0.6rem] uppercase tracking-widest text-muted">Your data</p>
+      {inShell ? (
+        <p className="mt-1 prose-serif-xs text-muted">To download your whole health log, open Oyun in your phone&rsquo;s browser, sign in, and come back here — the app itself cannot save files.</p>
+      ) : (
+        <a href="/api/health/export" download className="mt-2 inline-flex min-h-10 items-center rounded-lg border border-border px-3 font-mono text-xs text-ink hover:border-accent">
+          Download everything (ZIP) ↓
+        </a>
+      )}
+      <p className="mt-1 prose-serif-xs text-muted">Readings, doses, medicines and tests as spreadsheets, with every photo and PDF.</p>
+      <div className="mt-3">
+        {gone ? (
+          <p role="status" className="font-mono text-xs text-positive">Your health log has been deleted.</p>
+        ) : (
+          <ConfirmButton
+            word="Delete my whole health log"
+            sure="Delete it all, for good?"
+            busyWord="Deleting…"
+            describe="your whole health log"
+            press="control"
+            className="font-mono text-xs text-negative"
+            onConfirm={async () => {
+              const r = await deleteWholeHealthLog();
+              if (r.ok) {
+                setGone(true);
+                router.refresh();
+              }
+              return r;
+            }}
+          />
+        )}
+        <p className="mt-1 prose-serif-xs text-muted">Every reading, medicine, test, report link, photo and PDF — from storage too. It cannot be undone. Your health card stays.</p>
+      </div>
+    </div>
   );
 }
 

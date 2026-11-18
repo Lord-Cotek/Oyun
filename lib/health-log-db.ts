@@ -23,6 +23,8 @@ export type LogAccess = {
   conditions: string[];
   /** Reading reminder times she chose ("07:00"). */
   checkTimes: string[];
+  /** Her Sunday "your report is ready" email — off unless she turns it on. */
+  weeklyEmail: boolean;
   /** The viewer's own time zone, for grouping readings into their days. */
   timeZone: string;
   dueDate: Date;
@@ -62,6 +64,7 @@ export async function logAccess(userId: string, journeyId: string): Promise<LogA
     customTargets: custom,
     conditions: s?.conditions ?? [],
     checkTimes: s?.checkTimes ?? [],
+    weeklyEmail: s?.weeklyEmail ?? false,
     timeZone: m.user.timeZone || "UTC",
     dueDate: m.journey.dueDate,
     motherName: m.journey.owner.name?.trim() || "Mum",
