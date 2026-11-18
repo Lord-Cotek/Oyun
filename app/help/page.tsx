@@ -435,10 +435,10 @@ export default async function HelpPage() {
               mark it skipped with a reason, choose the injection site (the
               next one is suggested, rotating), or enter insulin units. Taken
               more than an hour late is marked late. Each medicine shows how
-              the week has gone. Reminders come at each dose — on the hour
-              before it is due — and never name the medicine, because a lock
-              screen is read by whoever is nearby; tick &ldquo;remind my
-              partner too&rdquo; if he should hear as well. In the Log,{" "}
+              the week has gone. Reminders come at each dose — within a few
+              minutes of its time — and never name the medicine, because a
+              lock screen is read by whoever is nearby; tick &ldquo;remind my
+              partner too&rdquo; if your partner should hear as well. In the Log,{" "}
               <span className="text-ink">Reading reminders</span> sets times to
               be reminded to take a reading (never between 22:00 and 06:00).
               Times are always in Mum&rsquo;s own time zone. Never change or

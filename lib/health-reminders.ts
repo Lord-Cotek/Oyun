@@ -5,13 +5,15 @@ import { ensureDoses } from "@/lib/medication-db";
 import { localDay, zonedInstant } from "@/lib/medication";
 
 /**
- * Dose and reading reminders, from the hourly job.
+ * Dose and reading reminders, from the job that runs every 15 minutes.
  *
  * ── When ─────────────────────────────────────────────────────────────────
- * The job runs on the hour, so each dose is told at the run just before it
- * is due — never after, and at most an hour early — and the reminder says
- * the time: "A dose is due at 20:30". Each dose is stamped the moment its
- * reminder goes, so it goes once however often the job runs.
+ * Each run tells the doses due in the next ten minutes, so a reminder lands
+ * within a few minutes of the time she set — at most ten minutes early —
+ * and says the time: "A dose is due at 20:30". It also looks back fifteen
+ * minutes, so a run that starts late or fails does not drop a dose: the
+ * next run still tells it. Each dose is stamped the moment its reminder
+ * goes, so the overlap never sends one twice.
  *
  * ── What it never says ───────────────────────────────────────────────────
  * The name of the medicine. A lock screen is read by whoever is nearby, and
@@ -22,8 +24,10 @@ import { localDay, zonedInstant } from "@/lib/medication";
  * at 23:00, because she chose it. Reading reminders keep quiet between
  * 22:00 and 06:00, and are skipped when she has just taken a reading.
  */
-const WINDOW_BEFORE = 5 * 60_000;
-const WINDOW_AFTER = 55 * 60_000;
+/** How far back a run looks: one missed or late run is caught by the next. */
+const WINDOW_BEFORE = 15 * 60_000;
+/** How far ahead: the 15-minute gap to the next run, less the five minutes it may start late. */
+const WINDOW_AFTER = 10 * 60_000;
 
 export async function sendHealthReminders(now = new Date()) {
   const doses = await remindDoses(now).catch(() => 0);

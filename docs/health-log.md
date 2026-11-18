@@ -38,8 +38,8 @@ Days, doses and reminders follow **her** time zone (`User.timeZone`, set automat
 
 ## Medicines and reminders
 
-- `app/api/cron/health` runs hourly (`vercel.json`), behind the `health-reminders` flag. It is Oyun's own job; the shared morning job is not touched.
-- A dose is reminded at the run just before it is due, at the time she chose. **The notification never names the medicine.**
+- `app/api/cron/health` runs every 15 minutes (`vercel.json`), behind the `health-reminders` flag. It is Oyun's own job; the shared morning job is not touched.
+- A dose is reminded within a few minutes of the time she chose (at most ten minutes early; a late or failed run is caught by the next, and a dose is never told twice). **The notification never names the medicine.**
 - Reading reminders keep quiet between 22:00 and 06:00, and are skipped if she has just taken a reading.
 - **Weekly email**, off until she turns it on: Sunday 18:00–18:59 her time, once, only while the journey is active and she has email notifications on. The email is a link to `/health/report?p=week`. Nothing from the log is ever put in an email.
 

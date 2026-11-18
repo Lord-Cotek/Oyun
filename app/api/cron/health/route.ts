@@ -8,8 +8,9 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
 /**
- * Health log reminders, hourly: each medicine dose at the run just before it
- * is due, and the reading times she chose. See lib/health-reminders.ts.
+ * Health log reminders, every 15 minutes: each medicine dose within a few
+ * minutes of its time, and the reading times she chose. See
+ * lib/health-reminders.ts.
  * Oyun's own job — the hourly morning job is shared with Ìdílé, which has
  * no health log.
  */
