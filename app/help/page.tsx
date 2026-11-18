@@ -477,7 +477,7 @@ export default async function HelpPage() {
               puts the period you choose — this week, the last two or four
               weeks, since a date, or your own dates — on one clean page:
               a summary, your readings day by day, trend charts, medicines
-              and doses, tests done and due, and symptoms and notes. Anything
+              and doses, tests and vaccines done, and symptoms and notes. Anything
               out of range carries a symbol as well as a colour, so it reads
               on a black-and-white printout. Tap{" "}
               <span className="text-ink">Print, or save as PDF</span>, or

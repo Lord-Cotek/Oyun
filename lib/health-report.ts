@@ -152,7 +152,6 @@ export async function buildReport(journeyId: string, period: Period, opts: { pho
   /* ── Tests ── */
   const checklist = await loadChecklist(a);
   const testsDone = [...checklist.items, ...checklist.hidden].filter((i) => i.doneOn && i.doneOn >= period.from && i.doneOn <= period.to).map((i) => ({ title: i.title, doneOn: i.doneOn!, result: [i.resultValue, i.result].filter(Boolean).join(" — ") || null }));
-  const nextDue = checklist.items.filter((i) => i.status === "due" || (i.status === "upcoming" && !checklist.stage.born && (i.weeks?.[0] ?? 99) <= (checklist.stage as { week: number }).week + 4)).slice(0, 8).map((i) => ({ title: i.title, label: i.label }));
 
   /* ── Symptoms and notes ── */
   const notes = readings
@@ -200,7 +199,6 @@ export async function buildReport(journeyId: string, period: Period, opts: { pho
     trends,
     medicines,
     testsDone,
-    nextDue,
     notes,
     photos,
     empty: readings.length === 0 && medicines.length === 0 && testsDone.length === 0,

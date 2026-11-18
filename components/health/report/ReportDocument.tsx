@@ -181,30 +181,25 @@ export function ReportDocument({ r, fileBase }: { r: Report; fileBase: string })
         </Section>
       )}
 
-      {(r.testsDone.length > 0 || r.nextDue.length > 0) && (
+      {/* Only what was actually done in the period. What is "due" is a
+          typical schedule's guess, not her record, and has no place in a
+          report for her doctor. */}
+      {r.testsDone.length > 0 && (
         <Section title="Tests and vaccines">
-          {r.testsDone.length > 0 && (
-            <table className="mb-3">
-              <thead>
-                <tr><th>Done in this period</th><th>Date</th><th>Result</th></tr>
-              </thead>
-              <tbody>
-                {r.testsDone.map((t) => (
-                  <tr key={t.title + t.doneOn}>
-                    <td>{t.title}</td>
-                    <td>{long(t.doneOn)}</td>
-                    <td>{t.result ?? "—"}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-          {r.nextDue.length > 0 && (
-            <p>
-              <span className="font-semibold">Due next: </span>
-              {r.nextDue.map((t) => `${t.title} (${t.label})`).join("; ")}.
-            </p>
-          )}
+          <table>
+            <thead>
+              <tr><th>Done in this period</th><th>Date</th><th>Result</th></tr>
+            </thead>
+            <tbody>
+              {r.testsDone.map((t) => (
+                <tr key={t.title + t.doneOn}>
+                  <td>{t.title}</td>
+                  <td>{long(t.doneOn)}</td>
+                  <td>{t.result ?? "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </Section>
       )}
 
