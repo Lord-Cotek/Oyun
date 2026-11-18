@@ -87,7 +87,7 @@ export default async function AdminPeoplePage({
             <h2 className="font-mono text-[0.62rem] uppercase tracking-widest text-white/40">
               The account
             </h2>
-            <dl className="mt-3 grid gap-3 sm:grid-cols-2">
+            <dl className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
               {[
                 ["Name", person.name ?? "—"],
                 ["Email", person.email ?? "—"],

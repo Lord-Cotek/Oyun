@@ -43,7 +43,7 @@ export function Screens() {
         </h2>
       </div>
 
-      <ul className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+      <ul className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
         {SCREENS.map((s) => (
           <li key={s.src}>
             <div className="overflow-hidden rounded-2xl border border-border bg-surface shadow-[var(--shadow-2)]">

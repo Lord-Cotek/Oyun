@@ -67,7 +67,7 @@ export default async function PrayerPage() {
           lede="Bring a real need into the light — a scan, a fear, a decision. Your circle prays against it by name, and together you watch for God's answer."
         />
 
-        <div className="mt-6 grid gap-4 sm:grid-cols-3">
+        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
           <StatCard label="Open" value={open.length} hint="on the wall now" />
           <StatCard
             label="Times prayed"

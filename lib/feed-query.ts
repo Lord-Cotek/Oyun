@@ -85,6 +85,8 @@ export interface FeedPost {
    * be able to tell at a glance that it took, rather than trusting it.
    */
   householdOnly: boolean;
+  /** Sent over the wall to a compound — Ìdílé only; never set here. */
+  overTheWall?: boolean;
   /**
    * May this viewer put it on a link anybody can open? Decided on the server
    * by lib/post-share.ts and carried here, rather than the screen working it

@@ -484,7 +484,7 @@ function Row({
           The point of it: who is bringing dinner on Thursday, at a glance,
           and which evenings nobody has yet. */}
       {item.rota && (
-        <ul className="mt-3 grid gap-1 border-t border-border/70 pt-2.5 sm:grid-cols-2">
+        <ul className="mt-3 grid grid-cols-1 gap-1 border-t border-border/70 pt-2.5 sm:grid-cols-2">
           {item.rota.map((d) => (
             <li key={d.iso} className="flex items-baseline gap-2 prose-serif-xs">
               <span className="w-24 shrink-0 font-mono text-[0.66rem] text-muted">

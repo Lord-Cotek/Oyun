@@ -379,7 +379,7 @@ function EventForm({
         className={inputClass}
       />
 
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <label className="block">
           <span className="mb-1.5 block font-mono text-[0.6rem] uppercase tracking-widest text-muted">
             The day
@@ -419,7 +419,7 @@ function EventForm({
         </label>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <label className="block">
           <span className="mb-1.5 block font-mono text-[0.6rem] uppercase tracking-widest text-muted">
             What kind of day

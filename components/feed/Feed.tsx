@@ -54,7 +54,18 @@ type CreateFn = (input: {
   householdOnly?: boolean;
   /** Who's in it — keys from lib/tags.ts. */
   tags?: string[];
+  /** Also send it over the wall to the compound (Ìdílé). */
+  toCompound?: boolean;
 }) => Promise<void>;
+/**
+ * Sending posts over the wall to a compound — Ìdílé's second ring. Absent in
+ * Oyun and for anybody who does not keep a house in a compound, and then
+ * nothing about it is drawn.
+ */
+type Wall = {
+  name: string;
+  onSet: (input: { id: string; on: boolean }) => Promise<{ ok: boolean }>;
+};
 type TagsFn = (input: { postId: string; keys: string[] }) => Promise<{ ok: boolean; error?: string }>;
 type UntagFn = (postId: string) => Promise<{ ok: boolean }>;
 type AudienceFn = (input: {
@@ -107,6 +118,7 @@ interface Actions {
   tagOptions?: TagOption[];
   onSetTags?: TagsFn;
   onUntagMe?: UntagFn;
+  wall?: Wall;
 }
 
 export function Feed({
@@ -153,6 +165,7 @@ export function Feed({
           placeholder={composerPlaceholder}
           canKeepToHousehold={canKeepToHousehold}
           tagOptions={actions.tagOptions ?? []}
+          wallName={actions.wall?.name}
         />
       )}
       {posts.length === 0 ? (
@@ -345,11 +358,13 @@ function Composer({
   tagOptions = [],
   placeholder,
   canKeepToHousehold,
+  wallName,
 }: {
   onCreate: CreateFn;
   tagOptions?: TagOption[];
   placeholder: string;
   canKeepToHousehold: boolean;
+  wallName?: string;
 }) {
   const [kind, setKind] = useState<PostKind>("UPDATE");
   /**
@@ -359,6 +374,8 @@ function Composer({
    * is its own decision, and the default is the one the diary has always had.
    */
   const [householdOnly, setHouseholdOnly] = useState(false);
+  // Over the wall, too: off every time, and never with "just us".
+  const [toCompound, setToCompound] = useState(false);
   const [tags, setTags] = useState<string[]>([]);
   const [tagging, setTagging] = useState(false);
   const [body, setBody] = useState("");
@@ -717,6 +734,7 @@ function Composer({
         mediaUrls: urls,
         posterUrls: posters,
         householdOnly,
+        toCompound: !!wallName && toCompound && !householdOnly,
         // Nobody the post would be hidden from: the toggle can change after
         // the names were ticked.
         tags: tags.filter((k) => !(householdOnly && tagOptions.find((o) => o.key === k)?.outsideJustUs)),
@@ -724,6 +742,7 @@ function Composer({
       setBody("");
       setKind("UPDATE");
       setHouseholdOnly(false);
+      setToCompound(false);
       setTags([]);
       setTagging(false);
       setRestored(null);
@@ -867,7 +886,7 @@ function Composer({
       )}
 
       <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
           <button
             type="button"
             disabled={busy || picked.length >= MAX_FILES}
@@ -896,7 +915,7 @@ function Composer({
             and the last thing read before publishing should be who it goes
             to. It sat with Photos and Video, which are attachments, and that
             put it in the wrong sentence. */}
-        <div className="flex items-center gap-4">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
           {tagOptions.length > 0 && (
             <button
               type="button"
@@ -941,6 +960,25 @@ function Composer({
               {householdOnly ? JUST_US.onLabel : JUST_US.offLabel}
             </button>
           )}
+          {wallName && !householdOnly && (
+            <button
+              type="button"
+              id="composer-wall"
+              onClick={() => setToCompound((v) => !v)}
+              aria-pressed={toCompound}
+              aria-label={
+                toCompound
+                  ? `This post will also go to ${wallName}. Keep it in this house instead.`
+                  : `Also share this post with ${wallName}.`
+              }
+              className={`inline-flex items-center gap-1.5 font-mono text-[0.68rem] transition-colors ${
+                toCompound ? "text-accent" : "text-muted hover:text-accent"
+              }`}
+            >
+              <span aria-hidden className="text-sm leading-none">🏘</span>
+              {toCompound ? `Also to ${wallName}` : "Share with the compound"}
+            </button>
+          )}
           <button
             type="button"
             disabled={!canSend}
@@ -956,6 +994,12 @@ function Composer({
       {householdOnly && (
         <p className="mt-2 font-mono text-[0.62rem] leading-relaxed text-muted">
           {JUST_US.hint}
+        </p>
+      )}
+      {wallName && toCompound && !householdOnly && (
+        <p className="mt-2 font-mono text-[0.62rem] leading-relaxed text-muted">
+          The houses of {wallName} will see this, photos and all, on their Compound page. Replies stay in this
+          house. You can call it back in at any time.
         </p>
       )}
       {tagging && tagOptions.length > 0 && (
@@ -1006,6 +1050,26 @@ function Audience({
         : post.householdOnly
           ? "Open to everyone"
           : "Keep to family"}
+    </Pressable>
+  );
+}
+
+/**
+ * Send one of your own posts over the wall to the compound, or call it back.
+ * Only drawn where there is a compound and the post is not kept to the
+ * family; the server checks both again.
+ */
+function WallSwitch({ post, wall, busy }: { post: FeedPost; wall: Wall; busy: boolean }) {
+  const [pending, start] = useTransition();
+  return (
+    <Pressable
+      press="none"
+      type="button"
+      disabled={pending || busy}
+      onClick={() => start(async () => void (await wall.onSet({ id: post.id, on: !post.overTheWall })))}
+      className="py-2.5 underline underline-offset-4 hover:text-accent disabled:opacity-50"
+    >
+      {pending ? "…" : post.overTheWall ? "Call it back in" : `Share with ${wall.name}`}
     </Pressable>
   );
 }
@@ -1177,6 +1241,7 @@ function PostItem({
   tagOptions = [],
   onSetTags,
   onUntagMe,
+  wall,
   alone = false,
 }: {
   post: FeedPost;
@@ -1241,6 +1306,11 @@ function PostItem({
           {post.householdOnly && (
             <span className="rounded-full border border-accent/40 bg-accent/[0.08] px-2 py-0.5 text-[0.56rem] text-accent">
               {JUST_US.badge}
+            </span>
+          )}
+          {post.overTheWall && !post.householdOnly && (
+            <span className="rounded-full border border-accent2/40 bg-accent2/[0.08] px-2 py-0.5 text-[0.56rem] text-accent2">
+              Over the wall{wall ? ` · ${wall.name}` : ""}
             </span>
           )}
           </div>
@@ -1459,6 +1529,9 @@ function PostItem({
                 onSetAudience={onSetAudience}
                 busy={pending}
               />
+            )}
+            {wall && !post.householdOnly && (
+              <WallSwitch post={post} wall={wall} busy={pending} />
             )}
           </>
         )}

@@ -111,7 +111,7 @@ export function GuestReply({
       {/* Which promise this form made about the email — see AFTER_PROMISE. */}
       <input type="hidden" name="promise" value={AFTER_PROMISE} />
 
-      <div className="grid gap-2 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
         {ANSWERS.map((a) => {
           const on = answer === a.value;
           return (

@@ -167,7 +167,7 @@ export default function Landing() {
             A little, faithfully — at the right time.
           </h2>
         </div>
-        <div className="grid gap-5 md:grid-cols-3">
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
           {PILLARS.map((p) => (
             <Card
               key={p.title}

@@ -27,7 +27,7 @@ export function GuestLinks({
   if (safe.length === 0) return null;
 
   return (
-    <ul className={`grid gap-2 sm:grid-cols-2 ${className}`}>
+    <ul className={`grid grid-cols-1 gap-2 sm:grid-cols-2 ${className}`}>
       {safe.map((l) => {
         const meta = LINK_META[toLinkKind(l.kind)];
         return (

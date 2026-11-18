@@ -103,7 +103,7 @@ export async function AccountabilityView({
         eyebrow={`${framing.eyebrow} · ${stageLabel}`}
         title={framing.title}
       >
-        <div className="mt-8 grid gap-4 md:grid-cols-2">
+        <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-2">
           <div className="rounded-xl border border-border bg-bg/50 p-6">
             <Eyebrow className="mb-3">How {motherName} is</Eyebrow>
             {mood ? (
@@ -173,7 +173,7 @@ export async function AccountabilityView({
         <LatestFromFamily posts={familyPosts} greeting={todayLabel} />
       </div>
 
-      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+      <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
         <Pressable
           href="/life"
           press="row"

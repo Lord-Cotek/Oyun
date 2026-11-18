@@ -212,10 +212,10 @@ export default async function SettingsPage() {
             <ExportButton />
           </Card>
 
-          <Card className="flex items-center justify-between p-8">
-            <div>
+          <Card className="flex flex-wrap items-center justify-between gap-4 p-8">
+            <div className="min-w-0">
               <Eyebrow className="mb-2">Session</Eyebrow>
-              <p className="font-mono text-xs text-muted">
+              <p className="break-all font-mono text-xs text-muted">
                 Signed in as {user.email}
               </p>
             </div>

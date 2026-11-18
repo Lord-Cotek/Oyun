@@ -50,7 +50,7 @@ export default async function AdminOverviewPage() {
           <h2 className="font-mono text-[0.62rem] uppercase tracking-widest text-white/40">
             {g.heading}
           </h2>
-          <dl className="mt-3 grid gap-px overflow-hidden rounded border border-white/10 bg-white/10 sm:grid-cols-2">
+          <dl className="mt-3 grid grid-cols-1 gap-px overflow-hidden rounded border border-white/10 bg-white/10 sm:grid-cols-2">
             {g.rows.map(([label, n]) => (
               <div key={label} className="bg-[#141416] px-4 py-3">
                 <dt className="font-mono text-[0.58rem] uppercase tracking-widest text-white/40">

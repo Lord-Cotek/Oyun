@@ -102,7 +102,7 @@ export default async function CarePage() {
           }
         />
 
-        <div className="mt-6 grid gap-4 sm:grid-cols-3">
+        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
           <StatCard
             label="Latest"
             value={
@@ -120,7 +120,7 @@ export default async function CarePage() {
           <StatCard label="Days tracked" value={daysTracked} hint="across your journey" />
         </div>
 
-        <div className="mt-6 grid gap-4 lg:grid-cols-2">
+        <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
           {/* Check-ins + chart */}
           <Card className="lg:col-span-2">
             <Eyebrow className="mb-4">How is your heart today?</Eyebrow>

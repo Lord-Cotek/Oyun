@@ -59,7 +59,7 @@ export function BirthMoment({
           <input type="date" name="birthDate" required className={inputClass} />
         </label>
 
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {Array.from({ length: babyCount }).map((_, i) => (
             <label key={i} className="block">
               <span className="eyebrow mb-2 block text-muted">

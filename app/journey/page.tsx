@@ -701,7 +701,7 @@ export default async function JourneyPage() {
         </section>
 
         <section className="overflow-hidden rounded-2xl border border-border bg-surface p-6 md:p-8">
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="rounded-xl border border-border bg-bg/50 p-6">
               <Eyebrow className="mb-3">How she is</Eyebrow>
               {mood ? (

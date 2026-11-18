@@ -180,7 +180,7 @@ export default async function HelpPage() {
             There are two circles, and the difference is the whole design.
           </p>
 
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="rounded-xl border border-accent/30 bg-accent/[0.06] p-5">
               <p className="font-mono text-[0.6rem] uppercase tracking-widest text-accent">
                 The household

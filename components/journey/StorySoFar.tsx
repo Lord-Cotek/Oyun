@@ -61,7 +61,7 @@ export function StorySoFar({ story }: { story: Story }) {
         )}
       </p>
 
-      <ul className="mt-4 grid gap-x-8 gap-y-2 sm:grid-cols-2">
+      <ul className="mt-4 grid grid-cols-1 gap-x-8 gap-y-2 sm:grid-cols-2">
         {lines.map((l) => (
           // The gap between the number and its label is a flex gap, which
           // renders correctly and concatenates to "900evenings" when read
