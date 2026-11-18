@@ -31,6 +31,10 @@ const week = (v: unknown) => {
 /** The row for an item — the template's (made on first touch) or the family's own. */
 async function rowFor(a: LogAccess, key: string | null | undefined, id: string | null | undefined) {
   if (id) return prisma.prenatalCheck.findFirst({ where: { id: String(id), journeyId: a.journeyId } });
+  if (key && SCHEDULE.some((i) => i.key === key && i.retired)) {
+    // Folded into another item: its old row is still editable, but no new one.
+    return prisma.prenatalCheck.findUnique({ where: { journeyId_key: { journeyId: a.journeyId, key } } });
+  }
   if (key && SCHEDULE.some((i) => i.key === key)) {
     return prisma.prenatalCheck.upsert({
       where: { journeyId_key: { journeyId: a.journeyId, key } },
@@ -96,7 +100,7 @@ export async function saveCheck(input: {
   return { ok: true };
 }
 
-/** Hide an item that does not apply at this clinic — or bring it back. */
+/** "Not doing this" — take an item off her list, or put it back. */
 export async function hideCheck(key: string | null, id: string | null, hidden: boolean): Promise<Result> {
   const a = await access();
   if (!a) return NOPE;
@@ -125,19 +129,29 @@ export async function deleteCheck(id: string): Promise<Result> {
   const a = await access();
   if (!a) return NOPE;
   const r = await prisma.prenatalCheck.findFirst({ where: { id: String(id), journeyId: a.journeyId, key: null } });
-  if (!r) return { ok: false, error: "Only items you added can be removed — hide the others." };
+  if (!r) return { ok: false, error: "Only items you added can be removed — mark the others “not doing this”." };
   await deleteFiles({ journeyId: a.journeyId, entryType: "check", entryId: r.id });
   await prisma.prenatalCheck.delete({ where: { id: r.id } });
   refresh();
   return { ok: true };
 }
 
-/** Which typical schedule to start from. Nothing marked done is lost by switching. */
-export async function setTemplate(template: "INTL" | "NG"): Promise<Result> {
+/**
+ * Choose the list in one go: tick what is on it, untick what she is not
+ * doing. Only the items that changed are sent. Nothing is deleted — an
+ * unticked item keeps its date and result and comes back as it was.
+ */
+export async function setOnList(changes: { key?: string | null; id?: string | null; on: boolean }[]): Promise<Result> {
   const a = await access();
   if (!a) return NOPE;
-  const value = template === "NG" ? "NG" : "INTL";
-  await prisma.healthLogSettings.upsert({ where: { journeyId: a.journeyId }, create: { journeyId: a.journeyId, template: value, updatedById: a.userId }, update: { template: value, updatedById: a.userId } });
+  if (!Array.isArray(changes) || changes.length > 120) return { ok: false, error: "Too many changes at once." };
+  for (const c of changes) {
+    // Putting an item back needs no new row if it never had one.
+    const r = c.on && !c.id && c.key
+      ? await prisma.prenatalCheck.findUnique({ where: { journeyId_key: { journeyId: a.journeyId, key: String(c.key) } } })
+      : await rowFor(a, c.key, c.id);
+    if (r && r.hidden === !!c.on) await prisma.prenatalCheck.update({ where: { id: r.id }, data: { hidden: !c.on } });
+  }
   refresh();
   return { ok: true };
 }

@@ -10,6 +10,7 @@ const TABS = [
   { key: "log", label: "Log", href: "/health/log" },
   { key: "medicines", label: "Medicines", href: "/health/medicines" },
   { key: "tests", label: "Tests", href: "/health/tests" },
+  { key: "report", label: "Report", href: "/health/report" },
 ] as const;
 
 export type HealthTab = (typeof TABS)[number]["key"];

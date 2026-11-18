@@ -76,7 +76,7 @@ export async function loadChecklist(a: LogAccess) {
     files: r ? files.get(r.id) ?? [] : [],
   });
 
-  const list: CheckView[] = itemsFor(a.template, a.conditions, facts).map((i) => {
+  const list: CheckView[] = itemsFor(a.conditions, facts).map((i) => {
     const r = byKey.get(i.key);
     const weeks: [number, number] | null = r?.weekFrom != null && r?.weekTo != null ? [r.weekFrom, r.weekTo] : i.weeks ?? null;
     const afterBirth = i.afterBirth ?? null;
@@ -94,8 +94,9 @@ export async function loadChecklist(a: LogAccess) {
       ...fromRow(r),
     };
   });
-  // Anything already done stays in view whichever template is chosen —
-  // switching from International to Nigeria must not hide a result.
+  // Anything already done stays in view, even under a key that has since
+  // been folded into another item (see `retired` in the schedule) or a
+  // conditional that has been switched off — no result is ever hidden.
   const shown = new Set(list.map((x) => x.key));
   for (const r of rows.filter((x) => x.key && x.doneOn && !shown.has(x.key))) {
     const i = SCHEDULE.find((t) => t.key === r.key);
@@ -127,6 +128,8 @@ export async function loadChecklist(a: LogAccess) {
     facts,
     everyVisit: EVERY_VISIT,
     conditionals: CONDITIONALS.map((c) => ({ ...c, on: a.conditions.includes(c.key) })),
+    /** False until the family has touched the list at all — the page then opens the chooser. */
+    touched: rows.length > 0,
     items: list.filter((x) => !x.hidden),
     hidden: list.filter((x) => x.hidden),
     appointments: appts.map((x) => ({ id: x.id, label: apptLabel(x) })),

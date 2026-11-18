@@ -73,7 +73,7 @@ export function describe(r: ReadingLike & { kind: string }, units: LogAccess["un
 /** Every reading in a window, each flagged with the rest of its own day. */
 export async function readingsBetween(a: LogAccess, from: Date, to: Date) {
   const rows = await prisma.healthReading.findMany({
-    where: { journeyId: a.journeyId, takenAt: { gte: from, lte: to } },
+    where: { journeyId: a.journeyId, takenAt: { gte: from, lt: to } },
     orderBy: { takenAt: "desc" },
     include: { recordedBy: { select: { name: true } } },
   });

@@ -131,16 +131,31 @@ console.log("Medicines and doses");
 console.log("Tests checklist");
 {
   const P = jiti(path.join(root, "lib/prenatal.ts"));
-  const keys = (t, c = [], f = { rhNegative: false, bothCarriers: false }) => P.itemsFor(t, c, f).map((i) => i.key);
-  const intl = keys("INTL"), ng = keys("NG");
-  check(intl.includes("TDAP") && intl.includes("GBS") && intl.includes("GTT") && !intl.includes("IPTP_1"), "International has Tdap, group B strep and the GTT, not malaria prevention");
-  check(ng.includes("IPTP_1") && ng.includes("TD_1") && ng.includes("GENOTYPE") && ng.includes("PCV") && !ng.includes("TDAP") && !ng.includes("GBS"), "Nigeria has IPTp, Td, genotype and PCV, not Tdap or group B strep");
-  check(!intl.includes("ANTI_D") && keys("INTL", [], { rhNegative: true, bothCarriers: false }).includes("ANTI_D"), "anti-D appears only when the health card says rhesus negative");
-  check(keys("NG", [], { rhNegative: false, bothCarriers: true }).includes("BABY_GENOTYPE_TALK"), "both parents carrying a sickle gene adds the genotype talk");
-  check(!intl.includes("CERVIX_LENGTH") && keys("INTL", ["CERVIX"]).includes("CERVIX_LENGTH"), "conditional checks appear only when switched on");
+  const S = jiti(path.join(root, "data/prenatal-schedule.ts"));
+  const keys = (c = [], f = { rhNegative: false, bothCarriers: false }) => P.itemsFor(c, f).map((i) => i.key);
+  const all = keys();
+  check(["TDAP", "GBS", "GTT", "IPTP_1", "TD_1", "GENOTYPE", "FBC", "DATING_SCAN", "VIT_D", "HEP_C", "TOXO_CMV", "POSTNATAL"].every((k) => all.includes(k)), "one full list: every test from anywhere is offered, no country to pick");
+  check(!["PCV", "PCV_28", "SICKLE_SCREEN", "EARLY_SCAN", "GTT_NG"].some((k) => all.includes(k)), "overlapping items are folded together, not listed twice");
+  check(S.SCHEDULE.filter((i) => i.retired).every((i) => S.SCHEDULE.some((t) => t.key === i.retired && !t.retired)), "every folded item points at one that is still offered");
+  check(new Set(S.SCHEDULE.map((i) => i.key)).size === S.SCHEDULE.length, "no key is used twice");
+  check(!JSON.stringify(S.SCHEDULE).includes("Nigeria"), "no item is labelled with a country");
+  check(!all.includes("ANTI_D") && keys([], { rhNegative: true, bothCarriers: false }).includes("ANTI_D"), "anti-D appears only when the health card says rhesus negative");
+  check(keys([], { rhNegative: false, bothCarriers: true }).includes("BABY_GENOTYPE_TALK"), "both parents carrying a sickle gene adds the genotype talk");
+  check(!all.includes("CERVIX_LENGTH") && keys(["CERVIX"]).includes("CERVIX_LENGTH"), "conditional checks appear only when switched on");
   const s = (w, item, done = false) => P.statusOf(item, { born: false, week: w }, done);
   check(s(20, { weeks: [18, 22] }) === "due" && s(16, { weeks: [18, 22] }) === "upcoming" && s(25, { weeks: [18, 22] }) === "past" && s(25, { weeks: [18, 22] }, true) === "done", "status by week: upcoming, due, past, done");
   check(P.statusOf({ afterBirth: [6, 8] }, { born: true, weeksAfter: 7 }, false) === "due" && P.statusOf({ afterBirth: [6, 8] }, { born: false, week: 30 }, false) === "upcoming", "after-birth checks wait for the birth");
+}
+
+console.log("Report downloads");
+{
+  const C = jiti(path.join(root, "lib/csv-cell.ts"));
+  check(C.csvCell('He said "hi", then left') === '"He said ""hi"", then left"', "quotes and commas are escaped");
+  check(C.csvCell("=HYPERLINK(1)") === "'=HYPERLINK(1)" && C.csvCell("@SUM(A1)") === "'@SUM(A1)" && C.csvCell("+1+1") === "'+1+1", "a note can never run as a spreadsheet formula");
+  check(C.csvCell(-3) === "-3" && C.csvCell("-3.5") === "-3.5" && C.csvCell(null) === "", "plain numbers, negatives included, are left alone");
+  check(C.toCsv([["a", "b"], ["line\nbreak", 2]]) === 'a,b\r\n"line\nbreak",2\r\n', "rows join with CRLF and line breaks stay inside their cell");
+  const R = jiti(path.join(root, "lib/health-report.ts"));
+  check(R.daysIn({ from: "2026-02-27", to: "2026-03-02" }).join() === "2026-02-27,2026-02-28,2026-03-01,2026-03-02", "a period counts its days across a month end");
 }
 
 console.log("Kept from the assistant");

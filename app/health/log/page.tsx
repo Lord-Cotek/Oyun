@@ -51,7 +51,7 @@ export default async function HealthLogPage() {
   }
 
   const now = new Date();
-  const views = await readingsBetween(a, new Date(now.getTime() - 14 * 86_400_000), now);
+  const views = await readingsBetween(a, new Date(now.getTime() - 14 * 86_400_000), new Date(now.getTime() + 15 * 60_000));
   const todayKey = dayIn(now, a.timeZone);
   const urgentRecent = views.filter((v) => v.level === "urgent" && now.getTime() - new Date(v.takenAt).getTime() < 24 * 3600_000);
   const ga = a.journeyActive ? gestationOn(a.dueDate, now) : null;

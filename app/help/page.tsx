@@ -452,18 +452,44 @@ export default async function HelpPage() {
               lists what is usually checked in pregnancy and when — booking
               bloods, scans, the glucose test, vaccines, swabs and the
               postnatal check — grouped as due around now, coming up and
-              done. It is a typical schedule and says so; your clinic&rsquo;s
-              may differ. Choose <span className="text-ink">International</span>{" "}
-              (the usual WHO, UK and US pattern) or{" "}
-              <span className="text-ink">Nigeria</span> (genotype, PCV, tetanus,
-              malaria prevention and deworming). Mark a check done with its
-              date and result, link the appointment, and keep a photo or PDF
-              of the report. Hide what your clinic does not do, add what it
-              does, and switch on the checks that apply to you (cervical
+              done. It is one full list of what is commonly offered
+              anywhere in the world, so there is no country to choose; each
+              test says if it is only offered in some places. Your
+              clinic&rsquo;s schedule may differ: open{" "}
+              <span className="text-ink">Choose your list</span> and tick what
+              is part of your care, untick what is not — or mark a single test{" "}
+              <span className="text-ink">Not doing this</span>. Anything you
+              untick keeps what you recorded and can be put back at any time.
+              Mark a check done with its date and result, link the
+              appointment, and keep a photo or PDF
+              of the report. Add anything your clinic does that is missing,
+              and switch on the checks that apply to you (cervical
               length, diabetes follow-up, blood pressure monitoring, a fetal
               heart scan, extra growth scans). If your health card says you
               are rhesus negative, anti-D is added; if you both carry a sickle
               cell gene, a talk about the baby&rsquo;s genotype is added.
+            </Q>
+          )}
+
+          {home && (
+            <Q q="How do I show my readings to my doctor?">
+              <Link href="/health/report" className="text-accent underline underline-offset-4">Health &rarr; Report</Link>{" "}
+              puts the period you choose — this week, the last two or four
+              weeks, since a date, or your own dates — on one clean page:
+              a summary, your readings day by day, trend charts, medicines
+              and doses, tests done and due, and symptoms and notes. Anything
+              out of range carries a symbol as well as a colour, so it reads
+              on a black-and-white printout. Tap{" "}
+              <span className="text-ink">Print, or save as PDF</span>, or
+              download the readings and doses as a spreadsheet (CSV). Mum can
+              also make a view-only link for her doctor: it shows that report
+              and nothing else, needs no login, is never listed by search
+              engines, works for the days she chooses (3 to 30) and stops the
+              moment she closes it. She can see each time it was opened, and
+              a QR code for it prints at the top of the report. Photos are
+              included only if she ticks the photo appendix. Only she can
+              make a link; her partner can print the report while she shares
+              the log.
             </Q>
           )}
 

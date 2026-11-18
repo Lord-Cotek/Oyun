@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { HealthPhotoPicker } from "@/components/health/HealthPhotoPicker";
-import { addCheck, deleteCheck, hideCheck, saveCheck, setCondition, setTemplate } from "@/app/health/tests/actions";
+import { addCheck, deleteCheck, hideCheck, saveCheck, setCondition, setOnList } from "@/app/health/tests/actions";
 import type { CheckView } from "@/lib/prenatal-db";
 import type { Status } from "@/lib/prenatal";
 
@@ -19,14 +19,15 @@ const GROUPS: { status: Status; title: string }[] = [
 ];
 
 /**
- * The tests and vaccines checklist. The schedule is a typical one and says
- * so; the family switches between the two templates, turns on the checks
- * that apply to them, hides what their clinic does not do, and adds what it
- * does. Each item, when done, keeps its date, result and the report itself.
+ * The tests and vaccines checklist. One full list of what is usually offered
+ * somewhere in the world — no country to pick. The family chooses what is on
+ * theirs (all at once, or "not doing this" one at a time), turns on the
+ * checks that apply to them and adds what their clinic does. Each item, when
+ * done, keeps its date, result and the report itself.
  */
 export function TestsHome({
   journeyId,
-  template,
+  touched,
   stageLabel,
   everyVisit,
   facts,
@@ -36,7 +37,7 @@ export function TestsHome({
   appointments,
 }: {
   journeyId: string;
-  template: "INTL" | "NG";
+  touched: boolean;
   stageLabel: string;
   everyVisit: string;
   facts: { rhNegative: boolean; bothCarriers: boolean };
@@ -50,23 +51,14 @@ export function TestsHome({
   const [editing, setEditing] = useState<CheckView | null>(null);
   const [adding, setAdding] = useState(false);
   const run = (fn: () => Promise<unknown>) => start(async () => { await fn(); router.refresh(); });
-  const opt = (on: boolean) => `min-h-11 rounded-full border px-3.5 font-mono text-xs ${on ? "border-accent bg-accent/[0.12] text-accent" : "border-border text-muted"}`;
 
   return (
     <div className={`mt-6 space-y-6 ${pending ? "opacity-70" : ""}`}>
       <section className="rounded-2xl border border-border bg-surface p-5">
         <p className="eyebrow text-accent">Typical schedule — your clinic&rsquo;s may differ</p>
         <p className="mt-1 prose-serif-xs text-muted">
-          A list of what is usually offered and when, so you can see what is coming and ask about anything missing. Hide what your clinic does not do; add what it does. {stageLabel}
+          Everything commonly offered in pregnancy, wherever you are. Some tests are offered almost everywhere, some only in some places — each one says. Keep the ones that are part of your care, mark the rest &ldquo;not doing this&rdquo;, and add anything your clinic does that is missing. {stageLabel}
         </p>
-        <div className="mt-3 flex flex-wrap gap-2" role="radiogroup" aria-label="Which typical schedule">
-          <button type="button" role="radio" aria-checked={template === "INTL"} onClick={() => run(() => setTemplate("INTL"))} className={opt(template === "INTL")}>
-            International
-          </button>
-          <button type="button" role="radio" aria-checked={template === "NG"} onClick={() => run(() => setTemplate("NG"))} className={opt(template === "NG")}>
-            Nigeria
-          </button>
-        </div>
         <p className="mt-3 font-mono text-[0.66rem] text-muted">{everyVisit}</p>
         {(facts.rhNegative || facts.bothCarriers) && (
           <p className="mt-2 prose-serif-xs text-ink">
@@ -76,6 +68,8 @@ export function TestsHome({
           </p>
         )}
       </section>
+
+      <Chooser all={[...items, ...hidden].filter((i) => !i.custom)} open={!touched} />
 
       {GROUPS.map((g) => {
         const list = items.filter((i) => i.status === g.status);
@@ -157,13 +151,19 @@ export function TestsHome({
 
       {hidden.length > 0 && (
         <details className="rounded-2xl border border-border bg-surface p-5">
-          <summary className="cursor-pointer font-serif text-lg text-ink">Hidden ({hidden.length})</summary>
+          <summary className="cursor-pointer font-serif text-lg text-ink">
+            Not doing ({hidden.length})
+            <span className="block font-mono text-[0.62rem] text-muted">Not part of your care, not offered, or you chose not to. Put any back at any time.</span>
+          </summary>
           <ul className="mt-3 space-y-1">
             {hidden.map((i) => (
               <li key={i.key ?? i.id} className="flex items-center justify-between gap-3">
-                <span className="prose-serif-xs text-muted">{i.title}</span>
-                <button type="button" onClick={() => run(() => hideCheck(i.key, i.id, false))} className="min-h-9 font-mono text-[0.66rem] text-accent">
-                  Show
+                <span className="prose-serif-xs text-muted">
+                  {i.title}
+                  {i.doneOn ? ` · done ${i.doneOn}` : ""}
+                </span>
+                <button type="button" onClick={() => run(() => hideCheck(i.key, i.id, false))} className="min-h-9 shrink-0 font-mono text-[0.66rem] text-accent">
+                  Put it back
                 </button>
               </li>
             ))}
@@ -173,6 +173,114 @@ export function TestsHome({
 
       {editing && <CheckSheet journeyId={journeyId} i={editing} appointments={appointments} onClose={() => setEditing(null)} />}
     </div>
+  );
+}
+
+const CATEGORY: Record<string, string> = {
+  BOOKING: "First visit (booking)",
+  BLOOD: "Blood tests",
+  SCAN: "Scans",
+  SCREEN: "Screening",
+  VACCINE: "Vaccines",
+  MEDICINE: "Given at the clinic",
+  SWAB: "Swabs",
+  VISIT: "Visits",
+};
+
+/**
+ * The whole list on one screen, a tick for each: ticked is on her list,
+ * unticked is "not doing this". Opens by itself the first time, so a family
+ * starts by choosing rather than by scrolling past tests that are not theirs.
+ * Only what changed is saved; an unticked item keeps anything already
+ * recorded against it.
+ */
+function Chooser({ all, open }: { all: CheckView[]; open: boolean }) {
+  const router = useRouter();
+  const id = (i: CheckView) => i.key ?? i.id ?? i.title;
+  const initial = () => Object.fromEntries(all.map((i) => [id(i), !i.hidden]));
+  const [on, setOn] = useState<Record<string, boolean>>(initial);
+  // Open by itself only on the first visit; after that the family decides.
+  const [startOpen] = useState(open);
+  // When the list changes underneath (an item marked "not doing this" or put
+  // back elsewhere on the page), start again from what is saved.
+  const sig = all.map((i) => `${id(i)}:${i.hidden ? 0 : 1}`).join("|");
+  useEffect(() => {
+    setOn(Object.fromEntries(all.map((i) => [id(i), !i.hidden])));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sig]);
+  const [saved, setSaved] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [pending, start] = useTransition();
+  const changed = all.filter((i) => (on[id(i)] ?? !i.hidden) === i.hidden);
+  const cats = Object.keys(CATEGORY).filter((c) => all.some((i) => i.category === c));
+  const sorted = (xs: CheckView[]) => xs.slice().sort((x, y) => (x.weeks ?? x.afterBirth ?? [99])[0] - (y.weeks ?? y.afterBirth ?? [99])[0]);
+  return (
+    <details open={startOpen} className="rounded-2xl border border-border bg-surface p-5">
+      <summary className="cursor-pointer font-serif text-lg text-ink">
+        Choose your list
+        <span className="block font-mono text-[0.62rem] text-muted">
+          {all.filter((i) => !i.hidden).length} of {all.length} on your list · tick what is part of your care, untick what is not
+        </span>
+      </summary>
+      <div className="mt-4 space-y-5">
+        <div className="flex flex-wrap gap-2 font-mono text-[0.66rem]">
+          <button type="button" onClick={() => setOn(Object.fromEntries(all.map((i) => [id(i), true])))} className="min-h-9 rounded-full border border-border px-3 text-muted hover:border-accent">
+            Tick all
+          </button>
+          <button type="button" onClick={() => setOn(Object.fromEntries(all.map((i) => [id(i), !i.optional])))} className="min-h-9 rounded-full border border-border px-3 text-muted hover:border-accent">
+            Untick the optional ones
+          </button>
+        </div>
+        {cats.map((c) => (
+          <fieldset key={c}>
+            <legend className="eyebrow mb-1.5 text-muted">{CATEGORY[c]}</legend>
+            <ul className="space-y-0.5">
+              {sorted(all.filter((i) => i.category === c)).map((i) => (
+                <li key={id(i)}>
+                  <label className="flex min-h-11 cursor-pointer items-start gap-3 py-1">
+                    <input
+                      type="checkbox"
+                      checked={on[id(i)] ?? !i.hidden}
+                      onChange={(e) => { setSaved(false); setOn((m) => ({ ...m, [id(i)]: e.target.checked })); }}
+                      className="mt-1 h-4 w-4 shrink-0 accent-[var(--accent)]"
+                    />
+                    <span className="min-w-0 prose-serif-xs text-ink">
+                      {i.title}
+                      {i.doneOn && <span className="text-positive"> · done</span>}
+                      <span className="block font-mono text-[0.6rem] text-muted">
+                        {i.label}
+                        {i.optional ? " · optional" : ""}
+                        {i.note ? ` · ${i.note}` : ""}
+                      </span>
+                    </span>
+                  </label>
+                </li>
+              ))}
+            </ul>
+          </fieldset>
+        ))}
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            disabled={pending || !changed.length}
+            onClick={() =>
+              start(async () => {
+                setError(null);
+                const r = await setOnList(changed.map((i) => ({ key: i.key, id: i.id, on: !!on[id(i)] })));
+                if (!r.ok) return setError(r.error);
+                setSaved(true);
+                router.refresh();
+              })
+            }
+            className="min-h-11 rounded-lg bg-accent px-4 font-mono text-xs font-medium text-on-accent disabled:opacity-50"
+          >
+            {pending ? "Saving…" : changed.length ? `Save my list (${changed.length} ${changed.length === 1 ? "change" : "changes"})` : "Save my list"}
+          </button>
+          {saved && !changed.length && <span className="font-mono text-[0.66rem] text-positive" role="status">Saved.</span>}
+          {error && <span role="alert" className="font-mono text-xs text-negative">{error}</span>}
+        </div>
+      </div>
+    </details>
   );
 }
 
@@ -262,7 +370,7 @@ function Item({ i, onEdit, onHide, onRemove, onDone }: { i: CheckView; onEdit: (
         {i.custom ? (
           <button type="button" onClick={onRemove} className="min-h-9 hover:text-negative">Remove</button>
         ) : (
-          <button type="button" onClick={onHide} className="min-h-9 hover:text-accent">Hide — my clinic doesn&rsquo;t do this</button>
+          <button type="button" onClick={onHide} className="min-h-9 hover:text-accent">Not doing this</button>
         )}
       </div>
     </li>

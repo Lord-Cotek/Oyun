@@ -40,6 +40,9 @@ export const GUEST_ROUTES = [
   "/p",
   "/r",
   "/i",
+  // A doctor's view-only health report. A clinician holding a link, no
+  // account — and Agbebi never reads health data in any case.
+  "/dr",
   "/v",
   "/h",
   "/sign-in",

@@ -30,6 +30,9 @@ export default function robots(): MetadataRoute.Robots {
         "/r",
         "/appointments",
         "/health",
+        // A doctor's report link: view-only, unguessable, noindex on the
+        // page itself, and this for the crawler that finds one pasted anywhere.
+        "/dr",
         "/dates",
       ],
     },

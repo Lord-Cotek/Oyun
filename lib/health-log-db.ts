@@ -20,7 +20,6 @@ export type LogAccess = {
   units: Units;
   targets: Targets;
   customTargets: Set<string>;
-  template: "INTL" | "NG";
   conditions: string[];
   /** Reading reminder times she chose ("07:00"). */
   checkTimes: string[];
@@ -61,7 +60,6 @@ export async function logAccess(userId: string, journeyId: string): Promise<LogA
     units: cleanUnits(s),
     targets,
     customTargets: custom,
-    template: s?.template === "NG" ? "NG" : "INTL",
     conditions: s?.conditions ?? [],
     checkTimes: s?.checkTimes ?? [],
     timeZone: m.user.timeZone || "UTC",

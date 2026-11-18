@@ -2,14 +2,18 @@
  * The tests checklist — the rules, with no database in sight. Which items
  * apply to this family, and where each one stands this week.
  */
-import { SCHEDULE, type ScheduleItem, type Template } from "../data/prenatal-schedule";
+import { SCHEDULE, type ScheduleItem } from "../data/prenatal-schedule";
 
 export type Facts = { rhNegative: boolean; bothCarriers: boolean };
 
-/** The items this family's schedule holds: their template, their switches, their facts. */
-export function itemsFor(template: Template, conditions: string[], facts: Facts): ScheduleItem[] {
+/**
+ * The items offered to this family: the whole list, less anything retired,
+ * plus what their switches and health-card facts add. Which of these are on
+ * their own list is theirs to choose, and kept in the database.
+ */
+export function itemsFor(conditions: string[], facts: Facts): ScheduleItem[] {
   return SCHEDULE.filter((i) => {
-    if (!i.templates.includes(template)) return false;
+    if (i.retired) return false;
     if (i.when?.condition) return conditions.includes(i.when.condition);
     if (i.when?.fact === "RH_NEGATIVE") return facts.rhNegative;
     if (i.when?.fact === "BOTH_CARRIERS") return facts.bothCarriers;

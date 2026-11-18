@@ -13,8 +13,9 @@ import { TestsHome } from "@/components/health/tests/TestsHome";
 export const metadata: Metadata = { title: "Tests and vaccines", robots: { index: false } };
 
 /**
- * The tests and vaccines checklist — a typical schedule by week, kept by the
- * same rule as the health log.
+ * The tests and vaccines checklist — one full list of what is usually
+ * offered, by week; the family chooses what is on theirs. Kept by the same
+ * rule as the health log.
  */
 export default async function TestsPage() {
   const session = await auth();
@@ -52,7 +53,7 @@ export default async function TestsPage() {
         <HealthTabs active="tests" />
         <TestsHome
           journeyId={a.journeyId}
-          template={a.template}
+          touched={c.touched}
           stageLabel={stageLabel}
           everyVisit={c.everyVisit}
           facts={c.facts}

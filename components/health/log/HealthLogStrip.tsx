@@ -13,7 +13,7 @@ export async function HealthLogStrip({ userId, journeyId }: { userId: string; jo
   const a = await logAccess(userId, journeyId);
   if (!a) return null;
   const now = new Date();
-  const views = await readingsBetween(a, new Date(now.getTime() - 30 * 86_400_000), now);
+  const views = await readingsBetween(a, new Date(now.getTime() - 30 * 86_400_000), new Date(now.getTime() + 15 * 60_000));
   if (views.length === 0) {
     return (
       <Link href="/health/log?add=GLUCOSE" className="flex min-h-12 items-center justify-between gap-3 rounded-2xl border border-border bg-surface px-4 py-3 hover:border-accent">

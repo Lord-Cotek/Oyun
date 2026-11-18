@@ -345,6 +345,7 @@ model Journey {
   medicationDoses   MedicationDose[]
   healthChecksSent  HealthCheckSent[]
   prenatalChecks    PrenatalCheck[]
+  healthReportLinks HealthReportLink[]
 }
 
 /// The family feed — an update, a praise, a prayer, or a milestone that the
@@ -1907,7 +1908,8 @@ model HealthLogSettings {
   /// The family's own targets, keyed as in lib/health-log.ts. Anything not
   /// set here reads as the labelled default.
   targets     Json?
-  /// Which typical schedule the tests checklist starts from: "INTL" or "NG".
+  /// No longer read: the tests checklist is now one full list the family
+  /// chooses from. Kept so no column is ever dropped.
   template    String   @default("INTL")
   /// Optional checklist items the family has switched on (cervical length,
   /// diabetes follow-up and so on), by key.
@@ -2118,4 +2120,41 @@ model PrenatalCheck {
 
   @@unique([journeyId, key])
   @@index([journeyId])
+}
+
+/// A view-only link to one health report, for a doctor — made by the mother,
+/// for one period, for seven days unless she chooses otherwise.
+///
+/// Only the hash of the token is kept; the link itself is shown once, when
+/// it is made. It opens that report and nothing else in the app — no login,
+/// no menus, never indexed — and stops the moment it expires or she closes
+/// it. Each opening is recorded (the time only, nothing about who), so she
+/// can see whether it was read.
+model HealthReportLink {
+  id          String             @id @default(cuid())
+  journeyId   String
+  journey     Journey            @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  createdById String
+  tokenHash   String             @unique
+  fromDay     DateTime           @db.Date
+  toDay       DateTime           @db.Date
+  withPhotos  Boolean            @default(false)
+  /// Who it was for, in her words ("Dr Okafor") — for her list, not shown on the report.
+  label       String?
+  expiresAt   DateTime
+  revokedAt   DateTime?
+  createdAt   DateTime           @default(now())
+  views       HealthReportView[]
+
+  @@index([journeyId])
+}
+
+/// One opening of a report link: when, and nothing else.
+model HealthReportView {
+  id     String           @id @default(cuid())
+  linkId String
+  link   HealthReportLink @relation(fields: [linkId], references: [id], onDelete: Cascade)
+  at     DateTime         @default(now())
+
+  @@index([linkId])
 }
