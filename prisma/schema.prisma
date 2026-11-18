@@ -95,6 +95,7 @@ model User {
   weeklySent          WeeklySent[]
   postTags            PostTag[]            @relation("PostTagUser")
   healthRecords       HealthRecord[]
+  healthReadings      HealthReading[]      @relation("ReadingBy")
 }
 
 /// A small emoji reaction on an encouragement or a check-in.
@@ -337,6 +338,9 @@ model Journey {
   moodAudience      String             @default("HOUSEHOLD")
   birthAnnouncement BirthAnnouncement?
   healthRecords     HealthRecord[]
+  healthLog         HealthLogSettings?
+  healthReadings    HealthReading[]
+  healthFiles       HealthFile[]
 }
 
 /// The family feed — an update, a praise, a prayer, or a milestone that the
@@ -1870,4 +1874,119 @@ model HealthRecord {
 
   @@unique([journeyId, userId])
   @@index([journeyId])
+}
+
+/// How one journey keeps its health log: who may see it, the units it reads
+/// in, and the targets its readings are measured against.
+///
+/// ── Why the targets live here and not in code ────────────────────────────
+/// Because they are the doctor's, not ours. The app ships common defaults —
+/// clearly labelled as defaults — and the family replaces them with the
+/// numbers their own clinic gave them. A reading is flagged against whatever
+/// is here on the day it is looked at, so changing a target re-reads the
+/// whole log honestly rather than leaving old flags behind.
+///
+/// ── Why there is an audience at all ─────────────────────────────────────
+/// The log is the household's by default, like the appointment book — he is
+/// often the one holding the meter. But it is her body. "MOTHER" keeps it to
+/// her alone, and only she can choose it. The circle never sees any of it.
+model HealthLogSettings {
+  id          String   @id @default(cuid())
+  journeyId   String   @unique
+  journey     Journey  @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  /// "HOUSEHOLD" (her and her partner) or "MOTHER" (her alone).
+  audience    String   @default("HOUSEHOLD")
+  /// Display units. Readings are always stored in mg/dL, kg and °C.
+  glucoseUnit String   @default("MGDL")
+  weightUnit  String   @default("KG")
+  tempUnit    String   @default("C")
+  /// The family's own targets, keyed as in lib/health-log.ts. Anything not
+  /// set here reads as the labelled default.
+  targets     Json?
+  /// Which typical schedule the tests checklist starts from: "INTL" or "NG".
+  template    String   @default("INTL")
+  /// Optional checklist items the family has switched on (cervical length,
+  /// diabetes follow-up and so on), by key.
+  conditions  String[] @default([])
+  updatedById String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+/// One check recorded at home: a glucose reading, a blood pressure, a
+/// weight, movements felt, a temperature, symptoms, or a urine dipstick.
+///
+/// The numbers are stored in fixed units (mg/dL, mmHg, kg, °C) whatever the
+/// family reads them in, so a report is never a mix of two scales. Which
+/// numbers mean what depends on `kind` — see lib/health-log.ts — and the
+/// rest (an arm, a meal, the symptoms and how bad) sits in `detail`.
+///
+/// Never diagnosed. A reading is shown against its target and flagged; the
+/// only thing the app ever says beyond that is "discuss it with your
+/// doctor", or, for the few signs that cannot wait, "contact your maternity
+/// unit now".
+model HealthReading {
+  id           String   @id @default(cuid())
+  journeyId    String
+  journey      Journey  @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  /// Who wrote it down. Kept as nobody (not deleted) if that person ever
+  /// leaves: the reading is her health, whoever held the pen.
+  recordedById String?
+  recordedBy   User?    @relation("ReadingBy", fields: [recordedById], references: [id], onDelete: SetNull)
+  /// GLUCOSE | BP | WEIGHT | MOVEMENTS | TEMP | SYMPTOMS | URINE
+  kind         String
+  /// When it was taken — not when it was typed in. Editable for a reading
+  /// written down on paper and entered later.
+  takenAt      DateTime
+  /// Glucose: FASTING, AFTER_BREAKFAST, AFTER_LUNCH, AFTER_DINNER, BEDTIME,
+  /// OTHER. Blood pressure: MORNING or EVENING.
+  slot         String?
+  /// Glucose mg/dL · systolic · weight kg · temperature °C · movements felt.
+  valueA       Float?
+  /// Diastolic · minutes after a meal (60 or 120) · minutes counted.
+  valueB       Float?
+  /// Pulse.
+  valueC       Float?
+  /// Everything else, by kind: the arm, what was eaten, the symptoms and
+  /// their severity, the dipstick readings, "fewer than usual".
+  detail       Json?
+  note         String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([journeyId, takenAt])
+}
+
+/// A photograph or PDF kept as proof of a health entry — a meter's screen, a
+/// used pen, a lab report.
+///
+/// ── Why files have a table of their own ──────────────────────────────────
+/// These are health records. The file itself is stored privately where the
+/// storage allows it (`access`), and its address never leaves the server:
+/// pages ask for /api/health/file/<id>, which checks that the person asking
+/// may see this journey's log (or holds a live report link) before a single
+/// byte is sent. An entry refers to its files by this id, never by URL.
+///
+/// A file uploaded and never attached to an entry (the sheet was closed) is
+/// swept away by the daily job, storage and all.
+model HealthFile {
+  id           String   @id @default(cuid())
+  journeyId    String
+  journey      Journey  @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  uploadedById String
+  url          String
+  /// "private" where the storage accepted it; otherwise "public" behind an
+  /// unguessable address. Either way it is only ever served through the
+  /// checked route.
+  access       String   @default("private")
+  contentType  String
+  size         Int      @default(0)
+  /// What it belongs to: "reading", "plan", "dose" or "check", and its id.
+  /// Null until the entry it was uploaded for is saved.
+  entryType    String?
+  entryId      String?
+  createdAt    DateTime @default(now())
+
+  @@index([journeyId])
+  @@index([entryType, entryId])
 }

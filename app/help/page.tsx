@@ -397,6 +397,30 @@ export default async function HelpPage() {
             </Q>
           )}
 
+          {home && (
+            <Q q="How does the health log work?">
+              Open{" "}
+              <Link href="/health/log" className="text-accent underline underline-offset-4">Health &rarr; Log</Link>
+              , or tap <span className="text-ink">+ Log a reading</span> on
+              your home page. Record glucose, blood pressure, weight, baby&rsquo;s
+              movements, temperature, symptoms or a urine dipstick in a few
+              seconds — the time-of-day slot is chosen for you, and you can
+              add a photo of the meter or a PDF of a result. Put your
+              doctor&rsquo;s numbers in <span className="text-ink">Targets</span>{" "}
+              (until then each one says it is a default). A reading outside
+              its target is marked quietly with ▲ or ▼; the few signs that
+              cannot wait — very high blood pressure, bleeding, fluid leaking,
+              regular contractions, a baby moving less, a severe headache or
+              vision changes, a fever — show a banner telling you to contact
+              your maternity unit now. The app never diagnoses. Both of you
+              can record; each reading shows who did, and only whoever wrote
+              it, or Mum, can change it. Mum can keep the log to herself in{" "}
+              <span className="text-ink">Units and privacy</span>. The circle
+              never sees it, and neither does Agbebi. Photos are kept
+              privately and shown only to you.
+            </Q>
+          )}
+
           <Q q="Can I download our photos?">
             Yes. Open{" "}
             <Link href="/life?view=photos" className="text-accent underline underline-offset-4">Life &rarr; Photos</Link>

@@ -9,6 +9,7 @@ import { loadHealthCards } from "@/lib/health-card-db";
 import { SiteHeader } from "@/components/SiteHeader";
 import { PageHero } from "@/components/ui/PageHero";
 import { HealthCardView } from "@/components/health/HealthCardView";
+import { HealthTabs } from "@/components/health/HealthTabs";
 
 export const metadata: Metadata = {
   title: "Health",
@@ -46,6 +47,8 @@ export default async function HealthPage() {
           title="Kept close, just in case."
           lede="Blood group, genotype, allergies, what each of you takes and who to call — for the clinic, the labour ward, or whoever is minding the baby. Kept between the two of you; the circle never sees it."
         />
+
+        <HealthTabs active="cards" />
 
         {pregnancy && (
           <p className="mt-6 font-mono text-xs text-muted">

@@ -40,6 +40,7 @@ import { getNextFew } from "@/lib/appointments-db";
 import { Verse } from "@/components/ui/Verse";
 import { Button } from "@/components/ui/Button";
 import { ActionTile } from "@/components/ui/ActionTile";
+import { HealthLogStrip } from "@/components/health/log/HealthLogStrip";
 import { Reveal } from "@/components/ui/Reveal";
 import { CoverPicker } from "@/components/ui/CoverPicker";
 import { Arches, Rays } from "@/components/ui/Marks";
@@ -432,6 +433,11 @@ export default async function JourneyPage() {
             <WhatsNew diff={stageDiff(position)} bw={bw} />
           </div>
 
+          {/* The health log, one tap from home. */}
+          <div className="mt-4">
+            <HealthLogStrip userId={session.user.id} journeyId={journey.id} />
+          </div>
+
           {/* Colorful launcher — the journey's app grid */}
           <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
             <Reveal>
@@ -782,6 +788,11 @@ export default async function JourneyPage() {
         {/* The same book she keeps. He is not a visitor to these dates. */}
         <div className="mt-4">
           <ComingUp appointments={nextAppointments} />
+        </div>
+
+        {/* Her health log, when she shares it with him. */}
+        <div className="mt-4">
+          <HealthLogStrip userId={session.user.id} journeyId={journey.id} />
         </div>
 
         {upcoming.length > 0 && (

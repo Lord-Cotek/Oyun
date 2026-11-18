@@ -23,6 +23,7 @@ import { appointmentPath, dayPath } from "@/lib/open-item";
 import { isOn } from "@/lib/flags";
 import { recordRun, type Budget } from "@/lib/cron-run";
 import { tidyLogs } from "@/lib/health";
+import { removeFromStorage } from "@/lib/health-log-db";
 import { completeJourneys } from "@/lib/journey-complete";
 
 export const runtime = "nodejs";
@@ -202,10 +203,14 @@ async function runDaily(budget: Budget) {
   const secondBirthdays = birthdayOn && !budget.out() ? await completeJourneys(now, budget) : { completed: 0, told: 0 };
   // Old operational logs out — see tidyLogs. Never anything a family wrote.
   const tidied = budget.out() ? {} : await tidyLogs().catch(() => ({}));
+  // Health photos uploaded for a reading that was never saved: out of
+  // storage as well as out of the table. A day's grace for a slow save.
+  const healthOrphans = budget.out() ? 0 : await sweepHealthOrphans(now).catch(() => 0);
   if (budget.out()) budget.stopped();
 
   return {
     tidied,
+    healthOrphans,
     reminders: sent,
     notified: people,
     ...guests,
@@ -531,4 +536,17 @@ async function tellTheHosts(now: Date, budget?: Budget) {
     sent += 1;
   }
   return sent;
+}
+
+/** Files uploaded to the health log and never attached to anything. */
+async function sweepHealthOrphans(now: Date): Promise<number> {
+  const old = await prisma.healthFile.findMany({
+    where: { entryId: null, createdAt: { lt: new Date(now.getTime() - 24 * 3600_000) } },
+    select: { id: true, url: true },
+    take: 200,
+  });
+  if (old.length === 0) return 0;
+  await removeFromStorage(old.map((f) => f.url));
+  await prisma.healthFile.deleteMany({ where: { id: { in: old.map((f) => f.id) } } });
+  return old.length;
 }
