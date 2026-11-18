@@ -6,18 +6,19 @@ import QRCode from "qrcode";
 import { createReportLink, revokeReportLink } from "@/app/health/report/actions";
 import { isNativeShell } from "@/lib/shell";
 
-export type LinkRow = { id: string; label: string | null; period: string; expires: string; views: number; lastView: string | null; live: boolean; photos: boolean };
+export type LinkRow = { id: string; label: string | null; period: string; expires: string; views: number; lastView: string | null; live: boolean; photos: boolean; /** Who made it, when it was not the viewer. */ by: string | null };
 
 /**
  * Getting the report out: print it (or save it as a PDF from the same
- * window), download the raw numbers, or — hers alone — make a view-only link
- * for the doctor, with a QR code that prints at the top of the report.
+ * window), download the raw numbers, or make a view-only link for the doctor
+ * (Mum, or her partner while she shares the log), with a QR code that prints
+ * at the top of the report. Both see every link and who made it.
  *
  * Inside the installed app none of print, download or the share sheet
  * reaches the page (WKWebView and Android's WebView give it none of them),
  * and the phone's browser is not signed in. So there, for her, one button
  * makes a two-hour link and opens it in the phone's browser, where Print,
- * Save to Files and the CSVs all work. Her partner is told to use a browser.
+ * Save to Files and the CSVs all work.
  */
 export function ReportActions({
   period,
@@ -73,18 +74,12 @@ export function ReportActions({
     <div className="space-y-4">
       {inShell && (
         <div className="rounded-2xl border border-border bg-surface p-4 print:hidden">
-          {isMother ? (
-            <>
-              <button type="button" onClick={openInBrowser} disabled={pending} className="inline-flex min-h-11 items-center rounded-lg bg-accent px-4 font-mono text-xs font-medium text-on-accent disabled:opacity-60">
-                {pending ? "Opening…" : "Save as PDF or print ↗"}
-              </button>
-              <p className="mt-2 prose-serif-xs text-muted">
-                Opens this report in your phone&rsquo;s browser, where you can print it, save it to Files as a PDF, or download the numbers. It uses a private link of yours that stops working in two hours.
-              </p>
-            </>
-          ) : (
-            <p className="prose-serif-xs text-muted">To print or save this report as a PDF, open Oyun in your phone&rsquo;s browser and sign in there — the app itself cannot print.</p>
-          )}
+          <button type="button" onClick={openInBrowser} disabled={pending} className="inline-flex min-h-11 items-center rounded-lg bg-accent px-4 font-mono text-xs font-medium text-on-accent disabled:opacity-60">
+            {pending ? "Opening…" : "Save as PDF or print ↗"}
+          </button>
+          <p className="mt-2 prose-serif-xs text-muted">
+            Opens this report in your phone&rsquo;s browser, where you can print it, save it to Files as a PDF, or download the numbers. It uses a private link that stops working in two hours{isMother ? "" : ` — ${motherName} sees it in her list`}.
+          </p>
           {error && <p role="alert" className="mt-2 font-mono text-xs text-negative">{error}</p>}
         </div>
       )}
@@ -100,11 +95,11 @@ export function ReportActions({
         </a>
       </div>
 
-      {isMother && (
-        <section className="rounded-2xl border border-border bg-surface p-5 print:hidden">
-          <p className="eyebrow mb-1 text-muted">Share with your doctor</p>
+      <section className="rounded-2xl border border-border bg-surface p-5 print:hidden">
+          <p className="eyebrow mb-1 text-muted">{isMother ? "Share with your doctor" : "Share with the doctor"}</p>
           <p className="prose-serif-xs text-muted">
-            A view-only link to this report — this period only, nothing else in the app. No login needed, never listed by search engines, and it stops working when it expires or you close it. You can see each time it was opened.
+            A view-only link to this report — this period only, nothing else in the app. No login needed, never listed by search engines, and it stops working when it expires or is closed. You can see each time it was opened.
+            {isMother ? " Your partner can make links too while you share the log; you will be told, and you can close any of them." : ` ${motherName} sees every link and can close it, and is told when you make one.`}
           </p>
           {made ? (
             <div className="mt-3 rounded-xl border border-accent/40 bg-accent/[0.05] p-4">
@@ -159,13 +154,14 @@ export function ReportActions({
           {error && <p role="alert" className="mt-2 font-mono text-xs text-negative">{error}</p>}
           {links.length > 0 && (
             <div className="mt-4 border-t border-border pt-3">
-              <p className="mb-2 font-mono text-[0.6rem] uppercase tracking-widest text-muted">Your links</p>
+              <p className="mb-2 font-mono text-[0.6rem] uppercase tracking-widest text-muted">Links to this report</p>
               <ul className="space-y-2">
                 {links.map((l) => (
                   <li key={l.id} className="flex flex-wrap items-center justify-between gap-2 font-mono text-[0.68rem]">
                     <span className={l.live ? "text-ink" : "text-muted line-through"}>
                       {l.label ? `${l.label} · ` : ""}
                       {l.period}
+                      {l.by ? ` · made by ${l.by}` : ""}
                       {l.photos ? " · with photos" : ""} · {l.live ? `until ${l.expires}` : "closed"} · opened {l.views}×{l.lastView ? ` (last ${l.lastView})` : ""}
                     </span>
                     {l.live && (
@@ -178,17 +174,7 @@ export function ReportActions({
               </ul>
             </div>
           )}
-        </section>
-      )}
-
-      {!isMother && (
-        <section className="rounded-2xl border border-border bg-surface p-5 print:hidden">
-          <p className="eyebrow mb-1 text-muted">Share with the doctor</p>
-          <p className="prose-serif-xs text-muted">
-            A view-only link for the doctor can only be made by {motherName}, from her own Oyun account under Health &rarr; Report — the health log leaves the app only when she chooses. You can still print this report or save it as a PDF and send that.
-          </p>
-        </section>
-      )}
+      </section>
 
       {made && (
         <div className="hidden items-center gap-3 border border-black bg-white p-2 print:flex">

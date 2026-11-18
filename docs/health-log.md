@@ -6,8 +6,8 @@ The health log lives in the Health room as five tabs: **Cards**, **Log**, **Medi
 
 | Who | Sees | Can |
 | --- | --- | --- |
-| Mum (MOTHER) | Everything, always | Everything, including the things only she can do: choose who sees the log, make report links, the weekly email, export, delete-all |
-| Her partner (PARTNER) | Everything, unless she chose **Only me** | Add and edit their own readings and doses, mark tests, print the report, download CSVs |
+| Mum (MOTHER) | Everything, always | Everything, including the things only she can do: choose who sees the log, the weekly email, export, delete-all. She is told when her partner makes a report link, and can close any link |
+| Her partner (PARTNER) | Everything, unless she chose **Only me** | Add and edit their own readings and doses, mark tests, print the report, download CSVs, make and close report links |
 | The circle (friends, family, Agbebi the assistant) | Nothing | Nothing |
 
 - The rule is `logAccess()` in `lib/health-log-db.ts`. Every page, action and route asks it first. A file is checked against the journey it belongs to, not whichever journey the viewer has open.
@@ -63,14 +63,15 @@ Days, doses and reminders follow **her** time zone (`User.timeZone`, set automat
 - `/health/report` is built by `buildReport()` in `lib/health-report.ts` and drawn by `ReportDocument`. It shows exactly what will print.
 - Out-of-range values carry a symbol as well as a colour (▲ high, ▼ low, ‼ urgent), so a black-and-white copy loses nothing.
 - **Print, or save as PDF** uses the browser's print dialog. Readings and doses download as CSV via `/api/health/csv`. Cells are formula-safe (`lib/csv-cell.ts`) and files are named by period, never by person.
-- **View-only link (Mum only).** `createReportLink()` makes 24 random bytes as a base64url token and stores only the hash. A link lasts 3 to 30 days.
+- **View-only link (Mum, or her partner while she shares the log).** `createReportLink()` makes 24 random bytes as a base64url token and stores only the hash. A link lasts 3 to 30 days.
+  - Both see every link, who made it and how often it was opened; either can close one. A link her partner makes notifies her (`health_shared`, Housekeeping).
+  - Switching the log to **Only me** closes every live link her partner made (`setLogAudience`), and `logAccess` stops new ones.
   - `/dr/[token]` needs no login and says noindex. `/dr` is disallowed in robots and listed in `GUEST_ROUTES`, so Agbebi does not appear there.
   - The page shows that period and nothing else, plus its CSVs (`/api/health/report-csv/[token]`).
   - Each opening is recorded. **Close it** stops the link at once.
   - Photos are included only if she ticked the photo appendix, and only those attached to entries inside the period (`fileInReport()`).
 - **The installed apps.** WKWebView and Android's WebView give a page no print, download or share sheet, and the phone's browser is not signed in.
-  - In the app, Mum's **Save as PDF or print ↗** makes a two-hour link labelled "To print or save on this phone" and opens it in the phone's browser, where printing, Save to Files and the CSVs all work.
-  - Her partner is told to use a browser.
+  - In the app, **Save as PDF or print ↗** makes a two-hour link labelled "To print or save on this phone" and opens it in the phone's browser, where printing, Save to Files and the CSVs all work. It is listed with the others.
   - Shell detection is `isNativeShell()` in `lib/shell.ts`.
 
 ## Her data

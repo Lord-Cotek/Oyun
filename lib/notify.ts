@@ -21,7 +21,8 @@ export type NotificationType =
   | "morning"
   | "membership"
   | "dose_reminder"
-  | "health_check";
+  | "health_check"
+  | "health_shared";
 
 interface NotifyInput {
   userId: string;

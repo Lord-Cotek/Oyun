@@ -434,7 +434,7 @@ function SettingsPanel({ units, isMother, audience, weeklyEmail }: { units: Unit
           ) : (
             <p className="mt-1 prose-serif-xs text-muted">The two of you. Mum can choose to keep it to herself.</p>
           )}
-          <p className="mt-2 prose-serif-xs text-muted">Never the circle, and never Agbebi. It leaves the app only when you print it, download it, or make a report link yourself.</p>
+          <p className="mt-2 prose-serif-xs text-muted">Never the circle, and never Agbebi. It leaves the app only when one of you prints it, downloads it, or makes a doctor link — and Mum sees every link.</p>
         </div>
         {isMother && (
           <div className="border-t border-border pt-3">

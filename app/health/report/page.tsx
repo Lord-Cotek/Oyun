@@ -21,8 +21,8 @@ const nice = (d: Date) => d.toLocaleDateString("en-GB", { day: "numeric", month:
 
 /**
  * The doctor's report: choose a period, see it as the doctor will, then
- * print it, save it as a PDF, download the numbers, or — hers alone — make a
- * view-only link.
+ * print it, save it as a PDF, download the numbers, or make a view-only link
+ * (Mum, or her partner while she shares the log).
  */
 export default async function ReportPage({ searchParams }: { searchParams: Record<string, string | undefined> }) {
   const session = await auth();
@@ -55,25 +55,27 @@ export default async function ReportPage({ searchParams }: { searchParams: Recor
   const photos = searchParams.photos === "1";
   const report = await buildReport(a.journeyId, period, { photos, dob: searchParams.dob, clinic: searchParams.clinic });
 
-  const links: LinkRow[] = a.isMother
-    ? (
-        await prisma.healthReportLink.findMany({
-          where: { journeyId: a.journeyId },
-          orderBy: { createdAt: "desc" },
-          take: 12,
-          include: { views: { orderBy: { at: "desc" }, take: 1 }, _count: { select: { views: true } } },
-        })
-      ).map((l) => ({
-        id: l.id,
-        label: l.label,
-        period: `${nice(l.fromDay)}–${nice(l.toDay)}`,
-        expires: l.expiresAt.toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: tz }),
-        views: l._count.views,
-        lastView: l.views[0] ? l.views[0].at.toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: tz }) : null,
-        live: !l.revokedAt && l.expiresAt.getTime() > Date.now(),
-        photos: l.withPhotos,
-      }))
-    : [];
+  // Both of them see every link, and who made it.
+  const rows = await prisma.healthReportLink.findMany({
+    where: { journeyId: a.journeyId },
+    orderBy: { createdAt: "desc" },
+    take: 12,
+    include: { views: { orderBy: { at: "desc" }, take: 1 }, _count: { select: { views: true } } },
+  });
+  const makers = new Map(
+    (await prisma.user.findMany({ where: { id: { in: [...new Set(rows.map((l) => l.createdById))] } }, select: { id: true, name: true } })).map((u) => [u.id, u.name?.trim().split(" ")[0] || "someone"]),
+  );
+  const links: LinkRow[] = rows.map((l) => ({
+    id: l.id,
+    label: l.label,
+    period: `${nice(l.fromDay)}–${nice(l.toDay)}`,
+    expires: l.expiresAt.toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: tz }),
+    views: l._count.views,
+    lastView: l.views[0] ? l.views[0].at.toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: tz }) : null,
+    live: !l.revokedAt && l.expiresAt.getTime() > Date.now(),
+    photos: l.withPhotos,
+    by: l.createdById === a.userId ? null : makers.get(l.createdById) ?? "someone",
+  }));
 
   // The pill follows its radio the moment it is tapped (has-[:checked]), not
   // only after the form is sent; a visible ring follows keyboard focus.

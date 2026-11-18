@@ -212,6 +212,11 @@ export async function setLogAudience(audience: "HOUSEHOLD" | "MOTHER"): Promise<
     create: { journeyId: a.journeyId, audience: value, updatedById: a.userId },
     update: { audience: value, updatedById: a.userId },
   });
+  // Keeping it to herself means her partner's doctor links stop too.
+  if (value === "MOTHER") {
+    await prisma.healthReportLink.updateMany({ where: { journeyId: a.journeyId, revokedAt: null, NOT: { createdById: a.userId } }, data: { revokedAt: new Date() } });
+    revalidatePath("/health/report");
+  }
   refresh();
   revalidatePath("/health");
   return { ok: true };

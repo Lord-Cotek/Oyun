@@ -481,15 +481,18 @@ export default async function HelpPage() {
               out of range carries a symbol as well as a colour, so it reads
               on a black-and-white printout. Tap{" "}
               <span className="text-ink">Print, or save as PDF</span>, or
-              download the readings and doses as a spreadsheet (CSV). Mum can
-              also make a view-only link for her doctor: it shows that report
+              download the readings and doses as a spreadsheet (CSV). You can
+              also make a view-only link for the doctor: it shows that report
               and nothing else, needs no login, is never listed by search
-              engines, works for the days she chooses (3 to 30) and stops the
-              moment she closes it. She can see each time it was opened, and
-              a QR code for it prints at the top of the report. Photos are
-              included only if she ticks the photo appendix. Only she can
-              make a link; her partner can print the report while she shares
-              the log. In the installed app, which cannot print, Mum&rsquo;s{" "}
+              engines, works for the days you choose (3 to 30) and stops the
+              moment it is closed. You can see each time it was opened, and a
+              QR code for it prints at the top of the report. Photos are
+              included only if you tick the photo appendix. Mum can make a
+              link, and so can her partner while she shares the log: both see
+              every link and who made it, either can close one, and Mum is
+              told when her partner makes one. If she switches her log to
+              &ldquo;Only me&rdquo;, her partner&rsquo;s links close at once.
+              In the installed app, which cannot print,{" "}
               <span className="text-ink">Save as PDF or print</span> opens the
               report in your phone&rsquo;s browser through a private link that
               lasts two hours.
