@@ -19,6 +19,10 @@
     {
       "path": "/api/cron/weekly?sweep=2",
       "schedule": "30 13 * * 1"
+    },
+    {
+      "path": "/api/cron/health",
+      "schedule": "0 * * * *"
     }
   ]
 }

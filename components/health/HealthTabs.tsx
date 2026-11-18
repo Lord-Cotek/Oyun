@@ -8,6 +8,7 @@ import Link from "next/link";
 const TABS = [
   { key: "cards", label: "Cards", href: "/health" },
   { key: "log", label: "Log", href: "/health/log" },
+  { key: "medicines", label: "Medicines", href: "/health/medicines" },
 ] as const;
 
 export type HealthTab = (typeof TABS)[number]["key"];

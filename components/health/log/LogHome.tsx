@@ -6,6 +6,7 @@ import { Lightbox } from "@/components/media/Lightbox";
 import { ConfirmButton } from "@/components/ui/Confirm";
 import { ReadingSheet, type EditReading } from "@/components/health/log/ReadingSheet";
 import { deleteReading, saveTargets, saveUnits, setLogAudience } from "@/app/health/log/actions";
+import { saveCheckTimes } from "@/app/health/medicines/actions";
 import {
   DEFAULT_TARGETS,
   KINDS,
@@ -54,6 +55,7 @@ export function LogHome({
   isMother,
   audience,
   urgentRecent,
+  checkTimes,
 }: {
   journeyId: string;
   readings: ReadingView[];
@@ -65,6 +67,7 @@ export function LogHome({
   isMother: boolean;
   audience: "HOUSEHOLD" | "MOTHER";
   urgentRecent: ReadingView[];
+  checkTimes: string[];
 }) {
   const params = useSearchParams();
   const router = useRouter();
@@ -190,6 +193,7 @@ export function LogHome({
       </section>
 
       <TargetsPanel targets={targets} custom={customTargets} />
+      {isMother && <CheckTimesPanel times={checkTimes} />}
       <SettingsPanel units={units} isMother={isMother} audience={audience} />
 
       {sheet && <ReadingSheet startKind={sheet.kind} edit={sheet.edit} units={units} journeyId={journeyId} onClose={() => setSheet(null)} />}
@@ -336,6 +340,54 @@ function TargetsPanel({ targets, custom }: { targets: Targets; custom: string[] 
           {msg && <span className="font-mono text-[0.62rem] text-muted">{msg}</span>}
         </div>
       </form>
+    </details>
+  );
+}
+
+/** Times of day to be reminded to take a reading. Hers — they go to her phone. */
+function CheckTimesPanel({ times }: { times: string[] }) {
+  const router = useRouter();
+  const [list, setList] = useState<string[]>(times);
+  const [msg, setMsg] = useState<string | null>(null);
+  const [pending, start] = useTransition();
+  return (
+    <details className="rounded-2xl border border-border bg-surface p-5">
+      <summary className="cursor-pointer font-serif text-lg text-ink">Reading reminders</summary>
+      <p className="mt-2 prose-serif-xs text-muted">
+        A gentle reminder at the times you take readings — a fasting check before breakfast, say. Never between 22:00 and 06:00, and not if you have just taken one.
+      </p>
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        {list.map((t, i) => (
+          <span key={i} className="flex items-center gap-1">
+            <input type="time" aria-label={`Reminder ${i + 1}`} value={t} onChange={(e) => setList((l) => l.map((x, j) => (j === i ? e.target.value : x)))} className="rounded-lg border border-border bg-bg px-2 py-2 font-mono text-sm text-ink" />
+            <button type="button" aria-label="Remove this reminder" onClick={() => setList((l) => l.filter((_, j) => j !== i))} className="h-9 w-9 font-mono text-muted">
+              ×
+            </button>
+          </span>
+        ))}
+        {list.length < 6 && (
+          <button type="button" onClick={() => setList((l) => [...l, l.length ? "13:00" : "07:00"])} className="min-h-10 rounded-lg border border-dashed border-border px-3 font-mono text-xs text-muted">
+            + Add a time
+          </button>
+        )}
+      </div>
+      <div className="mt-3 flex items-center gap-3">
+        <button
+          type="button"
+          disabled={pending}
+          onClick={() =>
+            start(async () => {
+              const r = await saveCheckTimes(list);
+              setMsg(r.ok ? (list.length ? "Saved." : "Reminders off.") : r.error);
+              router.refresh();
+            })
+          }
+          className="min-h-11 rounded-lg bg-accent px-4 font-mono text-xs text-on-accent disabled:opacity-60"
+        >
+          {pending ? "Saving…" : "Save reminders"}
+        </button>
+        {msg && <span className="font-mono text-[0.62rem] text-muted">{msg}</span>}
+      </div>
     </details>
   );
 }

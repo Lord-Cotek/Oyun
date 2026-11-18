@@ -341,6 +341,9 @@ model Journey {
   healthLog         HealthLogSettings?
   healthReadings    HealthReading[]
   healthFiles       HealthFile[]
+  medicationPlans   MedicationPlan[]
+  medicationDoses   MedicationDose[]
+  healthChecksSent  HealthCheckSent[]
 }
 
 /// The family feed — an update, a praise, a prayer, or a milestone that the
@@ -1908,6 +1911,10 @@ model HealthLogSettings {
   /// Optional checklist items the family has switched on (cervical length,
   /// diabetes follow-up and so on), by key.
   conditions  String[] @default([])
+  /// Times of day ("07:00") to be reminded to take a reading — fasting
+  /// glucose before breakfast, say. Sent to her only, outside quiet hours,
+  /// and skipped when a reading was already taken just before.
+  checkTimes  String[] @default([])
   updatedById String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -1989,4 +1996,90 @@ model HealthFile {
 
   @@index([journeyId])
   @@index([entryType, entryId])
+}
+
+/// A medicine she has been prescribed, and when to take it — "progesterone
+/// pessary 400 mg once a day for a month", "enoxaparin 40 mg injection at
+/// 6pm", "insulin before meals".
+///
+/// The schedule makes the doses (MedicationDose) a few days at a time, in
+/// her own time zone; editing the schedule replaces the doses still to come
+/// and never touches a dose already taken or skipped. As-needed medicines
+/// make no doses of their own — each one taken is logged as it happens.
+model MedicationPlan {
+  id            String           @id @default(cuid())
+  journeyId     String
+  journey       Journey          @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  createdById   String?
+  name          String
+  /// TABLET | CAPSULE | PESSARY | INJECTION | INSULIN | LIQUID | OTHER
+  form          String           @default("TABLET")
+  strength      String?
+  dose          String?
+  route         String?
+  /// TIMES (every day at `times`), EVERY_N_DAYS (every `everyDays` days at
+  /// `times`) or AS_NEEDED.
+  scheduleKind  String           @default("TIMES")
+  /// "08:00", "20:00" — in her time zone.
+  times         String[]         @default([])
+  everyDays     Int?
+  startOn       DateTime         @db.Date
+  endOn         DateTime?        @db.Date
+  prescribedBy  String?
+  notes         String?
+  /// Push and bell reminders at each dose. The words never name the
+  /// medicine: a lock screen is read by whoever is nearby.
+  remind        Boolean          @default(true)
+  /// Remind her partner too (only while she shares the log with him).
+  remindPartner Boolean          @default(false)
+  stoppedAt     DateTime?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  doses         MedicationDose[]
+
+  @@index([journeyId])
+}
+
+/// One dose: due at a time, then taken (perhaps late), skipped with a reason,
+/// or not yet recorded. An injection keeps its site, so the next one can be
+/// suggested somewhere else; insulin keeps the units given.
+model MedicationDose {
+  id           String         @id @default(cuid())
+  planId       String
+  plan         MedicationPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+  journeyId    String
+  journey      Journey        @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  dueAt        DateTime
+  /// DUE | TAKEN | SKIPPED
+  status       String         @default("DUE")
+  takenAt      DateTime?
+  /// Taken more than an hour after it was due.
+  late         Boolean        @default(false)
+  skipReason   String?
+  site         String?
+  units        Float?
+  note         String?
+  recordedById String?
+  /// Stamped the moment its reminder is sent, so it goes once however often
+  /// the job runs.
+  remindedAt   DateTime?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  @@unique([planId, dueAt])
+  @@index([journeyId, dueAt])
+  @@index([dueAt, remindedAt])
+}
+
+/// A reading reminder already sent — one row per journey, day and time, so
+/// "time for your fasting check" goes once.
+model HealthCheckSent {
+  id        String   @id @default(cuid())
+  journeyId String
+  journey   Journey  @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  /// "2026-11-18 07:00" in her time zone.
+  slotKey   String
+  sentAt    DateTime @default(now())
+
+  @@unique([journeyId, slotKey])
 }

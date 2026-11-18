@@ -21,6 +21,7 @@ import {
 } from "@/lib/health-log";
 import { discardHealthFile, registerHealthFile, saveReading } from "@/app/health/log/actions";
 import { isPdf, uploadHealthFile } from "@/lib/health-upload";
+import { isIos } from "@/lib/shell";
 
 export type EditReading = {
   id: string;
@@ -95,6 +96,10 @@ export function ReadingSheet({
   const [verdict, setVerdict] = useState<Verdict | null>(null);
   const [saving, start] = useTransition();
   const firstInput = useRef<HTMLInputElement>(null);
+  // iOS does not allow opening the camera straight from the app yet: the
+  // library picker only (it still offers the camera). Decided after mount.
+  const [ios, setIos] = useState(false);
+  useEffect(() => setIos(isIos()), []);
 
   // The slot follows the clock until somebody picks one themselves.
   useEffect(() => {
@@ -326,12 +331,14 @@ export function ReadingSheet({
             <div>
               <span className="mb-1.5 block font-mono text-[0.62rem] uppercase tracking-widest text-muted">Photo proof (optional)</span>
               <div className="flex flex-wrap gap-2">
+                {!ios && (
+                  <label className="inline-flex min-h-11 cursor-pointer items-center rounded-lg border border-border px-3 font-mono text-xs text-ink hover:border-accent">
+                    📷 Take a photo
+                    <input type="file" accept="image/*" capture="environment" className="sr-only" onChange={(e) => { void addFiles(e.target.files); e.target.value = ""; }} />
+                  </label>
+                )}
                 <label className="inline-flex min-h-11 cursor-pointer items-center rounded-lg border border-border px-3 font-mono text-xs text-ink hover:border-accent">
-                  📷 Take a photo
-                  <input type="file" accept="image/*" capture="environment" className="sr-only" onChange={(e) => { void addFiles(e.target.files); e.target.value = ""; }} />
-                </label>
-                <label className="inline-flex min-h-11 cursor-pointer items-center rounded-lg border border-border px-3 font-mono text-xs text-ink hover:border-accent">
-                  Choose photo or PDF
+                  {ios ? "Add a photo or PDF" : "Choose photo or PDF"}
                   <input type="file" accept="image/jpeg,image/png,image/webp,image/heic,application/pdf" multiple className="sr-only" onChange={(e) => { void addFiles(e.target.files); e.target.value = ""; }} />
                 </label>
               </div>

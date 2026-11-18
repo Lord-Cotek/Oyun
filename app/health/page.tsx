@@ -10,6 +10,8 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { PageHero } from "@/components/ui/PageHero";
 import { HealthCardView } from "@/components/health/HealthCardView";
 import { HealthTabs } from "@/components/health/HealthTabs";
+import { logAccess } from "@/lib/health-log-db";
+import { activePlanLines } from "@/lib/medication-db";
 
 export const metadata: Metadata = {
   title: "Health",
@@ -34,6 +36,8 @@ export default async function HealthPage() {
   if (!isHousehold(active.role)) redirect("/journey");
 
   const data = await loadHealthCards(active.journey.id, session.user.id);
+  // Her structured medicines, only for someone the health log is open to.
+  const planLines = (await logAccess(session.user.id, active.journey.id)) ? await activePlanLines(active.journey.id) : [];
   if (!data) redirect("/journey");
   const { people, hints, pregnancy } = data;
   const anyFilled = people.some((p) => hasAnyHealth(p.fields));
@@ -100,6 +104,7 @@ export default async function HealthPage() {
                 prefill: p.prefill,
                 updatedLabel: p.updatedAt ? `${short(p.updatedAt)}${p.updatedBy ? ` by ${p.updatedBy}` : ""}` : null,
                 printHref: `/health/card?who=${encodeURIComponent(p.target)}`,
+                planLines: p.kind === "mother" ? planLines : undefined,
               }}
             />
           ))}

@@ -93,6 +93,41 @@ const at = new Date("2026-11-18T15:30:00Z"), due2 = new Date("2027-02-10T18:52:3
 const pos = jr.computePosition(due2, at), mine = L.gestationOn(due2, at);
 check(pos.week === mine.week && pos.dayInWeek === mine.day, "the log agrees with the journey page about the week and day");
 
+console.log("Medicines and doses");
+{
+  const M = jiti(path.join(root, "lib/medication.ts"));
+  const plan = (o) => ({ scheduleKind: "TIMES", times: ["08:00"], everyDays: null, startOn: "2026-11-01", endOn: null, stoppedAt: null, ...o });
+  const iso = (ds) => ds.map((d) => d.toISOString());
+  const dubai = M.dueTimes(plan({}), "2026-11-18", "2026-11-18", "Asia/Dubai");
+  check(dubai.length === 1 && dubai[0].toISOString() === "2026-11-18T04:00:00.000Z", "08:00 in Dubai is 04:00 UTC");
+  const lagos = M.dueTimes(plan({ times: ["20:00", "08:00"] }), "2026-11-18", "2026-11-18", "Africa/Lagos");
+  check(lagos.length === 2 && iso(lagos).includes("2026-11-18T07:00:00.000Z") && iso(lagos).includes("2026-11-18T19:00:00.000Z"), "twice a day in Lagos: 07:00 and 19:00 UTC");
+  const course = M.dueTimes(plan({ startOn: "2026-11-01", endOn: "2026-11-07" }), "2026-10-28", "2026-11-12", "UTC");
+  check(course.length === 7, "a one-week course makes seven doses, none before or after");
+  const alt = M.dueTimes(plan({ scheduleKind: "EVERY_N_DAYS", everyDays: 3, startOn: "2026-11-01" }), "2026-11-01", "2026-11-10", "UTC");
+  check(alt.map((d) => d.toISOString().slice(8, 10)).join(",") === "01,04,07,10", "every 3 days: the 1st, 4th, 7th and 10th");
+  check(M.dueTimes(plan({ scheduleKind: "AS_NEEDED", times: [] }), "2026-11-01", "2026-11-10", "UTC").length === 0, "as-needed makes no scheduled doses");
+  const stopped = M.dueTimes(plan({ times: ["08:00", "20:00"], stoppedAt: new Date("2026-11-18T12:00:00Z") }), "2026-11-18", "2026-11-19", "UTC");
+  check(stopped.length === 1, "a stopped plan makes nothing after it was stopped");
+  const london = M.dueTimes(plan({ startOn: "2027-03-27" }), "2027-03-27", "2027-03-28", "Europe/London");
+  check(london[0].toISOString() === "2027-03-27T08:00:00.000Z" && london[1].toISOString() === "2027-03-28T07:00:00.000Z", "08:00 stays 08:00 across the clocks going forward (London)");
+  check(M.isLate(new Date("2026-11-18T08:00:00Z"), new Date("2026-11-18T09:01:00Z")) && !M.isLate(new Date("2026-11-18T08:00:00Z"), new Date("2026-11-18T08:59:00Z")), "late means more than an hour after it was due");
+  const a = M.adherence([
+    { dueAt: new Date("2026-11-17T08:00:00Z"), status: "TAKEN", late: false },
+    { dueAt: new Date("2026-11-17T20:00:00Z"), status: "TAKEN", late: true },
+    { dueAt: new Date("2026-11-18T08:00:00Z"), status: "SKIPPED", late: false },
+    { dueAt: new Date("2026-11-18T09:00:00Z"), status: "DUE", late: false },
+    { dueAt: new Date("2026-11-18T20:00:00Z"), status: "DUE", late: false },
+  ], new Date("2026-11-18T12:00:00Z"));
+  check(a.due === 4 && a.taken === 2 && a.late === 1 && a.skipped === 1 && a.missing === 1, "adherence counts only doses already due: 2 of 4 taken, 1 late, 1 skipped, 1 unrecorded");
+  check(M.nextSite("Left abdomen") === "Right abdomen" && M.nextSite("Right arm") === "Left abdomen" && M.nextSite(null) === "Left abdomen", "injection sites rotate");
+  const bad = M.cleanPlan({ name: "Progesterone", scheduleKind: "TIMES", times: [], startOn: "2026-11-18" });
+  check(!bad.ok, "a daily medicine with no time is refused");
+  const good = M.cleanPlan({ name: "Progesterone", form: "PESSARY", strength: "400 mg", scheduleKind: "TIMES", times: ["21:00", "bad", "21:00"], startOn: "2026-11-18", endOn: "2026-12-17" });
+  check(good.ok && good.data.times.join() === "21:00", "times are checked and de-duplicated");
+  check(M.scheduleSummary({ scheduleKind: "TIMES", times: ["08:00", "20:00"], everyDays: null, startOn: "x", endOn: null }) === "Twice a day at 08:00 and 20:00", "the schedule reads as a sentence");
+}
+
 console.log("Kept from the assistant");
 {
   const { readFileSync, readdirSync, statSync, existsSync } = await import("node:fs");

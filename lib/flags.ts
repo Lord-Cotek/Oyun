@@ -72,6 +72,12 @@ export const FLAGS: FlagSpec[] = [
     fallback: true,
   },
   {
+    key: "health-reminders",
+    label: "Health log reminders",
+    what: "Reminds her (and her partner, if she asks) when a medicine dose is due, and at the reading times she chose. The words never name the medicine. Turn it off if they start going out wrong.",
+    fallback: true,
+  },
+  {
     key: "personal-reminders",
     label: "Personal reminders",
     what: "Tells each person about the reminders they set for themselves, at their own morning.",

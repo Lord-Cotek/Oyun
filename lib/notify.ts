@@ -19,7 +19,9 @@ export type NotificationType =
   | "appointment_reminder"
   | "nudge"
   | "morning"
-  | "membership";
+  | "membership"
+  | "dose_reminder"
+  | "health_check";
 
 interface NotifyInput {
   userId: string;

@@ -19,6 +19,8 @@ export type HealthPersonView = {
   updatedLabel: string | null;
   /** The printable card's address. */
   printHref: string;
+  /** Her medicines list, when the viewer may see the health log. */
+  planLines?: string[];
 };
 
 const PLACEHOLDER: Record<HealthPersonView["kind"], Partial<Record<keyof HealthFields, string>>> = {
@@ -54,7 +56,7 @@ export function HealthCardView({ person }: { person: HealthPersonView }) {
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
   const f = person.fields;
-  const filled = hasAnyHealth(f);
+  const filled = hasAnyHealth(f) || (person.planLines?.length ?? 0) > 0;
   // An empty card of your own, with one from an earlier journey: start from that.
   const start_with = !person.saved && person.prefill && hasAnyHealth(person.prefill) ? person.prefill : f;
   const ph = PLACEHOLDER[person.kind];
@@ -170,6 +172,7 @@ export function HealthCardView({ person }: { person: HealthPersonView }) {
           {f.allergies && <Row label="Allergies" value={f.allergies} loud />}
           {f.conditions && <Row label="Conditions" value={f.conditions} />}
           {f.medicines && <Row label="Medicines" value={f.medicines} />}
+          {person.planLines && person.planLines.length > 0 && <Row label="Medicines list" value={person.planLines.join("\n")} />}
           {f.careProvider && <Row label={person.kind === "child" ? "Clinic or doctor" : "Hospital, midwife or doctor"} value={f.careProvider} />}
           {f.emergencyContact && <Row label="In an emergency, call" value={f.emergencyContact} />}
           {f.notes && <Row label="Good to know" value={f.notes} />}

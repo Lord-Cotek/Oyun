@@ -421,6 +421,31 @@ export default async function HelpPage() {
             </Q>
           )}
 
+          {home && (
+            <Q q="How do medicines and reminders work?">
+              Open{" "}
+              <Link href="/health/medicines" className="text-accent underline underline-offset-4">Health &rarr; Medicines</Link>{" "}
+              and press <span className="text-ink">+ Add a medicine</span>:
+              the name, form, strength and dose, and when — every day at set
+              times, every few days, or as needed — with the start and end
+              dates and a photo of the box or prescription if you like. Each
+              dose then appears on the day: one tap for{" "}
+              <span className="text-ink">Taken</span>, or{" "}
+              <span className="text-ink">Details</span> to give the time,
+              mark it skipped with a reason, choose the injection site (the
+              next one is suggested, rotating), or enter insulin units. Taken
+              more than an hour late is marked late. Each medicine shows how
+              the week has gone. Reminders come at each dose — on the hour
+              before it is due — and never name the medicine, because a lock
+              screen is read by whoever is nearby; tick &ldquo;remind my
+              partner too&rdquo; if he should hear as well. In the Log,{" "}
+              <span className="text-ink">Reading reminders</span> sets times to
+              be reminded to take a reading (never between 22:00 and 06:00).
+              Times are always in Mum&rsquo;s own time zone. Never change or
+              stop a medicine without speaking to your doctor.
+            </Q>
+          )}
+
           <Q q="Can I download our photos?">
             Yes. Open{" "}
             <Link href="/life?view=photos" className="text-accent underline underline-offset-4">Life &rarr; Photos</Link>

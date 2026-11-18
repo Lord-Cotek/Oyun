@@ -33,3 +33,18 @@ export function isIosNativeShell(ua?: string): boolean {
   const agent = ua ?? (typeof navigator === "undefined" ? "" : navigator.userAgent);
   return isNativeShell(agent) && /iPhone|iPad|iPod/.test(agent);
 }
+
+/**
+ * Any iPhone or iPad — Safari, the home-screen app or our shell. iPadOS
+ * describes itself as a Mac, so a Mac with a touch screen counts too.
+ *
+ * Used to leave out "take a photo" buttons on iOS: opening the camera
+ * straight from the app is not allowed there yet (and in the installed app
+ * iOS can end the app while the camera is up), so iOS gets the photo
+ * library picker only — which still offers the camera itself.
+ */
+export function isIos(): boolean {
+  if (typeof navigator === "undefined") return false;
+  const ua = navigator.userAgent || "";
+  return /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && (navigator.maxTouchPoints ?? 0) > 1);
+}

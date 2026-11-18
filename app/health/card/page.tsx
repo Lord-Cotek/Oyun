@@ -7,6 +7,8 @@ import { isHousehold } from "@/lib/roles";
 import { hasAnyHealth } from "@/lib/health-card";
 import { loadHealthCards, type HealthPerson } from "@/lib/health-card-db";
 import { PrintButton } from "@/components/book/PrintButton";
+import { logAccess } from "@/lib/health-log-db";
+import { activePlanLines } from "@/lib/medication-db";
 
 export const metadata: Metadata = { title: "Health cards", robots: { index: false } };
 
@@ -31,6 +33,7 @@ export default async function HealthCardPrint({ searchParams }: { searchParams: 
   if (!isHousehold(active.role)) redirect("/journey");
 
   const data = await loadHealthCards(active.journey.id, session.user.id);
+  const planLines = (await logAccess(session.user.id, active.journey.id)) ? await activePlanLines(active.journey.id) : [];
   if (!data) redirect("/journey");
   const who = searchParams.who?.slice(0, 64);
   const matches = (p: HealthPerson) => p.target === who || (p.kind !== "child" && p.kind === who);
@@ -123,7 +126,7 @@ export default async function HealthCardPrint({ searchParams }: { searchParams: 
                 )}
 
                 {[
-                  ["Medicines and supplements", f.medicines],
+                  ["Medicines and supplements", [f.medicines, ...(isMother ? planLines : [])].filter(Boolean).join("\n") || null],
                   [p.kind === "child" ? "Clinic or doctor" : "Hospital, midwife or doctor", f.careProvider],
                   ["Good to know", f.notes],
                 ]

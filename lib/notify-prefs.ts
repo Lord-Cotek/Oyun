@@ -55,6 +55,10 @@ export const CATEGORY_OF: Record<NotificationType, NotifyCategory> = {
   appointment: "dates",
   appointment_reminder: "dates",
   nudge: "dates",
+  // A dose due, a reading time she chose: reminders of things that are
+  // coming, governed by the same switch as an appointment.
+  dose_reminder: "dates",
+  health_check: "dates",
 
   // The family diary
   post: "diary",

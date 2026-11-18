@@ -83,6 +83,7 @@ export default async function HealthLogPage() {
             isMother={a.isMother}
             audience={a.audience}
             urgentRecent={urgentRecent}
+            checkTimes={a.checkTimes}
           />
         </Suspense>
         <p className="mt-10 border-t border-border pt-4 prose-serif-xs text-muted">
