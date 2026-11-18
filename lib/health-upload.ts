@@ -14,10 +14,18 @@ import { upload } from "@vercel/blob/client";
  *     rather than sent as it was. PDFs go as they are: a lab's report has no
  *     camera position in it, and rewriting a PDF in the browser is not safe.
  *
- *  2. It asks for private storage. Where the store does not offer it, the
- *     file goes behind an unguessable address instead — and either way the
- *     address is only ever handed to the server, which serves the file
- *     through a checked route.
+ *  2. The address is never shown. Files go behind an unguessable address
+ *     (a random name plus the store's own random suffix), the address is
+ *     only ever handed to the server, and the server serves the file
+ *     through a checked route — never a link to storage.
+ *
+ *     Private storage is used only when the store is a private one and the
+ *     deployment says so (NEXT_PUBLIC_HEALTH_BLOB_ACCESS=private). It used
+ *     to be tried first on every upload, but a public store does not refuse
+ *     a private upload cleanly: the browser sees a dropped connection
+ *     ("Failed to fetch"), the storage SDK retries it again and again, and
+ *     the photo sat at "Uploading" on real phones. Asking only for what the
+ *     store is is the fix; the family's photos have always gone this way.
  *
  * ── And one it learned the hard way: nothing here may wait for ever ──────
  * On an iPhone a photo sat at "Uploading the photo…" and never moved, and the
@@ -124,10 +132,15 @@ function rid() {
   return Array.from(a, (b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-/** Whether this store takes private files — learned once per page, so a public-only store costs one refusal, not one per photo. */
+/** What this store is. Public unless the deployment says it is a private store. */
+const STORE_ACCESS: "private" | "public" = process.env.NEXT_PUBLIC_HEALTH_BLOB_ACCESS === "private" ? "private" : "public";
+/** A private store that turns out not to take private files is learned once per page. */
 let privateWorks: boolean | null = null;
 
 const isAccessError = (e: unknown) => /private|access/i.test(String((e as Error)?.message ?? ""));
+/** What a browser says when the connection itself failed, in its own words. */
+const isNetworkError = (e: unknown) =>
+  e instanceof TypeError || /failed to fetch|network|load failed|internet connection|timed out/i.test(String((e as Error)?.message ?? ""));
 
 /**
  * One attempt at sending, abandoned if it stalls or overruns. Rejects with
@@ -140,6 +153,10 @@ async function sendOnce(path: string, f: File, access: "private" | "public", opt
   opts.signal?.addEventListener("abort", onOuterAbort);
   let stalled = false;
   let stallTimer: ReturnType<typeof setTimeout> | undefined;
+  // Only new bytes count as movement. The SDK retries a failed request by
+  // itself and each retry reports progress from zero again; if that reset
+  // the clock, a request failing over and over would never look stalled.
+  let furthest = -1;
   const kick = () => {
     clearTimeout(stallTimer);
     stallTimer = setTimeout(() => {
@@ -159,6 +176,8 @@ async function sendOnce(path: string, f: File, access: "private" | "public", opt
       contentType: f.type,
       abortSignal: ctl.signal,
       onUploadProgress: (p) => {
+        if (p.loaded <= furthest) return;
+        furthest = p.loaded;
         kick();
         opts.onProgress?.(Math.min(99, Math.round(p.percentage)));
       },
@@ -187,7 +206,7 @@ export async function uploadHealthFile(file: File, journeyId: string, opts: Uplo
   opts.onProgress?.(0);
 
   const path = `health/${journeyId}/${rid()}${isPdf(f) ? ".pdf" : ".jpg"}`;
-  let access: "private" | "public" = privateWorks === false ? "public" : "private";
+  let access: "private" | "public" = STORE_ACCESS === "private" && privateWorks !== false ? "private" : "public";
   let retried = false;
   for (;;) {
     try {
@@ -197,18 +216,20 @@ export async function uploadHealthFile(file: File, journeyId: string, opts: Uplo
       return { url: r.url, access, contentType: f.type, size: f.size };
     } catch (err) {
       if (err instanceof UploadCancelled) throw err;
-      // A store without private files says so: use the unguessable address.
-      if (access === "private" && isAccessError(err)) {
+      // Configured private but the store will not take it — whether it says
+      // so or just drops the connection: use the unguessable address.
+      if (access === "private" && (isAccessError(err) || isNetworkError(err))) {
         privateWorks = false;
         access = "public";
         continue;
       }
       // A stall on a phone is usually the connection blinking: once more.
-      if ((err as { stalled?: boolean }).stalled && !retried) {
+      const dropped = (err as { stalled?: boolean }).stalled || isNetworkError(err);
+      if (dropped && !retried) {
         retried = true;
         continue;
       }
-      if ((err as { stalled?: boolean }).stalled) throw new Error("The upload stopped — check your connection and try again.");
+      if (dropped) throw new Error("The connection dropped while sending.");
       throw err;
     }
   }

@@ -54,7 +54,7 @@ Days, doses and reminders follow **her** time zone (`User.timeZone`, set automat
 ## Photos and files
 
 - Images are re-encoded on the device before upload, which strips EXIF data, location included. PDFs are kept as they are.
-- Uploads go to `health/{journeyId}/` in Vercel Blob, as `access: "private"` where the store allows it, otherwise public at an unguessable address. Either way, files are only ever served through `/api/health/file/[id]` (signed in, `logAccess` checked) or `/api/health/report-file/[token]/[id]`.
+- Uploads go to `health/{journeyId}/` in Vercel Blob behind an unguessable address (a random name plus the store's random suffix). Files are only ever served through `/api/health/file/[id]` (signed in, `logAccess` checked) or `/api/health/report-file/[token]/[id]`; the storage address never reaches a page. Private storage is used only for a private store, set with `NEXT_PUBLIC_HEALTH_BLOB_ACCESS=private` — a public store does not refuse a private upload cleanly (the browser sees a dropped connection and the SDK keeps retrying), which is why photos once sat at "Uploading". Every upload has deadlines, a stall check that counts only new bytes, one retry, and can be removed or retried by hand.
 - On iOS the photo picker offers only the photo library. Opening the camera straight from the app is not allowed there yet.
 - The daily cron sweeps files that were uploaded but never attached to an entry.
 

@@ -21,6 +21,14 @@ type Pending = {
  */
 const ACCEPT = "image/jpeg,image/png,image/webp,application/pdf";
 
+/** A browser's own words for a dropped connection ("Failed to fetch") mean nothing to anyone; say what happened. */
+function friendly(e: unknown): string {
+  const m = String((e as Error)?.message ?? "");
+  if (!m) return "That did not upload.";
+  if (e instanceof TypeError || /failed to fetch|network|load failed|internet connection/i.test(m)) return "The connection dropped while sending.";
+  return m.endsWith(".") ? m : `${m}.`;
+}
+
 /**
  * Photo or PDF proof for a health entry — used by the log, medicines and
  * tests alike. A camera button (not on iOS, where opening the camera from
@@ -88,7 +96,7 @@ export function HealthPhotoPicker({
       patch(key, { id: reg.id, percent: 100 });
     } catch (e) {
       if (e instanceof UploadCancelled || ctl.signal.aborted) return;
-      patch(key, { error: (e as Error).message || "That did not upload." });
+      patch(key, { error: friendly(e) });
     } finally {
       if (controllers.current.get(key) === ctl) controllers.current.delete(key);
     }
