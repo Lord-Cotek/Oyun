@@ -41,6 +41,20 @@ export function ReportDocument({ r, fileBase }: { r: Report; fileBase: string })
         .health-report th { background: #f2f2f2; font-weight: 600; }
         .hr-out { color: #b42318; font-weight: 600; }
         .hr-urgent { color: #b42318; font-weight: 700; }
+        /* On a phone screen (never on paper): tighter type, and the summary
+           — seven columns, too many for a phone — becomes one small card per
+           reading, so nothing has to be slid sideways. Print is untouched. */
+        @media screen and (max-width: 640px) {
+          .health-report { font-size: 12px; padding: 14px !important; }
+          .health-report th, .health-report td { padding: 3px 5px; }
+          .hr-stack thead { display: none; }
+          .hr-stack, .hr-stack tbody, .hr-stack tr { display: block; width: 100%; }
+          .hr-stack tr { border: 1px solid #bbb; margin-bottom: 8px; }
+          .hr-stack td { display: flex; justify-content: space-between; gap: 12px; border: 0; border-top: 1px solid #e6e6e6; text-align: right; }
+          .hr-stack td::before { content: attr(data-label); color: #555; text-align: left; }
+          .hr-stack td:first-child { border-top: 0; background: #f2f2f2; font-weight: 600; text-align: left; }
+          .hr-stack td:first-child::before { content: none; }
+        }
       `}</style>
 
       <header className="hr-avoid border-b-2 border-black pb-3">
@@ -70,7 +84,7 @@ export function ReportDocument({ r, fileBase }: { r: Report; fileBase: string })
 
       {r.stats.length > 0 && (
         <Section title="Summary">
-          <table>
+          <table className="hr-stack">
             <thead>
               <tr><th>Reading</th><th>Count</th><th>Average</th><th>Lowest</th><th>Highest</th><th>Out of range</th><th>Target used</th></tr>
             </thead>
@@ -78,12 +92,12 @@ export function ReportDocument({ r, fileBase }: { r: Report; fileBase: string })
               {r.stats.map((s) => (
                 <tr key={s.label}>
                   <td>{s.label}</td>
-                  <td>{s.count}</td>
-                  <td>{s.avg ?? "—"}</td>
-                  <td>{s.min ?? "—"}</td>
-                  <td>{s.max ?? "—"}</td>
-                  <td className={s.out ? "hr-out" : ""}>{s.out ? `${s.out} ▲` : "0"}</td>
-                  <td>{s.target}</td>
+                  <td data-label="Count">{s.count}</td>
+                  <td data-label="Average">{s.avg ?? "—"}</td>
+                  <td data-label="Lowest">{s.min ?? "—"}</td>
+                  <td data-label="Highest">{s.max ?? "—"}</td>
+                  <td data-label="Out of range" className={s.out ? "hr-out" : ""}>{s.out ? `${s.out} ▲` : "0"}</td>
+                  <td data-label="Target used">{s.target}</td>
                 </tr>
               ))}
             </tbody>
@@ -229,6 +243,7 @@ export function ReportDocument({ r, fileBase }: { r: Report; fileBase: string })
 
       {r.notes.length > 0 && (
         <Section title="Symptoms and notes">
+          <p className="mb-2 text-[11px] text-neutral-600">Symptoms that were logged, and any reading that was given a note when it was entered.</p>
           <table>
             <thead>
               <tr><th>When</th><th>What</th><th>Note</th></tr>
