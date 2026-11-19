@@ -68,6 +68,12 @@ export function GuestItem({
   // towards the same cot, and several may buy from the same Amazon list.
   const gone = item.kind !== "LIST" && item.kind !== "CASH" && left <= 0;
   const taken = item.mine > 0;
+  // ── Why a taken thing loses its shop link ────────────────────────────────
+  // A bright shop button on something already taken is an invitation to buy
+  // a second one — a family said a guest nearly did. So once it is gone the
+  // link goes with it, for everyone except whoever is getting it: they still
+  // need the shop, and this is where they come back to find it.
+  const shopUrl = item.url && (!gone || taken) ? item.url : null;
 
   return (
     <div
@@ -100,19 +106,19 @@ export function GuestItem({
           // A picture of the thing is the most tapped-looking element on the
           // card whether or not it does anything, so when there is somewhere
           // for it to go, it goes there.
-          item.url ? (
+          shopUrl ? (
             <a
-              href={item.url}
+              href={shopUrl}
               target="_blank"
               rel="noopener noreferrer nofollow"
-              aria-label={shopLabel(item.kind, item.url)}
+              aria-label={shopLabel(item.kind, shopUrl)}
               className="reg-card__tile rounded-lg border border-border bg-bg bg-cover bg-center transition-opacity hover:opacity-90"
               style={{ backgroundImage: `url(${JSON.stringify(item.imageUrl)})` }}
             />
           ) : (
             <span
               aria-hidden
-              className="reg-card__tile rounded-lg border border-border bg-bg bg-cover bg-center"
+              className={`reg-card__tile rounded-lg border border-border bg-bg bg-cover bg-center ${gone && !taken ? "opacity-60" : ""}`}
               style={{ backgroundImage: `url(${JSON.stringify(item.imageUrl)})` }}
             />
           )
@@ -199,25 +205,25 @@ export function GuestItem({
         say between them. The full sentence is still there for a screen
         reader, on aria-label, which is where it was always most useful.
       */}
-      {(item.url || !closed) && (
+      {(shopUrl || !closed) && (
         <div className="mt-3 border-t border-border/70 pt-3">
           <div className="flex flex-wrap items-center gap-2">
-            {item.url && (
+            {shopUrl && (
               <a
-                href={item.url}
+                href={shopUrl}
                 target="_blank"
                 // noreferrer as well as noopener: the shop has no business
                 // being told which page sent this person, and that page is a
                 // private link.
                 rel="noopener noreferrer nofollow"
-                aria-label={shopLabel(item.kind, item.url)}
+                aria-label={shopLabel(item.kind, shopUrl)}
                 // Still filled, and still 44px for a thumb — looking at the
                 // thing is the step BEFORE saying you will get it, and the
                 // card should read in the order a person actually moves. It
                 // is the words that got smaller, not the target.
                 className="btn-primary inline-flex min-h-11 items-center justify-center gap-1.5 rounded-lg px-3.5 font-mono text-xs font-medium text-on-accent"
               >
-                {shopHost(item.url)}
+                {shopHost(shopUrl)}
                 <span aria-hidden>↗</span>
               </a>
             )}
