@@ -1,8 +1,9 @@
 /**
  * Medicines and doses — the rules, with no database in sight.
  *
- * A plan's schedule is written in her own clock ("08:00 and 20:00") and her
- * own time zone; the doses it makes are instants. Everything that turns one
+ * A plan's schedule is written in the clock of whoever takes it ("08:00 and
+ * 20:00") and their own time zone; the doses it makes are instants. Shared
+ * by Oyun (one mother's medicines) and Ìdílé (anyone in the house). Everything that turns one
  * into the other lives here so the verify script can check it: the edge of
  * a day, a course that ends, every other day, a daylight-saving change.
  */

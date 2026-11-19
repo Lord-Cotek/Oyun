@@ -155,6 +155,7 @@
     "lib/scroll.ts",
     "lib/share.ts",
     "lib/shell.ts",
+    "lib/medication.ts",
     "lib/shrink-image.ts",
     "lib/use-attempt.ts",
     {
