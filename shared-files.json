@@ -290,6 +290,8 @@
           "ÌdíléMark"
         ]
       ]
-    }
+    },
+    "app/admintc/storage-actions.ts",
+    "app/admintc/StorageCheckButton.tsx"
   ]
 }

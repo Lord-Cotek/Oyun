@@ -122,7 +122,41 @@ export type UploadOutcome = {
   failed: File[];
   /** The person stopped it. What had landed is still in `urls`. */
   cancelled: boolean;
+  /** What storage last said went wrong, in words, when anything failed. */
+  lastError: string | null;
 };
+
+/** An error as a short line: the SDK's own words, never a file name. */
+function errorWords(err: unknown): string {
+  const raw = err instanceof Error ? `${err.name !== "Error" ? `${err.name}: ` : ""}${err.message}` : String(err);
+  return raw.replace(/\s+/g, " ").slice(0, 200) || "unknown error";
+}
+
+/**
+ * ── Why a failed upload tells the health page ────────────────────────────
+ * A refusal from storage — a full store, a store of the wrong kind, a bad
+ * key — reaches the browser as a plain dropped connection: the browser is
+ * not allowed to read the reason. So from a family's phone every one of
+ * those looks the same as a bad signal, and nobody finds out until someone
+ * sends a screenshot. Each failed batch now sends one line to the health
+ * page (and its alert email): how many failed, the size, and the error's
+ * own words. Never a photo, a file name or anything anybody wrote.
+ */
+function reportFailure(failed: number, total: number, bytes: number, words: string | null) {
+  try {
+    void fetch("/api/errors", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      keepalive: true,
+      body: JSON.stringify({
+        message: `Upload failed: ${failed} of ${total} (${humanBytes(bytes)}) — ${words ?? "no reason given"}${typeof navigator !== "undefined" && navigator.onLine === false ? " — the device was offline" : ""}`,
+        path: typeof location !== "undefined" ? location.pathname : null,
+      }),
+    }).catch(() => {});
+  } catch {
+    // Reporting must never become a second failure.
+  }
+}
 
 /**
  * What is happening, in bytes, while it happens.
@@ -214,6 +248,8 @@ async function sendOne(
     onBytes?: (loaded: number) => void;
     /** The whole batch's stop button. */
     signal?: AbortSignal;
+    /** What went wrong with an attempt, in words — for the health page. */
+    onError?: (words: string) => void;
   },
 ): Promise<string> {
   const ext = f.name.includes(".") ? f.name.slice(f.name.lastIndexOf(".")) : "";
@@ -225,11 +261,25 @@ async function sendOne(
     const control = new AbortController();
     const stop = () => control.abort();
     opts.signal?.addEventListener("abort", stop);
+    let moved = false;
     const ceiling = setTimeout(stop, ms);
     let stall = setTimeout(stop, STALL_MS);
 
     try {
-      const res = await upload(`${folder}/${randomId()}${ext}`, f, {
+      // ── Why the SDK is raced, not trusted to stop ─────────────────────
+      // When storage drops the connection the SDK retries by itself — ten
+      // times, waiting longer between each (1 s, 2 s, 4 s … minutes) — and
+      // it only notices the abort when it wakes for the next try. So a
+      // deadline that fired here did not end anything: a family photo sat
+      // at "0%" for over two minutes, and Stop looked broken. Racing it
+      // means an attempt ends the moment we say so, whatever the SDK is in
+      // the middle of. It still sees the abort when it wakes and gives up
+      // quietly, so nothing is uploaded twice.
+      const gaveUp = new Promise<never>((_, reject) => {
+        if (control.signal.aborted) reject(new Error("gave up"));
+        control.signal.addEventListener("abort", () => reject(new Error(moved ? "it took too long" : "nothing reached storage — the connection was dropped or refused")), { once: true });
+      });
+      const sending = upload(`${folder}/${randomId()}${ext}`, f, {
         access: "public",
         handleUploadUrl: "/api/blob/upload",
         contentType: f.type || undefined,
@@ -238,9 +288,12 @@ async function sendOne(
         onUploadProgress: ({ loaded }) => {
           clearTimeout(stall);
           stall = setTimeout(stop, STALL_MS);
+          if (loaded > 0) moved = true;
           opts.onBytes?.(loaded);
         },
       });
+      sending.catch(() => {}); // it may settle after we have stopped listening
+      const res = await Promise.race([sending, gaveUp]);
       return res.url;
     } catch (err) {
       // Somebody pressed the X. That is an answer, not a failure, and it must
@@ -248,6 +301,7 @@ async function sendOne(
       // to look like it does nothing at all.
       if (opts.signal?.aborted) throw new UploadCancelled();
       last = err;
+      opts.onError?.(errorWords(err));
     } finally {
       clearTimeout(ceiling);
       clearTimeout(stall);
@@ -288,6 +342,7 @@ export async function uploadToBlob(
 
   const urls: (string | null)[] = new Array(real.length).fill(null);
   const failed: File[] = [];
+  let lastError: string | null = null;
   let done = 0;
   let next = 0;
   let cancelled = false;
@@ -327,6 +382,9 @@ export async function uploadToBlob(
             sent[i] = Math.min(chosen.size, loaded);
             watch();
           },
+          onError: (words) => {
+            lastError = words;
+          },
           onRetry: () => {
             sent[i] = 0;
             note = `${real.length > 1 ? `Item ${i + 1} is` : "It is"} taking its time — trying once more…`;
@@ -362,10 +420,15 @@ export async function uploadToBlob(
     ),
   );
 
+  const stopped = cancelled || !!opts.signal?.aborted;
+  if (failed.length > 0 && !stopped) {
+    reportFailure(failed.length, real.length, bytes, lastError);
+  }
   return {
     urls: urls.filter((u): u is string => u !== null),
     failed,
-    cancelled: cancelled || !!opts.signal?.aborted,
+    cancelled: stopped,
+    lastError,
   };
 }
 

@@ -1,4 +1,5 @@
 import { healthSnapshot } from "@/lib/health";
+import { StorageCheckButton } from "../StorageCheckButton";
 
 export const dynamic = "force-dynamic";
 
@@ -33,6 +34,16 @@ export default async function HealthPage() {
 
   return (
     <div className="space-y-10">
+      <section>
+        <h2 className={H2}>Photo storage</h2>
+        <div className="mt-3 rounded border border-white/10">
+          <p className="px-4 pt-3 font-mono text-[0.62rem] text-white/45">
+            When photos stop at 0% on phones, this asks storage directly and shows its answer. A failed upload from a phone also appears under Errors below.
+          </p>
+          <StorageCheckButton />
+        </div>
+      </section>
+
       <section>
         <h2 className={H2}>Scheduled jobs</h2>
         <ul className="mt-3 divide-y divide-white/10 rounded border border-white/10">
