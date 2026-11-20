@@ -54,11 +54,11 @@ type CreateFn = (input: {
   householdOnly?: boolean;
   /** Who's in it — keys from lib/tags.ts. */
   tags?: string[];
-  /** Also send it over the wall to the compound (Ìdílé). */
+  /** Also send it over the wall to the compound (Oyun). */
   toCompound?: boolean;
 }) => Promise<void>;
 /**
- * Sending posts over the wall to a compound — Ìdílé's second ring. Absent in
+ * Sending posts over the wall to a compound — Oyun's second ring. Absent in
  * Oyun and for anybody who does not keep a house in a compound, and then
  * nothing about it is drawn.
  */
@@ -968,15 +968,15 @@ function Composer({
               aria-pressed={toCompound}
               aria-label={
                 toCompound
-                  ? `This post will also go to ${wallName}. Keep it in this house instead.`
-                  : `Also share this post with ${wallName}.`
+                  ? `This post will also be shared with the other houses in ${wallName}. Tap to keep it in this house only.`
+                  : `Also share this post with the other houses in ${wallName}.`
               }
               className={`inline-flex items-center gap-1.5 font-mono text-[0.68rem] transition-colors ${
                 toCompound ? "text-accent" : "text-muted hover:text-accent"
               }`}
             >
               <span aria-hidden className="text-sm leading-none">🏘</span>
-              {toCompound ? `Also to ${wallName}` : "Share with the compound"}
+              {toCompound ? "Sharing with other houses" : "Also share with other houses"}
             </button>
           )}
           <button
@@ -998,8 +998,8 @@ function Composer({
       )}
       {wallName && toCompound && !householdOnly && (
         <p className="mt-2 font-mono text-[0.62rem] leading-relaxed text-muted">
-          The houses of {wallName} will see this, photos and all, on their Compound page. Replies stay in this
-          house. You can call it back in at any time.
+          The parents or heads of the other houses in your compound ({wallName}) will see this post, photos
+          included, on their Compound page. Replies stay in your house. You can stop sharing at any time.
         </p>
       )}
       {tagging && tagOptions.length > 0 && (
@@ -1069,7 +1069,7 @@ function WallSwitch({ post, wall, busy }: { post: FeedPost; wall: Wall; busy: bo
       onClick={() => start(async () => void (await wall.onSet({ id: post.id, on: !post.overTheWall })))}
       className="py-2.5 underline underline-offset-4 hover:text-accent disabled:opacity-50"
     >
-      {pending ? "…" : post.overTheWall ? "Call it back in" : `Share with ${wall.name}`}
+      {pending ? "…" : post.overTheWall ? "Stop sharing with other houses" : "Share with other houses"}
     </Pressable>
   );
 }
@@ -1310,7 +1310,7 @@ function PostItem({
           )}
           {post.overTheWall && !post.householdOnly && (
             <span className="rounded-full border border-accent2/40 bg-accent2/[0.08] px-2 py-0.5 text-[0.56rem] text-accent2">
-              Over the wall{wall ? ` · ${wall.name}` : ""}
+              Shared with other houses
             </span>
           )}
           </div>
