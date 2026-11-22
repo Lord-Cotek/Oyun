@@ -141,10 +141,16 @@ function drawScene(ctx: CanvasRenderingContext2D, s: Scene, time: number, still:
       ctx.stroke(new Path2D(p.cord));
       ctx.restore();
     }
-    ctx.fillStyle = PALETTE.far;
-    for (const d of p.back) ctx.fill(new Path2D(d));
-    ctx.fillStyle = grad(ctx, ctx.createLinearGradient(b.x0, b.y0, b.x1, b.y1), PALETTE.skin);
-    for (const d of p.front) ctx.fill(new Path2D(d));
+    const skin = grad(ctx, ctx.createLinearGradient(b.x0, b.y0, b.x1, b.y1), PALETTE.skin);
+    ctx.lineJoin = "round";
+    for (const l of p.layers) {
+      const shapes = l.paths.map((d) => new Path2D(d));
+      // Outline first, fill over it — see FigureLayer.
+      ctx.strokeStyle = PALETTE.outline; ctx.lineWidth = 1.7;
+      for (const sh of shapes) ctx.stroke(sh);
+      ctx.fillStyle = l.tone === "far" ? PALETTE.far : skin;
+      for (const sh of shapes) ctx.fill(sh);
+    }
     if (p.blush) {
       ctx.save(); ctx.globalAlpha = alpha * fig.alpha * p.faceOpacity;
       ctx.fillStyle = PALETTE.blush;

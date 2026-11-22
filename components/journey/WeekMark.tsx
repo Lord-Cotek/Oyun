@@ -121,8 +121,18 @@ function Figure({ fig, skin, thumb }: { fig: PlacedFigure; skin: string; thumb: 
   return (
     <g transform={`translate(${fig.tx.toFixed(2)} ${fig.ty.toFixed(2)}) scale(${sx.toFixed(4)} ${fig.scale.toFixed(4)})`} opacity={fig.alpha}>
       {p.cord && <path d={p.cord} fill="none" stroke={PALETTE.cord} strokeWidth={2.6} strokeLinecap="round" opacity={p.cordOpacity} />}
-      {p.back.map((d, i) => <path key={`b${i}`} d={d} fill={PALETTE.far} />)}
-      {p.front.map((d, i) => <path key={`f${i}`} d={d} fill={skin} />)}
+      {p.layers.map((l, li) => (
+        <g key={`l${li}`}>
+          {/* The outline first, then the fill over it: only the layer's own
+              outer edge shows, so a limb reads clearly over the body. */}
+          {l.paths.map((d, i) => (
+            <path key={`o${i}`} d={d} fill="none" stroke={PALETTE.outline} strokeWidth={thumb ? 2.6 : 1.7} strokeLinejoin="round" />
+          ))}
+          {l.paths.map((d, i) => (
+            <path key={`f${i}`} d={d} fill={l.tone === "far" ? PALETTE.far : skin} />
+          ))}
+        </g>
+      ))}
       {p.blush && <circle cx={p.blush[0]} cy={p.blush[1]} r={p.blush[2]} fill={PALETTE.blush} opacity={p.faceOpacity} />}
       {!thumb && p.face.map((d, i) => (
         <path key={`e${i}`} d={d} fill="none" stroke={PALETTE.faceLine} strokeWidth={0.9} strokeLinecap="round" opacity={0.75 * p.faceOpacity} />

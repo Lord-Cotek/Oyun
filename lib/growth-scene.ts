@@ -60,8 +60,8 @@ export interface Scene {
 
 const f = (n: number) => (Math.round(n * 10) / 10).toString();
 
-function placeAll(rig: Rig, count: number, cx: number, cy: number, height: number, kind: "womb" | "world", groundY: number, alpha: number): PlacedFigure[] {
-  const paths = figurePaths(rig);
+function placeAll(rig: Rig, count: number, cx: number, cy: number, height: number, kind: "womb" | "world", groundY: number, alpha: number, hair = 0): PlacedFigure[] {
+  const paths = figurePaths(rig, hair);
   const b = rigBounds(rig);
   const n = Math.max(1, Math.min(4, count));
   const each = n === 1 ? 1 : n === 2 ? 0.66 : 0.52;
@@ -149,8 +149,9 @@ export function growthScene(stage: GrowthStage & { count?: number }, width: numb
   // crawling baby in a tall frame would otherwise fill it edge to edge.
   const figH = size * Math.min(groundY - ch * 0.04, width * 0.62);
   const cx = width * 0.46;
-  const figures = placeAll(rig, count, cx, 0, figH, "world", groundY, 1 - blend);
-  if (next && blend > 0) figures.push(...placeAll(next, count, cx, 0, figH, "world", groundY, blend));
+  const hair = Math.min(1, Math.max(0, (stage.month - 2) / 5));
+  const figures = placeAll(rig, count, cx, 0, figH, "world", groundY, 1 - blend, hair);
+  if (next && blend > 0) figures.push(...placeAll(next, count, cx, 0, figH, "world", groundY, blend, hair));
   const fb = figures[0];
   const spanX = (fb.bounds.x1 - fb.bounds.x0) * fb.scale * Math.max(1, count * 0.8);
   const shadow = { cx, cy: groundY + ch * 0.015, rx: Math.max(10, spanX * 0.55), ry: ch * 0.03 };
@@ -169,7 +170,9 @@ export const PALETTE = {
   hillFront: [["0", "#a3602a"], ["1", "#6f3b16"]] as [string, string][],
   light: "#fff4e3",
   skin: [["0", "#fffaf3"], ["0.55", "#f9e4cd"], ["1", "#eec39b"]] as [string, string][],
-  far: "#e0b088",
+  far: "#efcfae",
+  /** The soft line around each part of the body. */
+  outline: "rgba(150,92,52,0.55)",
   faceLine: "#a8744d",
   blush: "rgba(240,150,125,0.38)",
   glow: [["0", "rgba(255,232,196,0.75)"], ["0.5", "rgba(255,226,186,0.28)"], ["1", "rgba(255,220,180,0)"]] as [string, string][],

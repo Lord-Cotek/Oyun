@@ -82,8 +82,8 @@ const POSTNATAL: Key[] = [
   // Standing, arms out for balance.
   { at: 12, group: "stand", rig: { head: J(2, -26, 12.5), chest: J(0, -6, 12), hip: J(-1, 14, 11.5), tail: NO_TAIL, shoulder: J(0, -12, 5), elbow: J(8, -2, 4), hand: J(14, -8, 3.5), knee: J(1, 31, 6), ankle: J(0, 46, 4.6), toe: J(6, 49, 3.5), farArm: [-6, 0], farLeg: [5, 0], face: 1, cord: 0 } },
   // Walking.
-  { at: 15, group: "stand", rig: { head: J(3, -29, 12.3), chest: J(0, -9, 12), hip: J(-1, 12, 11.5), tail: NO_TAIL, shoulder: J(0, -15, 5), elbow: J(7, -3, 4), hand: J(12, 3, 3.5), knee: J(5, 30, 6), ankle: J(8, 46, 4.6), toe: J(14, 49, 3.5), farArm: [-10, 0], farLeg: [-13, 0], face: 1, cord: 0 } },
-  { at: 24, group: "stand", rig: { head: J(3, -35, 11.6), chest: J(0, -13, 12), hip: J(-1, 9, 11.4), tail: NO_TAIL, shoulder: J(0, -19, 5), elbow: J(5, -5, 4), hand: J(9, 3, 3.5), knee: J(4, 29, 6), ankle: J(8, 46, 4.6), toe: J(14, 49, 3.5), farArm: [-10, 0], farLeg: [-14, 0], face: 1, cord: 0 } },
+  { at: 15, group: "stand", rig: { head: J(3, -29, 12.3), chest: J(0, -9, 12), hip: J(-1, 12, 11.5), tail: NO_TAIL, shoulder: J(0, -15, 5), elbow: J(7, -3, 4), hand: J(12, 3, 3.5), knee: J(5, 30, 6), ankle: J(8, 46, 4.6), toe: J(14, 49, 3.5), farArm: [-8, 0], farLeg: [-9, 0], face: 1, cord: 0 } },
+  { at: 24, group: "stand", rig: { head: J(3, -35, 11.6), chest: J(0, -13, 12), hip: J(-1, 9, 11.4), tail: NO_TAIL, shoulder: J(0, -19, 5), elbow: J(5, -5, 4), hand: J(9, 3, 3.5), knee: J(4, 29, 6), ankle: J(8, 46, 4.6), toe: J(14, 49, 3.5), farArm: [-8, 0], farLeg: [-10, 0], face: 1, cord: 0 } },
 ];
 
 export interface GrowthStage {
@@ -170,13 +170,30 @@ function capsule(a: Joint, b: Joint, ra = a[2], rb = b[2]): string {
 
 const shift = (j: Joint, d: [number, number]): Joint => [j[0] + d[0], j[1] + d[1], j[2] * 0.94];
 
+/** An ellipse turned by `rot` radians, as a closed path. */
+function ellipse(cx: number, cy: number, rx: number, ry: number, rot = 0): string {
+  if (rx <= 0.05 || ry <= 0.05) return "";
+  const c = Math.cos(rot), s = Math.sin(rot);
+  const p0 = [cx - rx * c, cy - rx * s], p1 = [cx + rx * c, cy + rx * s];
+  const deg = (rot * 180) / Math.PI;
+  return `M${f(p0[0])} ${f(p0[1])}A${f(rx)} ${f(ry)} ${f(deg)} 1 0 ${f(p1[0])} ${f(p1[1])}A${f(rx)} ${f(ry)} ${f(deg)} 1 0 ${f(p0[0])} ${f(p0[1])}Z`;
+}
+
+/**
+ * One layer of the body. Drawn in order, each layer is outlined and then
+ * filled: the outline shows only around the layer's own edge, so an arm
+ * reads as an arm lying over the body rather than melting into it — which
+ * is what made the first version a blob.
+ */
+export interface FigureLayer {
+  tone: "far" | "skin";
+  paths: string[];
+}
+
 export interface FigurePaths {
-  /** The near side: filled with the light. Each is its own shape; drawn with
-   *  one shared gradient they read as one smooth body. */
-  front: string[];
-  /** The far arm and leg, a little darker, behind. */
-  back: string[];
-  /** A closed eye, as a hairline. Empty before there is a face. */
+  /** Back to front: the far arm and leg, the body and head, the near leg, the near arm. */
+  layers: FigureLayer[];
+  /** Hairlines over the top: the closed eye, the ear, a curl of hair. */
   face: string[];
   faceOpacity: number;
   /** A soft warm cheek: centre and radius, or null before there is a face. */
@@ -186,49 +203,79 @@ export interface FigurePaths {
   cordOpacity: number;
 }
 
-export function figurePaths(r: Rig): FigurePaths {
-  const neckR = Math.min(r.head[2], r.chest[2]) * 0.62;
-  const front = [
+/** A foot: a rounded sole from the ankle to the toes. */
+function foot(ankle: Joint, toe: Joint): string {
+  const mx = (ankle[0] + toe[0]) / 2, my = (ankle[1] + toe[1]) / 2;
+  const len = Math.hypot(toe[0] - ankle[0], toe[1] - ankle[1]);
+  const rot = Math.atan2(toe[1] - ankle[1], toe[0] - ankle[0]);
+  return ellipse(mx, my, len / 2 + toe[2] * 1.1, Math.max(ankle[2], toe[2]) * 0.95, rot);
+}
+
+function limbs(sh: Joint, el: Joint, ha: Joint, hip: Joint, kn: Joint, an: Joint, to: Joint) {
+  const thigh = capsule(hip, kn, Math.min(hip[2] * 0.6, kn[2] * 1.45), kn[2]);
+  const leg = [thigh, capsule(kn, an, kn[2] * 0.92, an[2]), an[2] > 0.3 ? foot(an, to) : capsule(an, to)].filter(Boolean);
+  const arm = [capsule(sh, el, sh[2], el[2] * 0.95), capsule(el, ha, el[2] * 0.9, ha[2] * 0.85), ha[2] > 0.3 ? ellipse(ha[0], ha[1], ha[2] * 1.15, ha[2] * 0.95) : ""].filter(Boolean);
+  return { leg, arm };
+}
+
+/**
+ * The figure's shapes. `hair` (0–1) adds a curl on top once the child is a
+ * few months old.
+ */
+export function figurePaths(r: Rig, hair = 0): FigurePaths {
+  const [hx, hy, hr] = r.head;
+  // The face looks the way the head is turned: away from the body.
+  const dir = Math.sign(hx - r.chest[0]) || 1;
+  const neckR = Math.min(hr, r.chest[2]) * 0.6;
+  const faceK = Math.min(1, r.face);
+
+  const body = [
     // The early curl's tail; gone (not a cone to nowhere) once it has shrunk away.
     r.tail[2] > 0.6 ? capsule(r.hip, r.tail) : "",
     capsule(r.chest, r.hip),
-    capsule([r.head[0], r.head[1], neckR], r.chest, neckR, r.chest[2] * 0.85),
+    capsule([hx, hy, neckR], r.chest, neckR, r.chest[2] * 0.85),
     circle(r.head),
-    capsule(r.hip, r.knee, Math.min(r.hip[2] * 0.62, r.knee[2] * 1.5), r.knee[2]),
-    capsule(r.knee, r.ankle),
-    capsule(r.ankle, r.toe),
-    capsule(r.shoulder, r.elbow),
-    capsule(r.elbow, r.hand),
-    circle(r.hand),
-  ].filter(Boolean);
-  const fl = r.farLeg, fa = r.farArm;
-  const back = [
-    capsule(shift(r.hip, fl), shift(r.knee, fl), Math.min(r.hip[2] * 0.58, r.knee[2] * 1.4), r.knee[2] * 0.94),
-    capsule(shift(r.knee, fl), shift(r.ankle, fl)),
-    capsule(shift(r.ankle, fl), shift(r.toe, fl)),
-    capsule(shift(r.shoulder, fa), shift(r.elbow, fa)),
-    capsule(shift(r.elbow, fa), shift(r.hand, fa)),
-    circle(shift(r.hand, fa)),
+    // A face in profile: the cheek and chin fuller than the skull, and a nose.
+    faceK > 0.05 ? ellipse(hx + dir * hr * 0.36, hy + hr * 0.36, hr * 0.62 * faceK + hr * 0.3 * (1 - faceK), hr * 0.56) : "",
+    faceK > 0.3 ? circle([hx + dir * hr * 0.93, hy + hr * 0.16, hr * 0.13 * faceK]) : "",
   ].filter(Boolean);
 
-  // The face looks the way the head is turned: away from the body.
-  const [hx, hy, hr] = r.head;
-  const dir = Math.sign(hx - r.chest[0]) || 1;
+  const near = limbs(r.shoulder, r.elbow, r.hand, r.hip, r.knee, r.ankle, r.toe);
+  const fl = r.farLeg, fa = r.farArm;
+  const far = limbs(shift(r.shoulder, fa), shift(r.elbow, fa), shift(r.hand, fa), shift(r.hip, fl), shift(r.knee, fl), shift(r.ankle, fl), shift(r.toe, fl));
+
+  const layers: FigureLayer[] = [
+    { tone: "far", paths: [...far.leg, ...far.arm] },
+    { tone: "skin", paths: body },
+    { tone: "skin", paths: near.leg },
+    { tone: "skin", paths: near.arm },
+  ].filter((l) => l.paths.length > 0) as FigureLayer[];
+
   const face: string[] = [];
-  if (r.face > 0.02 && hr > 1) {
-    const ex = hx + dir * hr * 0.42, ey = hy + hr * 0.05, ew = hr * 0.26;
-    face.push(`M${f(ex - ew)} ${f(ey)}Q${f(ex)} ${f(ey + ew * 0.7)} ${f(ex + ew)} ${f(ey)}`);
+  if (faceK > 0.02 && hr > 1) {
+    // The closed eye: a soft downward arc with a lash.
+    const ex = hx + dir * hr * 0.5, ey = hy + hr * 0.02, ew = hr * 0.22;
+    face.push(`M${f(ex - ew)} ${f(ey)}Q${f(ex)} ${f(ey + ew * 0.75)} ${f(ex + ew)} ${f(ey)}`);
+    // The ear, well back on the head so it never reads as glasses.
+    const ax = hx - dir * hr * 0.18, ay = hy + hr * 0.18, ar = hr * 0.17;
+    face.push(`M${f(ax + dir * ar * 0.2)} ${f(ay - ar)}C${f(ax - dir * ar * 1.2)} ${f(ay - ar)} ${f(ax - dir * ar * 1.2)} ${f(ay + ar)} ${f(ax + dir * ar * 0.2)} ${f(ay + ar)}`);
+    // The mouth, a small curve under the nose.
+    const mx = hx + dir * hr * 0.78, my = hy + hr * 0.5;
+    face.push(`M${f(mx - dir * hr * 0.1)} ${f(my)}Q${f(mx)} ${f(my + hr * 0.06)} ${f(mx + dir * hr * 0.06)} ${f(my - hr * 0.02)}`);
   }
-  // A warm cheek, just below and behind the eye.
-  const blush: [number, number, number] | null =
-    r.face > 0.02 && hr > 1 ? [hx + dir * hr * 0.3, hy + hr * 0.42, hr * 0.2] : null;
+  if (hair > 0.05 && hr > 1) {
+    // One curl on top of the head.
+    const tx = hx + dir * hr * 0.1, ty = hy - hr * 0.98, k = hr * 0.32 * Math.min(1, hair);
+    face.push(`M${f(tx - dir * k)} ${f(ty + k * 0.2)}C${f(tx - dir * k * 0.2)} ${f(ty - k * 1.2)} ${f(tx + dir * k * 1.3)} ${f(ty - k * 0.6)} ${f(tx + dir * k * 0.5)} ${f(ty + k * 0.25)}`);
+  }
+  const blush: [number, number, number] | null = faceK > 0.02 && hr > 1 ? [hx + dir * hr * 0.42, hy + hr * 0.4, hr * 0.18] : null;
 
   let cord = "";
   if (r.cord > 0.02) {
     const [cx, cy] = [lerp(r.chest[0], r.hip[0], 0.6) + r.chest[2] * 0.6, lerp(r.chest[1], r.hip[1], 0.6)];
     cord = `M${f(cx)} ${f(cy)}C${f(cx + 14)} ${f(cy + 10)} ${f(cx + 4)} ${f(cy + 28)} ${f(cx + 22)} ${f(cy + 40)}S${f(cx + 30)} ${f(cy + 70)} ${f(cx + 46)} ${f(cy + 90)}`;
   }
-  return { front, back, face, faceOpacity: Math.min(1, r.face), blush, cord, cordOpacity: Math.min(1, r.cord) };
+  return { layers, face, faceOpacity: faceK, blush, cord, cordOpacity: Math.min(1, r.cord) };
 }
 
 /** Bounding box of a rig, for fitting it in a frame. */
