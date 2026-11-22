@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { letterOpenScope } from "@/lib/letters-seal";
 import { BirthAnnouncement } from "@/components/journey/BirthAnnouncement";
 import { getAnnouncement, liveShareToken } from "@/lib/announcement-db";
@@ -384,15 +385,18 @@ export default async function JourneyPage() {
                 this card keeps the family's own photograph — the mark lives
                 here so the two never fight over the same space. */}
             <div className="lift overflow-hidden rounded-[1.4rem] bg-surface">
-              <WeekMark
-                stage={{
-                  born: position.born,
-                  week: position.week ?? 4,
-                  month: months,
-                  count: journey.babyCount,
-                }}
-                id="home"
-              />
+              <div className="relative">
+                <WeekMark
+                  stage={{
+                    born: position.born,
+                    week: position.week ?? 4,
+                    month: months,
+                    count: journey.babyCount,
+                  }}
+                  id="home"
+                />
+                <PlayChip />
+              </div>
             <div className="flex items-center gap-4 p-4">
               <ProgressRing
                 progress={ringProgress}
@@ -762,15 +766,18 @@ export default async function JourneyPage() {
         )}
 
         <div className="mt-6 overflow-hidden rounded-2xl border border-border bg-surface">
-          <WeekMark
-            stage={{
-              born: position.born,
-              week: position.week ?? 4,
-              month: position.month ?? 0,
-              count: journey.babyCount,
-            }}
-            id="partner"
-          />
+          <div className="relative">
+            <WeekMark
+              stage={{
+                born: position.born,
+                week: position.week ?? 4,
+                month: position.month ?? 0,
+                count: journey.babyCount,
+              }}
+              id="partner"
+            />
+            <PlayChip />
+          </div>
           <div className="p-5">
             <JourneyProgress
               progress={position.progress}
@@ -938,5 +945,17 @@ function EmptyState() {
         </div>
       </main>
     </>
+  );
+}
+
+/** The little "Play" on the picture: opens the journey, playing, up to today. */
+function PlayChip() {
+  return (
+    <Link
+      href="/journey/weeks?play=1"
+      className="absolute bottom-3 right-3 inline-flex min-h-9 items-center gap-1.5 rounded-full bg-black/30 px-3 font-mono text-[0.66rem] uppercase tracking-widest text-white backdrop-blur-sm transition-colors hover:bg-black/45"
+    >
+      <span aria-hidden>▶</span> Play
+    </Link>
   );
 }

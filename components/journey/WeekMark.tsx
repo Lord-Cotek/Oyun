@@ -1,21 +1,23 @@
-import { weekMark, type MarkStage, type MarkDetail } from "@/lib/week-mark";
+import { growthScene, PALETTE, type SceneDetail, type PlacedFigure } from "@/lib/growth-scene";
+import type { GrowthStage } from "@/lib/growth-figure";
+
+export type MarkStage = GrowthStage & { count?: number };
 
 /**
- * The week, drawn, at the top of the card that says how the baby is.
+ * The week, drawn: the baby, softly lit, growing week by week — inside, in a
+ * warm womb; after the birth, on a dawn-lit hill. See lib/growth-figure.ts
+ * for the figure and lib/growth-scene.ts for the scene.
  *
- * A server component with no state and no client JavaScript: the whole
- * picture is worked out from one number while the page is being rendered,
- * and arrives as part of the HTML. Nothing here animates — see the note in
- * lib/week-mark.ts about what the last full-screen effect on this screen did
- * to the frame rate.
+ * A server component with no client JavaScript: the picture arrives as part
+ * of the page. The moving version is the player (JourneyPlayer), which only
+ * runs when somebody asks it to.
  *
- * It is `aria-hidden` on purpose. The week, the count and the size are all
- * said in words immediately underneath, so reading the picture out as well
- * would be repeating the card to somebody who has already heard it.
+ * `aria-hidden` on purpose: the week, the count and the size are all said in
+ * words next to it.
  */
 export function WeekMark({
   stage,
-  /** Unique per instance, because the halo's gradient is referenced by id. */
+  /** Unique per instance, because the gradients are referenced by id. */
   id = "mark",
   className = "",
   detail = "full",
@@ -23,122 +25,108 @@ export function WeekMark({
   stage: MarkStage;
   id?: string;
   className?: string;
-  /**
-   * "thumb" on the wall of weeks, where thirty of these share a screen — see
-   * MarkDetail in lib/week-mark.ts for what it drops and why.
-   */
-  detail?: MarkDetail;
+  detail?: SceneDetail;
 }) {
-  // A thumbnail is square, because it sits beside a line of text rather than
-  // spanning a card. The generator is told the shape so the clearing is
-  // placed for the frame it will actually be drawn in.
-  const [w, h] = detail === "thumb" ? [120, 120] : [366, 128];
-  const m = weekMark(stage, w, h, detail);
-  const haloId = `wm-halo-${id}`;
-  const box = detail === "thumb" ? "" : "h-32 w-full";
+  const [w, h] = detail === "thumb" ? [120, 120] : [366, 176];
+  const s = growthScene(stage, w, h, detail);
+  const g = (name: string) => `gm-${name}-${id}`;
+  const box = detail === "thumb" ? "" : "h-44 w-full";
+  const bg = s.kind === "womb" ? "#7a4518" : "#e3994f";
 
   return (
-    <div className={`band-1 relative overflow-hidden ${box} ${className}`}>
-      <svg
-        viewBox={`0 0 ${m.width} ${m.height}`}
-        // `slice` rather than `meet`: the weave is a field, and a field should
-        // fill its frame at any width rather than letterboxing itself on a
-        // narrow phone.
-        preserveAspectRatio="xMidYMid slice"
-        className="absolute inset-0 h-full w-full"
-        aria-hidden
-        focusable="false"
-      >
+    <div className={`relative overflow-hidden ${box} ${className}`} style={{ background: bg }}>
+      <svg viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="xMidYMid slice" className="absolute inset-0 h-full w-full" aria-hidden focusable="false">
         <defs>
-          <radialGradient id={haloId}>
-            <stop offset="0" stopColor="#efb35c" stopOpacity="0.62" />
-            <stop offset="0.5" stopColor="#efb35c" stopOpacity="0.22" />
-            <stop offset="1" stopColor="#efb35c" stopOpacity="0" />
+          {s.kind === "womb" ? (
+            <radialGradient id={g("bg")} cx="50%" cy="50%" r="75%">
+              {PALETTE.womb.stops.map(([o, c]) => <stop key={o} offset={o} stopColor={c} />)}
+            </radialGradient>
+          ) : (
+            <linearGradient id={g("bg")} x1="0" y1="0" x2="0" y2="1">
+              {PALETTE.sky.map(([o, c]) => <stop key={o} offset={o} stopColor={c} />)}
+            </linearGradient>
+          )}
+          <radialGradient id={g("orb")}>
+            {(s.kind === "womb" ? PALETTE.sacFill : PALETTE.sun).map(([o, c]) => <stop key={o} offset={o} stopColor={c} />)}
           </radialGradient>
+          <radialGradient id={g("glow")}>
+            {PALETTE.glow.map(([o, c]) => <stop key={o} offset={o} stopColor={c} />)}
+          </radialGradient>
+          <linearGradient id={g("hill")} x1="0" y1="0" x2="0" y2="1">
+            {PALETTE.hillFront.map(([o, c]) => <stop key={o} offset={o} stopColor={c} />)}
+          </linearGradient>
+          {s.figures[0] && (
+            <linearGradient
+              id={g("skin")}
+              gradientUnits="userSpaceOnUse"
+              x1={s.figures[0].bounds.x0}
+              y1={s.figures[0].bounds.y0}
+              x2={s.figures[0].bounds.x1}
+              y2={s.figures[0].bounds.y1}
+            >
+              {PALETTE.skin.map(([o, c]) => <stop key={o} offset={o} stopColor={c} />)}
+            </linearGradient>
+          )}
         </defs>
 
-        {/* The ground: threads gathering, bending around the clearing. */}
-        {m.threads.map((t, i) => (
-          <path
-            key={i}
-            d={t.d}
-            fill="none"
-            stroke={t.amber ? "#efb35c" : "#fbf8f2"}
-            strokeWidth={t.width}
-            strokeLinecap="round"
-            opacity={t.opacity}
-          />
+        <rect width={w} height={h} fill={`url(#${g("bg")})`} />
+
+        {s.kind === "world" && <circle cx={s.orb.cx} cy={s.orb.cy} r={s.orb.r} fill={`url(#${g("orb")})`} />}
+
+        {s.strands.map((t, i) => (
+          <path key={i} d={t.d} fill="none" stroke={PALETTE.light} strokeWidth={t.width} strokeLinecap="round" opacity={t.opacity} />
         ))}
 
-        {/* The air inside it. */}
-        <ellipse
-          cx={m.halo.cx}
-          cy={m.halo.cy}
-          rx={m.halo.rx}
-          ry={m.halo.ry}
-          fill={`url(#${haloId})`}
-        />
-        {m.rays.map((r, i) => (
-          <line
-            key={i}
-            x1={r.x1}
-            y1={r.y1}
-            x2={r.x2}
-            y2={r.y2}
-            stroke="#fbf8f2"
-            strokeWidth={1}
-            strokeLinecap="round"
-            opacity={r.opacity}
-          />
+        {s.kind === "womb" && (
+          <>
+            <circle cx={s.orb.cx} cy={s.orb.cy} r={s.orb.r} fill={`url(#${g("orb")})`} />
+            <circle cx={s.orb.cx} cy={s.orb.cy} r={s.orb.r * 0.985} fill="none" stroke={PALETTE.light} strokeWidth={1} opacity={0.18} />
+            <ellipse cx={s.orb.cx} cy={s.orb.cy} rx={s.orb.r * 0.78} ry={s.orb.r * 0.78} fill={`url(#${g("glow")})`} />
+          </>
+        )}
+
+        {s.kind === "world" && (
+          <>
+            <path d={s.hills[0]} fill={PALETTE.hillBack} opacity={0.7} />
+            <path d={s.hills[1]} fill={`url(#${g("hill")})`} />
+            {s.shadow && <ellipse cx={s.shadow.cx} cy={s.shadow.cy} rx={s.shadow.rx} ry={s.shadow.ry} fill="#5b2f12" opacity={0.18} />}
+            {s.figures[0] && (
+              <ellipse
+                cx={s.shadow?.cx ?? w / 2}
+                cy={s.groundY - (s.figures[0].scale * 40)}
+                rx={s.figures[0].scale * 60}
+                ry={s.figures[0].scale * 60}
+                fill={`url(#${g("glow")})`}
+                opacity={0.55}
+              />
+            )}
+          </>
+        )}
+
+        {s.figures.map((fig, i) => (
+          <Figure key={i} fig={fig} skin={`url(#${g("skin")})`} thumb={detail === "thumb"} />
         ))}
 
-        {/* The forms — one for each of them — with a month ago behind. */}
-        {m.forms.map((f, n) => (
-          <g key={n} transform={`translate(${f.cx} ${f.cy})`}>
-            <path d={f.d} fill="#fbf8f2" opacity={0.9} />
-            {/* A month ago, dashed, ON TOP of this month's fill.
-                It used to be drawn underneath, where — being the smaller
-                shape of the two — it was completely covered by the shape it
-                was meant to be compared with, so the growth this whole layer
-                exists to show was never once visible. Drawn over the fill it
-                reads as a line inside the form: here is where the edge was
-                four weeks ago.
-                Empty at thumbnail detail, where an outline inside a 20px
-                shape is mud rather than growth. */}
-            {f.ghost && (
-              <path
-                d={f.ghost}
-                fill="none"
-                stroke="#8a5e18"
-                strokeWidth={1}
-                strokeDasharray="3 4"
-                opacity={0.3}
-              />
-            )}
-            {/* A hairline just inside the edge, so the fill reads as a form
-                with light on it rather than a sticker laid on the weave. */}
-            {f.inner && (
-              <path
-                d={f.inner}
-                fill="none"
-                stroke="#8a5e18"
-                strokeWidth={1}
-                opacity={0.13}
-              />
-            )}
-            {f.ribs.map((d, i) => (
-              <path
-                key={i}
-                d={d}
-                fill="none"
-                stroke="#8a5e18"
-                strokeWidth={1}
-                opacity={0.2}
-              />
-            ))}
-          </g>
+        {s.specks.map((p, i) => (
+          <circle key={i} cx={p.x} cy={p.y} r={p.r} fill={PALETTE.light} opacity={p.opacity} />
         ))}
       </svg>
     </div>
+  );
+}
+
+function Figure({ fig, skin, thumb }: { fig: PlacedFigure; skin: string; thumb: boolean }) {
+  const p = fig.paths;
+  const sx = fig.flip ? -fig.scale : fig.scale;
+  return (
+    <g transform={`translate(${fig.tx.toFixed(2)} ${fig.ty.toFixed(2)}) scale(${sx.toFixed(4)} ${fig.scale.toFixed(4)})`} opacity={fig.alpha}>
+      {p.cord && <path d={p.cord} fill="none" stroke={PALETTE.cord} strokeWidth={2.6} strokeLinecap="round" opacity={p.cordOpacity} />}
+      {p.back.map((d, i) => <path key={`b${i}`} d={d} fill={PALETTE.far} />)}
+      {p.front.map((d, i) => <path key={`f${i}`} d={d} fill={skin} />)}
+      {p.blush && <circle cx={p.blush[0]} cy={p.blush[1]} r={p.blush[2]} fill={PALETTE.blush} opacity={p.faceOpacity} />}
+      {!thumb && p.face.map((d, i) => (
+        <path key={`e${i}`} d={d} fill="none" stroke={PALETTE.faceLine} strokeWidth={0.9} strokeLinecap="round" opacity={0.75 * p.faceOpacity} />
+      ))}
+    </g>
   );
 }

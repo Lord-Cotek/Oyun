@@ -7,7 +7,8 @@ import { STAGES, type Stage } from "@/lib/journey";
 import { SiteHeader } from "@/components/SiteHeader";
 import { PageHero } from "@/components/ui/PageHero";
 import { WeekMark } from "@/components/journey/WeekMark";
-import type { MarkStage } from "@/lib/week-mark";
+import type { MarkStage } from "@/components/journey/WeekMark";
+import { PlayJourney } from "@/components/journey/PlayJourney";
 
 export const metadata: Metadata = {
   title: "The whole journey",
@@ -33,7 +34,7 @@ export const metadata: Metadata = {
  * A grid of squares reads as a score out of forty. Same data; only one of
  * them is something a family would want to look at in ten years.
  */
-export default async function WeeksPage() {
+export default async function WeeksPage({ searchParams }: { searchParams?: { play?: string } }) {
   const session = await auth();
   if (!session?.user?.id) redirect("/sign-in?callbackUrl=/journey/weeks");
   const active = await getActiveMembership(session.user.id);
@@ -60,6 +61,20 @@ export default async function WeeksPage() {
           title="Where you have been."
           lede="Every stage you have walked so far, and what changed at each one. Newest first — scroll back towards the beginning."
         />
+
+        <div className="mt-6">
+          <PlayJourney
+            autoOpen={searchParams?.play === "1"}
+            count={journey.babyCount}
+            entries={[...entries].reverse().map((e) => ({
+              label: e.label,
+              text: e.stage.newThisStage,
+              born: e.mark.born,
+              week: e.mark.week,
+              month: e.mark.month,
+            }))}
+          />
+        </div>
 
         <ol className="mt-8 space-y-3">
           {entries.map((e, i) => (
@@ -95,8 +110,8 @@ export default async function WeeksPage() {
         </ol>
 
         <p className="mt-8 border-t border-border pt-5 prose-serif-xs text-muted">
-          Each picture is worked out from the stage itself, so it is the same
-          every time and on every phone. Nothing here is ahead of you —{" "}
+          Each picture is drawn from the stage itself, to show growth rather
+          than to scale. Nothing here is ahead of you —{" "}
           {entries.length === 1
             ? "this is where you are"
             : `these are the ${entries.length} stages you have walked`}
