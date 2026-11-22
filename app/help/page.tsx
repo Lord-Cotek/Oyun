@@ -104,7 +104,15 @@ export default async function HelpPage() {
             <Room name="Journey" href="/journey">
               Home. Where you are today — the week, the size of the little one,
               the next dates coming up, and the newest few things the family has
-              shared.
+              shared. The picture at the top grows with the baby: the first
+              seed curl, the little body curled up, the turn head-down near the
+              end, and after the birth lying, sitting, crawling and walking.
+              Tap <em>Play</em> on it to watch the whole journey grow up to
+              today — never ahead — with each week&rsquo;s size and note, a
+              heartbeat you can turn on, your own firsts along the way, and the
+              baby&rsquo;s name at the birth. You can share it as a video or a
+              picture. Mum and her partner choose the baby&rsquo;s skin tone
+              under <em>The whole journey</em>.
             </Room>
             <Room name="Life" href="/life">
               The family feed — a photo, a word, a small thing worth keeping.

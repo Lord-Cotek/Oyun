@@ -116,7 +116,7 @@ function lerpRig(a: Rig, b: Rig, t: number): Rig {
  * `blend` says how far into a change of kind we are — the player uses it to
  * cross-fade; still pictures ignore it.
  */
-export function rigAt(s: GrowthStage): { rig: Rig; next: Rig | null; blend: number } {
+export function rigAt(s: GrowthStage, morph = false): { rig: Rig; next: Rig | null; blend: number } {
   const keys = s.born ? POSTNATAL : PRENATAL;
   const at = s.born ? Math.max(0, Math.min(24, s.month)) : Math.max(4, Math.min(40, s.week));
   let i = 0;
@@ -128,7 +128,71 @@ export function rigAt(s: GrowthStage): { rig: Rig; next: Rig | null; blend: numb
   if (a.group === b.group) return { rig: lerpRig(a.rig, b.rig, ease(t)), next: null, blend: 0 };
   // A change of pose kind: the last stretch before the next key cross-fades.
   const fadeFrom = Math.max(0, 1 - 0.6 / (b.at - a.at));
-  return { rig: a.rig, next: b.rig, blend: t <= fadeFrom ? 0 : ease((t - fadeFrom) / (1 - fadeFrom)) };
+  const blend = t <= fadeFrom ? 0 : ease((t - fadeFrom) / (1 - fadeFrom));
+  // The player moves the body from one pose to the next instead of fading:
+  // a baby going from lying to sitting should be seen to sit up.
+  if (morph) return { rig: lerpRig(a.rig, b.rig, blend), next: null, blend: 0 };
+  return { rig: a.rig, next: b.rig, blend };
+}
+
+/** Life in the player: a kick, a stretch, a step. Each 0–1 (walk is -1–1). */
+export interface Motion {
+  kick?: number;
+  stretch?: number;
+  walk?: number;
+}
+
+const towards = (j: Joint, from: Joint, k: number): Joint => [j[0] + (j[0] - from[0]) * k, j[1] + (j[1] - from[1]) * k, j[2]];
+
+/** The rig with a little movement in it. Still pictures never call this. */
+export function withMotion(r: Rig, m: Motion): Rig {
+  let out = r;
+  if (m.kick) {
+    const k = m.kick;
+    // The leg straightens out from the hip, the foot pointing.
+    out = { ...out, knee: towards(out.knee, out.hip, 0.16 * k), ankle: towards(out.ankle, out.hip, 0.5 * k), toe: towards(out.toe, out.hip, 0.58 * k) };
+  }
+  if (m.stretch) {
+    const k = m.stretch;
+    out = { ...out, elbow: towards(out.elbow, out.shoulder, 0.2 * k), hand: towards(out.hand, out.shoulder, 0.5 * k) };
+  }
+  if (m.walk) {
+    const w = m.walk;
+    out = {
+      ...out,
+      ankle: [out.ankle[0] + w * 4, out.ankle[1] - Math.max(0, w) * 2, out.ankle[2]],
+      toe: [out.toe[0] + w * 4, out.toe[1] - Math.max(0, w) * 2, out.toe[2]],
+      knee: [out.knee[0] + w * 2, out.knee[1], out.knee[2]],
+      farLeg: [out.farLeg[0] - w * 5, out.farLeg[1] - Math.max(0, -w) * 2],
+      hand: [out.hand[0] - w * 3, out.hand[1], out.hand[2]],
+      farArm: [out.farArm[0] + w * 4, out.farArm[1]],
+    };
+  }
+  return out;
+}
+
+/**
+ * The turn head-down, in radians: none before week 32, easing round to
+ * nearly upside down by week 36, where most babies settle for the birth.
+ */
+export function turnAt(s: GrowthStage): number {
+  if (s.born) return 0;
+  const t = Math.max(0, Math.min(1, (s.week - 32) / 4));
+  return ease(t) * (Math.PI * 0.92);
+}
+
+/**
+ * The seed: the curl from inside the Oyun mark. It is the first weeks'
+ * picture and unfolds into the baby — `seedAlpha` and `figureAlpha` say how
+ * much of each to draw. Both 0/1 by week 9.
+ */
+export const SEED_PATH = "M -3 -20 C 22 -18 30 8 18 28 C 11 40 -7 43 -17 33 C -26 24 -22 10 -10 10 C -3 10 -1 -4 -3 -20 Z";
+export const SEED_BOUNDS = { x0: -24, y0: -21, x1: 27, y1: 41 };
+export function seedMix(s: GrowthStage): { seedAlpha: number; figureAlpha: number } {
+  if (s.born) return { seedAlpha: 0, figureAlpha: 1 };
+  const w = s.week;
+  const sm = (a: number, b: number) => ease(Math.max(0, Math.min(1, (w - a) / (b - a))));
+  return { seedAlpha: 1 - sm(7, 8.6), figureAlpha: sm(7, 9) };
 }
 
 /**

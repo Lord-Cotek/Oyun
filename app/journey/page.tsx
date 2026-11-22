@@ -392,6 +392,7 @@ export default async function JourneyPage() {
                     week: position.week ?? 4,
                     month: months,
                     count: journey.babyCount,
+                    tone: journey.skinTone,
                   }}
                   id="home"
                 />
@@ -773,6 +774,7 @@ export default async function JourneyPage() {
                 week: position.week ?? 4,
                 month: position.month ?? 0,
                 count: journey.babyCount,
+                tone: journey.skinTone,
               }}
               id="partner"
             />

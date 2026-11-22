@@ -9,6 +9,12 @@ import { PageHero } from "@/components/ui/PageHero";
 import { WeekMark } from "@/components/journey/WeekMark";
 import type { MarkStage } from "@/components/journey/WeekMark";
 import { PlayJourney } from "@/components/journey/PlayJourney";
+import { SkinTonePicker } from "@/components/journey/SkinTonePicker";
+import { toneOf } from "@/lib/growth-scene";
+import { isHousehold } from "@/lib/roles";
+import { prisma } from "@/lib/prisma";
+import { milestoneTitle } from "@/lib/firsts";
+import type { PlayMoment } from "@/components/journey/JourneyPlayer";
 
 export const metadata: Metadata = {
   title: "The whole journey",
@@ -52,6 +58,10 @@ export default async function WeeksPage({ searchParams }: { searchParams?: { pla
     journey.babyCount,
   );
 
+  // The family's own firsts, for the player's slider. Household only — the
+  // same people who can see them in Firsts.
+  const moments: PlayMoment[] = isHousehold(active.role) ? await playMoments(journey.id, journey.dueDate, position.born) : [];
+
   return (
     <>
       <SiteHeader active="journey" />
@@ -66,6 +76,9 @@ export default async function WeeksPage({ searchParams }: { searchParams?: { pla
           <PlayJourney
             autoOpen={searchParams?.play === "1"}
             count={journey.babyCount}
+            tone={toneOf(journey.skinTone)}
+            name={journey.babyName}
+            moments={moments}
             entries={[...entries].reverse().map((e) => ({
               label: e.label,
               text: e.stage.newThisStage,
@@ -74,6 +87,7 @@ export default async function WeeksPage({ searchParams }: { searchParams?: { pla
               month: e.mark.month,
             }))}
           />
+          {isHousehold(active.role) && <SkinTonePicker value={toneOf(journey.skinTone)} chosen={!!journey.skinTone} />}
         </div>
 
         <ol className="mt-8 space-y-3">
@@ -84,7 +98,7 @@ export default async function WeeksPage({ searchParams }: { searchParams?: { pla
             >
               <div className="shrink-0">
                 <WeekMark
-                  stage={e.mark}
+                  stage={{ ...e.mark, tone: journey.skinTone }}
                   id={e.stage.stage}
                   detail="thumb"
                   className="h-20 w-20 rounded-xl"
@@ -170,4 +184,35 @@ function lived(
   }
 
   return out.reverse();
+}
+
+/**
+ * Firsts placed on the journey: before the birth by week, after it by month.
+ * The due date becomes the birth day once the birth is recorded, so it is
+ * the line between the two. Nothing after today; the birth itself is the
+ * player's own moment, so it is left out here.
+ */
+async function playMoments(journeyId: string, due: Date, born: boolean): Promise<PlayMoment[]> {
+  const now = new Date();
+  const rows = await prisma.milestone.findMany({
+    where: { journeyId, occurredAt: { lte: now }, kind: { not: "BIRTH" } },
+    orderBy: { occurredAt: "asc" },
+    select: { kind: true, title: true, occurredAt: true },
+    take: 40,
+  });
+  const DAY = 86_400_000;
+  const out: PlayMoment[] = [];
+  for (const r of rows) {
+    const date = r.occurredAt.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+    const title = milestoneTitle(r.kind, r.title);
+    if (!born || r.occurredAt < due) {
+      const week = 40 - (due.getTime() - r.occurredAt.getTime()) / (7 * DAY);
+      if (week < 4) continue;
+      out.push({ title, date, born: false, week: Math.min(40, week), month: 0 });
+    } else {
+      const month = (r.occurredAt.getTime() - due.getTime()) / (30.4375 * DAY);
+      out.push({ title, date, born: true, week: 40, month: Math.min(24, Math.max(0, month)) });
+    }
+  }
+  return out;
 }

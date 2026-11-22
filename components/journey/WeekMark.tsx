@@ -1,7 +1,7 @@
-import { growthScene, PALETTE, type SceneDetail, type PlacedFigure } from "@/lib/growth-scene";
-import type { GrowthStage } from "@/lib/growth-figure";
+import { growthScene, PALETTE, type SceneDetail, type PlacedFigure, type SkinTone } from "@/lib/growth-scene";
+import { SEED_PATH, type GrowthStage } from "@/lib/growth-figure";
 
-export type MarkStage = GrowthStage & { count?: number };
+export type MarkStage = GrowthStage & { count?: number; tone?: string | null };
 
 /**
  * The week, drawn: the baby, softly lit, growing week by week — inside, in a
@@ -28,7 +28,7 @@ export function WeekMark({
   detail?: SceneDetail;
 }) {
   const [w, h] = detail === "thumb" ? [120, 120] : [366, 176];
-  const s = growthScene(stage, w, h, detail);
+  const s = growthScene(stage, w, h, detail, 7, false, 0, { tone: stage.tone });
   const g = (name: string) => `gm-${name}-${id}`;
   const box = detail === "thumb" ? "" : "h-44 w-full";
   const bg = s.kind === "womb" ? "#7a4518" : "#e3994f";
@@ -55,16 +55,16 @@ export function WeekMark({
           <linearGradient id={g("hill")} x1="0" y1="0" x2="0" y2="1">
             {PALETTE.hillFront.map(([o, c]) => <stop key={o} offset={o} stopColor={c} />)}
           </linearGradient>
+          {/* The light across the body, in the figure's own units and turned
+              with it, so it always falls from the top-left of the frame. */}
           {s.figures[0] && (
-            <linearGradient
-              id={g("skin")}
-              gradientUnits="userSpaceOnUse"
-              x1={s.figures[0].bounds.x0}
-              y1={s.figures[0].bounds.y0}
-              x2={s.figures[0].bounds.x1}
-              y2={s.figures[0].bounds.y1}
-            >
-              {PALETTE.skin.map(([o, c]) => <stop key={o} offset={o} stopColor={c} />)}
+            <linearGradient id={g("skin")} gradientUnits="userSpaceOnUse" x1={s.figures[0].light[0]} y1={s.figures[0].light[1]} x2={s.figures[0].light[2]} y2={s.figures[0].light[3]}>
+              {s.tone.skin.map(([o, c]) => <stop key={o} offset={o} stopColor={c} />)}
+            </linearGradient>
+          )}
+          {s.seed && (
+            <linearGradient id={g("seed")} gradientUnits="userSpaceOnUse" x1={s.seed.light[0]} y1={s.seed.light[1]} x2={s.seed.light[2]} y2={s.seed.light[3]}>
+              {s.tone.skin.map(([o, c]) => <stop key={o} offset={o} stopColor={c} />)}
             </linearGradient>
           )}
         </defs>
@@ -103,8 +103,14 @@ export function WeekMark({
           </>
         )}
 
+        {s.seed && (
+          <g transform={`translate(${s.seed.tx.toFixed(2)} ${s.seed.ty.toFixed(2)}) scale(${s.seed.scale.toFixed(4)}) rotate(${((s.seed.rot * 180) / Math.PI).toFixed(1)} 1.5 10)`} opacity={s.seed.alpha}>
+            <path d={SEED_PATH} fill={`url(#${g("seed")})`} stroke={s.tone.outline} strokeWidth={detail === "thumb" ? 2.4 : 1.5} strokeLinejoin="round" />
+          </g>
+        )}
+
         {s.figures.map((fig, i) => (
-          <Figure key={i} fig={fig} skin={`url(#${g("skin")})`} thumb={detail === "thumb"} />
+          <Figure key={i} fig={fig} tone={s.tone} skin={`url(#${g("skin")})`} thumb={detail === "thumb"} />
         ))}
 
         {s.specks.map((p, i) => (
@@ -115,27 +121,28 @@ export function WeekMark({
   );
 }
 
-function Figure({ fig, skin, thumb }: { fig: PlacedFigure; skin: string; thumb: boolean }) {
+function Figure({ fig, tone, skin, thumb }: { fig: PlacedFigure; tone: SkinTone; skin: string; thumb: boolean }) {
   const p = fig.paths;
   const sx = fig.flip ? -fig.scale : fig.scale;
+  const turn = fig.rot ? ` rotate(${((fig.rot * 180) / Math.PI).toFixed(1)} ${fig.pivot[0].toFixed(1)} ${fig.pivot[1].toFixed(1)})` : "";
   return (
-    <g transform={`translate(${fig.tx.toFixed(2)} ${fig.ty.toFixed(2)}) scale(${sx.toFixed(4)} ${fig.scale.toFixed(4)})`} opacity={fig.alpha}>
+    <g transform={`translate(${fig.tx.toFixed(2)} ${fig.ty.toFixed(2)}) scale(${sx.toFixed(4)} ${fig.scale.toFixed(4)})${turn}`} opacity={fig.alpha}>
       {p.cord && <path d={p.cord} fill="none" stroke={PALETTE.cord} strokeWidth={2.6} strokeLinecap="round" opacity={p.cordOpacity} />}
       {p.layers.map((l, li) => (
         <g key={`l${li}`}>
           {/* The outline first, then the fill over it: only the layer's own
               outer edge shows, so a limb reads clearly over the body. */}
           {l.paths.map((d, i) => (
-            <path key={`o${i}`} d={d} fill="none" stroke={PALETTE.outline} strokeWidth={thumb ? 2.6 : 1.7} strokeLinejoin="round" />
+            <path key={`o${i}`} d={d} fill="none" stroke={tone.outline} strokeWidth={thumb ? 2.6 : 1.7} strokeLinejoin="round" />
           ))}
           {l.paths.map((d, i) => (
-            <path key={`f${i}`} d={d} fill={l.tone === "far" ? PALETTE.far : skin} />
+            <path key={`f${i}`} d={d} fill={l.tone === "far" ? tone.far : skin} />
           ))}
         </g>
       ))}
-      {p.blush && <circle cx={p.blush[0]} cy={p.blush[1]} r={p.blush[2]} fill={PALETTE.blush} opacity={p.faceOpacity} />}
+      {p.blush && <circle cx={p.blush[0]} cy={p.blush[1]} r={p.blush[2]} fill={tone.blush} opacity={p.faceOpacity} />}
       {!thumb && p.face.map((d, i) => (
-        <path key={`e${i}`} d={d} fill="none" stroke={PALETTE.faceLine} strokeWidth={0.9} strokeLinecap="round" opacity={0.75 * p.faceOpacity} />
+        <path key={`e${i}`} d={d} fill="none" stroke={tone.faceLine} strokeWidth={0.9} strokeLinecap="round" opacity={0.75 * p.faceOpacity} />
       ))}
     </g>
   );

@@ -2,13 +2,13 @@
 
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
-import type { PlayEntry } from "@/components/journey/JourneyPlayer";
+import type { PlayEntry, PlayMoment } from "@/components/journey/JourneyPlayer";
 
 // Loaded only when somebody presses play: the page itself carries none of it.
 const JourneyPlayer = dynamic(() => import("@/components/journey/JourneyPlayer").then((m) => m.JourneyPlayer), { ssr: false });
 
 /** "Play the journey" — opens the player. `autoOpen` when arriving from the home screen's play button. */
-export function PlayJourney({ entries, count = 1, autoOpen = false }: { entries: PlayEntry[]; count?: number; autoOpen?: boolean }) {
+export function PlayJourney({ entries, count = 1, tone, name, moments, autoOpen = false }: { entries: PlayEntry[]; count?: number; tone?: string; name?: string | null; moments?: PlayMoment[]; autoOpen?: boolean }) {
   const [open, setOpen] = useState(false);
   useEffect(() => {
     if (autoOpen && entries.length > 0) setOpen(true);
@@ -28,6 +28,9 @@ export function PlayJourney({ entries, count = 1, autoOpen = false }: { entries:
         <JourneyPlayer
           entries={entries}
           count={count}
+          tone={tone}
+          name={name}
+          moments={moments}
           onClose={() => {
             setOpen(false);
             // Arrived with ?play=1: leave the page as a plain page behind.

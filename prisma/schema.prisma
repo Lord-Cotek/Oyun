@@ -291,6 +291,9 @@ model Journey {
   completedAt     DateTime?
   babyName        String?
   babyCount       Int           @default(1)
+  /// The skin tone the family chose for the baby in the growth pictures
+  /// (fair, tan, honey, brown, cocoa). Null until they choose: honey is shown.
+  skinTone        String?
   status          JourneyStatus @default(ACTIVE)
   lossAt          DateTime?
   createdAt       DateTime      @default(now())

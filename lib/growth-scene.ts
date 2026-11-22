@@ -1,4 +1,4 @@
-import { figurePaths, rigAt, rigBounds, seeded, sizeAt, type FigurePaths, type GrowthStage, type Rig } from "@/lib/growth-figure";
+import { figurePaths, rigAt, rigBounds, seeded, seedMix, sizeAt, turnAt, withMotion, SEED_BOUNDS, type FigurePaths, type GrowthStage, type Motion, type Rig } from "@/lib/growth-figure";
 
 /**
  * Where the figure lives: inside, a warm womb glowing around a soft sac;
@@ -25,6 +25,22 @@ export interface PlacedFigure {
   /** For the shared light across the body, in figure units. */
   bounds: { x0: number; y0: number; x1: number; y1: number };
   alpha: number;
+  /** The turn head-down, radians, about `pivot` (figure units). */
+  rot: number;
+  pivot: [number, number];
+  /** Where the light falls from and to, in figure units — kept coming from
+   *  above-left in the frame however the body is turned. */
+  light: [number, number, number, number];
+}
+
+/** The seed curl of the first weeks, placed. */
+export interface PlacedSeed {
+  tx: number;
+  ty: number;
+  scale: number;
+  rot: number;
+  alpha: number;
+  light: [number, number, number, number];
 }
 
 export interface Speck {
@@ -56,11 +72,56 @@ export interface Scene {
   figures: PlacedFigure[];
   /** Under the figure(s) outside; null inside. */
   shadow: { cx: number; cy: number; rx: number; ry: number } | null;
+  /** The first weeks' seed curl, while it shows. */
+  seed: PlacedSeed | null;
+  tone: SkinTone;
+}
+
+export type ToneKey = "fair" | "tan" | "honey" | "brown" | "cocoa";
+export interface SkinTone {
+  label: string;
+  skin: [string, string][];
+  far: string;
+  outline: string;
+  faceLine: string;
+  blush: string;
+}
+
+/**
+ * Five warm skin tones. Each is a whole little palette — the light across
+ * the body, the far limbs, the line around them, the eye and the cheek — so
+ * a deep tone is lit and drawn as carefully as a fair one, not tinted.
+ */
+export const SKIN_TONES: Record<ToneKey, SkinTone> = {
+  fair: { label: "Fair", skin: [["0", "#fffaf3"], ["0.55", "#f9e4cd"], ["1", "#eec39b"]], far: "#efcfae", outline: "rgba(150,92,52,0.55)", faceLine: "#a8744d", blush: "rgba(240,150,125,0.38)" },
+  tan: { label: "Tan", skin: [["0", "#fde8cc"], ["0.55", "#f0c79b"], ["1", "#dca472"]], far: "#e3b385", outline: "rgba(128,72,34,0.6)", faceLine: "#87532e", blush: "rgba(226,118,92,0.36)" },
+  honey: { label: "Honey", skin: [["0", "#f3cfa2"], ["0.55", "#dca56c"], ["1", "#c0834b"]], far: "#cc935c", outline: "rgba(104,54,22,0.62)", faceLine: "#6b3c1b", blush: "rgba(206,94,70,0.36)" },
+  brown: { label: "Brown", skin: [["0", "#dcab7c"], ["0.55", "#b9804c"], ["1", "#935d31"]], far: "#a66e3e", outline: "rgba(70,34,12,0.66)", faceLine: "#462510", blush: "rgba(190,78,58,0.38)" },
+  cocoa: { label: "Deep brown", skin: [["0", "#b98657"], ["0.55", "#8f5b33"], ["1", "#69401f"]], far: "#7a4a29", outline: "rgba(44,20,6,0.72)", faceLine: "#2b1606", blush: "rgba(176,64,48,0.36)" },
+};
+export const TONE_KEYS = Object.keys(SKIN_TONES) as ToneKey[];
+export const DEFAULT_TONE: ToneKey = "honey";
+export const toneOf = (k: string | null | undefined): ToneKey => (k && k in SKIN_TONES ? (k as ToneKey) : DEFAULT_TONE);
+
+export interface SceneOptions {
+  tone?: string | null;
+  /** The player's movement; still pictures pass none. */
+  motion?: Motion;
+  /** The player moves between poses; still pictures hold one. */
+  morph?: boolean;
+}
+
+/** A light line across a box, turned so it still falls from the frame's top-left. */
+function lightFor(b: { x0: number; y0: number; x1: number; y1: number }, rot: number): [number, number, number, number] {
+  const cx = (b.x0 + b.x1) / 2, cy = (b.y0 + b.y1) / 2;
+  const R = Math.hypot(b.x1 - b.x0, b.y1 - b.y0) / 2;
+  const dx = Math.cos(Math.PI / 4 - rot), dy = Math.sin(Math.PI / 4 - rot);
+  return [cx - dx * R, cy - dy * R, cx + dx * R, cy + dy * R];
 }
 
 const f = (n: number) => (Math.round(n * 10) / 10).toString();
 
-function placeAll(rig: Rig, count: number, cx: number, cy: number, height: number, kind: "womb" | "world", groundY: number, alpha: number, hair = 0): PlacedFigure[] {
+function placeAll(rig: Rig, count: number, cx: number, cy: number, height: number, kind: "womb" | "world", groundY: number, alpha: number, hair = 0, rot = 0): PlacedFigure[] {
   const paths = figurePaths(rig, hair);
   const b = rigBounds(rig);
   const n = Math.max(1, Math.min(4, count));
@@ -81,7 +142,10 @@ function placeAll(rig: Rig, count: number, cx: number, cy: number, height: numbe
     const midX = (b.x0 + b.x1) / 2;
     const tx = cx + ox - midX * scale;
     const ty = kind === "womb" ? cy + oy - ((b.y0 + b.y1) / 2) * scale : groundY - 50 * scale;
-    out.push({ tx, ty, scale, flip: false, paths, bounds: b, alpha });
+    // Twins: only the first turns head-down — the other often stays as it
+    // is, and two turned bodies on one diagonal read as a tangle.
+    const r = i === 0 ? rot : 0;
+    out.push({ tx, ty, scale, flip: false, paths, bounds: b, alpha, rot: r, pivot: [midX, (b.y0 + b.y1) / 2], light: lightFor(b, r) });
   }
   return out;
 }
@@ -90,7 +154,8 @@ function placeAll(rig: Rig, count: number, cx: number, cy: number, height: numbe
  * The scene for a stage, in a frame of `width` × `height`.
  * `seed` keeps the specks and strands the same picture to picture.
  */
-export function growthScene(stage: GrowthStage & { count?: number }, width: number, height: number, detail: SceneDetail = "full", seed = 7, stableSeed = false, padBottom = 0): Scene {
+export function growthScene(stage: GrowthStage & { count?: number }, width: number, height: number, detail: SceneDetail = "full", seed = 7, stableSeed = false, padBottom = 0, opts: SceneOptions = {}): Scene {
+  const tone = SKIN_TONES[toneOf(opts.tone)];
   const thumb = detail === "thumb";
   // The part of the frame the picture is composed in; below it (the player's
   // words) the background simply carries on.
@@ -98,7 +163,9 @@ export function growthScene(stage: GrowthStage & { count?: number }, width: numb
   // Still pictures vary a little week to week; the player keeps one seed so
   // the specks drift rather than jump.
   const rand = seeded(seed * 9973 + (stableSeed ? 0 : stage.born ? 500 + Math.round(stage.month) : Math.round(stage.week)));
-  const { rig, next, blend } = rigAt(stage);
+  const at = rigAt(stage, !!opts.morph);
+  const rig = opts.motion ? withMotion(at.rig, opts.motion) : at.rig;
+  const next = at.next, blend = at.blend;
   const size = sizeAt(stage);
   const count = stage.count ?? 1;
 
@@ -130,9 +197,25 @@ export function growthScene(stage: GrowthStage & { count?: number }, width: numb
       }
       strands.push({ d, width: thumb ? 1.4 : 1.2 + rand() * 1.8, opacity: 0.07 + rand() * 0.13 });
     }
-    const figH = size * r * 2 * 0.86;
-    const figures = placeAll(rig, count, orb.cx, orb.cy, figH, "womb", 0, 1);
-    return { kind: "womb", width, height, orb, strands, specks, hills: [], groundY: 0, figures, shadow: null };
+    const rot = turnAt(stage);
+    // A turning body is wider than it is tall for a while; keep it in the sac.
+    const figH = size * r * 2 * 0.86 * (1 - 0.13 * Math.abs(Math.sin(rot)));
+    // The player cross-fades the seed into the baby; a still picture shows
+    // one or the other, never both at once.
+    const mix = seedMix(stage);
+    const seedAlpha = opts.morph ? mix.seedAlpha : stage.week < 8 ? 1 : 0;
+    const figureAlpha = opts.morph ? mix.figureAlpha : stage.week < 8 ? 0 : 1;
+    const figures = figureAlpha > 0.01 ? placeAll(rig, count, orb.cx, orb.cy, figH, "womb", 0, figureAlpha, 0, rot) : [];
+    let seedPlaced: PlacedSeed | null = null;
+    if (seedAlpha > 0.01) {
+      // The seed grows and slowly turns as it unfolds.
+      const sh = SEED_BOUNDS.y1 - SEED_BOUNDS.y0;
+      const scale = (figH * 1.12) / sh;
+      const srot = -0.35 + 0.35 * Math.min(1, (stage.week - 4) / 4);
+      const mx = (SEED_BOUNDS.x0 + SEED_BOUNDS.x1) / 2, my = (SEED_BOUNDS.y0 + SEED_BOUNDS.y1) / 2;
+      seedPlaced = { tx: orb.cx - mx * scale, ty: orb.cy - my * scale, scale, rot: srot, alpha: seedAlpha, light: lightFor(SEED_BOUNDS, srot) };
+    }
+    return { kind: "womb", width, height, orb, strands, specks, hills: [], groundY: 0, figures, shadow: null, seed: seedPlaced, tone };
   }
 
   const groundY = ch * 0.84;
@@ -157,7 +240,7 @@ export function growthScene(stage: GrowthStage & { count?: number }, width: numb
   const shadow = { cx, cy: groundY + ch * 0.015, rx: Math.max(10, spanX * 0.55), ry: ch * 0.03 };
   // Outside, the specks are dust in the light, mostly in the sky.
   for (const s of specks) s.y = s.y * 0.8;
-  return { kind: "world", width, height, orb, strands, specks, hills, groundY, figures, shadow };
+  return { kind: "world", width, height, orb, strands, specks, hills, groundY, figures, shadow, seed: null, tone };
 }
 
 /** The colours, shared by the SVG and the canvas. */
@@ -169,12 +252,6 @@ export const PALETTE = {
   hillBack: "#c47c3a",
   hillFront: [["0", "#a3602a"], ["1", "#6f3b16"]] as [string, string][],
   light: "#fff4e3",
-  skin: [["0", "#fffaf3"], ["0.55", "#f9e4cd"], ["1", "#eec39b"]] as [string, string][],
-  far: "#efcfae",
-  /** The soft line around each part of the body. */
-  outline: "rgba(150,92,52,0.55)",
-  faceLine: "#a8744d",
-  blush: "rgba(240,150,125,0.38)",
   glow: [["0", "rgba(255,232,196,0.75)"], ["0.5", "rgba(255,226,186,0.28)"], ["1", "rgba(255,220,180,0)"]] as [string, string][],
   cord: "rgba(255,240,222,0.45)",
 };
