@@ -71,6 +71,25 @@ const actions = readFileSync(path.join(root, "app/health/doctor/actions.ts"), "u
 check(/active\.role !== "MOTHER"/.test(actions), "sharing, changing and stopping are hers alone");
 check(/if \(!input\.agreed\)/.test(actions), "nothing is shared without her ticking the agreement");
 
+console.log("Invitations by email");
+const I = jiti(path.join(root, "lib/clinician-invite.ts"));
+const soon = new Date(Date.now() + 86_400_000);
+const past = new Date(Date.now() - 1000);
+check(I.inviteState({ acceptedAt: null, cancelledAt: null, expiresAt: soon }) === "open", "an invitation in date is open");
+check(I.inviteState({ acceptedAt: null, cancelledAt: null, expiresAt: past }) === "expired", "past its date it has expired");
+check(I.inviteState({ acceptedAt: null, cancelledAt: new Date(), expiresAt: soon }) === "cancelled", "cancelled by her, it is closed");
+check(I.inviteState({ acceptedAt: new Date(), cancelledAt: null, expiresAt: soon }) === "accepted", "accepted once, it cannot be used again");
+check(I.cleanEmail(" Doctor@Clinic.ORG ") === "doctor@clinic.org" && I.cleanEmail("not-an-email") === null, "addresses are lower-cased, and nonsense refused");
+const t = I.newInviteToken();
+check(t.raw.length >= 30 && t.hash === I.hashInviteToken(t.raw) && t.hash !== t.raw, "only the hash of a link is kept");
+const inviteLib = readFileSync(path.join(root, "lib/clinician-invite.ts"), "utf8");
+check(/user\.email\.toLowerCase\(\) !== invite\.email/.test(inviteLib), "only the invited address may accept");
+check(/inviteState\(invite\) !== "open"/.test(inviteLib), "accepting checks the invitation is still open, inside the transaction");
+check(/if \(!input\.agreed\)/.test(actions.split("inviteClinicianByEmail")[1] ?? ""), "she agrees to what is shared before an invitation is sent");
+check(/clinic-invite:/.test(actions), "invitations are limited, so the app cannot be used to pester anybody");
+const invitePage = readFileSync(path.join(root, "app/doctor/invite/[token]/page.tsx"), "utf8");
+check(/ownerId === me\.id/.test(invitePage) && /toLowerCase\(\) !== invite\.email/.test(invitePage), "the page never attaches an invitation to her own account or a different address");
+
 if (failed) {
   console.error(`\n${failed} check(s) failed — a clinician could see more than a patient chose.`);
   process.exit(1);

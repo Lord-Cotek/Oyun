@@ -227,6 +227,7 @@ export async function SiteHeader({
             journeys={journeys}
             activeId={activeJourneyId}
             canStartOwn={!ownsJourney && journeys.length > 0}
+            clinician={isClinician}
           />
         </div>
 

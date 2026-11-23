@@ -165,6 +165,22 @@ export default function Landing() {
             <InstallButton />
           </div>
 
+          {/* Clinicians come in by their own door, and it is on the first
+              screen: a doctor told about Oyun by a patient should not have
+              to scroll past a page written for mothers to find it. */}
+          <div className="mt-5 inline-flex flex-wrap items-center gap-x-4 gap-y-2 rounded-xl border border-border bg-surface px-4 py-3">
+            <span className="font-serif text-base text-ink">Doctor or midwife?</span>
+            <a href="/sign-in?callbackUrl=/doctor" className="inline-flex min-h-9 items-center font-mono text-xs text-accent underline underline-offset-4">
+              Clinician sign in
+            </a>
+            <a href="/doctor/join" className="inline-flex min-h-9 items-center font-mono text-xs text-accent underline underline-offset-4">
+              Create a clinician account
+            </a>
+            <a href="/doctors" className="inline-flex min-h-9 items-center font-mono text-xs text-muted underline underline-offset-4">
+              How it works
+            </a>
+          </div>
+
           {/* The two questions a stranger actually has, answered before they
               have to go looking. */}
           <p className="prose-serif-xs mt-6 max-w-prose text-muted">

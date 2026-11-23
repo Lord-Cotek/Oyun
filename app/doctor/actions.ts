@@ -10,6 +10,7 @@ import { sendConfirmEmail } from "@/lib/email";
 import { makeConfirmLink } from "@/lib/email-confirm";
 import { notify } from "@/lib/notify";
 import { cleanField, clinicianOf, newClinicCode } from "@/lib/clinician";
+import { acceptInvite, inviteByToken, inviteState } from "@/lib/clinician-invite";
 
 const SITE_DEFAULT = "https://oyun.cotek.app";
 type Result = { ok: boolean; error?: string };
@@ -124,4 +125,84 @@ export async function endLinkAsClinician(linkId: string): Promise<Result> {
   }
   revalidatePath("/doctor");
   return { ok: true };
+}
+
+
+/* ── Accepting a patient's emailed invitation — lib/clinician-invite.ts ──── */
+
+type Accepted = { ok: true; linkId: string } | { ok: false; error: string };
+
+/** Tell her the moment her doctor can see her records. */
+async function tellPatient(invite: { invitedById: string }, clinicianName: string) {
+  await notify({
+    userId: invite.invitedById,
+    type: "health_shared",
+    title: `${clinicianName} accepted your invitation.`,
+    body: "They can now see the health records you chose to share. You can see when they look, change what they see, or stop, under Health → Your doctor.",
+    href: "/health/doctor",
+    email: true,
+  });
+}
+
+/**
+ * A doctor with no Oyun account accepts: the account, the clinician profile
+ * and the sharing are made in one step, so the next thing they see is her
+ * records. The address is the invited one and cannot be changed here — the
+ * link was sent to it, which is the proof it is theirs.
+ */
+export async function acceptInviteWithNewAccount(token: string, fd: FormData): Promise<Accepted> {
+  const invite = await inviteByToken(token);
+  if (!invite || inviteState(invite) !== "open") return { ok: false, error: "This invitation is no longer open. Ask her to send it again." };
+  const p = readProfile(fd);
+  const password = String(fd.get("password") ?? "");
+  if (!p.displayName) return { ok: false, error: "Please enter your name as patients will see it." };
+  const pw = passwordProblem(password);
+  if (pw) return { ok: false, error: pw };
+  if (!p.declared) return { ok: false, error: DECLARE };
+  if (!(await allowAll([[`signup:ip:${callerIp()}`, 10, HOUR]]))) {
+    return { ok: false, error: "Too many new accounts from here just now. Please try again in a little while." };
+  }
+  const existing = await prisma.user.findUnique({ where: { email: invite.email }, select: { id: true } });
+  if (existing) return { ok: false, error: "There is already an Oyun account with this email. Sign in to accept the invitation." };
+  const user = await prisma.user.create({
+    data: {
+      email: invite.email,
+      name: p.displayName,
+      passwordHash: await hashPassword(password),
+      voice: "GENERAL",
+      // Proven by the emailed link itself.
+      emailVerified: new Date(),
+    },
+    select: { id: true },
+  });
+  const res = await acceptInvite(invite.id, user.id, { displayName: p.displayName, title: p.title, practice: p.practice });
+  if (!res.ok) return res;
+  await tellPatient(invite, res.clinicianName);
+  return { ok: true, linkId: res.linkId };
+}
+
+/**
+ * Somebody already signed in accepts. If they keep no clinician account yet
+ * — a mother who is also a midwife, say — it is made from the details in
+ * the same form, beside the account they already have.
+ */
+export async function acceptInviteSignedIn(token: string, fd: FormData | null): Promise<Accepted> {
+  const session = await auth();
+  if (!session?.user?.id) return { ok: false, error: "Please sign in first." };
+  const invite = await inviteByToken(token);
+  if (!invite || inviteState(invite) !== "open") return { ok: false, error: "This invitation is no longer open. Ask her to send it again." };
+  if (invite.journey.ownerId === session.user.id) return { ok: false, error: "This is your own invitation — it is for your doctor to open." };
+  const has = await clinicianOf(session.user.id);
+  let profile: { displayName: string; title: string | null; practice: string | null } | null = null;
+  if (!has) {
+    const p = fd ? readProfile(fd) : null;
+    if (!p?.displayName) return { ok: false, error: "Please enter your name as patients will see it." };
+    if (!p.declared) return { ok: false, error: DECLARE };
+    profile = { displayName: p.displayName, title: p.title, practice: p.practice };
+  }
+  const res = await acceptInvite(invite.id, session.user.id, profile);
+  if (!res.ok) return res;
+  await tellPatient(invite, res.clinicianName);
+  revalidatePath("/doctor");
+  return { ok: true, linkId: res.linkId };
 }

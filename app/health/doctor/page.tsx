@@ -12,7 +12,8 @@ import { PageHero } from "@/components/ui/PageHero";
 import { Card } from "@/components/ui/Card";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { HealthTabs } from "@/components/health/HealthTabs";
-import { ShareWithDoctor, SharedDoctor, PostForDoctor } from "@/components/health/doctor/DoctorSharing";
+import { ShareChooser, SharedDoctor, PostForDoctor, PendingInvite } from "@/components/health/doctor/DoctorSharing";
+import { inviteState } from "@/lib/clinician-invite";
 
 export const metadata: Metadata = { title: "Your doctor", robots: { index: false } };
 export const dynamic = "force-dynamic";
@@ -63,6 +64,18 @@ export default async function YourDoctor({ searchParams }: { searchParams: { cod
     : [];
   const initialCode = normaliseCode(searchParams.code ?? "") ?? "";
 
+  // Invitations she sent by email that nobody has accepted yet — the open
+  // ones, and ones that lapsed in the last month so she knows to send again.
+  const monthAgo = new Date(Date.now() - 30 * 86_400_000);
+  const waiting = (
+    await prisma.clinicianInvite.findMany({
+      where: { journeyId, acceptedAt: null, cancelledAt: null, expiresAt: { gt: monthAgo } },
+      orderBy: { sentAt: "desc" },
+      take: 10,
+      select: { id: true, email: true, doctorName: true, sentAt: true, expiresAt: true, acceptedAt: true, cancelledAt: true },
+    })
+  ).map((i) => ({ ...i, expired: inviteState(i) === "expired" }));
+
   return (
     <>
       <SiteHeader active="health" />
@@ -106,14 +119,28 @@ export default async function YourDoctor({ searchParams }: { searchParams: { cod
           </section>
         )}
 
+        {waiting.length > 0 && (
+          <section className="mt-8 space-y-3" aria-labelledby="waiting-h">
+            <h2 id="waiting-h" className="font-serif text-2xl text-ink">Invited, waiting</h2>
+            {waiting.map((i) => (
+              <PendingInvite
+                key={i.id}
+                inviteId={i.id}
+                email={i.email}
+                doctorName={i.doctorName}
+                sent={day(i.sentAt)}
+                until={day(i.expiresAt)}
+                expired={i.expired}
+                canManage={isMother}
+              />
+            ))}
+          </section>
+        )}
+
         {isMother && (
           <Card className="mt-8 p-6">
-            <Eyebrow className="mb-3">{links.length ? "Share with another doctor" : "Share with your doctor"}</Eyebrow>
-            <p className="mb-4 prose-serif-xs text-muted">
-              Ask your doctor or midwife for their Oyun clinic code. You&rsquo;ll see their name and exactly what they
-              will see before anything is shared.
-            </p>
-            <ShareWithDoctor initialCode={initialCode} />
+            <Eyebrow className="mb-4">{links.length ? "Share with another doctor" : "Share with your doctor"}</Eyebrow>
+            <ShareChooser initialCode={initialCode} />
           </Card>
         )}
 

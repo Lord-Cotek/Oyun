@@ -26,11 +26,14 @@ export function SignInForm({
   callbackUrl,
   initialEmail,
   words,
+  createHref,
 }: {
   callbackUrl?: string;
   initialEmail?: string;
   /** The reader's language, when it is not English — see lib/i18n.ts. */
   words?: Words;
+  /** Where "Create an account" leads, when it is not the ordinary sign-up. */
+  createHref?: string;
 }) {
   const w = (en: string) => sayIn(words, en);
   const [email, setEmail] = useState(initialEmail ?? "");
@@ -103,9 +106,9 @@ export function SignInForm({
     }
   }
 
-  const signUpHref = callbackUrl
-    ? `/sign-up?callbackUrl=${encodeURIComponent(callbackUrl)}`
-    : "/sign-up";
+  const signUpHref =
+    createHref ??
+    (callbackUrl ? `/sign-up?callbackUrl=${encodeURIComponent(callbackUrl)}` : "/sign-up");
 
   if (mode === "code") {
     return (

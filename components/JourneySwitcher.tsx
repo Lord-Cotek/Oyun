@@ -17,10 +17,13 @@ export function JourneySwitcher({
   journeys,
   activeId,
   canStartOwn,
+  clinician = false,
 }: {
   journeys: JourneyItem[];
   activeId: string | null;
   canStartOwn: boolean;
+  /** Keeps a clinician account too — the way across to their patients. */
+  clinician?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [, start] = useTransition();
@@ -36,7 +39,7 @@ export function JourneySwitcher({
   }, [open]);
 
   // Nothing to offer: a single journey they own → the brand already says it.
-  if (journeys.length <= 1 && !canStartOwn) return null;
+  if (journeys.length <= 1 && !canStartOwn && !clinician) return null;
 
   const active = journeys.find((j) => j.id === activeId) ?? journeys[0];
 
@@ -99,6 +102,21 @@ export function JourneySwitcher({
               className="block w-full border-t border-border px-4 py-3 text-left font-mono text-xs text-accent transition-colors hover:bg-bg"
             >
               + Start your own journey
+            </button>
+          )}
+          {/* A doctor or midwife who is also here for herself: her patients
+              are a different room, one tap from her own journey. */}
+          {clinician && (
+            <button
+              type="button"
+              onClick={() => {
+                setOpen(false);
+                router.push("/doctor");
+              }}
+              className="block w-full border-t border-border px-4 py-3 text-left transition-colors hover:bg-bg"
+            >
+              <span className="block font-mono text-sm text-ink">My patients</span>
+              <span className="font-mono text-[0.6rem] uppercase tracking-widest text-muted">Your clinician account</span>
             </button>
           )}
         </div>

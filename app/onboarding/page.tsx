@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { isGeneral } from "@/lib/voice";
+import { isGeneral, VOICE_CHOICES } from "@/lib/voice";
 import { PROMISE_CONSENT } from "@/lib/promise";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -67,6 +67,10 @@ export default async function Onboarding({
   const active = await getActiveMembership(session.user.id);
   // How Oyun speaks to them — chosen a moment ago at sign-up. lib/voice.ts.
   const general = isGeneral(session.user.voice);
+  // Somebody who came in as a clinician was never asked how Oyun should
+  // speak to them — a doctor's room has no devotional content either way.
+  // Starting a journey of their own is the moment to ask. lib/voice.ts.
+  const askVoice = !!(await prisma.clinician.findUnique({ where: { userId: session.user.id }, select: { id: true } }));
   const hasPendingInvite = !!invite && !invite.acceptedAt;
 
   // The signed-in account must match the invited email — otherwise the wrong
@@ -256,6 +260,24 @@ export default async function Onboarding({
                 name="babyName"
                 placeholder="If you've chosen one — or add each after birth"
               />
+
+              {askVoice && (
+                <fieldset className="space-y-2">
+                  <legend className="mb-2 block font-mono text-xs uppercase tracking-widest text-muted">
+                    How should Oyun speak to you?
+                  </legend>
+                  {VOICE_CHOICES.map((c) => (
+                    <label key={c.value} className="flex cursor-pointer items-start gap-3 rounded-lg border border-border bg-bg px-4 py-3">
+                      <input type="radio" name="voice" value={c.value} required className="mt-1 h-4 w-4 shrink-0 accent-[color:var(--accent)]" />
+                      <span className="min-w-0">
+                        <span className="block font-serif text-base text-ink">{c.label}</span>
+                        <span className="mt-0.5 block prose-serif-xs text-muted">{c.detail}</span>
+                      </span>
+                    </label>
+                  ))}
+                  <p className="prose-serif-xs text-muted">Only for your own journey — your patients&rsquo; view is not affected. You can change it in Settings.</p>
+                </fieldset>
+              )}
 
               <label className="flex items-start gap-2 pt-1">
                 <input

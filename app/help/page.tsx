@@ -537,9 +537,14 @@ export default async function HelpPage() {
 
           {home && (
             <Q q="Can my doctor or midwife see my records directly?">
-              Yes, if you choose. Ask them for their Oyun clinic code, then open{" "}
-              <Link href="/health/doctor" className="text-accent underline underline-offset-4">Health &rarr; Your doctor</Link>{" "}
-              and type it in. You see their name and exactly what they will see before anything is shared: your
+              Yes, if you choose. Open{" "}
+              <Link href="/health/doctor" className="text-accent underline underline-offset-4">Health &rarr; Your doctor</Link>.
+              If your doctor isn&rsquo;t on Oyun yet, choose <span className="text-ink">Invite by email</span>: type
+              their email address and Oyun writes to them. They create a free account (or sign in) from that email
+              and can see your records straight away. Only the address you typed can accept; the invitation lasts
+              fourteen days, and until it is accepted you can send it again or cancel it. If they already use Oyun,
+              choose <span className="text-ink">I have their clinic code</span> and type the code they give you.
+              Either way you see exactly what they will see before anything is shared: your
               health log, medicines and doses, tests and vaccines, your stage and due date — and, unless you untick
               them, your appointments and scans and the photographs on your readings and tests. A Life post reaches
               them only if you share that one post, from the same page. They never see your other posts, letters,
@@ -549,6 +554,17 @@ export default async function HelpPage() {
               maternity unit yourself.
             </Q>
           )}
+
+          <Q q="I&rsquo;m a doctor or midwife, and I use Oyun myself. How do the two fit together?">
+            One sign-in, two rooms that never mix. In{" "}
+            <Link href="/settings#clinician" className="text-accent underline underline-offset-4">Settings</Link>, under{" "}
+            <span className="text-ink">For doctors and midwives</span>, set up a clinician account beside your own. You
+            get a clinic code for your patients, and <span className="text-ink">My patients</span> appears in your menu
+            (under More, and in the journey switcher at the top). From your patient list,{" "}
+            <span className="text-ink">My journey</span> brings you back. Your patients never see anything of your
+            own journey, and nothing of theirs appears in yours. If a patient invites you by email, use the address
+            your Oyun account has — or give her your clinic code.
+          </Q>
 
           {home && (
             <Q q="Can I download or delete my health log?">

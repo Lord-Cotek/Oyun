@@ -68,8 +68,11 @@ export default function PrivacyPage() {
 
       <LegalSection heading="Sharing with your doctor or midwife">
         <p>
-          Only if you choose to. If you enter your own doctor&rsquo;s or
-          midwife&rsquo;s clinic code and agree, they can see your health log
+          Only if you choose to. You can enter your own doctor&rsquo;s or
+          midwife&rsquo;s clinic code, or invite them by email — in which case
+          we send one invitation to the address you give, and only an account
+          with that address can accept it. Once you have agreed and they have
+          accepted, they can see your health log
           (readings, symptoms and notes), your medicines and the doses you
           marked, your tests and vaccines, your stage and due date, and — unless
           you turn them off — your appointments and scans and the photographs on

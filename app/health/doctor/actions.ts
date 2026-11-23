@@ -7,7 +7,9 @@ import { prisma } from "@/lib/prisma";
 import { getActiveMembership } from "@/lib/data";
 import { allowAll, HOUR, MINUTE } from "@/lib/rate-limit";
 import { notify } from "@/lib/notify";
-import { clinicianLine, normaliseCode } from "@/lib/clinician";
+import { clinicianLine, normaliseCode, cleanField } from "@/lib/clinician";
+import { cleanEmail, inviteExpiry, inviteState, newInviteToken } from "@/lib/clinician-invite";
+import { sendClinicianInviteEmail } from "@/lib/email";
 
 type Found = { ok: true; code: string; line: string; displayName: string } | { ok: false; error: string };
 type Result = { ok: boolean; error?: string };
@@ -22,7 +24,12 @@ async function requireMother() {
   const active = await getActiveMembership(session.user.id);
   if (!active) redirect("/onboarding");
   if (active.role !== "MOTHER") return null;
-  return { userId: session.user.id, journeyId: active.journey.id, name: active.journey.owner.name ?? null };
+  return {
+    userId: session.user.id,
+    journeyId: active.journey.id,
+    name: active.journey.owner.name ?? null,
+    email: session.user.email ?? null,
+  };
 }
 
 /**
@@ -114,6 +121,123 @@ export async function setPostForDoctor(postId: string, on: boolean): Promise<Res
   if (!post || (role !== "MOTHER" && role !== "PARTNER")) return { ok: false, error: "Only posts you or your partner wrote can be shared." };
   await prisma.post.update({ where: { id: post.id }, data: { forDoctorAt: on ? new Date() : null } });
   revalidatePath("/life");
+  revalidatePath("/health/doctor");
+  return { ok: true };
+}
+
+
+const SITE_DEFAULT = "https://oyun.cotek.app";
+
+/** Write to the doctor. Returns whether the email actually left. */
+async function sendInvite(
+  me: { name: string | null; email: string | null },
+  invite: { email: string; doctorName: string | null; note: string | null; withPhotos: boolean; withAppointments: boolean; expiresAt: Date },
+  rawToken: string,
+): Promise<boolean> {
+  const site = process.env.NEXT_PUBLIC_SITE_URL ?? SITE_DEFAULT;
+  return sendClinicianInviteEmail({
+    to: invite.email,
+    doctorName: invite.doctorName,
+    patientName: me.name?.trim() || "A patient",
+    patientEmail: me.email,
+    note: invite.note,
+    link: `${site}/doctor/invite/${rawToken}`,
+    expires: invite.expiresAt.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }),
+    withAppointments: invite.withAppointments,
+    withPhotos: invite.withPhotos,
+  }).catch(() => false);
+}
+
+const NOT_SENT =
+  "The invitation is saved, but the email could not be sent just now. Press “Send again” in a moment.";
+
+/**
+ * She invites her doctor by email — see lib/clinician-invite.ts. Her
+ * agreement is given here; nothing is shared until the doctor accepts.
+ *
+ * One open invitation per address: inviting the same address again sends a
+ * fresh link and ends the old one, so there is never more than one live
+ * link in a doctor's inbox. Limited, because this sends email to an address
+ * of her choosing and must not become a way to pester anybody.
+ */
+export async function inviteClinicianByEmail(input: {
+  email: string;
+  doctorName: string;
+  note: string;
+  withPhotos: boolean;
+  withAppointments: boolean;
+  agreed: boolean;
+}): Promise<Result & { sentTo?: string; warning?: string }> {
+  const me = await requireMother();
+  if (!me) return { ok: false, error: "Only the mother can invite her doctor." };
+  if (!input.agreed) return { ok: false, error: "Please tick the box to confirm what will be shared." };
+  const email = cleanEmail(input.email);
+  if (!email) return { ok: false, error: "Please enter your doctor’s email address." };
+  if (me.email && email === me.email.toLowerCase()) return { ok: false, error: "That is your own email address." };
+  if (!(await allowAll([[`clinic-invite:${me.userId}`, 5, HOUR], [`clinic-invite-day:${me.userId}`, 12, 24 * HOUR]]))) {
+    return { ok: false, error: "That is a lot of invitations in a short while. Please try again later." };
+  }
+  // Already sharing with the account behind this address? Then there is
+  // nothing to invite them to.
+  const already = await prisma.clinicianLink.findFirst({
+    where: { journeyId: me.journeyId, endedAt: null, clinician: { user: { email } } },
+    select: { id: true },
+  });
+  if (already) return { ok: false, error: "You are already sharing with this doctor." };
+
+  const { raw, hash } = newInviteToken();
+  const now = new Date();
+  const data = {
+    doctorName: cleanField(input.doctorName, 80),
+    note: String(input.note ?? "").trim().slice(0, 600) || null,
+    withPhotos: !!input.withPhotos,
+    withAppointments: !!input.withAppointments,
+    tokenHash: hash,
+    sentAt: now,
+    expiresAt: inviteExpiry(now),
+    cancelledAt: null,
+  };
+  const open = await prisma.clinicianInvite.findFirst({
+    where: { journeyId: me.journeyId, email, acceptedAt: null },
+    orderBy: { createdAt: "desc" },
+    select: { id: true },
+  });
+  const invite = open
+    ? await prisma.clinicianInvite.update({ where: { id: open.id }, data })
+    : await prisma.clinicianInvite.create({ data: { ...data, journeyId: me.journeyId, invitedById: me.userId, email } });
+  const sent = await sendInvite(me, invite, raw);
+  revalidatePath("/health/doctor");
+  return sent ? { ok: true, sentTo: email } : { ok: true, sentTo: email, warning: NOT_SENT };
+}
+
+/** Send it again: a new link and a new fortnight; the old link stops working. */
+export async function resendClinicianInvite(inviteId: string): Promise<Result & { warning?: string }> {
+  const me = await requireMother();
+  if (!me) return { ok: false, error: "Only the mother can do this." };
+  const invite = await prisma.clinicianInvite.findFirst({ where: { id: String(inviteId).slice(0, 64), journeyId: me.journeyId } });
+  if (!invite || invite.acceptedAt) return { ok: false, error: "That invitation is no longer waiting." };
+  if (!(await allowAll([[`clinic-invite:${me.userId}`, 5, HOUR], [`clinic-invite-day:${me.userId}`, 12, 24 * HOUR]]))) {
+    return { ok: false, error: "That is a lot of invitations in a short while. Please try again later." };
+  }
+  const { raw, hash } = newInviteToken();
+  const now = new Date();
+  const fresh = await prisma.clinicianInvite.update({
+    where: { id: invite.id },
+    data: { tokenHash: hash, sentAt: now, expiresAt: inviteExpiry(now), cancelledAt: null },
+  });
+  const sent = await sendInvite(me, fresh, raw);
+  revalidatePath("/health/doctor");
+  return sent ? { ok: true } : { ok: true, warning: NOT_SENT };
+}
+
+/** Take it back before it is accepted. The link stops working at once. */
+export async function cancelClinicianInvite(inviteId: string): Promise<Result> {
+  const me = await requireMother();
+  if (!me) return { ok: false, error: "Only the mother can do this." };
+  const invite = await prisma.clinicianInvite.findFirst({ where: { id: String(inviteId).slice(0, 64), journeyId: me.journeyId } });
+  if (invite && inviteState(invite) !== "accepted") {
+    await prisma.clinicianInvite.update({ where: { id: invite.id }, data: { cancelledAt: new Date() } });
+  }
   revalidatePath("/health/doctor");
   return { ok: true };
 }

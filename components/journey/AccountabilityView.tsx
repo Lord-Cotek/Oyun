@@ -1,3 +1,4 @@
+import { firstName as firstNameOf } from "@/lib/names";
 import {
   getLatestMotherCheckIn,
   getOpenNudges,
@@ -95,7 +96,7 @@ export async function AccountabilityView({
   const stageKey = walkStage({ born, week, month });
   const today = circleDailyIn(voice, stageKey);
   const thisWeek = circleWeeklyIn(voice, stageKey);
-  const firstName = me?.name?.trim().split(/\s+/)[0] ?? null;
+  const firstName = firstNameOf(me?.name);
   const framing = supporterFraming(role, motherName, voice);
 
   return (

@@ -45,10 +45,16 @@ export async function createJourney(formData: FormData) {
     redirect("/journey");
   }
 
-  if (name) {
+  // Asked on this form only of somebody who was never asked at sign-up (a
+  // clinician starting a journey of their own) — see app/onboarding/page.tsx.
+  const voice = String(formData.get("voice") ?? "");
+  if (name || voice === "FAITH" || voice === "GENERAL") {
     await prisma.user.update({
       where: { id: session.user.id },
-      data: { name },
+      data: {
+        ...(name ? { name } : {}),
+        ...(voice === "FAITH" || voice === "GENERAL" ? { voice } : {}),
+      },
     });
   }
 

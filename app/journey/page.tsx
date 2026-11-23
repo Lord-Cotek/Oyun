@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { firstName } from "@/lib/names";
 import { letterOpenScope } from "@/lib/letters-seal";
 import { BirthAnnouncement } from "@/components/journey/BirthAnnouncement";
 import { getAnnouncement, liveShareToken } from "@/lib/announcement-db";
@@ -287,7 +288,7 @@ export default async function JourneyPage() {
     const complete = !!journey.completedAt;
 
     // Warm hero details.
-    const motherName = journey.owner.name?.trim().split(/\s+/)[0] ?? null;
+    const motherName = firstName(journey.owner.name);
     const babyLabel = journey.babyName?.trim() || null;
     // One place decides how to talk about one baby or four — see lib/babies.ts.
     const bw = babyWords(journey.babyCount, journey.babyName);
@@ -665,7 +666,7 @@ export default async function JourneyPage() {
     dayKey(),
     stage.index,
   );
-  const partnerFirst = session.user.name?.trim().split(/\s+/)[0] ?? null;
+  const partnerFirst = firstName(session.user.name);
 
   const partnerShowBirth =
     active.role === "PARTNER" &&

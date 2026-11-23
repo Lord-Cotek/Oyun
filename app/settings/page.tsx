@@ -57,6 +57,11 @@ export default async function SettingsPage() {
   if (!user) redirect("/sign-in");
 
   const isMother = active?.role === "MOTHER";
+  // Whether they also keep a clinician account — see lib/clinician.ts.
+  const clinician = await prisma.clinician.findUnique({
+    where: { userId: session.user.id },
+    select: { displayName: true, code: true },
+  });
   const supporterCount =
     isMother && active
       ? await prisma.membership.count({
@@ -208,6 +213,39 @@ export default async function SettingsPage() {
               <LeaveCircle motherName={active.journey.owner?.name?.split(" ")[0] ?? "her"} />
             </Card>
           )}
+
+          {/* One person, two rooms: their own journey, and — if they are a
+              doctor or midwife — their patients. This is where the second is
+              set up, and the way across once it exists. */}
+          <Card className="p-8" id="clinician">
+            <Eyebrow className="mb-3">For doctors and midwives</Eyebrow>
+            {clinician ? (
+              <>
+                <p className="prose-serif-sm text-ink">
+                  You also have a clinician account as <span className="text-accent">{clinician.displayName}</span>. Your
+                  clinic code is <span className="font-mono">{clinician.code}</span>.
+                </p>
+                <p className="mb-4 mt-1 prose-serif-xs text-muted">
+                  Your patients are kept apart from your own journey. Switch at any time from the menu (More → My
+                  patients), and back again with &ldquo;My journey&rdquo;.
+                </p>
+                <Link href="/doctor" className="inline-flex min-h-11 items-center rounded-lg border border-border px-4 font-mono text-xs text-ink hover:border-accent">
+                  Open my patients
+                </Link>
+              </>
+            ) : (
+              <>
+                <p className="mb-4 prose-serif-xs text-muted">
+                  Are you a doctor or midwife as well? Add a clinician account beside this one — the same sign-in, kept
+                  completely apart from your own journey. Your patients never see anything of yours, and you get a
+                  clinic code to give them.
+                </p>
+                <Link href="/doctor/join" className="inline-flex min-h-11 items-center rounded-lg border border-border px-4 font-mono text-xs text-ink hover:border-accent">
+                  Set up a clinician account
+                </Link>
+              </>
+            )}
+          </Card>
 
           <Card className="p-8">
             <Eyebrow className="mb-3">Take everything with you</Eyebrow>

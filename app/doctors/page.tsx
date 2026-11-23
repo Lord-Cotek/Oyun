@@ -83,6 +83,25 @@ export default function ForClinicians() {
         </div>
       </section>
 
+      <section className="grid gap-5 border-t border-border py-14 md:grid-cols-2">
+        <div className="rounded-2xl border border-border bg-surface p-6">
+          <h2 className="font-serif text-2xl text-ink">Invited by a patient?</h2>
+          <p className="mt-2 prose-serif-xs text-muted">
+            A patient can invite you by email from her own Oyun. Open the link in that email: you create your account
+            there (or sign in) and her records open straight away — no code needed. The invitation is for the address
+            it was sent to. Afterwards you still get a clinic code of your own to give other patients.
+          </p>
+        </div>
+        <div className="rounded-2xl border border-border bg-surface p-6">
+          <h2 className="font-serif text-2xl text-ink">Use Oyun yourself, too?</h2>
+          <p className="mt-2 prose-serif-xs text-muted">
+            One sign-in holds both: your clinician account and your own journey, kept completely apart. If you already
+            use Oyun, sign in and set up a clinician account from Settings; switch between &ldquo;My patients&rdquo; and
+            &ldquo;My journey&rdquo; at any time. Patients never see anything of yours.
+          </p>
+        </div>
+      </section>
+
       <section className="grid gap-8 border-t border-border py-14 md:grid-cols-2">
         <div>
           <h2 className="font-serif text-2xl text-ink">What you see</h2>

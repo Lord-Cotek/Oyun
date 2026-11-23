@@ -2,7 +2,16 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { lookUpClinician, shareWithClinician, changeSharing, stopSharing, setPostForDoctor } from "@/app/health/doctor/actions";
+import {
+  lookUpClinician,
+  shareWithClinician,
+  changeSharing,
+  stopSharing,
+  setPostForDoctor,
+  inviteClinicianByEmail,
+  resendClinicianInvite,
+  cancelClinicianInvite,
+} from "@/app/health/doctor/actions";
 import { ConfirmButton } from "@/components/ui/Confirm";
 
 const btn = "inline-flex min-h-11 items-center rounded-lg px-4 font-mono text-xs font-medium disabled:opacity-50";
@@ -255,5 +264,210 @@ export function PostForDoctor({ postId, on }: { postId: string; on: boolean }) {
     >
       {value ? "Shared · take back" : "Share with doctor"}
     </button>
+  );
+}
+
+
+const field =
+  "w-full rounded-lg border border-border bg-bg px-4 py-3 prose-serif-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none";
+
+/**
+ * Invite her doctor by email — see lib/clinician-invite.ts. The same list
+ * and the same agreement as sharing by code; the difference is only that
+ * Oyun writes to the doctor, and sharing begins when they accept.
+ */
+export function InviteDoctorByEmail() {
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
+  const [note, setNote] = useState("");
+  const [photos, setPhotos] = useState(true);
+  const [appointments, setAppointments] = useState(true);
+  const [agreed, setAgreed] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [done, setDone] = useState<{ to: string; warning?: string } | null>(null);
+  const [pending, start] = useTransition();
+
+  if (done) {
+    return (
+      <div className="rounded-lg border border-positive/40 bg-positive/[0.06] p-4" role="status">
+        <p className="prose-serif-sm text-ink">
+          {done.warning ?? `Invitation sent to ${done.to}. As soon as they accept, they can see your records — and you’ll be told.`}
+        </p>
+        <button
+          type="button"
+          onClick={() => {
+            setDone(null);
+            setEmail("");
+            setName("");
+            setNote("");
+            setAgreed(false);
+          }}
+          className="mt-2 font-mono text-[0.7rem] text-muted underline underline-offset-2"
+        >
+          Invite another doctor
+        </button>
+      </div>
+    );
+  }
+  const who = name.trim() || "my doctor";
+  return (
+    <form
+      className="space-y-4"
+      onSubmit={(e) => {
+        e.preventDefault();
+        setError(null);
+        start(async () => {
+          const r = await inviteClinicianByEmail({ email, doctorName: name, note, withPhotos: photos, withAppointments: appointments, agreed });
+          if (!r.ok) setError(r.error ?? "That didn’t work.");
+          else {
+            setDone({ to: r.sentTo ?? email, warning: r.warning });
+            router.refresh();
+          }
+        })
+      }}
+    >
+      <label className="block">
+        <span className="eyebrow mb-2 block text-muted">Your doctor&rsquo;s email</span>
+        <input id="doctor-email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="doctor@clinic.org" autoComplete="off" className={field} />
+      </label>
+      <label className="block">
+        <span className="eyebrow mb-2 block text-muted">Their name (optional)</span>
+        <input id="doctor-name" value={name} onChange={(e) => setName(e.target.value)} maxLength={80} placeholder="Dr Adaeze Okafor" className={field} />
+      </label>
+      <label className="block">
+        <span className="eyebrow mb-2 block text-muted">A note to them (optional)</span>
+        <textarea id="doctor-note" value={note} onChange={(e) => setNote(e.target.value)} maxLength={600} rows={2} placeholder="I’m your patient at the Tuesday clinic — here are my home readings." className={`${field} resize-y`} />
+      </label>
+      <div className="space-y-2">
+        <label className="flex items-start gap-2">
+          <input type="checkbox" checked={appointments} onChange={(e) => setAppointments(e.target.checked)} className={box} />
+          <span className="prose-serif-xs text-ink">Include appointments and scans</span>
+        </label>
+        <label className="flex items-start gap-2">
+          <input type="checkbox" checked={photos} onChange={(e) => setPhotos(e.target.checked)} className={box} />
+          <span className="prose-serif-xs text-ink">Include photographs on readings and tests (a home test, a result letter)</span>
+        </label>
+      </div>
+      <WhatIsShared photos={photos} appointments={appointments} />
+      <label className="flex items-start gap-2 rounded-lg border border-border p-3">
+        <input type="checkbox" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} className={box} />
+        <span className="prose-serif-xs text-ink">
+          I want {who} to see the records above once they accept. Only the address I typed can accept. I understand Oyun
+          does not watch my readings or alert them — for anything urgent I contact my maternity unit or emergency
+          services myself. I can cancel the invitation or stop sharing at any time.
+        </span>
+      </label>
+      {error && <p className="font-mono text-xs text-negative" role="alert">{error}</p>}
+      <button type="submit" disabled={pending || !agreed || !email.trim()} className={`${btn} w-full justify-center bg-accent text-on-accent hover:bg-accent-deep`}>
+        {pending ? "Sending…" : "Send invitation"}
+      </button>
+    </form>
+  );
+}
+
+/** The two ways to share, one at a time: write to them, or type their code. */
+export function ShareChooser({ initialCode = "" }: { initialCode?: string }) {
+  const [mode, setMode] = useState<"email" | "code">(initialCode ? "code" : "email");
+  const tab = (m: "email" | "code", text: string) => (
+    <button
+      type="button"
+      onClick={() => setMode(m)}
+      aria-pressed={mode === m}
+      className={`inline-flex min-h-11 flex-1 items-center justify-center rounded-lg px-3 font-mono text-xs transition-colors ${
+        mode === m ? "bg-ink text-bg" : "border border-border text-ink hover:border-accent"
+      }`}
+    >
+      {text}
+    </button>
+  );
+  return (
+    <div>
+      <div className="mb-5 flex gap-2" role="group" aria-label="How to share">
+        {tab("email", "Invite by email")}
+        {tab("code", "I have their clinic code")}
+      </div>
+      {mode === "email" ? (
+        <>
+          <p className="mb-4 prose-serif-xs text-muted">
+            Oyun emails your doctor or midwife an invitation. They create a free account (or sign in) and can see your
+            records straight away — no code needed.
+          </p>
+          <InviteDoctorByEmail />
+        </>
+      ) : (
+        <>
+          <p className="mb-4 prose-serif-xs text-muted">
+            If your doctor already uses Oyun, ask for their clinic code. You&rsquo;ll see their name and exactly what
+            they will see before anything is shared.
+          </p>
+          <ShareWithDoctor initialCode={initialCode} />
+        </>
+      )}
+    </div>
+  );
+}
+
+/** An invitation still waiting for her doctor: send it again, or take it back. */
+export function PendingInvite({
+  inviteId,
+  email,
+  doctorName,
+  sent,
+  until,
+  expired,
+  canManage,
+}: {
+  inviteId: string;
+  email: string;
+  doctorName: string | null;
+  sent: string;
+  until: string;
+  expired: boolean;
+  canManage: boolean;
+}) {
+  const router = useRouter();
+  const [said, setSaid] = useState<{ ok: boolean; text: string } | null>(null);
+  const [pending, start] = useTransition();
+  return (
+    <div className="rounded-2xl border border-dashed border-border bg-surface p-5">
+      <p className="font-serif text-lg text-ink">{doctorName?.trim() || email}</p>
+      <p className="mt-0.5 font-mono text-xs text-muted">
+        {doctorName?.trim() ? `${email} · ` : ""}
+        {expired ? `Sent ${sent} · expired — not accepted` : `Sent ${sent} · waiting for them to accept · open until ${until}`}
+      </p>
+      <p className="mt-2 prose-serif-xs text-muted">Nothing is shared until they accept.</p>
+      {canManage && (
+        <div className="mt-3 flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            disabled={pending}
+            onClick={() =>
+              start(async () => {
+                const r = await resendClinicianInvite(inviteId);
+                setSaid(r.ok ? { ok: !r.warning, text: r.warning ?? "Sent again — the earlier link no longer works." } : { ok: false, text: r.error ?? "That didn’t work." });
+                router.refresh();
+              })
+            }
+            className={`${btn} border border-border text-ink hover:border-accent`}
+          >
+            {pending ? "Sending…" : "Send again"}
+          </button>
+          <ConfirmButton
+            describe={`the invitation to ${email}`}
+            word="Cancel invitation"
+            sure="Cancel — sure?"
+            press="none"
+            onConfirm={async () => {
+              const r = await cancelClinicianInvite(inviteId);
+              router.refresh();
+              return r;
+            }}
+            className="font-mono text-xs text-negative underline-offset-2 hover:underline"
+          />
+          {said && <span className={`font-mono text-xs ${said.ok ? "text-positive" : "text-negative"}`} role="status">{said.text}</span>}
+        </div>
+      )}
+    </div>
   );
 }

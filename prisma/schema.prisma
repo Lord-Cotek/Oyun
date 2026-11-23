@@ -108,6 +108,7 @@ model User {
   /// Set when this person keeps a clinician's account — see lib/clinician.ts.
   clinician           Clinician?
   clinicianLinks      ClinicianLink[]      @relation("ClinicianLinkGrantedBy")
+  clinicianInvites    ClinicianInvite[]    @relation("ClinicianInviteBy")
 }
 
 /// A small emoji reaction on an encouragement or a check-in.
@@ -368,6 +369,7 @@ model Journey {
   prenatalChecks    PrenatalCheck[]
   healthReportLinks HealthReportLink[]
   clinicianLinks    ClinicianLink[]
+  clinicianInvites  ClinicianInvite[]
 }
 
 /// The family feed — an update, a praise, a prayer, or a milestone that the
@@ -2247,4 +2249,38 @@ model ClinicianView {
   at     DateTime      @default(now())
 
   @@index([linkId, at])
+}
+
+/// A patient inviting her doctor by email — see lib/clinician-invite.ts.
+///
+/// She agrees to what will be shared when she sends it; the sharing itself
+/// (a ClinicianLink) begins only when the doctor opens the emailed link and
+/// accepts, on an account whose address is the one she invited. Only the
+/// hash of the link's token is kept. Open for fourteen days, and hers to
+/// cancel or send again until it is accepted.
+model ClinicianInvite {
+  id               String    @id @default(cuid())
+  journeyId        String
+  journey          Journey   @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  invitedById      String
+  invitedBy        User      @relation("ClinicianInviteBy", fields: [invitedById], references: [id], onDelete: Cascade)
+  /// The address it was sent to, lower-cased. Only an account with this
+  /// address may accept.
+  email            String
+  /// What she called them ("Dr Okafor") — for her own list and the greeting.
+  doctorName       String?
+  /// A line from her, shown in the email and on the invitation.
+  note             String?
+  tokenHash        String    @unique
+  withPhotos       Boolean   @default(true)
+  withAppointments Boolean   @default(true)
+  createdAt        DateTime  @default(now())
+  /// When the email last went out — "Send again" moves it and the expiry.
+  sentAt           DateTime  @default(now())
+  expiresAt        DateTime
+  acceptedAt       DateTime?
+  cancelledAt      DateTime?
+
+  @@index([journeyId])
+  @@index([email])
 }

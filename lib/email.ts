@@ -875,6 +875,94 @@ export async function sendDoctorReportEmail({
  * lines and everything else is escaped, so the worst a typo can do is look
  * like a typo.
  */
+/**
+ * A patient inviting her doctor to see her records — lib/clinician-invite.ts.
+ *
+ * Written for someone who may never have heard of Oyun: who is asking, what
+ * they would see, that it costs nothing and promises no monitoring, and one
+ * button. A reply goes to the patient herself.
+ */
+export async function sendClinicianInviteEmail({
+  to,
+  doctorName,
+  patientName,
+  patientEmail,
+  note,
+  link,
+  expires,
+  withAppointments,
+  withPhotos,
+}: {
+  to: string;
+  doctorName: string | null;
+  patientName: string;
+  patientEmail: string | null;
+  note: string | null;
+  link: string;
+  expires: string;
+  withAppointments: boolean;
+  withPhotos: boolean;
+}): Promise<boolean> {
+  const who = escapeHtml(patientName);
+  const hello = doctorName?.trim() ? `Hello ${escapeHtml(doctorName.trim())},` : "Hello,";
+  const paras = (note ?? "").split(/\n{2,}/).map((p) => p.trim()).filter(Boolean);
+  const sees = [
+    "her home readings — blood pressure, glucose, weight and more — with anything out of range marked",
+    "symptoms and notes, medicines and the doses taken, tests and vaccines",
+    ...(withAppointments ? ["appointments and scans, with what came of them"] : []),
+    ...(withPhotos ? ["photographs she attached to readings and tests"] : []),
+  ];
+  const html = shell(`
+    <p style="font-size:16px;line-height:1.6;color:#ECE8DE;">${hello}</p>
+    <p style="font-size:14px;line-height:1.7;color:#ECE8DE;">
+      ${who} keeps her pregnancy health records in Oyun, and would like to share them with you as her doctor or midwife.
+    </p>
+    ${paras.map((p) => `<p style="font-size:14px;line-height:1.7;color:#ECE8DE;border-left:2px solid #C9A227;padding-left:10px;">${escapeHtml(p).replace(/\n/g, "<br/>")}</p>`).join("")}
+    <p style="margin:24px 0;">
+      <a href="${escapeHtml(link)}" style="display:inline-block;background:#E6A94E;color:#0B0E14;text-decoration:none;font-weight:600;padding:12px 20px;border-radius:8px;font-size:14px;">See ${who}&rsquo;s records</a>
+    </p>
+    <p style="font-size:13px;line-height:1.7;color:#ECE8DE;">You will see:</p>
+    <ul style="font-size:13px;line-height:1.7;color:#ECE8DE;padding-left:18px;margin:4px 0 12px;">
+      ${sees.map((x) => `<li>${escapeHtml(x)}</li>`).join("")}
+    </ul>
+    <p style="font-size:12px;line-height:1.6;color:#8A9099;">
+      The button opens a page where you create a free clinician account with this email address (or sign in, if you have one), and her records open straight away. Nothing else of hers is shared — not her diary, letters or family. She can see when you open her records and can stop sharing at any time.
+    </p>
+    <p style="font-size:12px;line-height:1.6;color:#8A9099;">
+      Oyun is not a monitoring service: it does not alert you to anything, and she knows to contact her maternity unit herself for anything urgent. Everything in the record was entered at home; Oyun does not measure or verify any value.
+    </p>
+    <p style="font-size:12px;line-height:1.6;color:#8A9099;">
+      This invitation is for ${escapeHtml(to)} only and is open until ${escapeHtml(expires)}. Replying to this email goes to ${who}. If you were not expecting it, you can ignore it — nothing is shared unless you accept.
+    </p>
+    <p style="font-size:11px;line-height:1.6;color:#8A9099;">If the button does not work, paste this into your browser:<br/>${escapeHtml(link)}</p>
+  `);
+  const text = [
+    doctorName?.trim() ? `Hello ${doctorName.trim()},` : "Hello,",
+    "",
+    `${patientName} keeps her pregnancy health records in Oyun, and would like to share them with you as her doctor or midwife.`,
+    ...(paras.length ? ["", ...paras] : []),
+    "",
+    `See her records: ${link}`,
+    "",
+    "You will see:",
+    ...sees.map((x) => `- ${x}`),
+    "",
+    "The link opens a page where you create a free clinician account with this email address (or sign in, if you have one), and her records open straight away. Nothing else of hers is shared. She can see when you open her records and can stop sharing at any time.",
+    "",
+    "Oyun is not a monitoring service: it does not alert you to anything. Everything in the record was entered at home.",
+    "",
+    `This invitation is for ${to} only and is open until ${expires}. Replying to this email goes to ${patientName}. If you were not expecting it, you can ignore it.`,
+  ].join("\n");
+  return sendEmail({
+    to,
+    subject: `${patientName} would like to share her health records with you`,
+    html,
+    text,
+    kind: "clinician-invite",
+    replyTo: patientEmail ?? undefined,
+  });
+}
+
 export async function sendBroadcastEmail({
   to,
   userId,

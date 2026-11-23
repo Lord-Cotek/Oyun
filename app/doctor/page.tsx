@@ -6,6 +6,8 @@ import { clinicianOf } from "@/lib/clinician";
 import { patientList } from "@/lib/clinician-db";
 import { CopyText } from "@/components/doctor/CopyText";
 import { ClinicianProfileForm } from "@/components/doctor/ClinicianForms";
+import { SignOutButton } from "@/components/SignOutButton";
+import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = { title: "Your patients" };
 export const dynamic = "force-dynamic";
@@ -33,6 +35,11 @@ export default async function DoctorHome() {
   const c = await clinicianOf(session.user.id);
   if (!c) redirect("/doctor/join");
   const patients = await patientList(c.id);
+  // Their own side of Oyun, if they have one — see the account card below.
+  const [memberships, ownsOne] = await Promise.all([
+    prisma.membership.count({ where: { userId: session.user.id } }),
+    prisma.journey.count({ where: { ownerId: session.user.id } }),
+  ]);
   const site = process.env.NEXT_PUBLIC_SITE_URL ?? SITE_DEFAULT;
   const patientLink = `${site}/doctor/c/${c.code}`;
 
@@ -130,6 +137,33 @@ export default async function DoctorHome() {
               <ClinicianProfileForm name={c.displayName} title={c.title ?? ""} practice={c.practice ?? ""} />
             </div>
           </details>
+
+          {/* One sign-in, two rooms. Patients here; their own journey — if
+              they have or want one — on the other side, never mixed. */}
+          <section className="rounded-2xl border border-border bg-surface p-6">
+            <p className="eyebrow text-muted">Your account</p>
+            <p className="mt-2 break-all font-mono text-xs text-muted">Signed in as {session.user.email}</p>
+            <p className="mt-3 prose-serif-xs text-muted">
+              {memberships > 0
+                ? "You also use Oyun yourself. Your own journey is kept completely apart from your patients — they never see anything of yours."
+                : "Expecting, or a new parent yourself? You can use Oyun for your own journey with this same sign-in. It stays completely apart from your patients."}
+            </p>
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              {memberships > 0 && (
+                <Link href="/journey" className="inline-flex min-h-11 items-center rounded-lg border border-border px-4 font-mono text-xs text-ink hover:border-accent">
+                  Go to my journey
+                </Link>
+              )}
+              {ownsOne === 0 && (
+                <Link href="/onboarding" className="inline-flex min-h-11 items-center rounded-lg border border-border px-4 font-mono text-xs text-ink hover:border-accent">
+                  Start my own journey
+                </Link>
+              )}
+              <span className="font-mono text-xs">
+                <SignOutButton />
+              </span>
+            </div>
+          </section>
         </aside>
       </div>
     </main>
