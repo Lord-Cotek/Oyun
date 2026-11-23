@@ -376,10 +376,20 @@ function limbs(sh: Joint, el: Joint, ha: Joint, hip: Joint, kn: Joint, an: Joint
   const hands = ha[2] > 0.3 ? hand(el, ha) : [];
   const arm = [upper, fore, ...hands].filter(Boolean);
   if (!open) return { leg, arm, legStrokes: undefined, armStrokes: undefined };
+  // The outline begins a little way down the limb, about where it leaves the
+  // body. Begun at the joint itself — the middle of the hip — the leg's two
+  // lines ran well up into the tummy like a seam.
+  const from = (a: Joint, b: Joint, ra: number, rb: number, skip: number): [Joint, number] => {
+    const len = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1;
+    const t = Math.min(0.6, skip / len);
+    return [[a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, 0], ra + (rb - ra) * t];
+  };
+  const [legFrom, legR] = from(hip, kn, thighR, kn[2], hip[2] * 0.72);
+  const [armFrom, armR] = from(sh, el, sh[2], el[2] * 0.95, sh[2] * 0.7);
   return {
     leg, arm,
-    legStrokes: [capsuleOpen(hip, kn, thighR, kn[2]), shin, ...feet].filter(Boolean),
-    armStrokes: [capsuleOpen(sh, el, sh[2], el[2] * 0.95), fore, ...hands].filter(Boolean),
+    legStrokes: [capsuleOpen(legFrom, kn, legR, kn[2]), shin, ...feet].filter(Boolean),
+    armStrokes: [capsuleOpen(armFrom, el, armR, el[2] * 0.95), fore, ...hands].filter(Boolean),
   };
 }
 
@@ -406,6 +416,11 @@ export function figurePaths(r: Rig, hair = 0): FigurePaths {
   const cheek = at(0.36, 0.36), nose = at(0.93, 0.16);
   // The tummy: a baby's front is round, not the straight side of a tube.
   // The front is whichever side of the back the arms and legs are on.
+  //
+  // One long, shallow oval laid along the back and nudged forward, so the
+  // front swells gently from chest to hip and runs back into both. It was a
+  // circle set on the front, which made a lump with a dent on either side of
+  // it — a pouch hanging down when crawling, a paunch when standing.
   const sx = r.hip[0] - r.chest[0], sy = r.hip[1] - r.chest[1];
   const spine = Math.hypot(sx, sy) || 1;
   let side = 0;
@@ -413,16 +428,19 @@ export function figurePaths(r: Rig, hair = 0): FigurePaths {
   const front = side >= 0 ? 1 : -1;
   const bellyR = (r.chest[2] + r.hip[2]) / 2;
   const limbed = Math.min(1, r.knee[2] / 5);
-  const belly: Joint = [
-    r.chest[0] + sx * 0.56 + (-sy / spine) * front * bellyR * 0.2 * limbed,
-    r.chest[1] + sy * 0.56 + (sx / spine) * front * bellyR * 0.2 * limbed,
-    bellyR * (0.9 + 0.08 * limbed),
-  ];
+  const swell = 0.1 * limbed;
+  const belly = ellipse(
+    r.chest[0] + sx * 0.52 + (-sy / spine) * front * bellyR * swell,
+    r.chest[1] + sy * 0.52 + (sx / spine) * front * bellyR * swell,
+    spine / 2 + bellyR * 0.78,
+    bellyR * (1 + swell * 0.9),
+    Math.atan2(sy, sx),
+  );
   const body = [
     // The early curl's tail; gone (not a cone to nowhere) once it has shrunk away.
     r.tail[2] > 0.6 ? capsule(r.hip, r.tail) : "",
     capsule(r.chest, r.hip),
-    limbed > 0.2 ? circle(belly) : "",
+    limbed > 0.2 ? belly : "",
     capsule([hx, hy, neckR], r.chest, neckR, r.chest[2] * 0.85),
     circle(r.head),
     // A face in profile: the cheek and chin fuller than the skull, and a nose.
