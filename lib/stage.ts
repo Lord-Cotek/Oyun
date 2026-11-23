@@ -4,6 +4,8 @@ const MS_PER_DAY = 1000 * 60 * 60 * 24;
 const DAYS_PER_WEEK = 7;
 const DAYS_PER_MONTH = 30.436875; // average Gregorian month
 const TERM_WEEKS = 40;
+/** Where the birth sits on the journey line — see JourneyPosition.progress. */
+export const BIRTH_AT = 0.5;
 
 export interface JourneyPosition {
   stage: Stage;
@@ -17,7 +19,19 @@ export interface JourneyPosition {
   daysToGo: number;
   /** completed months since birth, 0..24 (undefined during pregnancy) */
   month?: number;
-  /** 0..1 progress across the whole tracked arc (conception → 24 months) */
+  /**
+   * 0..1 along the journey line (conception → birth → 24 months).
+   *
+   * ── Why it is not simply time elapsed ───────────────────────────────────
+   * It was: days so far over the days in the whole arc. Pregnancy is about
+   * nine of those thirty-three months, so on the day of the birth the line
+   * stood at 28% — while the word "Birth" is printed under its middle. A
+   * mother holding her newborn saw a line that had not reached the birth.
+   *
+   * So the line has two halves, as it is labelled: conception to birth fills
+   * the first, birth to the second birthday fills the second. Each half
+   * moves evenly with time inside itself, and the birth is the middle.
+   */
   progress: number;
 }
 
@@ -47,7 +61,7 @@ export function computePosition(dueDate: Date, now: Date = new Date()): JourneyP
       week,
       dayInWeek,
       daysToGo: Math.max(0, Math.ceil(diffDays)),
-      progress: clamp(gaDays / (termDays + 24 * DAYS_PER_MONTH), 0, 1),
+      progress: clamp((gaDays / termDays) * BIRTH_AT, 0, BIRTH_AT),
     };
   }
 
@@ -55,14 +69,12 @@ export function computePosition(dueDate: Date, now: Date = new Date()): JourneyP
   const daysSince = -diffDays;
   const month = clamp(Math.floor(daysSince / DAYS_PER_MONTH), 0, 24);
   const stage = stageBySlug(`month-${month}`) ?? STAGES[STAGES.length - 1];
-  const totalArc = TERM_WEEKS * DAYS_PER_WEEK + 24 * DAYS_PER_MONTH;
-  const elapsed = TERM_WEEKS * DAYS_PER_WEEK + daysSince;
   return {
     stage,
     born: true,
     month,
     daysToGo: 0,
-    progress: clamp(elapsed / totalArc, 0, 1),
+    progress: clamp(BIRTH_AT + (daysSince / (24 * DAYS_PER_MONTH)) * (1 - BIRTH_AT), BIRTH_AT, 1),
   };
 }
 

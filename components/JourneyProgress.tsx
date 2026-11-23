@@ -1,7 +1,10 @@
 import Link from "next/link";
+import { BIRTH_AT } from "@/lib/stage";
 
 /**
- * A quiet progress bar across the whole arc: conception → 24 months.
+ * A quiet progress bar across the whole arc: conception → birth → 24 months.
+ * Pregnancy fills the first half and the two years after it the second, so
+ * the birth is the middle of the line — lib/stage.ts says why.
  *
  * `href` turns the heading into the way through to the record of every stage
  * so far. It stayed unlinked for a long time while there was nothing behind
@@ -19,6 +22,7 @@ export function JourneyProgress({
   href?: string;
 }) {
   const pct = Math.round(Math.min(1, Math.max(0, progress)) * 100);
+  const birthPct = BIRTH_AT * 100;
   return (
     <div>
       <div className="mb-2 flex items-baseline justify-between">
@@ -34,21 +38,35 @@ export function JourneyProgress({
         )}
         <p className="font-mono text-xs text-muted">{label}</p>
       </div>
-      <div
-        className="h-1.5 w-full overflow-hidden rounded-full bg-border"
-        role="progressbar"
-        aria-valuenow={pct}
-        aria-valuemin={0}
-        aria-valuemax={100}
-      >
+      {/* The mark and the word "Birth" are both placed at BIRTH_AT, the same
+          number the line's length is worked out from (lib/stage.ts), so the
+          three can never drift apart again. */}
+      <div className="relative">
         <div
-          className="h-full rounded-full bg-accent transition-all"
-          style={{ width: `${pct}%` }}
+          className="h-1.5 w-full overflow-hidden rounded-full bg-border"
+          role="progressbar"
+          aria-valuenow={pct}
+          aria-valuemin={0}
+          aria-valuemax={100}
+        >
+          <div
+            className="h-full rounded-full bg-accent transition-all"
+            style={{ width: `${pct}%` }}
+          />
+        </div>
+        <span
+          aria-hidden
+          className={`absolute top-1/2 h-3 w-0.5 -translate-x-1/2 -translate-y-1/2 rounded-full ${pct >= birthPct ? "bg-accent" : "bg-muted/60"}`}
+          style={{ left: `${birthPct}%` }}
         />
       </div>
-      <div className="mt-1.5 flex justify-between font-mono text-[0.62rem] uppercase tracking-widest text-muted">
+      <div className="relative mt-1.5 flex justify-between font-mono text-[0.62rem] uppercase tracking-widest text-muted">
         <span>Conception</span>
-        <span>Birth</span>
+        {/* Placed by position, not by spacing: between two labels of
+            different widths, "space-between" sat it off-centre. */}
+        <span className="absolute -translate-x-1/2" style={{ left: `${birthPct}%` }}>
+          Birth
+        </span>
         <span>2 years</span>
       </div>
     </div>
