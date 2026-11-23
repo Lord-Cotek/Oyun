@@ -66,7 +66,17 @@ export async function createJourney(formData: FormData) {
 
   setActiveJourney(journey.id);
   revalidatePath("/journey");
+  // Came from a doctor's code (see /doctor/c/[code]): straight on to sharing
+  // with them, now there is a journey to share. Only that one page, never an
+  // address from the form taken on trust.
+  const next = safeNext(String(formData.get("next") ?? ""));
+  if (next) redirect(next);
   redirect(`/journey?welcome=1&j=${journey.id.slice(0, 6)}`);
+}
+
+/** The one place onboarding may send somebody on to, other than home. */
+function safeNext(raw: string): string | null {
+  return /^\/health\/doctor(\?code=[A-Za-z0-9-]{1,12})?$/.test(raw) ? raw : null;
 }
 
 /** Partner / accountability accepts an emailed invite. */

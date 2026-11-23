@@ -43,6 +43,10 @@ export const GUEST_ROUTES = [
   // A doctor's view-only health report. A clinician holding a link, no
   // account — and Agbebi never reads health data in any case.
   "/dr",
+  // The clinician's own room and its doors (lib/clinician.ts). A doctor is
+  // not a member of anybody's family, and Agbebi never reads health data.
+  "/doctor",
+  "/doctors",
   "/v",
   "/h",
   "/sign-in",

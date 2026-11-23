@@ -24,7 +24,7 @@ export const metadata: Metadata = {
 export default async function Onboarding({
   searchParams,
 }: {
-  searchParams: { invite?: string };
+  searchParams: { invite?: string; next?: string };
 }) {
   const inviteToken = searchParams.invite?.trim();
 
@@ -222,6 +222,8 @@ export default async function Onboarding({
             </div>
 
             <form action={createJourney} className="mt-6 space-y-4">
+              {/* Carried through from a doctor's code — checked again on the server. */}
+              {searchParams.next && <input type="hidden" name="next" value={searchParams.next} />}
               <Field
                 label="Your name"
                 name="name"

@@ -1128,6 +1128,7 @@ function Said({
   /** True for an answer, which is drawn inside its parent. */
   inset?: boolean;
 }) {
+  const plainWords = useContext(PlainWords);
   const [draft, setDraft] = useState("");
   const open = answering === c.id;
 
@@ -1171,6 +1172,7 @@ function Said({
 
       <div className="flex flex-wrap items-center gap-x-3">
         <ReactionRow
+          plain={plainWords}
           compact
           label="them"
           reactions={c.reactions}
@@ -1470,6 +1472,7 @@ function PostItem({
       {/* reactions — they move the moment you tap, and move back if the
           server never heard about it */}
       <ReactionRow
+        plain={plain}
         reactions={post.reactions}
         onToggle={(kind) => onReact({ postId: post.id, kind })}
       />

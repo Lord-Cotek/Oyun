@@ -286,7 +286,27 @@ async function gather({ userId, journeyId, role }: ExportScope) {
       ).map(({ user, child, ...r }) => ({ whose: child?.name ?? user?.name ?? "someone", ...r }))
     : [];
 
+  // Who she shared her records with, and when they looked — hers alone,
+  // as the page that manages it is. See lib/clinician.ts.
+  const clinicianLinks =
+    role === "MOTHER"
+      ? await prisma.clinicianLink.findMany({
+          where: j,
+          orderBy: { createdAt: "asc" },
+          select: {
+            createdAt: true,
+            endedAt: true,
+            endedBy: true,
+            withPhotos: true,
+            withAppointments: true,
+            clinician: { select: { displayName: true, title: true, practice: true } },
+            views: { orderBy: { at: "asc" }, select: { at: true } },
+          },
+        })
+      : [];
+
   return {
+    clinicianLinks,
     prayingFor,
     health,
     you,
@@ -596,6 +616,24 @@ function chapters(g: Gathered): Chapter[] {
             `<article><p class="meta">${day(n.dueAt)}${
               n.doneAt ? ` · done ${day(n.doneAt)}` : ""
             }</p><p>${esc(n.text)}</p></article>`,
+        ),
+      ),
+    },
+    {
+      slug: "doctor",
+      title: "Shared with your doctor",
+      blurb: "Who could see your health records, what they could see, and when they looked.",
+      rows: g.clinicianLinks,
+      html: list(
+        g.clinicianLinks.map(
+          (l) =>
+            `<article><h3>${esc([l.clinician.displayName, l.clinician.title, l.clinician.practice].filter(Boolean).join(" · "))}</h3><p class="meta">from ${day(l.createdAt)}${
+              l.endedAt ? ` to ${day(l.endedAt)} (ended by ${l.endedBy === "CLINICIAN" ? "them" : "you"})` : " · still shared"
+            } · health log, medicines, tests${l.withAppointments ? ", appointments" : ""}${l.withPhotos ? ", photographs" : ""}</p>${
+              l.views.length
+                ? `<p class="days">Opened ${l.views.length} time${l.views.length === 1 ? "" : "s"}: ${l.views.map((v) => day(v.at)).join(", ")}</p>`
+                : `<p class="days">Never opened.</p>`
+            }</article>`,
         ),
       ),
     },

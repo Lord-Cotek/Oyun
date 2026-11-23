@@ -284,6 +284,12 @@ export default function Landing() {
         <div className="mt-8 flex justify-center">
           <Button href="/sign-up">Enter Oyun</Button>
         </div>
+        <p className="mt-8 prose-serif-xs text-muted">
+          A doctor or midwife?{" "}
+          <a href="/doctors" className="text-accent underline underline-offset-4">
+            See how Oyun works for clinicians
+          </a>
+        </p>
       </section>
     </main>
   );

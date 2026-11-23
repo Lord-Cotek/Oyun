@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 export default function TermsPage() {
   return (
-    <LegalShell title="Terms &amp; Conditions" updated="1 August 2026">
+    <LegalShell title="Terms &amp; Conditions" updated="23 November 2026">
       <p className="prose-serif-sm text-muted">
         These terms govern your use of Oyun (the &ldquo;app&rdquo;), owned and
         operated by <span className="text-ink">cotek app FZ-LLC</span>{" "}
@@ -38,6 +38,22 @@ export default function TermsPage() {
         <p>
           Agbebi is an AI companion. Its replies may be imperfect or inaccurate;
           use discernment, and weigh everything against wise counsel.
+        </p>
+      </LegalSection>
+
+      <LegalSection heading="Clinician accounts">
+        <p>
+          A clinician account is for doctors, midwives and other health
+          professionals. By creating one you confirm that you are one, and that
+          you will use what patients choose to share with you only for their
+          care, in line with the professional and legal duties that apply to
+          you where you practise.
+        </p>
+        <p>
+          Oyun is not a monitoring or alerting service. It does not watch a
+          patient&rsquo;s readings on your behalf or tell you about them, and
+          patients are told so. What a patient shares is a record she keeps and
+          lets you read; clinical decisions remain yours and hers.
         </p>
       </LegalSection>
 

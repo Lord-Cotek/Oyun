@@ -48,7 +48,10 @@ export async function SiteHeader({
   let registryOpen = false;
   let journeys: Awaited<ReturnType<typeof getMyJourneys>> = [];
   let activeJourneyId: string | null = null;
+  /** Keeps a clinician's account beside their own — see lib/clinician.ts. */
+  let isClinician = false;
   if (session?.user?.id) {
+    isClinician = !!(await prisma.clinician.findUnique({ where: { userId: session.user.id }, select: { id: true } }));
     const [count, membership, myJourneys] = await Promise.all([
       prisma.notification.count({ where: { userId: session.user.id, readAt: null } }),
       getActiveMembership(session.user.id),
@@ -146,6 +149,9 @@ export async function SiteHeader({
     ...(isHousehold
       ? [{ href: "/shared", label: "Shared outside", current: active === "shared" }]
       : []),
+    // Their patients, for a doctor or midwife who also has a journey of
+    // their own. Under More: it is a different room, not a family one.
+    ...(isClinician ? [{ href: "/doctor", label: "My patients", current: false }] : []),
     { href: "/help", label: "How this works", current: active === "help" },
     { href: "/settings", label: "Settings", current: active === "settings" },
   ];
@@ -182,6 +188,7 @@ export async function SiteHeader({
     "/registry": "gift",
     "/shared": "share",
     "/help": "compass",
+    "/doctor": "pulse",
     "/settings": "settings",
   };
   const navTabs: Tab[] = links.map((l) => ({

@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 export default function PrivacyPage() {
   return (
-    <LegalShell title="Privacy Policy" updated="1 August 2026">
+    <LegalShell title="Privacy Policy" updated="23 November 2026">
       <p className="prose-serif-sm text-muted">
         Oyun (&ldquo;Oyun&rdquo;, the &ldquo;app&rdquo;) is owned and operated by{" "}
         <span className="text-ink">cotek app FZ-LLC</span> (&ldquo;we&rdquo;,
@@ -63,6 +63,26 @@ export default function PrivacyPage() {
           you; your mood check-ins may be shared with the one supporting you, as
           the app describes. You control who is in your circle and can remove
           them at any time.
+        </p>
+      </LegalSection>
+
+      <LegalSection heading="Sharing with your doctor or midwife">
+        <p>
+          Only if you choose to. If you enter your own doctor&rsquo;s or
+          midwife&rsquo;s clinic code and agree, they can see your health log
+          (readings, symptoms and notes), your medicines and the doses you
+          marked, your tests and vaccines, your stage and due date, and — unless
+          you turn them off — your appointments and scans and the photographs on
+          your readings and tests. They see a Life post only if you share that
+          post. They never see your other posts, letters, moods, journal or
+          circle.
+        </p>
+        <p>
+          You can see each time they open your records, change what they see,
+          and stop sharing at any time; it ends at once. Oyun does not monitor
+          your readings or alert your doctor. A clinician account is for a
+          health professional using what patients share for their care; we do
+          not sell, share or use this information for anything else.
         </p>
       </LegalSection>
 

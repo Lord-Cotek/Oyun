@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import { REACTIONS } from "@/lib/feed";
+
+/** What 🙏 and 🤲 are called for a reader without religious content. */
+const PLAIN_LABEL: Record<string, string> = { AMEN: "Thank you", PRAYING: "Thinking of you" };
 import type { FeedReaction } from "@/lib/feed-query";
 import { useAttempt, type Attempted } from "@/lib/use-attempt";
 
@@ -27,6 +30,7 @@ export function ReactionRow({
   onToggle,
   compact = false,
   label = "the family",
+  plain = false,
 }: {
   reactions: FeedReaction[];
   onToggle: (kind: string) => Promise<Attempted>;
@@ -34,6 +38,9 @@ export function ReactionRow({
   compact?: boolean;
   /** Who did not hear about it, for the line shown when one does not land. */
   label?: string;
+  /** The reader chose the app without religious content (Oyun's lib/voice.ts):
+   *  the two prayer reactions are named plainly. Same reactions, same counts. */
+  plain?: boolean;
 }) {
   const [mine, setMine] = useState<Record<string, boolean>>({});
   const [open, setOpen] = useState(false);
@@ -74,7 +81,7 @@ export function ReactionRow({
               type="button"
               onClick={() => react(r.kind)}
               aria-pressed={on}
-              aria-label={r.label}
+              aria-label={plain ? (PLAIN_LABEL[r.kind] ?? r.label) : r.label}
               className={`inline-flex items-center gap-1 rounded-full border font-mono transition-colors ${
                 compact ? "px-2 py-0.5 text-[0.66rem]" : "px-2.5 py-1 text-xs"
               } ${

@@ -11,6 +11,8 @@ const TABS = [
   { key: "medicines", label: "Medicines", href: "/health/medicines" },
   { key: "tests", label: "Tests", href: "/health/tests" },
   { key: "report", label: "Report", href: "/health/report" },
+  // Sharing with her own doctor or midwife — lib/clinician.ts.
+  { key: "doctor", label: "Your doctor", href: "/health/doctor" },
 ] as const;
 
 export type HealthTab = (typeof TABS)[number]["key"];

@@ -11,6 +11,8 @@ import { isReactionEmoji } from "@/lib/reaction-emojis";
 import { type ReactionTarget } from "@/lib/reactions";
 import { prayerPath, wordPath, checkInPath } from "@/lib/open-item";
 
+const PLAIN_EMOJI_WORD: Record<string, string> = { "🙏": "thanks", "🙌": "a cheer" };
+
 const EMOJI_WORD: Record<string, string> = {
   "❤️": "a heart",
   "🙏": "a prayer",
@@ -127,6 +129,9 @@ export async function toggleReaction(
     const me = await prisma.user.findUnique({ where: { id: userId }, select: { name: true } });
     const who = me?.name?.trim() || "Someone in your circle";
     const word = EMOJI_WORD[emoji] ?? "a reaction";
+    // The same reaction named plainly for someone who chose Oyun without
+    // religious content (lib/voice.ts) — 🙏 is thanks to them, not a prayer.
+    const plainWord = PLAIN_EMOJI_WORD[emoji] ?? word;
     if (targetType === "LETTER" && authorId && authorId !== userId) {
       // One destination for anything that happens to a letter. This used to
       // send the mother to /care and her partner to /journey, from the days
@@ -137,6 +142,7 @@ export async function toggleReaction(
         userId: authorId,
         type: "encouragement",
         title: `${who} responded with ${word} ${emoji} to your letter.`,
+        plain: { title: `${who} responded with ${plainWord} ${emoji} to your letter.` },
         href: letterHref(targetId),
       });
     } else if (targetType === "PRAYER" && authorId && authorId !== userId) {
@@ -144,7 +150,7 @@ export async function toggleReaction(
         userId: authorId,
         type: "prayer",
         title: `${who} responded with ${word} ${emoji} to your prayer request.`,
-        plain: { title: `${who} responded with ${word} ${emoji} to your request.` },
+        plain: { title: `${who} responded with ${plainWord} ${emoji} to your request.` },
         href: prayerPath(targetId),
       });
     } else if (targetType === "ENCOURAGEMENT" && authorId && authorId !== userId) {
@@ -152,6 +158,7 @@ export async function toggleReaction(
         userId: authorId,
         type: "encouragement",
         title: `${who} responded with ${word} ${emoji} to your encouragement.`,
+        plain: { title: `${who} responded with ${plainWord} ${emoji} to your encouragement.` },
         href: wordPath(targetId),
       });
     } else if (targetType === "CHECKIN" && journeyId) {
@@ -164,6 +171,7 @@ export async function toggleReaction(
           userId: journey.ownerId,
           type: "checkin",
           title: `${who} responded with ${word} ${emoji} to how you're feeling.`,
+          plain: { title: `${who} responded with ${plainWord} ${emoji} to how you're feeling.` },
           href: checkInPath(targetId),
         });
       }

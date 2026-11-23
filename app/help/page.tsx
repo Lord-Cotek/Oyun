@@ -536,6 +536,21 @@ export default async function HelpPage() {
           )}
 
           {home && (
+            <Q q="Can my doctor or midwife see my records directly?">
+              Yes, if you choose. Ask them for their Oyun clinic code, then open{" "}
+              <Link href="/health/doctor" className="text-accent underline underline-offset-4">Health &rarr; Your doctor</Link>{" "}
+              and type it in. You see their name and exactly what they will see before anything is shared: your
+              health log, medicines and doses, tests and vaccines, your stage and due date — and, unless you untick
+              them, your appointments and scans and the photographs on your readings and tests. A Life post reaches
+              them only if you share that one post, from the same page. They never see your other posts, letters,
+              moods, journal or circle. You can see each time they opened your records, change what they see, or
+              stop sharing at any time, and it ends at once. Only Mum can share; her partner can see who she shares
+              with. Oyun does not watch your readings or alert your doctor — for anything urgent, contact your
+              maternity unit yourself.
+            </Q>
+          )}
+
+          {home && (
             <Q q="Can I download or delete my health log?">
               Yes — it is yours. In{" "}
               <Link href="/health/log" className="text-accent underline underline-offset-4">Health &rarr; Log</Link>,

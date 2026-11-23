@@ -55,7 +55,7 @@ model User {
   /// words of encouragement. Chosen at sign-up, changed any time in Settings.
   /// It belongs to the person, not the journey: a husband and wife can each
   /// see the Oyun they chose.
-  voice       Voice   @default(FAITH)
+  voice Voice @default(FAITH)
 
   /// Set when an operator has suspended this account — see the admin centre.
   ///
@@ -105,6 +105,9 @@ model User {
   postTags            PostTag[]            @relation("PostTagUser")
   healthRecords       HealthRecord[]
   healthReadings      HealthReading[]      @relation("ReadingBy")
+  /// Set when this person keeps a clinician's account — see lib/clinician.ts.
+  clinician           Clinician?
+  clinicianLinks      ClinicianLink[]      @relation("ClinicianLinkGrantedBy")
 }
 
 /// A small emoji reaction on an encouragement or a check-in.
@@ -364,6 +367,7 @@ model Journey {
   healthChecksSent  HealthCheckSent[]
   prenatalChecks    PrenatalCheck[]
   healthReportLinks HealthReportLink[]
+  clinicianLinks    ClinicianLink[]
 }
 
 /// The family feed — an update, a praise, a prayer, or a milestone that the
@@ -408,6 +412,10 @@ model Post {
   householdOnly Boolean   @default(false) @map("familyOnly")
   createdAt     DateTime  @default(now())
   editedAt      DateTime?
+  /// When the mother chose to show this post to her doctor — see
+  /// lib/clinician.ts. Null for every post until she does, one by one:
+  /// a family's diary is theirs, and a doctor sees only what she hands over.
+  forDoctorAt   DateTime?
 
   comments  PostComment[]
   reactions PostReaction[]
@@ -2178,4 +2186,65 @@ model HealthReportView {
   at     DateTime         @default(now())
 
   @@index([linkId])
+}
+
+/// A doctor's or midwife's account — see lib/clinician.ts.
+///
+/// Not a role in anybody's journey. A clinician has many patients, joins
+/// nobody's circle, and sees only what each patient chooses to share, in a
+/// room of their own (/doctor). The code is what she gives her patients; a
+/// patient who types it in, and agrees, becomes one of her links.
+model Clinician {
+  id          String          @id @default(cuid())
+  userId      String          @unique
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// As patients will see it: "Dr Adaeze Okafor".
+  displayName String
+  /// "Consultant obstetrician & gynaecologist", "Midwife".
+  title       String?
+  /// The clinic or hospital.
+  practice    String?
+  /// What patients type in. Unique, short, unambiguous ("K7Q-3PM").
+  code        String          @unique
+  createdAt   DateTime        @default(now())
+  links       ClinicianLink[]
+}
+
+/// One patient sharing her records with one clinician — see lib/clinician.ts.
+///
+/// Made only by the mother, from her own account, after seeing exactly what
+/// will be shared. Ended by either side at any time; an ended link is kept
+/// (with its views) so she can still see who looked and when, but grants
+/// nothing.
+model ClinicianLink {
+  id               String          @id @default(cuid())
+  clinicianId      String
+  clinician        Clinician       @relation(fields: [clinicianId], references: [id], onDelete: Cascade)
+  journeyId        String
+  journey          Journey         @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  grantedById      String
+  grantedBy        User            @relation("ClinicianLinkGrantedBy", fields: [grantedById], references: [id], onDelete: Cascade)
+  /// Photographs attached to readings and tests (a home test strip, a
+  /// result letter). On unless she turns it off.
+  withPhotos       Boolean         @default(true)
+  /// Appointments and scans, with what came of them.
+  withAppointments Boolean         @default(true)
+  createdAt        DateTime        @default(now())
+  endedAt          DateTime?
+  /// "PATIENT" or "CLINICIAN" — who ended it.
+  endedBy          String?
+  views            ClinicianView[]
+
+  @@unique([clinicianId, journeyId])
+  @@index([journeyId])
+}
+
+/// Each time a clinician opened a patient's records. Shown to the patient.
+model ClinicianView {
+  id     String        @id @default(cuid())
+  linkId String
+  link   ClinicianLink @relation(fields: [linkId], references: [id], onDelete: Cascade)
+  at     DateTime      @default(now())
+
+  @@index([linkId, at])
 }

@@ -70,7 +70,7 @@ check(GG.GENERAL_GRIEF.length >= 7, `words for grief: ${GG.GENERAL_GRIEF.length}
 console.log("No religious language in the general words");
 // Whole words, case-insensitive. Comments are stripped first: a header that
 // explains what the file stands in for may name what it replaces.
-const BANNED = /\b(god|gods|lord|pray|prays|prayed|praying|prayer|prayers|bless|blessed|blessing|blessings|miracle|heaven|soul|faith|faithful|divine|sacred|angel|angels|church|psalm|psalms|scripture|bible|jesus|christ|amen|worship|universe|destiny|fate)\b/i;
+const BANNED = /\b(god|gods|lord|pray|prays|prayed|praying|prayer|prayers|bless|blessed|blessing|blessings|miracle|heaven|soul|faith|faithful|divine|sacred|angel|angels|church|psalm|psalms|scripture|bible|jesus|christ|amen|worship|universe|destiny|fate|fearfully|wonderfully made|holy)\b/i;
 const dir = path.join(root, "lib/general");
 for (const f of readdirSync(dir).filter((x) => x.endsWith(".ts") && x !== "types.ts")) {
   const text = readFileSync(path.join(dir, f), "utf8")

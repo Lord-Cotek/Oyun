@@ -27,6 +27,7 @@ import { babySizeFor } from "@/lib/babySize";
 import { dayKey } from "@/lib/partner-care";
 import { stageIn, partnerCareIn } from "@/lib/voice-content";
 import { isGeneral, wordsForVoice } from "@/lib/voice";
+import { clinicianOf } from "@/lib/clinician";
 import { getReactionsFor } from "@/lib/reactions";
 import { MOOD_META } from "@/lib/moods";
 import { loadFeed } from "@/lib/feed-query";
@@ -85,7 +86,12 @@ export default async function JourneyPage() {
   if (!session?.user?.id) redirect("/sign-in?callbackUrl=/journey");
 
   const active = await getActiveMembership(session.user.id);
-  if (!active) return <EmptyState />;
+  if (!active) {
+    // A doctor or midwife with no journey of their own came for their
+    // patients, not for a due-date form — see lib/clinician.ts.
+    if (await clinicianOf(session.user.id)) redirect("/doctor");
+    return <EmptyState />;
+  }
 
   const { role, journey } = active;
 
@@ -299,12 +305,13 @@ export default async function JourneyPage() {
         {/* "Ebun and Tobi are each about the size of a coconut" — the "each"
             matters, because two babies are not together the size of one. */}
         {bw.subject} {bw.is} {bw.each}about the size of {sizePhrase} this week —{" "}
-        <span className="text-ink">fearfully and wonderfully made.</span>
+        {/* Psalm 139 for the faith voice; the same wonder, plainly, without. */}
+        <span className="text-ink">{general ? "growing, quietly, every day." : "fearfully and wonderfully made."}</span>
       </>
     ) : (
       <>
-        {babyLabel ? `${babyLabel} — ` : ""}a hidden, holy beginning, fearfully
-        and wonderfully made.
+        {babyLabel ? `${babyLabel} — ` : ""}
+        {general ? "a quiet beginning, already underway." : "a hidden, holy beginning, fearfully and wonderfully made."}
       </>
     );
 

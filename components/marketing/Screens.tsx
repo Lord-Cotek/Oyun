@@ -11,25 +11,25 @@ import { Eyebrow } from "@/components/ui/Eyebrow";
  */
 const SCREENS = [
   {
-    src: "/shots/worship.jpg",
-    title: "Today’s liturgy",
+    src: "/shots/home.jpg",
+    title: "Where you are this week",
     caption:
-      "Read, reflect, pray, sing — a short, unhurried rhythm the two of you walk together, different every day and never long.",
-    alt: "The worship page on a phone, open at the first station: Isaiah 60:22 in large type — the little one will become a thousand — with the rest of the evening, reflect, talk together, pray, sing and amen, listed down the page.",
+      "The week, drawn; what is changing; and a word written for exactly this stage — with Christian faith or without religious content, as you choose.",
+    alt: "The journey home page on a phone at week 18: the title 'The first felt movements', a drawing of the baby, and a ring showing 18 of 40 weeks with 150 days to go.",
   },
   {
-    src: "/shots/life.jpg",
-    title: "The family diary",
+    src: "/shots/health.jpg",
+    title: "The health log",
     caption:
-      "How you are, a praise, a prayer to be carried, a small moment worth keeping. Seen by the people you invited and nobody else.",
-    alt: "The family diary on a phone, showing three posts: a mother recording the baby kicking hard enough for her husband to feel it, a father asking for prayer before a growth scan, and a sister replying with Psalm 139.",
+      "Blood pressure, glucose, weight and how you feel, a few seconds each — kept together for your doctor, and shared with them only if you choose.",
+    alt: "The health log on a phone: today's glucose slots for fasting and after each meal, ready to fill in, under the tabs for cards, log, medicines, tests, report and your doctor.",
   },
   {
-    src: "/shots/prayer.jpg",
-    title: "The prayer wall",
+    src: "/shots/support.jpg",
+    title: "Asking your circle",
     caption:
-      "Name a real need — a scan, a fear, a decision. Your circle prays against it by name, and together you watch for the answer.",
-    alt: "The prayer wall on a phone, with two requests a family is carrying, each showing who asked, when, and how many people are praying, above a section of requests that have been answered.",
+      "Name a real need — a scan, a fear, a decision. The people you invited carry it with you, by name, and nobody else sees it.",
+    alt: "A request on a phone: 'The 20-week scan on Thursday — a bit nervous about this one. A message that morning would mean a lot', with reactions beneath it.",
   },
 ];
 
