@@ -259,6 +259,13 @@ function drawScene(ctx: CanvasRenderingContext2D, s: Scene, time: number, still:
       ctx.beginPath(); ctx.arc(p.blush[0], p.blush[1], p.blush[2], 0, Math.PI * 2); ctx.fill();
       ctx.restore();
     }
+    if (p.eye) {
+      // The open eye — the same dot the still pictures draw (WeekMark).
+      ctx.save(); ctx.globalAlpha = alpha * fig.alpha * 0.9 * p.faceOpacity;
+      ctx.fillStyle = tone.faceLine;
+      ctx.beginPath(); ctx.arc(p.eye[0], p.eye[1], p.eye[2], 0, Math.PI * 2); ctx.fill();
+      ctx.restore();
+    }
     if (p.face.length) {
       ctx.save(); ctx.globalAlpha = alpha * fig.alpha * 0.75 * p.faceOpacity;
       ctx.strokeStyle = tone.faceLine; ctx.lineWidth = 0.9; ctx.lineCap = "round";

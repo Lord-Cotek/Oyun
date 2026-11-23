@@ -11,6 +11,10 @@
  * every week of forty and every month of twenty-four has its own picture,
  * and the "play" animation is the same figure moving through all of them.
  *
+ * Every pose faces the same way, and the face has a direction of its own
+ * (`look`) and eyes that open (`awake`): asleep in the womb and as a
+ * newborn looking up at the sky, awake and looking ahead from two months.
+ *
  * Gentle on purpose: a silhouette in warm light, never a medical diagram or
  * a cartoon. The home screen is not shown at all on a journey marked as loss
  * (see app/journey/page.tsx), and the weeks page redirects; nothing here is
@@ -41,6 +45,15 @@ export interface Rig {
   face: number;
   /** 0–1: the cord, while carrying. */
   cord: number;
+  /**
+   * Which way the face points, in radians: 0 is along the ground to the
+   * right, -π/2 is straight up at the sky. The face used to point wherever
+   * the head lay relative to the chest, which for a newborn on their back
+   * meant out of the top of the head, along the ground. Now it is said.
+   */
+  look: number;
+  /** 0–1: eyes open. Asleep in the womb and as a newborn; awake after. */
+  awake: number;
 }
 
 type Key = { at: number; group: string; rig: Rig };
@@ -49,13 +62,13 @@ const J = (x: number, y: number, r: number): Joint => [x, y, r];
 
 /** Facing right, in units where a full-term curl is about 85 tall. */
 const PRENATAL: Key[] = [
-  { at: 4, group: "womb", rig: { head: J(9, -12, 15), chest: J(2, 2, 13), hip: J(-5, 15, 9.5), tail: J(3, 27, 3.5), shoulder: J(5, 0, 0), elbow: J(8, 4, 0), hand: J(10, 6, 0), knee: J(0, 16, 0), ankle: J(3, 20, 0), toe: J(4, 21, 0), farArm: [-2, -1], farLeg: [-2, -1], face: 0, cord: 0.4 } },
-  { at: 6, group: "womb", rig: { head: J(10, -14, 17), chest: J(1, 3, 13.5), hip: J(-6, 18, 10), tail: J(3, 30, 3), shoulder: J(6, 1, 3.5), elbow: J(10, 6, 2.8), hand: J(12, 8, 2.2), knee: J(1, 21, 3), ankle: J(4, 25, 2.2), toe: J(5, 26, 1.6), farArm: [-2, -1], farLeg: [-2, -1], face: 0, cord: 0.7 } },
-  { at: 8, group: "womb", rig: { head: J(12, -16, 18.5), chest: J(-1, 4, 14), hip: J(-7, 21, 11), tail: J(0, 31, 2), shoulder: J(6, 0, 5), elbow: J(12, 8, 4), hand: J(16, 5, 3), knee: J(5, 26, 5), ankle: J(11, 29, 3.5), toe: J(14, 29, 2.5), farArm: [-2, -1], farLeg: [-2, -1], face: 0.3, cord: 1 } },
-  { at: 12, group: "womb", rig: { head: J(14, -18, 19), chest: J(-2, 4, 15), hip: J(-8, 24, 13), tail: J(-7, 30, 0), shoulder: J(6, -2, 5.5), elbow: J(14, 8, 4.5), hand: J(20, 0, 3.5), knee: J(11, 22, 7), ankle: J(16, 34, 5), toe: J(22, 36, 3.5), farArm: [-3, -1], farLeg: [-3, -2], face: 0.8, cord: 1 } },
-  { at: 20, group: "womb", rig: { head: J(15, -22, 18), chest: J(-3, 0, 17), hip: J(-8, 24, 16), tail: J(-8, 28, 0), shoulder: J(6, -6, 6.5), elbow: J(16, 6, 5), hand: J(24, -10, 4), knee: J(20, 10, 8.5), ankle: J(14, 34, 6), toe: J(24, 38, 4.5), farArm: [-3, -1], farLeg: [-3, -2], face: 1, cord: 1 } },
-  { at: 28, group: "womb", rig: { head: J(15, -24, 17.5), chest: J(-3, -2, 19), hip: J(-8, 24, 18.5), tail: J(-8, 28, 0), shoulder: J(6, -8, 7), elbow: J(17, 6, 6), hand: J(25, -12, 4.5), knee: J(22, 8, 10), ankle: J(16, 34, 7), toe: J(26, 38, 5), farArm: [-3, -1], farLeg: [-3, -2], face: 1, cord: 1 } },
-  { at: 40, group: "womb", rig: { head: J(14, -25, 17.5), chest: J(-4, -3, 21), hip: J(-9, 23, 21), tail: J(-9, 27, 0), shoulder: J(6, -9, 8), elbow: J(18, 5, 6.5), hand: J(26, -14, 5), knee: J(24, 8, 11.5), ankle: J(18, 35, 7.5), toe: J(28, 38, 5.5), farArm: [-3, -1], farLeg: [-3, -2], face: 1, cord: 1 } },
+  { at: 4, group: "womb", rig: { head: J(9, -12, 15), chest: J(2, 2, 13), hip: J(-5, 15, 9.5), tail: J(3, 27, 3.5), shoulder: J(5, 0, 0), elbow: J(8, 4, 0), hand: J(10, 6, 0), knee: J(0, 16, 0), ankle: J(3, 20, 0), toe: J(4, 21, 0), farArm: [-2, -1], farLeg: [-2, -1], face: 0, cord: 0.4, look: 0, awake: 0 } },
+  { at: 6, group: "womb", rig: { head: J(10, -14, 17), chest: J(1, 3, 13.5), hip: J(-6, 18, 10), tail: J(3, 30, 3), shoulder: J(6, 1, 3.5), elbow: J(10, 6, 2.8), hand: J(12, 8, 2.2), knee: J(1, 21, 3), ankle: J(4, 25, 2.2), toe: J(5, 26, 1.6), farArm: [-2, -1], farLeg: [-2, -1], face: 0, cord: 0.7, look: 0, awake: 0 } },
+  { at: 8, group: "womb", rig: { head: J(12, -16, 18.5), chest: J(-1, 4, 14), hip: J(-7, 21, 11), tail: J(0, 31, 2), shoulder: J(6, 0, 5), elbow: J(12, 8, 4), hand: J(16, 5, 3), knee: J(5, 26, 5), ankle: J(11, 29, 3.5), toe: J(14, 29, 2.5), farArm: [-2, -1], farLeg: [-2, -1], face: 0.3, cord: 1, look: 0, awake: 0 } },
+  { at: 12, group: "womb", rig: { head: J(14, -18, 19), chest: J(-2, 4, 15), hip: J(-8, 24, 13), tail: J(-7, 30, 0), shoulder: J(6, -2, 5.5), elbow: J(14, 8, 4.5), hand: J(20, 0, 3.5), knee: J(11, 22, 7), ankle: J(16, 34, 5), toe: J(22, 36, 3.5), farArm: [-3, -1], farLeg: [-3, -2], face: 0.8, cord: 1, look: 0, awake: 0 } },
+  { at: 20, group: "womb", rig: { head: J(15, -22, 18), chest: J(-3, 0, 17), hip: J(-8, 24, 16), tail: J(-8, 28, 0), shoulder: J(6, -6, 6.5), elbow: J(16, 6, 5), hand: J(24, -10, 4), knee: J(20, 10, 8.5), ankle: J(14, 34, 6), toe: J(24, 38, 4.5), farArm: [-3, -1], farLeg: [-3, -2], face: 1, cord: 1, look: 0, awake: 0 } },
+  { at: 28, group: "womb", rig: { head: J(15, -24, 17.5), chest: J(-3, -2, 19), hip: J(-8, 24, 18.5), tail: J(-8, 28, 0), shoulder: J(6, -8, 7), elbow: J(17, 6, 6), hand: J(25, -12, 4.5), knee: J(22, 8, 10), ankle: J(16, 34, 7), toe: J(26, 38, 5), farArm: [-3, -1], farLeg: [-3, -2], face: 1, cord: 1, look: 0, awake: 0 } },
+  { at: 40, group: "womb", rig: { head: J(14, -25, 17.5), chest: J(-4, -3, 21), hip: J(-9, 23, 21), tail: J(-9, 27, 0), shoulder: J(6, -9, 8), elbow: J(18, 5, 6.5), hand: J(26, -14, 5), knee: J(24, 8, 11.5), ankle: J(18, 35, 7.5), toe: J(28, 38, 5.5), farArm: [-3, -1], farLeg: [-3, -2], face: 1, cord: 1, look: 0, awake: 0 } },
 ];
 
 /** Mirror a pose written facing left so every pose faces right. */
@@ -65,25 +78,41 @@ function faceRight(r: Rig): Rig {
 }
 
 const NO_TAIL = J(0, 0, 0);
-/** After the birth: the ground is y = 50. */
+/**
+ * After the birth: the ground is y = 50.
+ *
+ * ── One direction, all the way through ──────────────────────────────────
+ * Every pose faces right, towards the sun in the scene, and the head is at
+ * the same end in all of them. The newborn used to lie with their head at
+ * the other end, so at three months the picture flipped end for end — and
+ * in the player a baby rolling over seemed to swap head and feet. A baby
+ * rolls onto their tummy with their head where it was; so does this one.
+ *
+ * `look` turns the face: up at the sky on their back, a little up on their
+ * tummy, level once sitting. `awake` opens the eyes: a newborn sleeps, and
+ * by two months they are looking about.
+ */
+const UP = -Math.PI / 2;
 const POSTNATAL: Key[] = [
-  // Newborn, on their back, arms and legs up.
-  { at: 0, group: "back", rig: { head: J(-26, 36, 12), chest: J(-10, 38, 12), hip: J(6, 39, 12), tail: NO_TAIL, shoulder: J(-12, 34, 5), elbow: J(-6, 24, 4), hand: J(-13, 19, 3.5), knee: J(16, 26, 6.5), ankle: J(25, 33, 5), toe: J(29, 30, 3.5), farArm: [3, 2], farLeg: [-3, 2], face: 1, cord: 0 } },
-  { at: 2, group: "back", rig: { head: J(-27, 36, 12.2), chest: J(-10, 38, 12.5), hip: J(7, 39, 12.5), tail: NO_TAIL, shoulder: J(-12, 34, 5.2), elbow: J(-4, 23, 4.2), hand: J(-10, 16, 3.6), knee: J(18, 25, 6.8), ankle: J(27, 31, 5.2), toe: J(31, 27, 3.6), farArm: [3, 2], farLeg: [-3, 2], face: 1, cord: 0 } },
-  // Tummy time: head up, propped on forearms.
-  { at: 3, group: "tummy", rig: faceRight({ head: J(-16, 22, 12.5), chest: J(-3, 36, 12.5), hip: J(15, 39, 12.5), tail: NO_TAIL, shoulder: J(-7, 33, 5), elbow: J(-11, 45, 4), hand: J(-18, 46, 3.5), knee: J(28, 43, 6), ankle: J(38, 41, 5), toe: J(42, 38, 3.5), farArm: [3, 0], farLeg: [-2, -2], face: 1, cord: 0 }) },
-  { at: 5, group: "tummy", rig: faceRight({ head: J(-17, 18, 12.8), chest: J(-4, 34, 13), hip: J(15, 39, 12.8), tail: NO_TAIL, shoulder: J(-8, 30, 5.2), elbow: J(-10, 43, 4.2), hand: J(-16, 47, 3.6), knee: J(29, 43, 6.2), ankle: J(39, 40, 5.1), toe: J(43, 36, 3.6), farArm: [3, 0], farLeg: [-2, -2], face: 1, cord: 0 }) },
-  // Sitting.
-  { at: 6, group: "sit", rig: { head: J(2, -2, 13), chest: J(0, 20, 13), hip: J(-1, 37, 13), tail: NO_TAIL, shoulder: J(2, 13, 5), elbow: J(8, 25, 4), hand: J(15, 31, 3.5), knee: J(15, 41, 6.5), ankle: J(27, 44, 5), toe: J(31, 39, 3.6), farArm: [-3, 0], farLeg: [-2, -1], face: 1, cord: 0 } },
-  { at: 8, group: "sit", rig: { head: J(3, -4, 13.2), chest: J(0, 19, 13.4), hip: J(-1, 37, 13.4), tail: NO_TAIL, shoulder: J(2, 12, 5.2), elbow: J(11, 20, 4.1), hand: J(19, 14, 3.6), knee: J(16, 41, 6.8), ankle: J(29, 44, 5.1), toe: J(33, 39, 3.7), farArm: [-3, 0], farLeg: [-2, -1], face: 1, cord: 0 } },
-  // Crawling.
-  { at: 9, group: "crawl", rig: faceRight({ head: J(-25, 13, 12.5), chest: J(-12, 22, 12.6), hip: J(10, 22, 12.6), tail: NO_TAIL, shoulder: J(-14, 22, 5.5), elbow: J(-16, 34, 4.5), hand: J(-18, 46, 3.6), knee: J(12, 46, 6.2), ankle: J(26, 46, 5), toe: J(31, 45, 3.5), farArm: [6, -1], farLeg: [-6, -1], face: 1, cord: 0 }) },
-  { at: 11, group: "crawl", rig: faceRight({ head: J(-26, 11, 12.6), chest: J(-12, 21, 12.8), hip: J(11, 21, 12.8), tail: NO_TAIL, shoulder: J(-15, 21, 5.6), elbow: J(-18, 34, 4.6), hand: J(-21, 46, 3.7), knee: J(14, 46, 6.4), ankle: J(28, 46, 5.1), toe: J(33, 45, 3.6), farArm: [8, -1], farLeg: [-8, -1], face: 1, cord: 0 }) },
+  // Newborn, on their back, arms and legs up, asleep, face to the sky.
+  { at: 0, group: "back", rig: faceRight({ head: J(-26, 36, 12), chest: J(-10, 38, 12), hip: J(6, 39, 12), tail: NO_TAIL, shoulder: J(-12, 34, 5), elbow: J(-6, 24, 4), hand: J(-13, 19, 3.5), knee: J(16, 26, 6.5), ankle: J(25, 33, 5), toe: J(29, 30, 3.5), farArm: [5, 2], farLeg: [-6, 3], face: 1, cord: 0, look: UP, awake: 0 }) },
+  { at: 1, group: "back", rig: faceRight({ head: J(-26.5, 36, 12.1), chest: J(-10, 38, 12.2), hip: J(6.5, 39, 12.2), tail: NO_TAIL, shoulder: J(-12, 34, 5.1), elbow: J(-5, 23.5, 4.1), hand: J(-11.5, 17.5, 3.5), knee: J(17, 25.5, 6.6), ankle: J(26, 32, 5.1), toe: J(30, 28.5, 3.5), farArm: [5, 2], farLeg: [-6, 3], face: 1, cord: 0, look: UP, awake: 0.2 }) },
+  // Two months: awake, looking up, reaching.
+  { at: 2, group: "back", rig: faceRight({ head: J(-27, 36, 12.2), chest: J(-10, 38, 12.5), hip: J(7, 39, 12.5), tail: NO_TAIL, shoulder: J(-12, 34, 5.2), elbow: J(-4, 23, 4.2), hand: J(-10, 16, 3.6), knee: J(18, 25, 6.8), ankle: J(27, 31, 5.2), toe: J(31, 27, 3.6), farArm: [6, 2], farLeg: [-7, 3], face: 1, cord: 0, look: UP + 0.12, awake: 1 }) },
+  // Tummy time: head up, propped on forearms, looking ahead.
+  { at: 3, group: "tummy", rig: faceRight({ head: J(-16, 22, 12.5), chest: J(-3, 36, 12.5), hip: J(15, 39, 12.5), tail: NO_TAIL, shoulder: J(-7, 33, 5), elbow: J(-11, 45, 4), hand: J(-18, 46, 3.5), knee: J(28, 43, 6), ankle: J(38, 41, 5), toe: J(42, 38, 3.5), farArm: [-5, 0], farLeg: [3, -5], face: 1, cord: 0, look: -0.16, awake: 1 }) },
+  { at: 5, group: "tummy", rig: faceRight({ head: J(-17, 18, 12.8), chest: J(-4, 34, 13), hip: J(15, 39, 12.8), tail: NO_TAIL, shoulder: J(-8, 30, 5.2), elbow: J(-10, 43, 4.2), hand: J(-16, 47, 3.6), knee: J(29, 43, 6.2), ankle: J(39, 40, 5.1), toe: J(43, 36, 3.6), farArm: [-5, 0], farLeg: [3, -6], face: 1, cord: 0, look: -0.2, awake: 1 }) },
+  // Sitting, a hand out for balance.
+  { at: 6, group: "sit", rig: { head: J(2, -2, 13), chest: J(0, 20, 13), hip: J(-1, 37, 13), tail: NO_TAIL, shoulder: J(2, 13, 5), elbow: J(8, 25, 4), hand: J(15, 31, 3.5), knee: J(15, 41, 6.5), ankle: J(27, 44, 5), toe: J(31, 39, 3.6), farArm: [-6, 2], farLeg: [-5, -3], face: 1, cord: 0, look: 0, awake: 1 } },
+  { at: 8, group: "sit", rig: { head: J(3, -4, 13.2), chest: J(0, 19, 13.4), hip: J(-1, 37, 13.4), tail: NO_TAIL, shoulder: J(2, 12, 5.2), elbow: J(11, 20, 4.1), hand: J(19, 14, 3.6), knee: J(16, 41, 6.8), ankle: J(29, 44, 5.1), toe: J(33, 39, 3.7), farArm: [-7, 3], farLeg: [-5, -3], face: 1, cord: 0, look: -0.06, awake: 1 } },
+  // Crawling, head up to see where they are going.
+  { at: 9, group: "crawl", rig: faceRight({ head: J(-26, 11, 12.5), chest: J(-12, 22, 12.6), hip: J(10, 22, 12.6), tail: NO_TAIL, shoulder: J(-14, 22, 5.5), elbow: J(-17, 34, 4.5), hand: J(-21, 46, 3.6), knee: J(8, 45, 6.2), ankle: J(24, 46, 5), toe: J(29, 45, 3.5), farArm: [9, 0], farLeg: [12, 0], face: 1, cord: 0, look: -0.1, awake: 1 }) },
+  { at: 11, group: "crawl", rig: faceRight({ head: J(-27, 10, 12.6), chest: J(-12, 21, 12.8), hip: J(11, 21, 12.8), tail: NO_TAIL, shoulder: J(-15, 21, 5.6), elbow: J(-20, 33, 4.6), hand: J(-25, 46, 3.7), knee: J(14, 45, 6.4), ankle: J(29, 46, 5.1), toe: J(34, 45, 3.6), farArm: [12, 0], farLeg: [-9, 0], face: 1, cord: 0, look: -0.1, awake: 1 }) },
   // Standing, arms out for balance.
-  { at: 12, group: "stand", rig: { head: J(2, -26, 12.5), chest: J(0, -6, 12), hip: J(-1, 14, 11.5), tail: NO_TAIL, shoulder: J(0, -12, 5), elbow: J(8, -2, 4), hand: J(14, -8, 3.5), knee: J(1, 31, 6), ankle: J(0, 46, 4.6), toe: J(6, 49, 3.5), farArm: [-6, 0], farLeg: [5, 0], face: 1, cord: 0 } },
-  // Walking.
-  { at: 15, group: "stand", rig: { head: J(3, -29, 12.3), chest: J(0, -9, 12), hip: J(-1, 12, 11.5), tail: NO_TAIL, shoulder: J(0, -15, 5), elbow: J(7, -3, 4), hand: J(12, 3, 3.5), knee: J(5, 30, 6), ankle: J(8, 46, 4.6), toe: J(14, 49, 3.5), farArm: [-8, 0], farLeg: [-9, 0], face: 1, cord: 0 } },
-  { at: 24, group: "stand", rig: { head: J(3, -35, 11.6), chest: J(0, -13, 12), hip: J(-1, 9, 11.4), tail: NO_TAIL, shoulder: J(0, -19, 5), elbow: J(5, -5, 4), hand: J(9, 3, 3.5), knee: J(4, 29, 6), ankle: J(8, 46, 4.6), toe: J(14, 49, 3.5), farArm: [-8, 0], farLeg: [-10, 0], face: 1, cord: 0 } },
+  { at: 12, group: "stand", rig: { head: J(2, -26, 12.5), chest: J(0, -6, 12), hip: J(-1, 14, 11.5), tail: NO_TAIL, shoulder: J(0, -12, 5), elbow: J(8, -4, 4), hand: J(15, -8, 3.5), knee: J(0, 31, 6), ankle: J(1, 46, 4.6), toe: J(7, 49, 3.5), farArm: [-9, 2], farLeg: [-6, 0], face: 1, cord: 0, look: 0, awake: 1 } },
+  // Walking: the near leg steps forward, the far one pushes off behind.
+  { at: 15, group: "stand", rig: { head: J(3, -29, 12.3), chest: J(1, -9, 12), hip: J(0, 12, 11.5), tail: NO_TAIL, shoulder: J(1, -15, 5), elbow: J(7, -4, 4), hand: J(13, 1, 3.5), knee: J(4, 30, 6), ankle: J(7, 46, 4.6), toe: J(13, 49, 3.5), farArm: [-14, 1], farLeg: [-13, 0], face: 1, cord: 0, look: 0, awake: 1 } },
+  { at: 24, group: "stand", rig: { head: J(3, -35, 11.8), chest: J(1, -13, 12), hip: J(0, 9, 11.4), tail: NO_TAIL, shoulder: J(1, -19, 5), elbow: J(6, -6, 4), hand: J(11, 3, 3.5), knee: J(4, 29, 6), ankle: J(8, 46, 4.6), toe: J(14, 49, 3.5), farArm: [-14, 1], farLeg: [-15, 0], face: 1, cord: 0, look: 0, awake: 1 } },
 ];
 
 export interface GrowthStage {
@@ -106,6 +135,7 @@ function lerpRig(a: Rig, b: Rig, t: number): Rig {
     farArm: [lerp(a.farArm[0], b.farArm[0], t), lerp(a.farArm[1], b.farArm[1], t)],
     farLeg: [lerp(a.farLeg[0], b.farLeg[0], t), lerp(a.farLeg[1], b.farLeg[1], t)],
     face: lerp(a.face, b.face, t), cord: lerp(a.cord, b.cord, t),
+    look: lerp(a.look, b.look, t), awake: lerp(a.awake, b.awake, t),
   };
 }
 
@@ -203,7 +233,11 @@ export function seedMix(s: GrowthStage): { seedAlpha: number; figureAlpha: numbe
 export function sizeAt(s: GrowthStage): number {
   if (s.born) {
     const m = Math.max(0, Math.min(24, s.month));
-    return lerp(0.74, 0.95, Math.sqrt(m / 24));
+    // A baby lying down is a quarter the height of one standing, and at the
+    // same scale the newborn was a speck on the hill. So the early months
+    // are drawn closer, easing back to true by the time they stand.
+    const closer = lerp(1.5, 1, ease(Math.min(1, m / 12)));
+    return lerp(0.74, 0.95, Math.sqrt(m / 24)) * closer;
   }
   const w = Math.max(4, Math.min(40, s.week));
   const table: [number, number][] = [[4, 0.3], [8, 0.42], [12, 0.52], [20, 0.66], [28, 0.76], [40, 0.88]];
@@ -232,7 +266,14 @@ function capsule(a: Joint, b: Joint, ra = a[2], rb = b[2]): string {
   return `M${f(A1[0])} ${f(A1[1])}L${f(A2[0])} ${f(A2[1])}A${f(rb)} ${f(rb)} 0 0 0 ${f(B2[0])} ${f(B2[1])}L${f(B1[0])} ${f(B1[1])}A${f(ra)} ${f(ra)} 0 0 0 ${f(A1[0])} ${f(A1[1])}Z`;
 }
 
-const shift = (j: Joint, d: [number, number]): Joint => [j[0] + d[0], j[1] + d[1], j[2] * 0.94];
+/**
+ * A joint of the far arm or leg: the near one, moved by a share `k` of the
+ * offset. The share grows down the limb — little at the shoulder and hip,
+ * all of it at the hand and foot — so the far limb hangs from the same body
+ * and swings the other way. Moved whole, as it used to be, a walking child's
+ * two legs were parallel and the child seemed to lean.
+ */
+const shift = (j: Joint, d: [number, number], k = 1): Joint => [j[0] + d[0] * k, j[1] + d[1] * k, j[2] * 0.94];
 
 /** An ellipse turned by `rot` radians, as a closed path. */
 function ellipse(cx: number, cy: number, rx: number, ry: number, rot = 0): string {
@@ -262,6 +303,8 @@ export interface FigurePaths {
   faceOpacity: number;
   /** A soft warm cheek: centre and radius, or null before there is a face. */
   blush: [number, number, number] | null;
+  /** The open eye, filled: centre and radius. Null while asleep. */
+  eye: [number, number, number] | null;
   /** The cord, from the belly out of the frame. Empty once born. */
   cord: string;
   cordOpacity: number;
@@ -288,11 +331,21 @@ function limbs(sh: Joint, el: Joint, ha: Joint, hip: Joint, kn: Joint, an: Joint
  */
 export function figurePaths(r: Rig, hair = 0): FigurePaths {
   const [hx, hy, hr] = r.head;
-  // The face looks the way the head is turned: away from the body.
-  const dir = Math.sign(hx - r.chest[0]) || 1;
   const neckR = Math.min(hr, r.chest[2]) * 0.6;
   const faceK = Math.min(1, r.face);
 
+  // The face has its own two directions: `f*` the way the nose points, and
+  // `d*` from the brow down to the chin. The chin is always on the side the
+  // chest is on — below the nose for a child standing, towards the body for
+  // one lying on their back looking up.
+  const fx = Math.cos(r.look), fy = Math.sin(r.look);
+  let dx = -fy, dy = fx;
+  if (dx * (r.chest[0] - hx) + dy * (r.chest[1] - hy) < 0) { dx = -dx; dy = -dy; }
+  /** A point on the head: `a` head-radii forward, `b` head-radii down the face. */
+  const at = (a: number, b: number): [number, number] => [hx + (fx * a + dx * b) * hr, hy + (fy * a + dy * b) * hr];
+  const P = (a: number, b: number) => { const [x, y] = at(a, b); return `${f(x)} ${f(y)}`; };
+
+  const cheek = at(0.36, 0.36), nose = at(0.93, 0.16);
   const body = [
     // The early curl's tail; gone (not a cone to nowhere) once it has shrunk away.
     r.tail[2] > 0.6 ? capsule(r.hip, r.tail) : "",
@@ -300,13 +353,13 @@ export function figurePaths(r: Rig, hair = 0): FigurePaths {
     capsule([hx, hy, neckR], r.chest, neckR, r.chest[2] * 0.85),
     circle(r.head),
     // A face in profile: the cheek and chin fuller than the skull, and a nose.
-    faceK > 0.05 ? ellipse(hx + dir * hr * 0.36, hy + hr * 0.36, hr * 0.62 * faceK + hr * 0.3 * (1 - faceK), hr * 0.56) : "",
-    faceK > 0.3 ? circle([hx + dir * hr * 0.93, hy + hr * 0.16, hr * 0.13 * faceK]) : "",
+    faceK > 0.05 ? ellipse(cheek[0], cheek[1], hr * 0.62 * faceK + hr * 0.3 * (1 - faceK), hr * 0.56, r.look) : "",
+    faceK > 0.3 ? circle([nose[0], nose[1], hr * 0.13 * faceK]) : "",
   ].filter(Boolean);
 
   const near = limbs(r.shoulder, r.elbow, r.hand, r.hip, r.knee, r.ankle, r.toe);
   const fl = r.farLeg, fa = r.farArm;
-  const far = limbs(shift(r.shoulder, fa), shift(r.elbow, fa), shift(r.hand, fa), shift(r.hip, fl), shift(r.knee, fl), shift(r.ankle, fl), shift(r.toe, fl));
+  const far = limbs(shift(r.shoulder, fa, 0.25), shift(r.elbow, fa, 0.6), shift(r.hand, fa), shift(r.hip, fl, 0.2), shift(r.knee, fl, 0.55), shift(r.ankle, fl), shift(r.toe, fl));
 
   const layers: FigureLayer[] = [
     { tone: "far", paths: [...far.leg, ...far.arm] },
@@ -316,30 +369,37 @@ export function figurePaths(r: Rig, hair = 0): FigurePaths {
   ].filter((l) => l.paths.length > 0) as FigureLayer[];
 
   const face: string[] = [];
+  const awake = r.awake > 0.5;
+  let eye: [number, number, number] | null = null;
   if (faceK > 0.02 && hr > 1) {
-    // The closed eye: a soft downward arc with a lash.
-    const ex = hx + dir * hr * 0.5, ey = hy + hr * 0.02, ew = hr * 0.22;
-    face.push(`M${f(ex - ew)} ${f(ey)}Q${f(ex)} ${f(ey + ew * 0.75)} ${f(ex + ew)} ${f(ey)}`);
+    if (awake) {
+      // Awake: a round dark eye, and a small brow over it.
+      const [ex, ey] = at(0.52, 0.02);
+      eye = [ex, ey, hr * 0.1];
+      face.push(`M${P(0.36, -0.2)}Q${P(0.52, -0.3)} ${P(0.68, -0.2)}`);
+    } else {
+      // Asleep: the closed eye, a soft arc curving towards the chin.
+      face.push(`M${P(0.28, 0.02)}Q${P(0.5, 0.185)} ${P(0.72, 0.02)}`);
+    }
     // The ear, well back on the head so it never reads as glasses.
-    const ax = hx - dir * hr * 0.18, ay = hy + hr * 0.18, ar = hr * 0.17;
-    face.push(`M${f(ax + dir * ar * 0.2)} ${f(ay - ar)}C${f(ax - dir * ar * 1.2)} ${f(ay - ar)} ${f(ax - dir * ar * 1.2)} ${f(ay + ar)} ${f(ax + dir * ar * 0.2)} ${f(ay + ar)}`);
-    // The mouth, a small curve under the nose.
-    const mx = hx + dir * hr * 0.78, my = hy + hr * 0.5;
-    face.push(`M${f(mx - dir * hr * 0.1)} ${f(my)}Q${f(mx)} ${f(my + hr * 0.06)} ${f(mx + dir * hr * 0.06)} ${f(my - hr * 0.02)}`);
+    face.push(`M${P(-0.146, 0.01)}C${P(-0.384, 0.01)} ${P(-0.384, 0.35)} ${P(-0.146, 0.35)}`);
+    // The mouth under the nose: resting when asleep, a small smile when awake.
+    face.push(awake ? `M${P(0.6, 0.47)}Q${P(0.76, 0.62)} ${P(0.88, 0.46)}` : `M${P(0.68, 0.5)}Q${P(0.78, 0.56)} ${P(0.84, 0.48)}`);
   }
   if (hair > 0.05 && hr > 1) {
     // One curl on top of the head.
-    const tx = hx + dir * hr * 0.1, ty = hy - hr * 0.98, k = hr * 0.32 * Math.min(1, hair);
-    face.push(`M${f(tx - dir * k)} ${f(ty + k * 0.2)}C${f(tx - dir * k * 0.2)} ${f(ty - k * 1.2)} ${f(tx + dir * k * 1.3)} ${f(ty - k * 0.6)} ${f(tx + dir * k * 0.5)} ${f(ty + k * 0.25)}`);
+    const k = 0.32 * Math.min(1, hair);
+    face.push(`M${P(0.1 - k, -0.98 + k * 0.2)}C${P(0.1 - k * 0.2, -0.98 - k * 1.2)} ${P(0.1 + k * 1.3, -0.98 - k * 0.6)} ${P(0.1 + k * 0.5, -0.98 + k * 0.25)}`);
   }
-  const blush: [number, number, number] | null = faceK > 0.02 && hr > 1 ? [hx + dir * hr * 0.42, hy + hr * 0.4, hr * 0.18] : null;
+  const bl = at(0.42, 0.4);
+  const blush: [number, number, number] | null = faceK > 0.02 && hr > 1 ? [bl[0], bl[1], hr * 0.18] : null;
 
   let cord = "";
   if (r.cord > 0.02) {
     const [cx, cy] = [lerp(r.chest[0], r.hip[0], 0.6) + r.chest[2] * 0.6, lerp(r.chest[1], r.hip[1], 0.6)];
     cord = `M${f(cx)} ${f(cy)}C${f(cx + 14)} ${f(cy + 10)} ${f(cx + 4)} ${f(cy + 28)} ${f(cx + 22)} ${f(cy + 40)}S${f(cx + 30)} ${f(cy + 70)} ${f(cx + 46)} ${f(cy + 90)}`;
   }
-  return { layers, face, faceOpacity: faceK, blush, cord, cordOpacity: Math.min(1, r.cord) };
+  return { layers, face, faceOpacity: faceK, blush, eye, cord, cordOpacity: Math.min(1, r.cord) };
 }
 
 /** Bounding box of a rig, for fitting it in a frame. */

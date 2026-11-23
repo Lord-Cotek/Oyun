@@ -1,5 +1,5 @@
 /**
- * "The whole journey" line — checked on every deploy.
+ * "The whole journey" line, and the baby drawn above it — checked on every deploy.
  *
  * The line under a family's journey is labelled Conception, Birth, 2 years.
  * It once stood at 28% on the day of the birth while "Birth" was printed
@@ -46,8 +46,25 @@ for (let d = 279, last = at(280); d >= -760; d -= 7) {
 }
 check(rising, "it only ever moves forward, week by week, across the whole journey");
 
+console.log("The baby in the picture");
+// The drawn baby (lib/growth-figure.ts). It once lay with its face pointing
+// along the ground out of the top of its head, swapped ends at three months,
+// and kept its eyes shut while walking. These hold what was put right.
+const F = jiti(path.join(root, "lib/growth-figure.ts"));
+const born = (month) => F.rigAt({ born: true, week: 40, month }).rig;
+const months = Array.from({ length: 25 }, (_, m) => m);
+check(months.every((m) => born(m).head[0] > born(m).hip[0]), "the head is at the same end at every age — no swapping ends when they roll over");
+check(Math.abs(born(0).look + Math.PI / 2) < 0.01 && born(0).look < -1.2, "a newborn on their back faces up at the sky");
+check(months.filter((m) => m >= 3).every((m) => Math.abs(born(m).look) < 0.35), "from tummy time on they look ahead");
+check(F.figurePaths(born(0)).eye === null && F.figurePaths(born(1)).eye === null, "a newborn is asleep");
+check(months.filter((m) => m >= 2).every((m) => F.figurePaths(born(m)).eye !== null), "from two months the eyes are open, at every age after");
+check([8, 12, 20, 28, 34, 40].every((w) => F.figurePaths(F.rigAt({ born: false, week: w, month: 0 }).rig).eye === null), "in the womb the eyes stay closed");
+check([15, 18, 24].every((m) => born(m).farLeg[0] < -8), "walking, the far leg is behind the near one — a stride, not a lean");
+const face0 = F.figurePaths(born(0)), head0 = born(0).head;
+check(face0.blush && face0.blush[1] < head0[1] && face0.blush[0] < head0[0], "the newborn's cheek is on the upper side of the head, towards the body");
+
 if (failed) {
-  console.error(`\n${failed} check(s) failed — the journey line would disagree with its own labels.`);
+  console.error(`\n${failed} check(s) failed — the journey line or its picture would be wrong.`);
   process.exit(1);
 }
-console.log("\n  ok — the journey line reaches each label when the family does.");
+console.log("\n  ok — the journey line reaches each label when the family does, and the baby faces the right way.");

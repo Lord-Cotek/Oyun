@@ -166,8 +166,10 @@ export function growthScene(stage: GrowthStage & { count?: number }, width: numb
   const at = rigAt(stage, !!opts.morph);
   const rig = opts.motion ? withMotion(at.rig, opts.motion) : at.rig;
   const next = at.next, blend = at.blend;
-  const size = sizeAt(stage);
   const count = stage.count ?? 1;
+  // Three or four babies side by side fill the frame already; the early
+  // months' closer view (sizeAt) would push them off its edges.
+  const size = stage.born && count >= 3 ? Math.min(sizeAt(stage), 0.95) : sizeAt(stage);
 
   const specks: Speck[] = [];
   const nSpecks = thumb ? 7 : 26;

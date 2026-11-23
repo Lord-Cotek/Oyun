@@ -141,6 +141,7 @@ function Figure({ fig, tone, skin, thumb }: { fig: PlacedFigure; tone: SkinTone;
         </g>
       ))}
       {p.blush && <circle cx={p.blush[0]} cy={p.blush[1]} r={p.blush[2]} fill={tone.blush} opacity={p.faceOpacity} />}
+      {!thumb && p.eye && <circle cx={p.eye[0]} cy={p.eye[1]} r={p.eye[2]} fill={tone.faceLine} opacity={0.9 * p.faceOpacity} />}
       {!thumb && p.face.map((d, i) => (
         <path key={`e${i}`} d={d} fill="none" stroke={tone.faceLine} strokeWidth={0.9} strokeLinecap="round" opacity={0.75 * p.faceOpacity} />
       ))}
