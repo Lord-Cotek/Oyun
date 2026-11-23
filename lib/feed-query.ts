@@ -2,6 +2,7 @@ import { yearBounds } from "./story";
 import { loadTags } from "./post-tags";
 import type { PostTagView } from "./tags";
 import { prisma } from "./prisma";
+import { mediaTypeFromUrl } from "./post-media";
 import { postScope } from "./post-visibility";
 import { isHousehold } from "./roles";
 import { canSharePost, sharePath } from "./post-share";
@@ -58,10 +59,10 @@ export interface MediaItem {
   poster?: string;
 }
 
-/** Infer whether a blob URL points at a video from its file extension. */
-export function mediaTypeFromUrl(url: string): MediaType {
-  return /\.(mp4|m4v|mov|webm|ogg)(\?|#|$)/i.test(url) ? "video" : "image";
-}
+// Defined in lib/post-media.ts, which has no database behind it, so the
+// release checks can ask it questions; re-exported here for everything that
+// already imports it from this file.
+export { mediaTypeFromUrl };
 
 export interface FeedPost {
   id: string;

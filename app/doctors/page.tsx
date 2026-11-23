@@ -16,8 +16,8 @@ const SEES = [
   "Medicines and the doses she marked taken",
   "Tests and vaccines, done and not yet",
   "Appointments and scans, with what came of them (if she includes them)",
-  "Photographs on readings and tests — a home test strip, a result letter (if she includes them)",
-  "Single diary posts she chooses to share, one at a time",
+  "Photographs and PDFs on readings and tests — a home test strip, a result letter (if she includes them)",
+  "Single diary posts she chooses to share, one at a time, with their photos and videos",
 ];
 
 const NEVER = [

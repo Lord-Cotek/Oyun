@@ -29,8 +29,8 @@ export function WhatIsShared({ photos, appointments }: { photos: boolean; appoin
           <li>Tests and vaccines</li>
           <li>Your stage and due date</li>
           {appointments && <li>Appointments and scans, with what came of them</li>}
-          {photos && <li>Photographs you attached to readings and tests</li>}
-          <li>Only the Life posts you choose, one by one</li>
+          {photos && <li>Photographs and PDFs you attached to readings and tests</li>}
+          <li>Only the Life posts you choose, one by one, with their photos and videos</li>
         </ul>
       </div>
       <div>
@@ -41,7 +41,7 @@ export function WhatIsShared({ photos, appointments }: { photos: boolean; appoin
           <li>Your circle and anything they write</li>
           <li>Requests for prayer or support</li>
           {!appointments && <li>Appointments and scans</li>}
-          {!photos && <li>Photographs on readings and tests</li>}
+          {!photos && <li>Photographs and PDFs on readings and tests</li>}
         </ul>
       </div>
     </div>
@@ -116,7 +116,7 @@ export function ShareWithDoctor({ initialCode = "" }: { initialCode?: string }) 
             </label>
             <label className="flex items-start gap-2">
               <input type="checkbox" checked={photos} onChange={(e) => setPhotos(e.target.checked)} className={box} />
-              <span className="prose-serif-xs text-ink">Include photographs on readings and tests (a home test, a result letter)</span>
+              <span className="prose-serif-xs text-ink">Include photographs and PDFs on readings and tests (a home test, a result letter)</span>
             </label>
           </div>
           <WhatIsShared photos={photos} appointments={appointments} />
@@ -191,7 +191,7 @@ export function SharedDoctor({
         </label>
         <label className="flex items-start gap-2">
           <input type="checkbox" checked={photos} onChange={(e) => setPhotos(e.target.checked)} className={box} />
-          <span className="prose-serif-xs text-ink">Photographs on readings and tests</span>
+          <span className="prose-serif-xs text-ink">Photographs and PDFs on readings and tests</span>
         </label>
         <div className="flex flex-wrap items-center gap-3 pt-1">
           <button
@@ -346,7 +346,7 @@ export function InviteDoctorByEmail() {
         </label>
         <label className="flex items-start gap-2">
           <input type="checkbox" checked={photos} onChange={(e) => setPhotos(e.target.checked)} className={box} />
-          <span className="prose-serif-xs text-ink">Include photographs on readings and tests (a home test, a result letter)</span>
+          <span className="prose-serif-xs text-ink">Include photographs and PDFs on readings and tests (a home test, a result letter)</span>
         </label>
       </div>
       <WhatIsShared photos={photos} appointments={appointments} />

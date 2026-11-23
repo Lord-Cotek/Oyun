@@ -51,7 +51,11 @@ export function SharedMedia({
                 controls
                 playsInline
                 preload="metadata"
-                className="w-full"
+                // A lone video is as wide as its column, and a portrait one
+                // filmed on a phone was then taller than the screen — the
+                // controls sat below the fold. Capped like a lone photograph;
+                // the browser letterboxes it, so nothing is cropped.
+                className={one ? "max-h-[70vh] w-full" : "w-full"}
               />
               <span
                 aria-hidden

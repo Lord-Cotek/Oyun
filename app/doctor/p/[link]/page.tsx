@@ -10,7 +10,8 @@ import { motherTimeZone } from "@/lib/medication-db";
 import { computePosition, gestationLabel } from "@/lib/stage";
 import { appointmentTitle } from "@/lib/appointments";
 import { KIND_LABEL, PLAIN_KIND_LABEL } from "@/lib/feed";
-import { mediaTypeFromUrl } from "@/lib/feed-query";
+import { mediaOfPost } from "@/lib/post-media";
+import { SharedMedia } from "@/components/share/SharedMedia";
 import { ReportDocument } from "@/components/health/report/ReportDocument";
 import { PrintButton } from "@/components/health/report/PrintButton";
 import { EndLinkButton } from "@/components/doctor/EndLinkButton";
@@ -236,7 +237,9 @@ async function PostsTab({ journeyId, tz }: { journeyId: string; tz: string }) {
     where: { journeyId, forDoctorAt: { not: null } },
     orderBy: { createdAt: "desc" },
     take: 50,
-    select: { id: true, kind: true, body: true, mediaUrls: true, createdAt: true, author: { select: { name: true } } },
+    // Everything on the post, the way the feed reads it: photographs and
+    // videos, each video's still, and the single picture older posts carry.
+    select: { id: true, kind: true, body: true, mediaUrls: true, posterUrls: true, imageUrl: true, createdAt: true, author: { select: { name: true } } },
   });
   if (!posts.length) {
     return (
@@ -253,16 +256,11 @@ async function PostsTab({ journeyId, tz }: { journeyId: string; tz: string }) {
             {(PLAIN_KIND_LABEL[p.kind] ?? KIND_LABEL[p.kind] ?? "Update")} · {p.author.name ?? "Family"} · {fmt(p.createdAt, tz)}
           </p>
           {p.body?.trim() && <p className="mt-2 whitespace-pre-wrap prose-serif-sm text-ink">{p.body}</p>}
-          {p.mediaUrls.filter((u) => mediaTypeFromUrl(u) === "image").length > 0 && (
-            <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
-              {p.mediaUrls
-                .filter((u) => mediaTypeFromUrl(u) === "image")
-                .map((u) => (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img key={u} src={u} alt="" className="aspect-square w-full rounded-lg border border-border object-cover" />
-                ))}
-            </div>
-          )}
+          {/* The same viewer a shared post has everywhere else: a photograph
+              opens whole and can be zoomed, and a video plays. */}
+          <div className="max-w-2xl">
+            <SharedMedia media={mediaOfPost(p)} alt={`Shared by ${p.author.name ?? "her family"}`} />
+          </div>
         </li>
       ))}
     </ul>

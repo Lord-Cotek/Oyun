@@ -14,6 +14,7 @@ import { Eyebrow } from "@/components/ui/Eyebrow";
 import { HealthTabs } from "@/components/health/HealthTabs";
 import { ShareChooser, SharedDoctor, PostForDoctor, PendingInvite } from "@/components/health/doctor/DoctorSharing";
 import { inviteState } from "@/lib/clinician-invite";
+import { mediaOfPost, mediaSummary } from "@/lib/post-media";
 
 export const metadata: Metadata = { title: "Your doctor", robots: { index: false } };
 export const dynamic = "force-dynamic";
@@ -59,7 +60,7 @@ export default async function YourDoctor({ searchParams }: { searchParams: { cod
         where: { journeyId, authorId: { in: household.map((h) => h.userId) } },
         orderBy: { createdAt: "desc" },
         take: 20,
-        select: { id: true, kind: true, body: true, createdAt: true, forDoctorAt: true, mediaUrls: true, author: { select: { name: true } } },
+        select: { id: true, kind: true, body: true, createdAt: true, forDoctorAt: true, mediaUrls: true, posterUrls: true, imageUrl: true, author: { select: { name: true } } },
       })
     : [];
   const initialCode = normaliseCode(searchParams.code ?? "") ?? "";
@@ -148,25 +149,32 @@ export default async function YourDoctor({ searchParams }: { searchParams: { cod
           <section className="mt-8" aria-labelledby="posts-h">
             <h2 id="posts-h" className="font-serif text-2xl text-ink">Posts for your doctor</h2>
             <p className="mt-1 mb-4 prose-serif-xs text-muted">
-              Your diary stays private. If a post would help at an appointment — a photo of a rash, a note about how
-              you&rsquo;ve felt — share just that one. You can take it back at any time.
+              Your diary stays private. If a post would help at an appointment — a photo of a rash, a video from a
+              scan, a note about how you&rsquo;ve felt — share just that one, and its photos and videos go with it. You can
+              take it back at any time.
             </p>
             {posts.length === 0 ? (
               <p className="prose-serif-xs text-muted">No posts from you or your partner yet.</p>
             ) : (
               <ul className="space-y-2">
-                {posts.map((p) => (
-                  <li key={p.id} className="flex items-start justify-between gap-3 rounded-xl border border-border bg-surface p-4">
-                    <div className="min-w-0">
-                      <p className="font-mono text-[0.66rem] uppercase tracking-widest text-muted">
-                        {(general ? PLAIN_KIND_LABEL : KIND_LABEL)[p.kind] ?? "Update"} · {p.author.name ?? "You"} · {day(p.createdAt)}
-                        {p.mediaUrls.length ? ` · ${p.mediaUrls.length} photo${p.mediaUrls.length === 1 ? "" : "s"}` : ""}
-                      </p>
-                      <p className="mt-1 line-clamp-2 prose-serif-xs text-ink">{p.body?.trim() || "(photos only)"}</p>
-                    </div>
-                    <PostForDoctor postId={p.id} on={!!p.forDoctorAt} />
-                  </li>
-                ))}
+                {posts.map((p) => {
+                  // Counted the way her doctor will see it: videos as well as
+                  // photographs, so she knows exactly what goes with the post.
+                  const media = mediaOfPost(p);
+                  const has = mediaSummary(media);
+                  return (
+                    <li key={p.id} className="flex items-start justify-between gap-3 rounded-xl border border-border bg-surface p-4">
+                      <div className="min-w-0">
+                        <p className="font-mono text-[0.66rem] uppercase tracking-widest text-muted">
+                          {(general ? PLAIN_KIND_LABEL : KIND_LABEL)[p.kind] ?? "Update"} · {p.author.name ?? "You"} · {day(p.createdAt)}
+                          {has ? ` · ${has}` : ""}
+                        </p>
+                        <p className="mt-1 line-clamp-2 prose-serif-xs text-ink">{p.body?.trim() || (has ? `(${has}, no words)` : "(no words)")}</p>
+                      </div>
+                      <PostForDoctor postId={p.id} on={!!p.forDoctorAt} />
+                    </li>
+                  );
+                })}
               </ul>
             )}
           </section>

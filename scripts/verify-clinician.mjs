@@ -93,6 +93,26 @@ check(/href: "\/doctor\/invitations"/.test(actions) && !/href: `[^`]*\$\{raw/.te
 const invitePage = readFileSync(path.join(root, "app/doctor/invite/[token]/page.tsx"), "utf8");
 check(/ownerId === me\.id/.test(invitePage) && /toLowerCase\(\) !== invite\.email/.test(invitePage), "the page never attaches an invitation to her own account or a different address");
 
+console.log("What she shared is all there");
+// The other half of the promise: when she shares a post, or leaves her
+// attachments on, her doctor must be able to see every part of it. A video
+// silently left out, or a PDF that opens to "Not found", is a thing she
+// believes her doctor has seen and they have not.
+const PM = jiti(path.join(root, "lib/post-media.ts"));
+const mixed = PM.mediaOfPost({ mediaUrls: ["https://x/a.jpg", "https://x/scan.MP4", "https://x/b.mov?download=1", "https://x/c.webp"], posterUrls: ["", "https://x/scan-poster.jpg", "", ""] });
+check(mixed.length === 4 && mixed.map((m) => m.type).join() === "image,video,video,image", "a shared post keeps its videos as well as its photographs, in order");
+check(mixed[1].poster === "https://x/scan-poster.jpg" && !("poster" in mixed[0]) && !("poster" in mixed[2]), "a video carries its still when it has one");
+const legacy = PM.mediaOfPost({ mediaUrls: [], imageUrl: "https://x/old.jpg" });
+check(legacy.length === 1 && legacy[0].type === "image" && legacy[0].url === "https://x/old.jpg", "an older post's single picture is shown too");
+check(PM.mediaOfPost({ mediaUrls: [], imageUrl: null }).length === 0, "a post with nothing attached shows nothing");
+check(PM.mediaSummary(mixed) === "2 photos · 2 videos" && PM.mediaSummary(legacy) === "1 photo" && PM.mediaSummary([]) === "", "she is told how many photos and videos go with a post");
+check(/<SharedMedia media=\{mediaOfPost\(p\)\}/.test(page) && /posterUrls: true, imageUrl: true/.test(page) && !/=== "image"/.test(page), "the clinician's page shows all of a shared post's media, not photographs only");
+const herPage = readFileSync(path.join(root, "app/health/doctor/page.tsx"), "utf8");
+check(/mediaSummary\(/.test(herPage), "her own list counts the same media her doctor will see");
+check(/application\/pdf/.test(fileRoute) && /startsWith\("image\/"\)/.test(fileRoute), "a PDF she attached to a test opens for her doctor, like a photograph");
+const linkFileRoute = readFileSync(path.join(root, "app/api/health/report-file/[token]/[id]/route.ts"), "utf8");
+check(/application\/pdf/.test(linkFileRoute) && /fileInReport\(file, link\)/.test(linkFileRoute), "and through a report link, still only for files inside that report");
+
 if (failed) {
   console.error(`\n${failed} check(s) failed — a clinician could see more than a patient chose.`);
   process.exit(1);
