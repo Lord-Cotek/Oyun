@@ -263,7 +263,7 @@ export function AnnouncementEditor({
                 className={input}
                 value={d.place ?? ""}
                 maxLength={60}
-                placeholder="Lagos"
+                placeholder="The hospital or town"
                 onChange={(e) => set("place", e.target.value || null)}
               />
             </label>
