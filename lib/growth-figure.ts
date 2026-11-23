@@ -293,6 +293,13 @@ function ellipse(cx: number, cy: number, rx: number, ry: number, rot = 0): strin
 export interface FigureLayer {
   tone: "far" | "skin";
   paths: string[];
+  /**
+   * What to outline, when it is not simply `paths`. A near arm or leg is
+   * outlined along its sides and round its far end but left open where it
+   * joins the body: a closed outline there drew a round cap inside the
+   * torso, and every limb looked like a separate piece pinned on.
+   */
+  strokes?: string[];
 }
 
 export interface FigurePaths {
@@ -310,24 +317,75 @@ export interface FigurePaths {
   cordOpacity: number;
 }
 
-/** A foot: a rounded sole from the ankle to the toes. */
-function foot(ankle: Joint, toe: Joint): string {
-  const mx = (ankle[0] + toe[0]) / 2, my = (ankle[1] + toe[1]) / 2;
-  const len = Math.hypot(toe[0] - ankle[0], toe[1] - ankle[1]);
-  const rot = Math.atan2(toe[1] - ankle[1], toe[0] - ankle[0]);
-  return ellipse(mx, my, len / 2 + toe[2] * 1.1, Math.max(ankle[2], toe[2]) * 0.95, rot);
-}
-
-function limbs(sh: Joint, el: Joint, ha: Joint, hip: Joint, kn: Joint, an: Joint, to: Joint) {
-  const thigh = capsule(hip, kn, Math.min(hip[2] * 0.6, kn[2] * 1.45), kn[2]);
-  const leg = [thigh, capsule(kn, an, kn[2] * 0.92, an[2]), an[2] > 0.3 ? foot(an, to) : capsule(an, to)].filter(Boolean);
-  const arm = [capsule(sh, el, sh[2], el[2] * 0.95), capsule(el, ha, el[2] * 0.9, ha[2] * 0.85), ha[2] > 0.3 ? ellipse(ha[0], ha[1], ha[2] * 1.15, ha[2] * 0.95) : ""].filter(Boolean);
-  return { leg, arm };
+/**
+ * The outline of a capsule left open at its `a` end: both sides and the
+ * round end at `b`. For a limb where it leaves the body — see FigureLayer.
+ */
+function capsuleOpen(a: Joint, b: Joint, ra = a[2], rb = b[2]): string {
+  const dx = b[0] - a[0], dy = b[1] - a[1];
+  const len = Math.hypot(dx, dy);
+  if (len < 0.01 || (ra <= 0.05 && rb <= 0.05)) return "";
+  const nx = -dy / len, ny = dx / len;
+  const A1 = [a[0] + nx * ra, a[1] + ny * ra], A2 = [b[0] + nx * rb, b[1] + ny * rb];
+  const B2 = [b[0] - nx * rb, b[1] - ny * rb], B1 = [a[0] - nx * ra, a[1] - ny * ra];
+  return `M${f(A1[0])} ${f(A1[1])}L${f(A2[0])} ${f(A2[1])}A${f(rb)} ${f(rb)} 0 0 0 ${f(B2[0])} ${f(B2[1])}L${f(B1[0])} ${f(B1[1])}`;
 }
 
 /**
- * The figure's shapes. `hair` (0–1) adds a curl on top once the child is a
- * few months old.
+ * A foot: a round heel under the ankle and a sole that narrows to the toes,
+ * with the big toe as a small bump at the end. It was one oval, which read
+ * as a flipper lying down and a shoe standing up.
+ */
+function foot(ankle: Joint, toe: Joint): string[] {
+  const len = Math.hypot(toe[0] - ankle[0], toe[1] - ankle[1]);
+  if (len < 0.01) return [circle(ankle)];
+  const ux = (toe[0] - ankle[0]) / len, uy = (toe[1] - ankle[1]) / len;
+  const heelR = ankle[2] * 0.96, toeR = toe[2] * 0.82;
+  const tip: Joint = [toe[0] + ux * toe[2] * 0.55, toe[1] + uy * toe[2] * 0.55, toeR];
+  return [circle([ankle[0], ankle[1], heelR]), capsule([ankle[0], ankle[1], heelR], tip, heelR * 0.9, toeR)];
+}
+
+/**
+ * A hand: a round palm and a thumb. The thumb sits on the upper side of the
+ * hand, a little way along from the wrist.
+ */
+function hand(el: Joint, ha: Joint): string[] {
+  const r = ha[2];
+  const len = Math.hypot(ha[0] - el[0], ha[1] - el[1]) || 1;
+  const ux = (ha[0] - el[0]) / len, uy = (ha[1] - el[1]) / len;
+  // The side of the forearm that faces up.
+  let nx = -uy, ny = ux;
+  if (ny > 0) { nx = -nx; ny = -ny; }
+  const palm: Joint = [ha[0] + ux * r * 0.25, ha[1] + uy * r * 0.25, r * 1.18];
+  const thumb: Joint = [ha[0] + ux * r * 0.3 + nx * r * 1.05, ha[1] + uy * r * 0.3 + ny * r * 1.05, r * 0.5];
+  return [circle(palm), capsule([ha[0], ha[1], r * 0.6], thumb, r * 0.6, r * 0.5)];
+}
+
+/**
+ * An arm and a leg. `open` leaves their outlines open at the shoulder and
+ * the hip, for the near pair drawn over the body.
+ */
+function limbs(sh: Joint, el: Joint, ha: Joint, hip: Joint, kn: Joint, an: Joint, to: Joint, open = false) {
+  const thighR = Math.min(hip[2] * 0.6, kn[2] * 1.45);
+  const thigh = capsule(hip, kn, thighR, kn[2]);
+  const shin = capsule(kn, an, kn[2] * 0.92, an[2]);
+  const feet = an[2] > 0.3 ? foot(an, to) : [capsule(an, to)];
+  const leg = [thigh, shin, ...feet].filter(Boolean);
+  const upper = capsule(sh, el, sh[2], el[2] * 0.95);
+  const fore = capsule(el, ha, el[2] * 0.9, ha[2] * 0.85);
+  const hands = ha[2] > 0.3 ? hand(el, ha) : [];
+  const arm = [upper, fore, ...hands].filter(Boolean);
+  if (!open) return { leg, arm, legStrokes: undefined, armStrokes: undefined };
+  return {
+    leg, arm,
+    legStrokes: [capsuleOpen(hip, kn, thighR, kn[2]), shin, ...feet].filter(Boolean),
+    armStrokes: [capsuleOpen(sh, el, sh[2], el[2] * 0.95), fore, ...hands].filter(Boolean),
+  };
+}
+
+/**
+ * The figure's shapes. `hair` adds a curl on top once the child is a few
+ * months old (0–1), and more of them towards two years (1–2).
  */
 export function figurePaths(r: Rig, hair = 0): FigurePaths {
   const [hx, hy, hr] = r.head;
@@ -346,10 +404,25 @@ export function figurePaths(r: Rig, hair = 0): FigurePaths {
   const P = (a: number, b: number) => { const [x, y] = at(a, b); return `${f(x)} ${f(y)}`; };
 
   const cheek = at(0.36, 0.36), nose = at(0.93, 0.16);
+  // The tummy: a baby's front is round, not the straight side of a tube.
+  // The front is whichever side of the back the arms and legs are on.
+  const sx = r.hip[0] - r.chest[0], sy = r.hip[1] - r.chest[1];
+  const spine = Math.hypot(sx, sy) || 1;
+  let side = 0;
+  for (const j of [r.elbow, r.hand, r.knee, r.toe]) side += sx * (j[1] - r.chest[1]) - sy * (j[0] - r.chest[0]);
+  const front = side >= 0 ? 1 : -1;
+  const bellyR = (r.chest[2] + r.hip[2]) / 2;
+  const limbed = Math.min(1, r.knee[2] / 5);
+  const belly: Joint = [
+    r.chest[0] + sx * 0.56 + (-sy / spine) * front * bellyR * 0.2 * limbed,
+    r.chest[1] + sy * 0.56 + (sx / spine) * front * bellyR * 0.2 * limbed,
+    bellyR * (0.9 + 0.08 * limbed),
+  ];
   const body = [
     // The early curl's tail; gone (not a cone to nowhere) once it has shrunk away.
     r.tail[2] > 0.6 ? capsule(r.hip, r.tail) : "",
     capsule(r.chest, r.hip),
+    limbed > 0.2 ? circle(belly) : "",
     capsule([hx, hy, neckR], r.chest, neckR, r.chest[2] * 0.85),
     circle(r.head),
     // A face in profile: the cheek and chin fuller than the skull, and a nose.
@@ -357,15 +430,15 @@ export function figurePaths(r: Rig, hair = 0): FigurePaths {
     faceK > 0.3 ? circle([nose[0], nose[1], hr * 0.13 * faceK]) : "",
   ].filter(Boolean);
 
-  const near = limbs(r.shoulder, r.elbow, r.hand, r.hip, r.knee, r.ankle, r.toe);
+  const near = limbs(r.shoulder, r.elbow, r.hand, r.hip, r.knee, r.ankle, r.toe, true);
   const fl = r.farLeg, fa = r.farArm;
   const far = limbs(shift(r.shoulder, fa, 0.25), shift(r.elbow, fa, 0.6), shift(r.hand, fa), shift(r.hip, fl, 0.2), shift(r.knee, fl, 0.55), shift(r.ankle, fl), shift(r.toe, fl));
 
   const layers: FigureLayer[] = [
     { tone: "far", paths: [...far.leg, ...far.arm] },
     { tone: "skin", paths: body },
-    { tone: "skin", paths: near.leg },
-    { tone: "skin", paths: near.arm },
+    { tone: "skin", paths: near.leg, strokes: near.legStrokes },
+    { tone: "skin", paths: near.arm, strokes: near.armStrokes },
   ].filter((l) => l.paths.length > 0) as FigureLayer[];
 
   const face: string[] = [];
@@ -387,9 +460,14 @@ export function figurePaths(r: Rig, hair = 0): FigurePaths {
     face.push(awake ? `M${P(0.6, 0.47)}Q${P(0.76, 0.62)} ${P(0.88, 0.46)}` : `M${P(0.68, 0.5)}Q${P(0.78, 0.56)} ${P(0.84, 0.48)}`);
   }
   if (hair > 0.05 && hr > 1) {
-    // One curl on top of the head.
-    const k = 0.32 * Math.min(1, hair);
-    face.push(`M${P(0.1 - k, -0.98 + k * 0.2)}C${P(0.1 - k * 0.2, -0.98 - k * 1.2)} ${P(0.1 + k * 1.3, -0.98 - k * 0.6)} ${P(0.1 + k * 0.5, -0.98 + k * 0.25)}`);
+    // A curl on top of the head — and, as the months go by (`hair` above 1),
+    // more of them back along the crown.
+    const curl = (a0: number, b0: number, k: number) =>
+      `M${P(a0 - k, b0 + k * 0.2)}C${P(a0 - k * 0.2, b0 - k * 1.2)} ${P(a0 + k * 1.3, b0 - k * 0.6)} ${P(a0 + k * 0.5, b0 + k * 0.25)}`;
+    face.push(curl(0.1, -0.98, 0.32 * Math.min(1, hair)));
+    const more = Math.max(0, Math.min(1, hair - 1));
+    if (more > 0.15) face.push(curl(-0.3, -0.93, 0.27 * Math.min(1, more * 2)));
+    if (more > 0.6) face.push(curl(-0.62, -0.76, 0.24 * Math.min(1, (more - 0.5) * 2)));
   }
   const bl = at(0.42, 0.4);
   const blush: [number, number, number] | null = faceK > 0.02 && hr > 1 ? [bl[0], bl[1], hr * 0.18] : null;

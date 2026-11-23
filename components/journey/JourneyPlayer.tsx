@@ -247,9 +247,10 @@ function drawScene(ctx: CanvasRenderingContext2D, s: Scene, time: number, still:
     ctx.lineJoin = "round";
     for (const l of p.layers) {
       const shapes = l.paths.map((d) => new Path2D(d));
-      // Outline first, fill over it — see FigureLayer.
-      ctx.strokeStyle = tone.outline; ctx.lineWidth = 1.7;
-      for (const sh of shapes) ctx.stroke(sh);
+      // Outline first, fill over it — see FigureLayer. A near limb's outline
+      // is left open where it joins the body (`strokes`).
+      ctx.strokeStyle = tone.outline; ctx.lineWidth = 1.7; ctx.lineCap = "round";
+      for (const d of l.strokes ?? l.paths) ctx.stroke(new Path2D(d));
       ctx.fillStyle = l.tone === "far" ? tone.far : skin;
       for (const sh of shapes) ctx.fill(sh);
     }

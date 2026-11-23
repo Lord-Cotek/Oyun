@@ -63,6 +63,15 @@ check([15, 18, 24].every((m) => born(m).farLeg[0] < -8), "walking, the far leg i
 const face0 = F.figurePaths(born(0)), head0 = born(0).head;
 check(face0.blush && face0.blush[1] < head0[1] && face0.blush[0] < head0[0], "the newborn's cheek is on the upper side of the head, towards the body");
 
+// Drawn as one body, not as parts pinned together.
+const everyAge = [...[8, 12, 20, 28, 34, 40].map((w) => F.rigAt({ born: false, week: w, month: 0 }).rig), ...months.map(born)];
+const nearLayers = (rig) => F.figurePaths(rig).layers.filter((l) => l.strokes);
+check(everyAge.every((rig) => nearLayers(rig).length === 2 && nearLayers(rig).every((l) => !l.strokes[0].trim().endsWith("Z"))),
+  "the near arm and leg are left open where they join the body — no round cap drawn inside the torso");
+check(everyAge.every((rig) => nearLayers(rig).every((l) => l.paths.every((d) => d.trim().endsWith("Z")))), "and still filled as whole shapes");
+const hairAt = (m) => F.figurePaths(born(m), Math.min(1, Math.max(0, (m - 2) / 5)) + Math.min(1, Math.max(0, (m - 10) / 12))).face.length;
+check(hairAt(24) > hairAt(8) && hairAt(8) > hairAt(1), "the hair grows: none as a newborn, a curl by eight months, more by two years");
+
 if (failed) {
   console.error(`\n${failed} check(s) failed — the journey line or its picture would be wrong.`);
   process.exit(1);

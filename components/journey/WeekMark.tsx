@@ -132,8 +132,8 @@ function Figure({ fig, tone, skin, thumb }: { fig: PlacedFigure; tone: SkinTone;
         <g key={`l${li}`}>
           {/* The outline first, then the fill over it: only the layer's own
               outer edge shows, so a limb reads clearly over the body. */}
-          {l.paths.map((d, i) => (
-            <path key={`o${i}`} d={d} fill="none" stroke={tone.outline} strokeWidth={thumb ? 2.6 : 1.7} strokeLinejoin="round" />
+          {(l.strokes ?? l.paths).map((d, i) => (
+            <path key={`o${i}`} d={d} fill="none" stroke={tone.outline} strokeWidth={thumb ? 2.6 : 1.7} strokeLinejoin="round" strokeLinecap="round" />
           ))}
           {l.paths.map((d, i) => (
             <path key={`f${i}`} d={d} fill={l.tone === "far" ? tone.far : skin} />

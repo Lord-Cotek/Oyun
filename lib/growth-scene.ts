@@ -234,7 +234,8 @@ export function growthScene(stage: GrowthStage & { count?: number }, width: numb
   // crawling baby in a tall frame would otherwise fill it edge to edge.
   const figH = size * Math.min(groundY - ch * 0.04, width * 0.62);
   const cx = width * 0.46;
-  const hair = Math.min(1, Math.max(0, (stage.month - 2) / 5));
+  // One curl by seven months, more by two years — see figurePaths.
+  const hair = Math.min(1, Math.max(0, (stage.month - 2) / 5)) + Math.min(1, Math.max(0, (stage.month - 10) / 12));
   const figures = placeAll(rig, count, cx, 0, figH, "world", groundY, 1 - blend, hair);
   if (next && blend > 0) figures.push(...placeAll(next, count, cx, 0, figH, "world", groundY, blend, hair));
   const fb = figures[0];
