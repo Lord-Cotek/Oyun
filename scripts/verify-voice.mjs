@@ -97,6 +97,52 @@ const bad = allGeneral.filter((s) =>
 check(bad.length === 0, bad.length ? `stage with faith words: ${bad.map((s) => s.stage).join(", ")}` : "every stage, every field");
 check(allGeneral.every((s) => s.verse.ref === ""), "no stage carries a Bible reference");
 
+console.log("The weekly email");
+// One journey sends the weekly email to its mother, her partner and her
+// circle at once, and each of them chose their own voice. So every stage is
+// asked for, for every kind of reader, in both voices — lib/weekly-digest.ts.
+const WD = jiti(path.join(root, "lib/weekly-digest.ts"));
+const week = {
+  motherName: "Amara", supportAll: 5, supportHeld: 2, encouragements: 3,
+  comingLines: ["Scan — Tuesday"], answeredLines: [], photosAll: 4, photosCircle: 2,
+  moodForPartner: "Steady", moodForCircle: "Steady",
+};
+const quietWeek = { ...week, supportAll: 0, supportHeld: 0, encouragements: 0, comingLines: [], photosAll: 0, photosCircle: 0, moodForPartner: null, moodForCircle: null };
+const allOf = (d, voice) =>
+  [WD.weeklyGreeting(voice, "Zainab"), d.subject, d.intro, d.verse.text, d.verse.ref, ...d.sections.flatMap((x) => [x.heading, ...x.lines])].join("\n");
+const ROLES = ["MOTHER", "PARTNER", "CIRCLE"];
+for (const role of ROLES) {
+  const wrong = [];
+  for (const st of J.STAGES) {
+    for (const f of [week, quietWeek]) {
+      const d = WD.weeklyDigestFor({ role, voice: "GENERAL" }, st, f);
+      if (BANNED.test(allOf(d, "GENERAL")) || d.verse.ref !== "") wrong.push(st.stage);
+    }
+  }
+  check(wrong.length === 0, wrong.length ? `general ${role.toLowerCase()}: faith words at ${[...new Set(wrong)].slice(0, 5).join(", ")}` : `general ${role.toLowerCase()}: no verse, prayer or faith word at any of ${J.STAGES.length} stages`);
+}
+for (const role of ROLES) {
+  const d = J.STAGES.map((st) => WD.weeklyDigestFor({ role, voice: "FAITH" }, st, week));
+  const versed = d.every((x) => x.verse.ref !== "" && x.verse.text);
+  const prays = role === "MOTHER" || d.every((x) => x.sections.some((sec) => sec.heading === "Pray for her"));
+  check(versed && prays, `faith ${role.toLowerCase()}: a Bible verse with its reference${role === "MOTHER" ? "" : ", and “Pray for her”"}, at every stage`);
+}
+const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+check(
+  ROLES.every((role) => same(WD.weeklyDigestFor({ role, voice: null }, s0, week), WD.weeklyDigestFor({ role, voice: "FAITH" }, s0, week))) &&
+    WD.weeklyGreeting(null, "Amara") === "Peace to you, Amara." && WD.weeklyGreeting("GENERAL", "Zainab") === "Hello, Zainab.",
+  "someone who never chose gets the faith email, greeting included — nobody already here changes",
+);
+check(WD.weeklyDigestFor({ role: "CIRCLE", voice: "FAITH" }, s0, week).subject === "Praying for Amara this week" &&
+  WD.weeklyDigestFor({ role: "CIRCLE", voice: "GENERAL" }, s0, week).subject === "Walking with Amara this week", "the subject line follows the reader too");
+// Truthful about what people did: of 5 marks of support, 2 came from people
+// who hold her in mind rather than pray.
+const circleLines = (voice) => WD.weeklyDigestFor({ role: "MOTHER", voice }, s0, week).sections.find((x) => x.heading === "Your circle").lines.join(" ");
+check(/prayed for you 3 times/.test(circleLines("FAITH")) && /held you in mind 2 times/.test(circleLines("FAITH")), "a faith mother is told who prayed and who held her in mind — not that all five prayed");
+check(/held you in mind 5 times/.test(circleLines("GENERAL")) && !/pray/i.test(circleLines("GENERAL")), "a general mother is told her circle held her in mind");
+const circleSees = WD.weeklyDigestFor({ role: "CIRCLE", voice: "GENERAL" }, s0, week).sections;
+check(!circleSees.some((x) => x.heading === "Coming this week") && circleSees.some((x) => /2 new photographs/.test(x.lines.join(" "))), "the circle still gets no appointments, and only the photographs shared with them");
+
 if (failed) {
   console.error(`\n${failed} check(s) failed — Oyun without religious content would break a promise.`);
   process.exit(1);

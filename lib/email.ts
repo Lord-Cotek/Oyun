@@ -3,6 +3,7 @@ import { unsubHeaders, unsubPageUrl, type UnsubKind } from "@/lib/unsubscribe";
 import { autolinkHtml } from "@/lib/linkify";
 import { PROMISE_SHORT } from "@/lib/promise";
 import { LINK_META, cleanUrl, linkLabel, toLinkKind, type LinkLike } from "@/lib/invite-links";
+import { weeklyGreeting, type DigestSection } from "@/lib/weekly-digest";
 
 /**
  * Email via the Resend HTTP API (uses RESEND_API_KEY directly — no SMTP).
@@ -354,10 +355,7 @@ export async function sendNotificationEmail({
   return sendEmail({ to, subject: title, html, text, kind: "notification", unsubscribe: userId ? { userId, kind: "email" } : undefined });
 }
 
-export interface DigestSection {
-  heading: string;
-  lines: string[];
-}
+export type { DigestSection } from "@/lib/weekly-digest";
 
 export async function sendWeeklyDigest({
   to,
@@ -399,7 +397,7 @@ export async function sendWeeklyDigest({
     )
     .join("");
 
-  const greeting = `${voice === "GENERAL" ? "Hello" : "Peace to you"}, ${name?.trim() || "friend"}.`;
+  const greeting = weeklyGreeting(voice, name);
   const verseHtml = verse
     ? verse.ref
       ? `<div style="margin-top:20px;padding:16px;border:1px solid #232833;border-radius:12px;">

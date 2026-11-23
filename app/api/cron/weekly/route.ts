@@ -1,12 +1,11 @@
 import { NextResponse } from "next/server";
-import { stageIn } from "@/lib/voice-content";
-import { isGeneral } from "@/lib/voice";
+import { weeklyDigestFor, type DigestRole, type WeekFacts } from "@/lib/weekly-digest";
 import { appointmentTitle } from "@/lib/appointments";
 import { moodVisibleTo } from "@/lib/data";
 import { prisma } from "@/lib/prisma";
 import { computePosition } from "@/lib/stage";
 import { MOOD_META } from "@/lib/moods";
-import { sendWeeklyDigest, type DigestSection } from "@/lib/email";
+import { sendWeeklyDigest } from "@/lib/email";
 import { isOn } from "@/lib/flags";
 import { claimWeekly, recordRun, releaseWeekly, weekKey, type Budget } from "@/lib/cron-run";
 
@@ -115,83 +114,32 @@ async function runWeekly(budget: Budget) {
     const comingLines = coming.map((a) => `${appointmentTitle(a.kind, a.title)} — ${day(a.at)}`);
     const answeredLines = answered.map((r) => `“${r.title}”`);
 
+    // The same week for every reader; the words are chosen per reader below.
+    const moodLabel = latestMood ? MOOD_META[latestMood.mood].label : null;
+    const facts: WeekFacts = {
+      motherName,
+      supportAll: prayedCount + wallPrayers,
+      supportHeld: heldDays + heldWall,
+      encouragements: weeklyEncouragements,
+      comingLines,
+      answeredLines,
+      photosAll,
+      photosCircle,
+      // Her mood only to those she has chosen — see Journey.moodAudience.
+      moodForPartner: moodLabel && moodVisibleTo(journey.moodAudience, "PARTNER") ? moodLabel : null,
+      moodForCircle: moodLabel && moodVisibleTo(journey.moodAudience, "CIRCLE") ? moodLabel : null,
+    };
+
     for (const m of journey.memberships) {
       const u = m.user;
       // A suspended account gets nothing from the app until it is restored.
       if (!u.email || !u.weeklyDigest || u.suspendedAt) continue;
       if (budget.out()) { budget.stopped(); break every; }
 
-      let subject: string;
-      let intro: string;
-      const sections: DigestSection[] = [];
-      // Each reader in their own voice — lib/voice.ts. The stage, and every
-      // line of ours about it, is chosen per person, not per journey.
-      const general = isGeneral(u.voice);
-      const stage = stageIn(position.stage, u.voice);
-
-      if (m.role === "MOTHER") {
-        subject = `This week on your journey — ${stage.title}`;
-        intro = `Here's where you are, and a word for the week ahead.`;
-        sections.push({
-          heading: "This week",
-          lines: [stage.body, stage.reflection, `One thing to do: ${stage.action}`],
-        });
-        const circle: string[] = [];
-        const all = prayedCount + wallPrayers;
-        const held = Math.min(all, heldDays + heldWall);
-        const prayed = all - held;
-        const times = (n: number) => `${n} time${n === 1 ? "" : "s"}`;
-        if (general && all > 0) {
-          circle.push(`Your circle held you in mind ${times(all)} this week.`);
-        } else if (!general) {
-          if (prayed > 0) circle.push(`Your circle prayed for you ${times(prayed)} this week.`);
-          if (held > 0) circle.push(`Your circle held you in mind ${times(held)} this week.`);
-        }
-        if (weeklyEncouragements > 0) {
-          circle.push(
-            `You received ${weeklyEncouragements} word${weeklyEncouragements === 1 ? "" : "s"} of encouragement.`,
-          );
-        }
-        if (circle.length === 0) {
-          circle.push("Invite someone to walk with you — you were not meant to carry this alone.");
-        }
-        sections.push({ heading: "Your circle", lines: circle });
-        if (comingLines.length) sections.push({ heading: "Coming this week", lines: comingLines });
-      } else if (m.role === "PARTNER") {
-        subject = `Walking with ${motherName} this week`;
-        intro = `Here's how to carry ${motherName} in the days ahead.`;
-        sections.push({ heading: "How to carry her", lines: [stage.partnerFocus] });
-        sections.push({ heading: general ? "Hold her in mind" : "Pray for her", lines: [stage.prayerPoint] });
-        if (comingLines.length) sections.push({ heading: "Coming this week", lines: comingLines });
-        // Her mood only to those she has chosen — see Journey.moodAudience.
-        if (latestMood && moodVisibleTo(journey.moodAudience, "PARTNER")) {
-          sections.push({
-            heading: "Her heart, lately",
-            lines: [`${MOOD_META[latestMood.mood].label} — a good moment to reach out.`],
-          });
-        }
-      } else {
-        // The wider circle: not the husband's words, and no appointments.
-        subject = general ? `Walking with ${motherName} this week` : `Praying for ${motherName} this week`;
-        intro = `A word for walking alongside ${motherName} in the days ahead.`;
-        sections.push({ heading: general ? "Hold her in mind" : "Pray for her", lines: [stage.prayerPoint] });
-        if (latestMood && moodVisibleTo(journey.moodAudience, "CIRCLE")) {
-          sections.push({
-            heading: "Her heart, lately",
-            lines: [`${MOOD_META[latestMood.mood].label} — a good moment to send a word.`],
-          });
-        }
-      }
-
-      // For everybody: what God answered, and what was shared.
-      if (answeredLines.length) sections.push({ heading: general ? "Resolved this week" : "Answered this week", lines: answeredLines });
-      const photos = m.role === "MOTHER" || m.role === "PARTNER" ? photosAll : photosCircle;
-      if (photos > 0) {
-        sections.push({
-          heading: "In Life",
-          lines: [`${photos} new photograph${photos === 1 ? "" : "s"} shared this week.`],
-        });
-      }
+      // Each reader in their own voice, chosen per person and not per
+      // journey — lib/weekly-digest.ts, checked by scripts/verify-voice.mjs.
+      const role: DigestRole = m.role === "MOTHER" ? "MOTHER" : m.role === "PARTNER" ? "PARTNER" : "CIRCLE";
+      const { subject, intro, verse, sections } = weeklyDigestFor({ role, voice: u.voice }, position.stage, facts);
 
       // Claimed before the send, given back if the provider refuses — so a
       // retry or the second sweep never sends twice and never skips anyone.
@@ -202,7 +150,7 @@ async function runWeekly(budget: Budget) {
         name: u.name,
         subject,
         intro,
-        verse: { text: stage.verse.text, ref: stage.verse.ref },
+        verse,
         sections,
         ctaLabel: "Open your journey",
         ctaHref: "/journey",
