@@ -13,6 +13,7 @@ import { circleSeesRegistry } from "@/lib/registry";
 import { getLang } from "@/lib/lang";
 import { sayIn, wordsFor } from "@/lib/i18n";
 import { isGeneral, wordsForVoice } from "@/lib/voice";
+import { ClinicianHeader } from "@/components/doctor/ClinicianHeader";
 
 type ActiveKey =
   | "journey"
@@ -71,6 +72,10 @@ export async function SiteHeader({
     journeys = myJourneys;
     activeJourneyId = membership?.journey.id ?? null;
   }
+  // A clinician in no journey at all has no family rooms: on the pages the
+  // two kinds of account share (Settings), they get their own menu, not a
+  // row of rooms that would each only turn them away.
+  if (isClinician && journeys.length === 0) return <ClinicianHeader />;
   const ownsJourney = journeys.some((j) => j.isOwner);
   // How Oyun speaks to this reader — see lib/voice.ts. Without religious
   // content, the two rooms that are only worship are not offered, and the

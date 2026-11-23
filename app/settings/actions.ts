@@ -116,6 +116,24 @@ export async function updateNotifications(_prev: unknown, formData: FormData): P
   return { ok: true, message: "Saved. This takes effect from the next one." };
 }
 
+/**
+ * A clinician's two switches. A doctor in no journey is told about one kind
+ * of thing — a patient sharing with them, or accepting — so the family's
+ * six rows would be six switches for things that never happen to them. Only
+ * these two columns are written; the rest are left exactly as they were, in
+ * case the same person later has a journey of their own.
+ */
+export async function updateClinicianNotifications(_prev: unknown, formData: FormData): Promise<Result> {
+  const userId = await requireUser();
+  const on = (name: string) => formData.get(name) === "on";
+  await prisma.user.update({
+    where: { id: userId },
+    data: { notifyHouse: on("notifyHouse"), notifyByEmail: on("notifyByEmail") },
+  });
+  revalidatePath("/settings");
+  return { ok: true, message: "Saved." };
+}
+
 export async function updateJourney(_prev: unknown, formData: FormData): Promise<Result> {
   const userId = await requireUser();
   const active = await getActiveMembership(userId);

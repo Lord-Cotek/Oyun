@@ -48,8 +48,9 @@ export default async function DoctorHome() {
       <p className="eyebrow text-accent">{c.displayName}</p>
       <h1 className="mt-1 font-serif text-3xl leading-snug text-ink sm:text-4xl">Your patients</h1>
       <p className="mt-2 max-w-prose prose-serif-sm text-muted">
-        Patients who entered your clinic code and agreed to share their health log, medicines, tests and appointments.
-        Oyun does not monitor anyone or alert you — open a patient&rsquo;s records when you need them.
+        Patients who chose to share their health log, medicines, tests and appointments with you — by entering your
+        clinic code, or by inviting you by email. Oyun does not monitor anyone or alert you — open a patient&rsquo;s
+        records when you need them.
       </p>
 
       <div className="mt-8 grid gap-5 lg:grid-cols-[1.5fr_1fr]">
@@ -61,6 +62,10 @@ export default async function DoctorHome() {
               <p className="mx-auto mt-2 max-w-sm prose-serif-sm text-muted">
                 Give a patient your code <span className="font-mono text-ink">{c.code}</span>. In Oyun she opens
                 Health → Your doctor, types it in, and sees exactly what you will see before she agrees.
+              </p>
+              <p className="mx-auto mt-2 max-w-sm prose-serif-xs text-muted">
+                Or she can invite you from there by email: you will get a message at {session.user.email}, and her
+                records open from its link.
               </p>
             </div>
           ) : (
@@ -149,6 +154,9 @@ export default async function DoctorHome() {
                 : "Expecting, or a new parent yourself? You can use Oyun for your own journey with this same sign-in. It stays completely apart from your patients."}
             </p>
             <div className="mt-4 flex flex-wrap items-center gap-2">
+              <Link href="/settings" className="inline-flex min-h-11 items-center rounded-lg border border-border px-4 font-mono text-xs text-ink hover:border-accent">
+                Settings
+              </Link>
               {memberships > 0 && (
                 <Link href="/journey" className="inline-flex min-h-11 items-center rounded-lg border border-border px-4 font-mono text-xs text-ink hover:border-accent">
                   Go to my journey

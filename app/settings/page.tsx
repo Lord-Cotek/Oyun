@@ -20,6 +20,7 @@ import {
   ProfileForm,
   PasswordForm,
   NotificationForm,
+  ClinicianNotificationForm,
   JourneyForm,
 } from "@/components/settings/SettingsForms";
 import { PushToggle } from "@/components/PushToggle";
@@ -32,6 +33,7 @@ import { LanguageSwitch } from "@/components/LanguageSwitch";
 import { getLang, yorubaOffered } from "@/lib/lang";
 import { isOn } from "@/lib/flags";
 import { VoiceForm } from "@/components/settings/VoiceForm";
+import { ClinicianProfileForm } from "@/components/doctor/ClinicianForms";
 import { voiceOf } from "@/lib/voice";
 
 export const metadata: Metadata = {
@@ -60,8 +62,12 @@ export default async function SettingsPage() {
   // Whether they also keep a clinician account — see lib/clinician.ts.
   const clinician = await prisma.clinician.findUnique({
     where: { userId: session.user.id },
-    select: { displayName: true, code: true },
+    select: { displayName: true, title: true, practice: true, code: true },
   });
+  // A doctor or midwife with no journey of their own: the family's settings
+  // (how Oyun speaks to you, the morning note, the export of a journey) are
+  // about rooms they do not have, so this page shows them only what is theirs.
+  const clinicianOnly = !!clinician && !active;
   const supporterCount =
     isMother && active
       ? await prisma.membership.count({
@@ -83,8 +89,13 @@ export default async function SettingsPage() {
             <span className="flex flex-wrap items-center gap-2">
               Signed in as {user.email}
               {active && (
-                <span className="rounded-full border border-accent/30 bg-accent/10 px-2 py-0.5 font-mono text-[0.6rem] uppercase tracking-widest text-accent">
+                <span className="rounded-full border border-current px-2 py-0.5 font-mono text-[0.6rem] uppercase tracking-widest opacity-80">
                   {ROLE_LABEL[active.role]}
+                </span>
+              )}
+              {clinician && (
+                <span className="rounded-full border border-current px-2 py-0.5 font-mono text-[0.6rem] uppercase tracking-widest opacity-80">
+                  Clinician
                 </span>
               )}
             </span>
@@ -121,10 +132,12 @@ export default async function SettingsPage() {
           </Card>
 
           {/* How Oyun speaks to them — see lib/voice.ts. */}
-          <Card className="p-8" id="voice">
-            <Eyebrow className="mb-4">How Oyun speaks to you</Eyebrow>
-            <VoiceForm current={voiceOf(user.voice)} />
-          </Card>
+          {!clinicianOnly && (
+            <Card className="p-8" id="voice">
+              <Eyebrow className="mb-4">How Oyun speaks to you</Eyebrow>
+              <VoiceForm current={voiceOf(user.voice)} />
+            </Card>
+          )}
 
           {/* Offered only while the "yoruba" switch is on — see lib/i18n.ts. */}
           {offered && (
@@ -137,6 +150,9 @@ export default async function SettingsPage() {
 
           <Card className="p-8">
             <Eyebrow className="mb-4">Notifications</Eyebrow>
+            {clinicianOnly ? (
+              <ClinicianNotificationForm notifyHouse={user.notifyHouse} notifyByEmail={user.notifyByEmail} />
+            ) : (
             <NotificationForm
               notifyByEmail={user.notifyByEmail}
               weeklyDigest={user.weeklyDigest}
@@ -150,6 +166,7 @@ export default async function SettingsPage() {
               }}
               morningHour={user.morningHour}
             />
+            )}
             <div className="mt-6 border-t border-border pt-6">
               <PushToggle />
             </div>
@@ -190,11 +207,9 @@ export default async function SettingsPage() {
             <Card className="p-8">
               <Eyebrow className="mb-3">Something is wrong</Eyebrow>
               <p className="mb-5 prose-serif-xs text-muted">
-                If you are worried about somebody, or somebody in your circle
-                should not be here, or anything at all has gone wrong — tell us
-                and a person will read it. We only ever see what you write
-                here; we cannot read your diary, your letters, or anything else
-                your family has kept.
+                {clinicianOnly
+                  ? "If anything has gone wrong, or something about a patient’s sharing worries you — tell us and a person will read it. We only ever see what you write here."
+                  : "If you are worried about somebody, or somebody in your circle should not be here, or anything at all has gone wrong — tell us and a person will read it. We only ever see what you write here; we cannot read your diary, your letters, or anything else your family has kept."}
               </p>
               <RaiseConcern />
             </Card>
@@ -222,16 +237,26 @@ export default async function SettingsPage() {
             {clinician ? (
               <>
                 <p className="prose-serif-sm text-ink">
-                  You also have a clinician account as <span className="text-accent">{clinician.displayName}</span>. Your
-                  clinic code is <span className="font-mono">{clinician.code}</span>.
+                  {clinicianOnly ? "Your clinician account: " : "You also have a clinician account as "}
+                  <span className="text-accent">{clinician.displayName}</span>. Your clinic code is{" "}
+                  <span className="font-mono">{clinician.code}</span>.
                 </p>
                 <p className="mb-4 mt-1 prose-serif-xs text-muted">
-                  Your patients are kept apart from your own journey. Switch at any time from the menu (More → My
-                  patients), and back again with &ldquo;My journey&rdquo;.
+                  {clinicianOnly
+                    ? "This is how patients see you when they share their records. Your sign-in name and email are under Profile, above."
+                    : "Your patients are kept apart from your own journey. Switch at any time from the menu (More → My patients), and back again with “My journey”."}
                 </p>
-                <Link href="/doctor" className="inline-flex min-h-11 items-center rounded-lg border border-border px-4 font-mono text-xs text-ink hover:border-accent">
-                  Open my patients
-                </Link>
+                <ClinicianProfileForm name={clinician.displayName} title={clinician.title ?? ""} practice={clinician.practice ?? ""} />
+                <div className="mt-5 flex flex-wrap gap-2 border-t border-border pt-5">
+                  <Link href="/doctor" className="inline-flex min-h-11 items-center rounded-lg border border-border px-4 font-mono text-xs text-ink hover:border-accent">
+                    Open my patients
+                  </Link>
+                  {clinicianOnly && (
+                    <Link href="/onboarding" className="inline-flex min-h-11 items-center rounded-lg border border-border px-4 font-mono text-xs text-ink hover:border-accent">
+                      Start my own journey
+                    </Link>
+                  )}
+                </div>
               </>
             ) : (
               <>
@@ -247,6 +272,8 @@ export default async function SettingsPage() {
             )}
           </Card>
 
+          {/* The export is of a journey; somebody in none has nothing to write out. */}
+          {active && (
           <Card className="p-8">
             <Eyebrow className="mb-3">Take everything with you</Eyebrow>
             <p className="mb-5 prose-serif-xs text-muted">
@@ -257,6 +284,7 @@ export default async function SettingsPage() {
             </p>
             <ExportButton />
           </Card>
+          )}
 
           <Card className="flex flex-wrap items-center justify-between gap-4 p-8">
             <div className="min-w-0">
@@ -270,6 +298,12 @@ export default async function SettingsPage() {
 
           <Card className="border-negative/30 p-8">
             <DeleteAccount email={user.email ?? ""} />
+            {clinician && (
+              <p className="mt-3 max-w-prose prose-serif-xs text-muted">
+                Your clinician account goes with it: every patient&rsquo;s sharing with you ends at once, and your
+                clinic code stops working. Their records stay theirs.
+              </p>
+            )}
           </Card>
         </div>
       </main>

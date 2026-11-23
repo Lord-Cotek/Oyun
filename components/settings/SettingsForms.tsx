@@ -8,6 +8,7 @@ import {
   updateProfile,
   changePassword,
   updateNotifications,
+  updateClinicianNotifications,
   updateJourney,
 } from "@/app/settings/actions";
 
@@ -169,6 +170,33 @@ export function PasswordForm() {
  * switches underneath. The rows and their wording live in lib/notify-prefs.ts
  * beside the map that assigns every notification type to one.
  */
+/** What may interrupt a clinician — see updateClinicianNotifications. */
+export function ClinicianNotificationForm({ notifyHouse, notifyByEmail }: { notifyHouse: boolean; notifyByEmail: boolean }) {
+  const { busy, result, run } = useAction(updateClinicianNotifications);
+  return (
+    <form action={run} className="space-y-5">
+      <div className="space-y-4">
+        <Toggle
+          name="notifyHouse"
+          defaultChecked={notifyHouse}
+          title="When a patient shares her records with me"
+          hint="A patient entering your code, or accepting — and nothing else. Oyun never alerts you about a patient’s readings."
+        />
+        <Toggle
+          name="notifyByEmail"
+          defaultChecked={notifyByEmail}
+          title="By email as well"
+          hint="Useful if you do not open Oyun every day. It is still in the bell either way."
+        />
+      </div>
+      <div className="flex items-center gap-4">
+        <SubmitBtn busy={busy} label="Save preferences" />
+        <Status result={result} />
+      </div>
+    </form>
+  );
+}
+
 export function NotificationForm({
   notifyByEmail,
   weeklyDigest,
