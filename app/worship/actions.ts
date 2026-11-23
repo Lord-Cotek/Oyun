@@ -218,6 +218,10 @@ export async function addReflection(input: {
             journeyId: active.journey.id,
             userId: { not: session.user.id },
             role: { in: [Role.MOTHER, Role.PARTNER] },
+            // A reflection on Scripture is for whoever keeps the Scripture
+            // room; it is not offered to someone who chose Oyun without
+            // religious content, so they are not told about one either.
+            user: { voice: { not: "GENERAL" } },
           },
           select: { userId: true },
         }),

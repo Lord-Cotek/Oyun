@@ -32,6 +32,13 @@ interface NotifyInput {
   href?: string;
   /** Also send an email if the user has transactional email enabled. */
   email?: boolean;
+  /**
+   * The same notification in plain words, for a recipient who chose Oyun
+   * without religious content — see lib/voice.ts. Needed only where `title`
+   * or `body` speak of prayer, God or worship; without it, everyone gets
+   * `title` and `body` as given.
+   */
+  plain?: { title: string; body?: string };
 }
 
 /**
@@ -45,7 +52,19 @@ interface NotifyInput {
  * come looking for is not ours to throw away on the strength of a preference.
  * See lib/notify-prefs.ts.
  */
-export async function notify(input: NotifyInput): Promise<void> {
+export async function notify(given: NotifyInput): Promise<void> {
+  // Each recipient hears it in their own voice. Read first, because the
+  // record itself is what the bell shows; a failed read keeps the words as
+  // given, which is how every notification read before the choice existed.
+  let input = given;
+  if (given.plain) {
+    const who = await prisma.user
+      .findUnique({ where: { id: given.userId }, select: { voice: true } })
+      .catch(() => null);
+    if (who?.voice === "GENERAL") {
+      input = { ...given, title: given.plain.title, body: given.plain.body ?? given.body };
+    }
+  }
   try {
     await prisma.notification.create({
       data: {

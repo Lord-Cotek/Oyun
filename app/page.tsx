@@ -3,16 +3,22 @@ import { Button } from "@/components/ui/Button";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Card } from "@/components/ui/Card";
 import { OyunMark } from "@/components/ui/OyunMark";
-import { Verse } from "@/components/ui/Verse";
 import { Icon, type IconName } from "@/components/ui/Icon";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { InstallButton } from "@/components/InstallButton";
 import { Screens } from "@/components/marketing/Screens";
 
+/**
+ * The front door is neutral on purpose. Oyun is offered by doctors and
+ * midwives to patients of every faith and none, and how Oyun speaks to each
+ * person is their own choice at sign-up — see lib/voice.ts. So this page says
+ * what Oyun is for everybody, and offers both ways of having it side by side,
+ * as equals: with Christian faith, or without religious content.
+ */
 export const metadata: Metadata = {
-  title: "Christian Pregnancy App & Devotional for Couples",
+  title: "Pregnancy & Early Parenthood Companion — With Faith or Without",
   description:
-    "Oyun is a Christian pregnancy app that pairs each week — conception through your child's first two years — with Scripture, a reflection, and one thing to do, plus a circle of support for the mother and her partner. Guided by Agbebi.",
+    "Oyun walks with you from conception through your child's first two years — what's unfolding each week, a reflection, one thing to do, your appointments and health log, and a circle of support. Choose Christian faith or no religious content. Guided by Agbebi.",
   alternates: { canonical: "/" },
 };
 
@@ -27,38 +33,62 @@ const PILLARS: {
     eyebrow: "Every stage",
     title: "Conception to two years",
     icon: "ring",
-    body: "Forty weeks of pregnancy and the child's first twenty-four months — each stage paired with what's unfolding, a scripture, a short reflection, and one thing to do. Plus a fresh verse each day.",
+    body: "Forty weeks of pregnancy and the child's first twenty-four months — each stage paired with what's unfolding, a short reflection, and one thing to do. Plus a fresh word each day.",
   },
   {
     eyebrow: "Guided by Agbebi",
     title: "A companion, not a doctor",
     icon: "heart",
-    body: "Agbebi — Yoruba for midwife, the one who receives the child — offers Scripture, prayer, and gentle, Reformed encouragement. Never medical advice; always pointing back to God's Word.",
+    body: "Agbebi — Yoruba for midwife, the one who receives the child — offers gentle encouragement in the voice you chose. Never medical advice; for that, always your doctor or midwife.",
   },
   {
     eyebrow: "The signature",
     title: "A circle of support",
     icon: "users",
     signature: true,
-    body: "You are not the only user. Invite your husband and accountability partners — each gets their own view of how to pray for you, encourage you, and carry you, right where you are this week.",
+    body: "You are not the only user. Invite your partner, family and close friends — each gets their own view of how to encourage you and carry you, right where you are this week.",
   },
   {
-    eyebrow: "Named intercession",
-    title: "Prayer, together",
-    icon: "flame",
-    body: "A shared prayer wall for your circle. Name a real need — a scan, a fear, a decision — and watch, together, for how God answers it.",
+    eyebrow: "For your appointments",
+    title: "Health log & doctor's report",
+    icon: "pulse",
+    body: "Blood pressure, readings, medicines, tests and scans, kept in one place — with a clear report to print or share with your doctor or midwife, only when you choose to.",
   },
   {
-    eyebrow: "An altar at home",
-    title: "Family worship & catechism",
-    icon: "book",
-    body: "A daily household rhythm: read a Scripture, sit with a short reflection, pray, sing a hymn — and, once your little one arrives, a children's catechism question. Build the habit from the start.",
+    eyebrow: "Named and shared",
+    title: "Ask for support",
+    icon: "hands",
+    body: "A shared wall for your circle. Name a real need — a scan, a fear, a decision — and let the people who love you carry it with you.",
   },
   {
     eyebrow: "Kept & remembered",
     title: "Care and keepsakes",
     icon: "star",
     body: "Chart how your heart is over time, write letters to your baby, and keep a timeline of firsts with photos — with a profile for each child, twins and all.",
+  },
+];
+
+/** The two ways to have Oyun — chosen at sign-up, changed any time. */
+const WAYS: { title: string; body: string; points: string[] }[] = [
+  {
+    title: "With Christian faith",
+    body: "Oyun as it was first written: Scripture at the centre of every stage.",
+    points: [
+      "A Bible verse for each day and each week",
+      "Prayer with your circle, by name",
+      "Family worship and a Scripture reading plan",
+      "Readings for grief, if the road turns to loss",
+    ],
+  },
+  {
+    title: "Without religious content",
+    body: "Every feature, the same care — with no verses, prayers or worship.",
+    points: [
+      "A word of encouragement for each day and each week",
+      "Your circle holds what you ask them to, by name",
+      "Reflections written for exactly where you are",
+      "Gentle words for grief, if the road turns to loss",
+    ],
   },
 ];
 
@@ -89,7 +119,7 @@ const jsonLd = {
       operatingSystem: "iOS, Android, Web",
       url: siteUrl,
       description:
-        "A Christian pregnancy app and daily devotional — Scripture, prayer, and gentle guidance from conception through a child's first two years, for a mother and her partner. Guided by Agbebi.",
+        "A pregnancy and early-parenthood companion — each week's stage, a reflection, a health log and a circle of support from conception through a child's first two years, with Christian faith or without religious content. Guided by Agbebi.",
       publisher: { "@id": `${siteUrl}/#org` },
       offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
     },
@@ -117,13 +147,14 @@ export default function Landing() {
 
           <Eyebrow className="mb-5">A COTEK companion</Eyebrow>
           <h1 className="max-w-3xl font-serif text-4xl leading-[1.08] text-ink sm:text-5xl md:text-6xl">
-            Walk the whole journey — together — with Scripture at the centre.
+            Walk the whole journey — together.
           </h1>
           <p className="mt-6 max-w-prose prose-serif-sm text-muted">
-            From the first quiet weeks of the womb through a child's earliest
+            From the first quiet weeks of pregnancy through a child's earliest
             years, Oyun keeps you where you actually are: what's unfolding this
-            stage, a word from Scripture, one thing to do, and a way for a
-            husband or accountability partner to carry it with you.
+            stage, a word for the week, one thing to do, and a way for the
+            people who love you to carry it with you. With Christian faith, or
+            without religious content — you choose.
           </p>
 
           <div className="mt-9 flex flex-wrap items-center gap-3">
@@ -148,14 +179,33 @@ export default function Landing() {
 
       <Screens />
 
-      {/* Verse rest */}
+      {/* Your way — the two voices, as equals. See lib/voice.ts. */}
       <section className="border-t border-border py-20">
-        <div className="mx-auto max-w-prose text-center">
-          <Verse
-            size="lg"
-            text="For you formed my inmost being. You knit me together in my mother’s womb."
-            reference="Psalm 139:13"
-          />
+        <div className="mb-10 max-w-prose">
+          <Eyebrow className="mb-4">Your way</Eyebrow>
+          <h2 className="font-serif text-3xl leading-snug text-ink">
+            With faith, or without. The same Oyun either way.
+          </h2>
+          <p className="mt-3 prose-serif-sm text-muted">
+            You choose when you sign up, and you can change it any time. It is yours alone — the people in
+            your circle each choose for themselves.
+          </p>
+        </div>
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+          {WAYS.map((w) => (
+            <Card key={w.title} className="p-7">
+              <h3 className="font-serif text-2xl leading-snug text-ink">{w.title}</h3>
+              <p className="mt-2 prose-serif-xs text-muted">{w.body}</p>
+              <ul className="mt-4 space-y-2">
+                {w.points.map((pt) => (
+                  <li key={pt} className="flex gap-2.5 prose-serif-xs text-ink/90">
+                    <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-accent" aria-hidden />
+                    {pt}
+                  </li>
+                ))}
+              </ul>
+            </Card>
+          ))}
         </div>
       </section>
 
@@ -164,7 +214,7 @@ export default function Landing() {
         <div className="mb-10 max-w-prose">
           <Eyebrow className="mb-4">Inside Oyun</Eyebrow>
           <h2 className="font-serif text-3xl leading-snug text-ink">
-            A little, faithfully — at the right time.
+            A little, at the right time.
           </h2>
         </div>
         <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
@@ -202,23 +252,23 @@ export default function Landing() {
           <div className="space-y-4 prose-serif-sm text-muted">
             <p>
               Most apps for this season are loud with charts, comparisons, and
-              worry. Oyun is spare on purpose. It gives you a little, faithfully,
-              at the right time — and gets out of the way.
+              worry. Oyun is spare on purpose. It gives you a little, at the right
+              time — and gets out of the way.
             </p>
             <p>
               It will not promise you an easy delivery or a guaranteed outcome.
-              God is not a lever. He is good, sovereign, and near — in joy and in
-              the hard things alike. That is the ground we stand on.
+              It is honest about the hard things and stays with you in them, in
+              joy and in worry alike.
             </p>
             <p>
               For everything medical, Oyun sends you to your doctor or midwife —
-              plainly and every time. Its work is the other thing: to keep
-              Scripture, prayer, and the people who love you close.
+              plainly and every time. Its work is the other thing: to keep the
+              right words, and the people who love you, close.
             </p>
             <p>
               And if the road should turn to loss, Oyun does not vanish or pretend.
-              It becomes a place of lament and remembrance — Scripture for grief, a
-              way to remember your child by name, and your circle drawn near. No one
+              It becomes a place of remembrance — gentle words for grief, a way to
+              remember your child by name, and your circle drawn near. No one
               should walk that alone.
             </p>
           </div>

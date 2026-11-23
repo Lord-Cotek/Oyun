@@ -13,6 +13,14 @@
  * So there is one claim, in three lengths, and every surface takes the length
  * that fits rather than writing its own.
  *
+ * ── Why it names no faith ────────────────────────────────────────────────
+ * One claim for everybody, whichever way they chose Oyun to speak to them
+ * (lib/voice.ts): the footer, the sign-in screens and the email are read
+ * before Oyun knows, and an agreement should not change its words depending
+ * on who ticks it. So it says what is true for both — Oyun is never a
+ * replacement for the people around you, a faith community among them for
+ * those who have one.
+ *
  * ── Why the medical line is an instruction, not a disclaimer ─────────────
  * "Not medical advice" is a sentence written for the app's protection. "Take
  * anything to do with your health, or your baby's, to your doctor or midwife"
@@ -23,11 +31,11 @@
 
 /** The whole of it. Home, settings, the marketing page. */
 export const PROMISE_FULL =
-  "Oyun is a help for a family, and a place to keep family life private in an age that keeps nothing private. It is never a replacement for your church, those who shepherd you, or the friends who keep you honest. Agbebi offers Scripture, prayer and encouragement, never medical advice: take anything to do with your health, or your baby’s, to your doctor or midwife.";
+  "Oyun is a help for a family, and a place to keep family life private in an age that keeps nothing private. It is never a replacement for the people who love you, your faith community if you have one, or the friends who keep you honest. Agbebi offers encouragement, never medical advice: take anything to do with your health, or your baby’s, to your doctor or midwife.";
 
 /** One sentence, where a paragraph would be in the way. */
 export const PROMISE_SHORT =
-  "Oyun is a help for a family — never a replacement for your church, those who shepherd you, or your doctor or midwife.";
+  "Oyun is a help for a family — never a replacement for the people around you, or your doctor or midwife.";
 
 /**
  * What somebody agrees to at onboarding.
@@ -36,7 +44,7 @@ export const PROMISE_SHORT =
  * pretending to be an agreement.
  */
 export const PROMISE_CONSENT =
-  "I understand Oyun and Agbebi offer Scripture, prayer and encouragement — never medical advice — and are never a replacement for my church, those who shepherd me, or my doctor or midwife.";
+  "I understand Oyun and Agbebi offer encouragement — never medical advice — and are never a replacement for the people around me, my faith community if I have one, or my doctor or midwife.";
 
 /**
  * Where the whole thing is shown.

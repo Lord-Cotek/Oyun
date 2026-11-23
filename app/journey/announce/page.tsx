@@ -73,7 +73,9 @@ export default async function AnnouncePage() {
     place: null,
     message: null,
     signedAs,
-    verseRef: BIRTH_VERSES[0].ref,
+    // No verse unless they add one, for someone who chose Oyun without
+    // religious content — lib/voice.ts. Theirs to add if they want one.
+    verseRef: session.user.voice === "GENERAL" ? null : BIRTH_VERSES[0].ref,
     photoUrls: [],
     style: "dawn",
   };
@@ -92,7 +94,11 @@ export default async function AnnouncePage() {
           A card with their names and what each one means, the day, your photographs and your own words. Your circle sees it
           in Life; anyone else gets a private link — where they can send a word of welcome and ask to join your circle.
         </p>
-        <AnnouncementEditor initial={initial} link={token ? sharePath(token) : null} />
+        <AnnouncementEditor
+          initial={initial}
+          link={token ? sharePath(token) : null}
+          general={session.user.voice === "GENERAL"}
+        />
       </main>
     </>
   );

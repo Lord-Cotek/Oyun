@@ -79,7 +79,7 @@ export function ChildForm({
       </label>
       <label className="block">
         <span className="eyebrow mb-1.5 block text-muted">A note (optional)</span>
-        <input name="note" defaultValue={child?.note ?? ""} placeholder="A blessing, a hope, a detail to remember" className={inputClass} />
+        <input name="note" defaultValue={child?.note ?? ""} placeholder="A hope, a wish, a detail to remember" className={inputClass} />
       </label>
       <label className="block">
         <span className="eyebrow mb-1.5 block text-muted">Photo (optional)</span>

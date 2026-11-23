@@ -72,7 +72,7 @@ export default async function OneAppointmentPage({
               ? ` · ${timeLabel(new Date(a.at), a.hasTime)}`
               : ""}
           </p>
-          <OneAppointment a={a} />
+          <OneAppointment a={a} general={session.user.voice === "GENERAL"} />
         </div>
       </main>
     </>

@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { getJourneyMembers } from "@/lib/data";
-import { dailyLament } from "@/lib/lament";
+import { griefWordIn } from "@/lib/voice-content";
+import { isGeneral } from "@/lib/voice";
 import { Card } from "@/components/ui/Card";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { OyunMark } from "@/components/ui/OyunMark";
@@ -15,13 +16,18 @@ export async function LamentView({
   babyName,
   lossAt,
   viewerName,
+  voice,
 }: {
   journeyId: string;
   babyName: string | null;
   lossAt: Date | null;
   viewerName: string | null;
+  /** How Oyun speaks to her — see lib/voice.ts. Without religious content
+   *  the memorial says the same true things without claiming God for them. */
+  voice?: string | null;
 }) {
-  const lament = dailyLament();
+  const general = isGeneral(voice);
+  const lament = griefWordIn(voice);
   const [members, remembrances] = await Promise.all([
     getJourneyMembers(journeyId),
     prisma.remembrance.findMany({
@@ -38,7 +44,7 @@ export async function LamentView({
       {/* Memorial */}
       <div className="animate-fade-up text-center">
         <OyunMark size={44} className="mx-auto mb-6 text-ink" />
-        <Eyebrow className="mb-3 text-accent2">Held in the hands of God</Eyebrow>
+        <Eyebrow className="mb-3 text-accent2">{general ? "Always your child" : "Held in the hands of God"}</Eyebrow>
         <h1 className="font-serif text-4xl leading-tight text-ink md:text-5xl">
           {babyName ? `In memory of ${babyName}` : "In memory of your little one"}
         </h1>
@@ -49,21 +55,25 @@ export async function LamentView({
                 month: "long",
                 day: "numeric",
               })
-            : "Known and loved by their Maker"}
+            : general
+              ? "Known and loved"
+              : "Known and loved by their Maker"}
         </p>
         <p className="mx-auto mt-6 max-w-prose prose-serif-sm text-muted">
-          There are no words that make this right, and we will not pretend
-          otherwise. Your child was fully known and fully loved by God before
-          they were known by anyone else. We are so sorry. You do not walk this
-          alone.
+          {general
+            ? "There are no words that make this right, and we will not pretend otherwise. Your child was real, and loved, and is worth remembering for as long as you want to remember them. We are so sorry. You do not walk this alone."
+            : "There are no words that make this right, and we will not pretend otherwise. Your child was fully known and fully loved by God before they were known by anyone else. We are so sorry. You do not walk this alone."}
         </p>
       </div>
 
       <div className="mt-12 grid gap-4 lg:grid-cols-[1.3fr_1fr]">
         <div className="space-y-4">
           <Card className="p-8">
-            <Eyebrow className="mb-4 text-accent2">A word for today</Eyebrow>
-            <Verse text={lament.text} reference={lament.ref} size="lg" />
+            <Eyebrow className="mb-4 text-accent2">
+              {general ? `A word for today · ${lament.ref}` : "A word for today"}
+            </Eyebrow>
+            {/* Oyun's own words carry no reference, so no quotation marks. */}
+            <Verse text={lament.text} reference={general ? "" : lament.ref} size="lg" />
             <p className="mt-6 border-t border-border pt-6 prose-serif-sm text-muted">
               {lament.reflection}
             </p>
@@ -73,7 +83,7 @@ export async function LamentView({
             <Eyebrow className="mb-4">Words of remembrance</Eyebrow>
             <p className="mb-5 prose-serif-xs text-muted">
               A place to keep what you and those who love you want to remember —
-              a name spoken, a prayer, a hope held. These are yours to keep.
+              {general ? "a name spoken, a memory, a hope held." : "a name spoken, a prayer, a hope held."} These are yours to keep.
             </p>
             <RemembranceForm />
             <div className="mt-6 space-y-3 border-t border-border pt-5">
@@ -127,9 +137,9 @@ export async function LamentView({
             ) : (
               <>
                 <p className="mb-4 prose-serif-xs text-muted">
-                  Please don&rsquo;t carry this by yourself. Invite someone to walk
-                  with you — a spouse, a friend, someone from your church who will
-                  simply be present.
+                  {general
+                    ? "Please don’t carry this by yourself. Invite someone to walk with you — a partner, a friend, someone who will simply be present."
+                    : "Please don’t carry this by yourself. Invite someone to walk with you — a spouse, a friend, someone from your church who will simply be present."}
                 </p>
                 <Button href="/circle" variant="ghost" className="w-full">
                   Invite someone near
@@ -138,19 +148,30 @@ export async function LamentView({
             )}
           </Card>
 
-          <Card className="p-6">
-            <Eyebrow className="mb-3">Lean on the Body</Eyebrow>
-            <p className="prose-serif-xs text-muted">
-              Tell your pastor and your church. Grief was never meant to be
-              private. The people of God are meant to weep with those who weep
-              (Romans 12:15) — let them.
-            </p>
-          </Card>
+          {general ? (
+            <Card className="p-6">
+              <Eyebrow className="mb-3">Let people in</Eyebrow>
+              <p className="prose-serif-xs text-muted">
+                Grief was never meant to be carried in private. Tell the people who love you, and let them sit
+                with you. Your midwife or doctor can also put you in touch with someone who supports parents
+                after a loss — asking is a strength, not a failure.
+              </p>
+            </Card>
+          ) : (
+            <Card className="p-6">
+              <Eyebrow className="mb-3">Lean on the Body</Eyebrow>
+              <p className="prose-serif-xs text-muted">
+                Tell your pastor and your church. Grief was never meant to be
+                private. The people of God are meant to weep with those who weep
+                (Romans 12:15) — let them.
+              </p>
+            </Card>
+          )}
 
           <Card className="p-6">
             <Eyebrow className="mb-3 text-accent2">Agbebi is here</Eyebrow>
             <p className="prose-serif-xs text-muted">
-              If you want to pray, or simply not be alone with your thoughts,
+              {general ? "If you want to talk," : "If you want to pray,"} or simply not be alone with your thoughts,
               Agbebi will sit with you — gently, and for as long as you need. She
               is the quiet mark in the corner.
             </p>

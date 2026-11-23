@@ -46,17 +46,28 @@ export async function markSupport(kind: "prayed" | "reachedOut") {
   if (next) {
     const [journey, actor] = await Promise.all([
       prisma.journey.findUnique({ where: { id: journeyId }, select: { ownerId: true } }),
-      prisma.user.findUnique({ where: { id: userId }, select: { name: true } }),
+      prisma.user.findUnique({ where: { id: userId }, select: { name: true, voice: true } }),
     ]);
     if (journey && journey.ownerId !== userId) {
       const who = actor?.name?.trim() || "Someone in your circle";
+      // Say what they actually did. Someone who chose Oyun without religious
+      // content tapped "I held her in mind", not "I prayed" — so she is told
+      // that, whichever voice she reads in (lib/voice.ts).
+      const held = actor?.voice === "GENERAL";
       await notify({
         userId: journey.ownerId,
         type: kind === "prayed" ? "prayer" : "reached_out",
         title:
           kind === "prayed"
-            ? `${who} prayed for you today.`
+            ? held
+              ? `${who} is holding you in mind today.`
+              : `${who} prayed for you today.`
             : `${who} is reaching out to you today.`,
+        // In her own voice — lib/voice.ts. The same act, plainly named.
+        plain:
+          kind === "prayed"
+            ? { title: `${who} is holding you in mind today.` }
+            : undefined,
         href: "/journey",
       });
     }

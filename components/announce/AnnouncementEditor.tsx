@@ -24,7 +24,16 @@ const quiet = "font-mono text-[0.68rem] text-muted underline-offset-4 hover:text
  * Making the announcement. Every change shows at once in the card beside it
  * (below it, on a phone) — the same card everyone who opens the link sees.
  */
-export function AnnouncementEditor({ initial, link }: { initial: AnnouncementData; link: string | null }) {
+export function AnnouncementEditor({
+  initial,
+  link,
+  general = false,
+}: {
+  initial: AnnouncementData;
+  link: string | null;
+  /** Without religious content — lib/voice.ts. A verse stays possible, just not the default. */
+  general?: boolean;
+}) {
   const [d, setD] = useState<AnnouncementData>(initial);
   const [path, setPath] = useState<string | null>(link);
   const [error, setError] = useState<string | null>(null);
@@ -267,12 +276,13 @@ export function AnnouncementEditor({ initial, link }: { initial: AnnouncementDat
           <label htmlFor="ann-verse" className="mt-3 block">
             <span className={label}>A verse</span>
             <select id="ann-verse" className={input} value={d.verseRef ?? ""} onChange={(e) => set("verseRef", e.target.value || null)}>
+              {general && <option value="">No verse</option>}
               {BIRTH_VERSES.map((v) => (
                 <option key={v.ref} value={v.ref}>
                   {v.ref} — {v.text.length > 52 ? `${v.text.slice(0, 52)}…` : v.text}
                 </option>
               ))}
-              <option value="">No verse</option>
+              {!general && <option value="">No verse</option>}
             </select>
           </label>
           <label htmlFor="ann-message" className="mt-3 block">
@@ -282,7 +292,11 @@ export function AnnouncementEditor({ initial, link }: { initial: AnnouncementDat
               rows={4}
               maxLength={1200}
               className={`${input} resize-y`}
-              placeholder="After years of praying, God has answered. Thank you for every prayer that carried us here."
+              placeholder={
+                general
+                  ? "We are so happy to introduce our little one. Thank you for every kind word that carried us here."
+                  : "After years of praying, God has answered. Thank you for every prayer that carried us here."
+              }
               value={d.message ?? ""}
               onChange={(e) => set("message", e.target.value || null)}
             />

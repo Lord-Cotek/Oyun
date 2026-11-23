@@ -23,7 +23,7 @@ export function BirthAnnouncement({
         <p className="eyebrow mb-2 text-accent">Tell people</p>
         <h2 className="font-serif text-2xl text-ink">Announce {names ? names : "the birth"}</h2>
         <p className="mt-1 max-w-prose prose-serif-sm text-muted">
-          A beautiful card with their names and what each one means, the day, your photographs, a verse and your own words —
+          A beautiful card with their names and what each one means, the day, your photographs and your own words —
           for your circle in Life, and a private link for everyone else.
         </p>
         <Link

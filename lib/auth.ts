@@ -137,11 +137,11 @@ export const authOptions: NextAuthOptions = {
         // everybody losing their place. A row that comes back NULL is a
         // different thing — that account is genuinely gone — and still ends
         // the session.
-        let live: { suspendedAt: Date | null } | null = null;
+        let live: { suspendedAt: Date | null; voice: "FAITH" | "GENERAL" } | null = null;
         try {
           live = await prisma.user.findUnique({
             where: { id: token.id as string },
-            select: { suspendedAt: true },
+            select: { suspendedAt: true, voice: true },
           });
         } catch (err) {
           console.error("[auth] could not check the account; keeping the session", err);
@@ -156,6 +156,9 @@ export const authOptions: NextAuthOptions = {
           return session;
         }
         session.user.id = token.id as string;
+        // How Oyun speaks to them — read fresh with the suspension check, so
+        // a change in Settings shows on the very next page. See lib/voice.ts.
+        session.user.voice = live.voice;
       }
       return session;
     },

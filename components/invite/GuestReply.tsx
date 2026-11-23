@@ -213,7 +213,7 @@ export function GuestReply({
               rows={2}
               maxLength={GUEST_NOTE_MAX}
               defaultValue={mine?.note ?? ""}
-              placeholder="We'll be a little late — coming straight from church."
+              placeholder="We'll be a little late — coming straight from work."
               className={inputClass}
             />
           </label>

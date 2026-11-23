@@ -108,8 +108,8 @@ export const CATEGORIES: CategoryRow[] = [
   {
     id: "circle",
     field: "notifyCircle",
-    label: "When your circle prays or writes back",
-    hint: "A prayer request answered, and a word sent to you by somebody carrying you.",
+    label: "When your circle reaches out or writes back",
+    hint: "A request answered, and a word sent to you by somebody carrying you.",
   },
   {
     id: "her",
@@ -133,7 +133,7 @@ export const CATEGORIES: CategoryRow[] = [
     id: "morning",
     field: "notifyMorning",
     label: "One note each morning",
-    hint: "The day's verse, and the one thing worth knowing today — written for your part in this, and sent at the hour you choose. Never more than one a day.",
+    hint: "The day's word, and the one thing worth knowing today — written for your part in this, and sent at the hour you choose. Never more than one a day.",
   },
   {
     id: "house",

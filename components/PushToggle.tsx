@@ -110,7 +110,7 @@ export function PushToggle() {
     <div className="rounded-lg border border-border bg-bg p-4">
       <p className="font-mono text-sm text-ink">Push to this device</p>
       <p className="prose-serif-xs mb-3 text-muted">
-        Get a gentle notification on this device when someone prays for you or
+        Get a gentle notification on this device when someone is with you or
         sends a word — even when Oyun is closed.
       </p>
       <div className="flex items-center gap-3">

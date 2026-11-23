@@ -29,6 +29,18 @@ export function Verse({
         ? "text-lg"
         : "text-xl md:text-2xl";
 
+  // No reference means these are Oyun's own words, not Scripture — the
+  // stage's encouragement for someone who chose Oyun without religious
+  // content (see lib/voice-content.ts). Quotation marks would claim somebody
+  // said it, so it is set as a plain line, with nothing under it.
+  if (!reference) {
+    return (
+      <div className={`relative ${className}`}>
+        <p className={`font-serif leading-snug ${onBand ? "" : "text-ink"} ${sizeClass}`}>{text}</p>
+      </div>
+    );
+  }
+
   return (
     <figure className={`relative ${className}`}>
       <blockquote>

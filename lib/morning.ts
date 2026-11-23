@@ -1,7 +1,7 @@
 import { computePosition } from "@/lib/stage";
-import { dailyDevotion } from "@/lib/daily";
-import { dailyLament } from "@/lib/lament";
-import { partnerDailyCare, dayKey } from "@/lib/partner-care";
+import { dayKey } from "@/lib/partner-care";
+import { dailyWordIn, griefWordIn, partnerCareIn, stageIn } from "@/lib/voice-content";
+import { isGeneral } from "@/lib/voice";
 
 /**
  * One note each morning, written for the seat you are actually sitting in.
@@ -80,6 +80,9 @@ export interface MorningInput {
   /** "ACTIVE" or "LOSS". Anything else is treated as a loss, which is the
    *  safer way to be wrong: silence rather than a cheerful week count. */
   status: string;
+  /** How Oyun speaks to this person — see lib/voice.ts. Faith when absent,
+   *  which is what every morning note said before the choice existed. */
+  voice?: string | null;
   now?: Date;
 }
 
@@ -94,7 +97,7 @@ export function morningNote(input: MorningInput): MorningNote | null {
     // No stage, no week number, nothing to do today. The circle is not
     // written to at all; see the note at the top of this file.
     if (input.seat === "circle") return null;
-    const lament = dailyLament(now);
+    const lament = griefWordIn(input.voice, now);
     return {
       title: `This morning · ${lament.ref}`,
       body: trim(lament.text),
@@ -102,8 +105,11 @@ export function morningNote(input: MorningInput): MorningNote | null {
     };
   }
 
-  const { stage } = computePosition(input.dueDate, now);
-  const verse = dailyDevotion(now);
+  const general = isGeneral(input.voice);
+  const stage = stageIn(computePosition(input.dueDate, now).stage, input.voice);
+  // The day's verse, or for the general voice the day's word and its theme
+  // ("On rest") — so the title reads "This morning · On rest".
+  const verse = dailyWordIn(input.voice, now);
 
   if (input.seat === "mother") {
     return {
@@ -132,7 +138,7 @@ export function morningNote(input: MorningInput): MorningNote | null {
      * two places it reads properly: the journey page, under "how to carry
      * her this stage", and the weekly email.
      */
-    const care = partnerDailyCare(stage.phase, dayKey(now), stage.index);
+    const care = partnerCareIn(input.voice, stage.phase, dayKey(now), stage.index);
     return {
       // Named for what it is, so it is worth opening even on a busy morning:
       // this is the one thing he can do for her today. The nudge's own verse
@@ -145,7 +151,7 @@ export function morningNote(input: MorningInput): MorningNote | null {
   }
 
   return {
-    title: `Pray for them · ${verse.ref}`,
+    title: general ? `Thinking of them · ${verse.ref}` : `Pray for them · ${verse.ref}`,
     body: trim(stage.prayerPoint),
     href: "/journey",
   };

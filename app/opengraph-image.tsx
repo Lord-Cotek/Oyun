@@ -57,7 +57,7 @@ export default function OpengraphImage() {
             Guided by Agbebi
           </div>
           <div style={{ fontSize: 30, color: "#8A9099", marginTop: 28, maxWidth: 820 }}>
-            Walk the whole journey — together — with Scripture at the centre.
+            Walk the whole journey — together. With faith, or without.
           </div>
         </div>
       </div>

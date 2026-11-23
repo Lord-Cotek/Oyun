@@ -5,7 +5,6 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { OyunMark } from "@/components/ui/OyunMark";
-import { Verse } from "@/components/ui/Verse";
 import { SignInForm } from "@/components/SignInForm";
 import { LanguageSwitch } from "@/components/LanguageSwitch";
 import { getLang, yorubaOffered } from "@/lib/lang";
@@ -43,11 +42,11 @@ export default async function SignInPage({
           <span className="font-serif text-xl text-ink">Oyun</span>
         </Link>
         <div className="max-w-sm">
-          <Verse
-            size="lg"
-            text="For you formed my inmost being. You knit me together in my mother’s womb."
-            reference="Psalm 139:13"
-          />
+          {/* Neutral: before signing in, we do not know how this person
+              chose to be spoken to. See lib/voice.ts. */}
+          <p className="font-serif text-3xl leading-snug text-ink">
+            Every week of it, with the people who love you close by.
+          </p>
         </div>
         <p className="prose-serif-xs max-w-xs text-muted">
           {PROMISE_SHORT}

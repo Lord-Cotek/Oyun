@@ -25,6 +25,7 @@ export async function GET() {
         name: session.user.name ?? null,
         role: null,
         stageTitle: null,
+        voice: session.user.voice ?? "FAITH",
       });
     }
 
@@ -35,6 +36,8 @@ export async function GET() {
       role: active.role,
       stageTitle: position.stage.title,
       babyName: active.journey.babyName ?? null,
+      // So the chat greets them in the voice they chose — lib/voice.ts.
+      voice: session.user.voice ?? "FAITH",
     });
   } catch {
     return NextResponse.json({ authenticated: false });

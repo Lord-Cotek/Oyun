@@ -28,7 +28,7 @@ export default function PrivacyPage() {
         <p>
           <span className="text-ink">What you create</span> — the content you
           add in the app: check-ins and moods, letters, milestones and photos,
-          prayer requests and encouragements, your due date, and details you
+          requests for prayer or support and encouragements, your due date, and details you
           choose to enter about your pregnancy and children.
         </p>
         <p>

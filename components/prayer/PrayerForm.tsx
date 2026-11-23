@@ -5,7 +5,7 @@ import { useFormStatus } from "react-dom";
 import { addPrayerRequest } from "@/app/prayer/actions";
 import { DraftTextarea } from "@/components/ui/DraftTextarea";
 
-export function PrayerForm() {
+export function PrayerForm({ general = false }: { general?: boolean }) {
   const formRef = useRef<HTMLFormElement>(null);
   return (
     <form
@@ -21,7 +21,7 @@ export function PrayerForm() {
         name="title"
         required
         maxLength={200}
-        placeholder="What can your circle pray for?"
+        placeholder={general ? "What would you like your circle to hold with you?" : "What can your circle pray for?"}
         className="prose-serif-sm w-full rounded-lg border border-border bg-bg px-3.5 py-2.5 text-ink placeholder:text-muted focus:border-accent focus:outline-none"
       />
       <DraftTextarea
@@ -31,12 +31,12 @@ export function PrayerForm() {
         placeholder="Any detail you'd like to add (optional)"
         className="w-full resize-none rounded-lg border border-border bg-bg px-3.5 py-2.5 prose-serif-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none"
       />
-      <Submit />
+      <Submit general={general} />
     </form>
   );
 }
 
-function Submit() {
+function Submit({ general }: { general: boolean }) {
   const { pending } = useFormStatus();
   return (
     <button
@@ -44,7 +44,7 @@ function Submit() {
       disabled={pending}
       className="rounded-lg bg-accent px-4 py-2 font-mono text-sm font-medium text-on-accent transition-colors hover:bg-accent-deep disabled:opacity-50"
     >
-      {pending ? "Sharing…" : "Ask for prayer"}
+      {pending ? "Sharing…" : general ? "Ask for support" : "Ask for prayer"}
     </button>
   );
 }

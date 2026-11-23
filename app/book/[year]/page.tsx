@@ -57,6 +57,7 @@ export default async function BookPage({ params }: { params: { year: string } })
       <SiteHeader active="life" />
       <main className="mx-auto max-w-3xl px-6 pb-16">
         <YearBook
+          general={session.user.voice === "GENERAL"}
           title={j.babyName?.trim() || "Our journey"}
           year={year}
           cover={cover}

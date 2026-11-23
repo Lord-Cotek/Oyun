@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { FaithOnlyRoom } from "@/components/FaithOnlyRoom";
+import { isGeneral } from "@/lib/voice";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
@@ -31,6 +33,8 @@ function formatWhen(d: Date): string {
 export default async function JournalPage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/sign-in?callbackUrl=/journal");
+  // A room that is only worship — see components/FaithOnlyRoom.tsx.
+  if (isGeneral(session.user.voice)) return <FaithOnlyRoom room="Reflection journal" />;
   const active = await getActiveMembership(session.user.id);
   if (!active) redirect("/onboarding");
   /**

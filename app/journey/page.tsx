@@ -24,7 +24,9 @@ import {
 import { computePosition, gestationLabel } from "@/lib/stage";
 import { setJourneyCover } from "@/app/journey/cover-actions";
 import { babySizeFor } from "@/lib/babySize";
-import { partnerDailyCare, dayKey } from "@/lib/partner-care";
+import { dayKey } from "@/lib/partner-care";
+import { stageIn, partnerCareIn } from "@/lib/voice-content";
+import { isGeneral, wordsForVoice } from "@/lib/voice";
 import { getReactionsFor } from "@/lib/reactions";
 import { MOOD_META } from "@/lib/moods";
 import { loadFeed } from "@/lib/feed-query";
@@ -164,11 +166,13 @@ export default async function JourneyPage() {
             babyName={journey.babyName}
             lossAt={journey.lossAt}
             viewerName={me?.name ?? null}
+            voice={session.user.voice}
           />
         ) : (
           <LamentPartnerView
             journeyId={journey.id}
             motherName={journey.owner.name ?? "She"}
+            voice={session.user.voice}
           />
         )}
       </>
@@ -233,7 +237,12 @@ export default async function JourneyPage() {
           cover: announceRow?.photoUrls[0] ?? null,
         }
       : null;
-  const { stage } = position;
+  // The stage in this reader's own voice — the verse, prayer point and the
+  // rest for faith; the same moment in plain words without. lib/voice.ts.
+  const voice = session.user.voice;
+  const general = isGeneral(voice);
+  const vw = wordsForVoice(voice);
+  const stage = stageIn(position.stage, voice);
 
   const stageLabel = position.born
     ? `Month ${position.month}`
@@ -446,10 +455,16 @@ export default async function JourneyPage() {
           {/* Colorful launcher — the journey's app grid */}
           <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
             <Reveal>
-              <ActionTile tone={0} href="/worship" label="Worship" hint="Daily altar" icon="flame" />
+              {/* Without religious content there is no altar to go to; the
+                  letters to the baby take its place — see lib/voice.ts. */}
+              {general ? (
+                <ActionTile tone={0} href="/letters" label="Letters" hint={`To your ${bw.noun}`} icon="message" />
+              ) : (
+                <ActionTile tone={0} href="/worship" label="Worship" hint="Daily altar" icon="flame" />
+              )}
             </Reveal>
             <Reveal delay={60}>
-              <ActionTile tone={1} href="/prayer" label="Prayer" hint="Requests" icon="hands" />
+              <ActionTile tone={1} href="/prayer" label={vw.prayerRoom} hint="Requests" icon="hands" />
             </Reveal>
             <Reveal delay={120}>
               <ActionTile tone={2} href="/care" label="Care" hint="Your heart" icon="heart" />
@@ -466,7 +481,7 @@ export default async function JourneyPage() {
               <ActionTile tone={4} href="/firsts" label="Firsts" hint={`${milestoneCount} kept`} icon="sparkles" />
             </Reveal>
             <Reveal delay={300}>
-              <ActionTile tone={5} href="/circle" label="Circle" hint="Who’s praying" icon="users" />
+              <ActionTile tone={5} href="/circle" label="Circle" hint={general ? "Who’s with you" : "Who’s praying"} icon="users" />
             </Reveal>
           </div>
 
@@ -477,12 +492,13 @@ export default async function JourneyPage() {
           )}
 
           <div className="mt-4">
-            <DailyVerse />
+            <DailyVerse voice={voice} />
           </div>
 
           <div className="mt-6 grid gap-4 lg:grid-cols-[1.5fr_1fr]">
             <Card className="overflow-hidden p-8">
-              {/* The stage's scripture, on a band that bleeds to the card's
+              {/* The stage's scripture (or, without religious content, its
+                  word of encouragement), on a band that bleeds to the card's
                   own edges. It was set on the same surface as the reflection
                   underneath it, which made the one set-apart thing on the
                   page look like the introduction to a paragraph. */}
@@ -506,7 +522,7 @@ export default async function JourneyPage() {
                 </p>
               </div>
               <div className="mt-5 border-t border-border pt-5">
-                <Eyebrow className="mb-2">Pray</Eyebrow>
+                <Eyebrow className="mb-2">{general ? "A hope for this stage" : "Pray"}</Eyebrow>
                 <p className="prose-serif-sm text-muted">
                   {stage.prayerPoint}
                 </p>
@@ -530,7 +546,10 @@ export default async function JourneyPage() {
                 </Card>
               )}
 
-              {idileHandoff && (
+              {/* Ìdílé is written for families of faith, and does not yet offer
+                  the choice Oyun does — so it is offered to the faith voice
+                  only until it does. See lib/voice.ts. */}
+              {idileHandoff && !general && (
                 <Card className="border-accent/30 bg-accent/[0.06]">
                   <Eyebrow className="mb-3">{complete ? "The next chapter" : "As they grow"}</Eyebrow>
                   <p className="mb-4 prose-serif-xs text-muted">
@@ -555,19 +574,21 @@ export default async function JourneyPage() {
           <MoreFold
             storageKey="journey-more"
             title="More from your journey"
-            hint="The family's latest, this day in years past, and family worship"
+            hint={general ? "The family's latest and this day in years past" : "The family's latest, this day in years past, and family worship"}
           >
             <div className="mt-6">
-              <LatestFromFamily posts={familyPosts} greeting={todayLabel} />
+              <LatestFromFamily posts={familyPosts} greeting={todayLabel} plain={general} />
             </div>
             {memories.length > 0 && (
               <div className="mt-6">
                 <OnThisDay items={memories} />
               </div>
             )}
-            <div className="mt-6">
-              <FamilyWorship showCatechism={position.born} streak={worship} />
-            </div>
+            {!general && (
+              <div className="mt-6">
+                <FamilyWorship showCatechism={position.born} streak={worship} />
+              </div>
+            )}
           </MoreFold>
         </main>
       </>
@@ -600,6 +621,7 @@ export default async function JourneyPage() {
           month={position.month}
           familyPosts={familyPosts}
           todayLabel={todayLabel}
+          voice={voice}
         />
       </>
     );
@@ -630,7 +652,8 @@ export default async function JourneyPage() {
   const latestReactions = latest
     ? (await getReactionsFor("CHECKIN", [latest.id], session.user.id))[latest.id]
     : null;
-  const care = partnerDailyCare(
+  const care = partnerCareIn(
+    voice,
     position.born ? "infancy" : "pregnancy",
     dayKey(),
     stage.index,
@@ -822,10 +845,11 @@ export default async function JourneyPage() {
             <Card className="p-8">
               <Eyebrow className="mb-3">Send her a word</Eyebrow>
               <p className="mb-4 prose-serif-xs text-muted">
-                A single sentence of Scripture or encouragement, sent straight to
-                her. She&rsquo;ll see it on her journey.
+                {general
+                  ? "A single sentence of encouragement, sent straight to her. She’ll see it on her journey."
+                  : "A single sentence of Scripture or encouragement, sent straight to her. She’ll see it on her journey."}
               </p>
-              <EncouragementBox toName={motherName} verseRef={stage.verse.ref} />
+              <EncouragementBox toName={motherName} verseRef={general ? undefined : stage.verse.ref} />
             </Card>
 
             <LettersSummary
@@ -854,7 +878,7 @@ export default async function JourneyPage() {
             />
 
             <Card className="p-8">
-              <Eyebrow className="mb-3">Pray for her</Eyebrow>
+              <Eyebrow className="mb-3">{general ? "Hold her in mind" : "Pray for her"}</Eyebrow>
               <p className="prose-serif-sm text-muted">
                 {stage.prayerPoint}
               </p>
@@ -872,6 +896,7 @@ export default async function JourneyPage() {
                 streak={support.streak}
                 prayedLast7={support.prayedLast7}
                 motherName={motherName}
+                voice={voice}
               />
             </Card>
 
@@ -892,19 +917,21 @@ export default async function JourneyPage() {
         <MoreFold
           storageKey="journey-more"
           title="More from the journey"
-          hint="The family's latest, this day in years past, and family worship"
+          hint={general ? "The family's latest and this day in years past" : "The family's latest, this day in years past, and family worship"}
         >
           <div className="mt-6">
-            <LatestFromFamily posts={familyPosts} greeting={todayLabel} />
+            <LatestFromFamily posts={familyPosts} greeting={todayLabel} plain={general} />
           </div>
           {memories.length > 0 && (
             <div className="mt-6">
               <OnThisDay items={memories} />
             </div>
           )}
-          <div className="mt-6">
-            <FamilyWorship showCatechism={position.born} streak={worship} />
-          </div>
+          {!general && (
+            <div className="mt-6">
+              <FamilyWorship showCatechism={position.born} streak={worship} />
+            </div>
+          )}
         </MoreFold>
       </main>
     </>
@@ -939,7 +966,7 @@ function EmptyState() {
           <p className="mt-4 prose-serif-sm text-muted">
             Set your due date — or your baby&rsquo;s birth date if they&rsquo;ve
             already arrived — and Oyun will meet you at the right stage, with
-            Scripture, a reflection, and one thing to do.
+            a reflection and one thing to do.
           </p>
           <div className="mt-8 flex justify-center">
             <Button href="/onboarding">Begin the journey</Button>

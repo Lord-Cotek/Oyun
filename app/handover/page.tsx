@@ -68,6 +68,15 @@ export default async function HandoverPage({ searchParams }: { searchParams: { e
           through childhood: family worship, catechism, Scripture memory, and every keepsake. Nothing leaves
           here — your journey stays in Oyun for you to read, always.
         </p>
+        {session.user.voice === "GENERAL" && (
+          // Said plainly rather than hidden: Ìdílé does not yet offer the
+          // choice Oyun does (lib/voice.ts), and someone who chose Oyun
+          // without religious content should know before they move.
+          <p className="mt-3 rounded-lg border border-border bg-surface p-4 prose-serif-xs text-muted">
+            A note before you go: Ìdílé is written for families of Christian faith, with family worship and
+            Scripture at its heart. It does not yet offer a version without religious content.
+          </p>
+        )}
 
         {lastPass?.claimedAt && (
           <Card className="mt-6 border-accent/30 bg-accent/[0.06]">

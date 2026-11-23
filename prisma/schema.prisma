@@ -48,6 +48,15 @@ model User {
   /// they say otherwise.
   morningHour Int     @default(7)
 
+  /// How Oyun speaks to this person — see lib/voice.ts. FAITH is the
+  /// Christian Oyun every account had before the choice existed, so it is
+  /// the default and nobody already here notices a thing. GENERAL keeps
+  /// every feature and swaps the verses, prayers, worship and Scripture for
+  /// words of encouragement. Chosen at sign-up, changed any time in Settings.
+  /// It belongs to the person, not the journey: a husband and wife can each
+  /// see the Oyun they chose.
+  voice       Voice   @default(FAITH)
+
   /// Set when an operator has suspended this account — see the admin centre.
   ///
   /// A suspension has to bite on a session that is ALREADY open, not only at
@@ -243,6 +252,12 @@ model PasswordResetToken {
 }
 
 // ── Oyun domain ──────────────────────────────────────────────────────────
+/// How Oyun speaks to one person — see lib/voice.ts.
+enum Voice {
+  FAITH
+  GENERAL
+}
+
 enum Role {
   MOTHER
   PARTNER

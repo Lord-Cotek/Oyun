@@ -41,7 +41,7 @@ export function WelcomeNote() {
       <p className="prose-serif-sm text-ink">
         {kind === "started"
           ? "This is the home of your journey. Each week it shows where your baby is, and keeps how you are, your letters and your dates in one quiet place. Nobody else is here until you invite them."
-          : "This is where you’ll follow the journey, see what to pray for, and keep up with the family’s news. A short note comes each week, so nothing important passes you by."}
+          : "This is where you’ll follow the journey, see how to stand with them, and keep up with the family’s news. A short note comes each week, so nothing important passes you by."}
       </p>
       <div className="mt-4 flex flex-wrap items-center gap-4">
         {kind === "started" && (

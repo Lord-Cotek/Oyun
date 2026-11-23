@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { isGeneral } from "@/lib/voice";
 import { PROMISE_CONSENT } from "@/lib/promise";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -64,6 +65,8 @@ export default async function Onboarding({
   // A pending invite takes precedence — let them accept it even if they already
   // belong to another journey. Otherwise, if they're already set up, move on.
   const active = await getActiveMembership(session.user.id);
+  // How Oyun speaks to them — chosen a moment ago at sign-up. lib/voice.ts.
+  const general = isGeneral(session.user.voice);
   const hasPendingInvite = !!invite && !invite.acceptedAt;
 
   // The signed-in account must match the invited email — otherwise the wrong
@@ -108,15 +111,19 @@ export default async function Onboarding({
             Walk the whole journey — together.
           </h1>
           <p className="mt-5 max-w-sm prose-serif-sm text-muted">
-            From conception through your little one’s first two years — Scripture,
-            prayer, and one thing to do each week, for a mother and the one
-            walking beside her. Guided by Agbebi.
+            {general
+              ? "From conception through your little one’s first two years — a word of encouragement, a reflection and one thing to do each week, for a mother and the people walking beside her. Guided by Agbebi."
+              : "From conception through your little one’s first two years — Scripture, prayer, and one thing to do each week, for a mother and the one walking beside her. Guided by Agbebi."}
           </p>
           <div className="mt-8 max-w-sm border-t border-border pt-6">
-            <Verse
-              text="Behold, children are a heritage of the LORD. The fruit of the womb is his reward."
-              reference="Psalm 127:3"
-            />
+            {general ? (
+              <Verse text="You don’t have to have it all worked out. One week at a time is enough." reference="" />
+            ) : (
+              <Verse
+                text="Behold, children are a heritage of the LORD. The fruit of the womb is his reward."
+                reference="Psalm 127:3"
+              />
+            )}
           </div>
         </div>
 
@@ -145,7 +152,7 @@ export default async function Onboarding({
             <p className="mt-3 prose-serif-sm text-muted">
               You&rsquo;re joining as{" "}
               <span className="text-accent">{ROLE_LABEL[invite.role]}</span>. Your
-              part is to support and pray — Oyun will show you how, right where
+              part is to {general ? "support her" : "support and pray"} — Oyun will show you how, right where
               she is each week.
             </p>
             <form action={acceptInvite} className="mt-6 space-y-4">
@@ -203,11 +210,15 @@ export default async function Onboarding({
             </p>
 
             <div className="mt-6 border-y border-border/70 py-5">
-              <Verse
-                size="sm"
-                text="For you formed my inmost being. You knit me together in my mother’s womb."
-                reference="Psalm 139:13"
-              />
+              {general ? (
+                <Verse size="sm" text="Wherever you are on this road, this is a good place to start." reference="" />
+              ) : (
+                <Verse
+                  size="sm"
+                  text="For you formed my inmost being. You knit me together in my mother’s womb."
+                  reference="Psalm 139:13"
+                />
+              )}
             </div>
 
             <form action={createJourney} className="mt-6 space-y-4">

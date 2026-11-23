@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { FaithOnlyRoom } from "@/components/FaithOnlyRoom";
+import { isGeneral } from "@/lib/voice";
 import { appointmentTitle } from "@/lib/appointments";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
@@ -61,6 +63,8 @@ export default async function WorshipPage({
 }) {
   const session = await auth();
   if (!session?.user?.id) redirect("/sign-in?callbackUrl=/worship");
+  // A room that is only worship — see components/FaithOnlyRoom.tsx.
+  if (isGeneral(session.user.voice)) return <FaithOnlyRoom room="Worship" />;
 
   const active = await getActiveMembership(session.user.id);
   if (!active) redirect("/onboarding");

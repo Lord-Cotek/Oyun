@@ -8,8 +8,9 @@ import Link from "next/link";
 const ROOMS = [
   { href: "/journey", label: "Home" },
   { href: "/life", label: "Life" },
-  { href: "/worship", label: "Worship" },
-  { href: "/prayer", label: "Prayer" },
+  // Rooms every reader has under the same name, whichever way they chose
+  // Oyun to speak to them — this screen cannot ask (see lib/voice.ts).
+  { href: "/help", label: "Help" },
   { href: "/settings", label: "Settings" },
 ];
 

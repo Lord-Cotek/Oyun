@@ -210,34 +210,42 @@ const shell = (inner: string) => `
 export async function sendWelcomeEmail({
   to,
   name,
+  voice,
 }: {
   to: string;
   name?: string | null;
+  /** How they chose to be spoken to — see lib/voice.ts. Faith when absent. */
+  voice?: string | null;
 }): Promise<boolean> {
   const greeting = name?.trim() ? name.trim() : "friend";
+  const general = voice === "GENERAL";
+  const opening = general ? `Hello, ${greeting}.` : `Peace to you, ${greeting}.`;
+  const about = general
+    ? "Welcome to Oyun. We're glad you're here. Oyun walks with you through the whole journey — conception through your child's earliest years — with a word of encouragement for each day and the people who love you close by."
+    : "Welcome to Oyun. We're glad you're here. Oyun walks with you through the whole journey — conception through your child's earliest years — with Scripture at the centre, one small faithful step at a time.";
+  const closing = general
+    ? "One day at a time is enough. You do not have to have it all worked out."
+    : '"For you formed my inmost being. You knit me together in my mother’s womb." — Psalm 139:13';
   const html = shell(`
-    <p style="font-size:16px;line-height:1.6;color:#ECE8DE;">Peace to you, ${escapeHtml(greeting)}.</p>
+    <p style="font-size:16px;line-height:1.6;color:#ECE8DE;">${escapeHtml(opening)}</p>
     <p style="font-size:14px;line-height:1.7;color:#ECE8DE;">
-      Welcome to Oyun. We're glad you're here. Oyun walks with you through the
-      whole journey — conception through your child's earliest years — with
-      Scripture at the centre, one small faithful step at a time.
+      ${escapeHtml(about)}
     </p>
     <p style="font-size:14px;line-height:1.7;color:#ECE8DE;">
       Whenever you're ready, sign in and set where you are. Agbebi will meet you there.
     </p>
     <p style="font-size:14px;line-height:1.7;color:#8A9099;margin-top:20px;">
-      "For you formed my inmost being. You knit me together in my mother’s womb." — Psalm 139:13
+      ${escapeHtml(closing)}
     </p>
   `);
   const text = [
-    `Peace to you, ${greeting}.`,
+    opening,
     "",
-    "Welcome to Oyun. Oyun walks with you through the whole journey — conception",
-    "through your child's earliest years — with Scripture at the centre.",
+    about,
     "",
     "Sign in whenever you're ready and set where you are. Agbebi will meet you there.",
     "",
-    '"For you formed my inward parts; you knitted me together in my mother\'s womb." — Psalm 139:13',
+    closing,
   ].join("\n");
 
   return sendEmail({ to, subject: "Welcome to Oyun", html, text, kind: "welcome" });
@@ -299,7 +307,7 @@ export async function sendInviteEmail({
     <p style="font-size:16px;line-height:1.6;color:#ECE8DE;">${escapeHtml(motherName)} invited you to walk with them.</p>
     <p style="font-size:14px;line-height:1.7;color:#ECE8DE;">
       You're being invited to join their journey on Oyun as ${roleWord}. Your part
-      is to support and pray — Oyun will show you how, right where they are each week.
+      is to support them — Oyun will show you how, right where they are each week.
     </p>
     <p style="margin:24px 0;">
       <a href="${link}" style="display:inline-block;background:#E6A94E;color:#0B0E14;text-decoration:none;font-weight:600;padding:12px 20px;border-radius:8px;font-size:14px;">Accept the invite</a>
@@ -309,7 +317,7 @@ export async function sendInviteEmail({
   const text = [
     `${motherName} invited you to join their journey on Oyun as ${roleWord}.`,
     "",
-    "Your part is to support and pray — Oyun will show you how, each week.",
+    "Your part is to support them — Oyun will show you how, each week.",
     "",
     `Accept the invite: ${link}`,
   ].join("\n");
@@ -361,13 +369,17 @@ export async function sendWeeklyDigest({
   sections,
   ctaLabel,
   ctaHref,
+  voice,
 }: {
   to: string;
   userId?: string;
   name?: string | null;
   subject: string;
   intro: string;
+  /** With an empty `ref` it is Oyun's own words, set without quotation marks. */
   verse?: { text: string; ref: string };
+  /** How Oyun speaks to the reader — see lib/voice.ts. Faith when absent. */
+  voice?: string | null;
   sections: DigestSection[];
   ctaLabel: string;
   ctaHref: string;
@@ -387,16 +399,21 @@ export async function sendWeeklyDigest({
     )
     .join("");
 
+  const greeting = `${voice === "GENERAL" ? "Hello" : "Peace to you"}, ${name?.trim() || "friend"}.`;
   const verseHtml = verse
-    ? `<div style="margin-top:20px;padding:16px;border:1px solid #232833;border-radius:12px;">
+    ? verse.ref
+      ? `<div style="margin-top:20px;padding:16px;border:1px solid #232833;border-radius:12px;">
          <p style="font-family:Georgia,serif;font-size:16px;line-height:1.5;color:#ECE8DE;margin:0;">&ldquo;${escapeHtml(verse.text)}&rdquo;</p>
          <p style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#E6A94E;margin:8px 0 0;">${escapeHtml(verse.ref)}</p>
+       </div>`
+      : `<div style="margin-top:20px;padding:16px;border:1px solid #232833;border-radius:12px;">
+         <p style="font-family:Georgia,serif;font-size:16px;line-height:1.5;color:#ECE8DE;margin:0;">${escapeHtml(verse.text)}</p>
        </div>`
     : "";
 
   const link = `${SITE_URL}${ctaHref}`;
   const html = shell(`
-    <p style="font-size:16px;line-height:1.6;color:#ECE8DE;">Peace to you, ${escapeHtml(name?.trim() || "friend")}.</p>
+    <p style="font-size:16px;line-height:1.6;color:#ECE8DE;">${escapeHtml(greeting)}</p>
     <p style="font-size:14px;line-height:1.7;color:#ECE8DE;">${escapeHtml(intro)}</p>
     ${verseHtml}
     ${sectionsHtml}
@@ -406,9 +423,9 @@ export async function sendWeeklyDigest({
   `);
 
   const text = [
-    `Peace to you, ${name?.trim() || "friend"}.`,
+    greeting,
     intro,
-    verse ? `\n"${verse.text}" — ${verse.ref}` : "",
+    verse ? (verse.ref ? `\n"${verse.text}" — ${verse.ref}` : `\n${verse.text}`) : "",
     ...sections.map((s) => `\n${s.heading}\n${s.lines.join("\n")}`),
     `\n${ctaLabel}: ${link}`,
   ].join("\n");

@@ -213,8 +213,8 @@ export default async function SharedPost({
           <section className="mt-8 rounded-2xl border border-border bg-surface p-6 text-center">
             <p className="font-serif text-xl text-ink">Expecting a little one of your own?</p>
             <p className="mx-auto mt-2 max-w-sm prose-serif-sm text-muted">
-              Oyun is a quiet companion from the first weeks to the second birthday — Scripture for each week, prayer, and the
-              people who love you, all in one place.
+              Oyun is a quiet companion from the first weeks to the second birthday — a word for each week, your
+              appointments and health log, and the people who love you, all in one place. With faith, or without.
             </p>
             <div className="mt-4 flex flex-wrap justify-center gap-3">
               <Link
@@ -330,7 +330,7 @@ export default async function SharedPost({
         <p className="prose-serif-xs text-muted">
           {shared.household} keep the rest of this in Oyun — a quiet place for
           a family walking through pregnancy and the first years, with
-          Scripture, prayer, and the people who love them.
+          the people who love them close.
         </p>
         <Link
           href="/"

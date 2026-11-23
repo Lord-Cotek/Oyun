@@ -84,10 +84,14 @@ export default async function ChildPage() {
             {children.length === 0 ? (
               <EmptyState
                 title="A place is ready for them."
-                verse={{
-                  text: "Behold, children are a heritage of the LORD. The fruit of the womb is his reward.",
-                  reference: "Psalm 127:3",
-                }}
+                verse={
+                  session.user.voice === "GENERAL"
+                    ? undefined
+                    : {
+                        text: "Behold, children are a heritage of the LORD. The fruit of the womb is his reward.",
+                        reference: "Psalm 127:3",
+                      }
+                }
                 action={
                   <p className="font-mono text-[0.68rem] uppercase tracking-widest text-accent">
                     Add their profile &rarr;

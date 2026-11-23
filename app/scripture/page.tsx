@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { FaithOnlyRoom } from "@/components/FaithOnlyRoom";
+import { isGeneral } from "@/lib/voice";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
@@ -41,6 +43,8 @@ const formatWhen = (d: Date) => d.toLocaleDateString("en-GB", { day: "numeric", 
 export default async function ScripturePage({ searchParams }: { searchParams: { track?: string } }) {
   const session = await auth();
   if (!session?.user?.id) redirect("/sign-in?callbackUrl=/scripture");
+  // A room that is only worship — see components/FaithOnlyRoom.tsx.
+  if (isGeneral(session.user.voice)) return <FaithOnlyRoom room="Scripture" />;
   const active = await getActiveMembership(session.user.id);
   if (!active) redirect("/onboarding");
 

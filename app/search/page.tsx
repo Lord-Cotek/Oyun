@@ -43,8 +43,14 @@ export default async function SearchPage({
   };
 
   const tooShort = q.length > 0 && q.length < MIN_QUERY;
-  const hits = tooShort || !q ? [] : await search(q, ctx);
-  const rooms = roomsSearched(ctx);
+  // The prayer room goes by its plain name for someone who chose Oyun
+  // without religious content — lib/voice.ts. Only the label changes.
+  const plainRoom = (room: string) =>
+    session.user.voice === "GENERAL"
+      ? room.replace(/^Prayer — answered$/, "Support — resolved").replace(/^Prayer$/, "Support")
+      : room;
+  const hits = (tooShort || !q ? [] : await search(q, ctx)).map((h) => ({ ...h, room: plainRoom(h.room) }));
+  const rooms = roomsSearched(ctx).map(plainRoom);
   const isMother = active.role === "MOTHER";
 
   return (
@@ -190,10 +196,9 @@ function Blank({ rooms, isMother }: { rooms: string[]; isMother: boolean }) {
       <Eyebrow className="mb-2">What this searches</Eyebrow>
       <p className="prose-serif-sm max-w-prose text-muted">{rooms.join(" · ")}</p>
       <p className="prose-serif-sm mt-4 max-w-prose text-muted">
-        Try a word you remember writing, a midwife&rsquo;s name, or a book of
-        the Bible. Searching <span className="text-ink">scan</span> will find
-        the appointment, the diary entry and the prayer from that week,
-        together.
+        Try a word you remember writing, or a midwife&rsquo;s name. Searching{" "}
+        <span className="text-ink">scan</span> will find the appointment, the
+        diary entry and the request from that week, together.
       </p>
       <Boundaries isMother={isMother} />
     </div>
@@ -256,8 +261,8 @@ function Boundaries({ isMother }: { isMother: boolean }) {
         >
           the journey
         </Link>
-        , where you go to find it. The weekly liturgy and the guide are not
-        searched — those are Oyun&rsquo;s words, not yours.
+        , where you go to find it. Oyun&rsquo;s own words for each week and the
+        guide are not searched — those are ours, not yours.
       </p>
     </div>
   );

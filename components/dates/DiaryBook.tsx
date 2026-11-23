@@ -49,7 +49,12 @@ const KINDS = [
   { value: "OTHER", label: "Something else" },
 ];
 
-export type PresetContext = { babyName: string | null; birthISO: string | null };
+export type PresetContext = {
+  babyName: string | null;
+  birthISO: string | null;
+  /** Without religious content — see lib/voice.ts. */
+  general?: boolean;
+};
 
 /**
  * One tap to start the days a new family most often holds. Each fills the
@@ -61,6 +66,13 @@ function presetsFor(ctx: PresetContext) {
   const eighth = ctx.birthISO
     ? new Date(new Date(ctx.birthISO).getTime() + 7 * 86_400_000).toISOString().slice(0, 10)
     : null;
+  if (ctx.general) {
+    return [
+      { label: "Naming ceremony", title: `Naming ceremony for ${name}`, kind: "CELEBRATION", date: eighth, note: `Join us as we give ${name} their names and celebrate them together.` },
+      { label: "Welcome party", title: `Welcoming ${name}`, kind: "CELEBRATION", date: null, note: `Come and celebrate ${name}'s safe arrival with us.` },
+      { label: "Baby shower", title: "Baby shower", kind: "SHOWER", date: null, note: "" },
+    ];
+  }
   return [
     { label: "Naming ceremony", title: `Naming ceremony for ${name}`, kind: "CELEBRATION", date: eighth, note: `Join us on the eighth day as we give ${name} their names, and pray over them together.` },
     { label: "Dedication", title: `Dedication of ${name}`, kind: "CHURCH", date: null, note: `We are dedicating ${name} to the Lord. Come and stand with us in prayer.` },
@@ -431,7 +443,8 @@ function EventForm({
           >
             {KINDS.map((k) => (
               <option key={k.value} value={k.value}>
-                {k.label}
+                {/* Not every family's ceremony is in a church — lib/voice.ts. */}
+                {k.value === "CHURCH" && preset?.general ? "A ceremony" : k.label}
               </option>
             ))}
           </select>

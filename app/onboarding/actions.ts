@@ -160,7 +160,7 @@ export async function acceptInvite(formData: FormData) {
       data: {
         journeyId: invite.journeyId,
         userId: session.user.id,
-        text: `Check in on ${motherName} today — a message, a prayer, a small kindness.`,
+        text: `Check in on ${motherName} today — a message, a call, a small kindness.`,
         dueAt: soon,
       },
     }),
@@ -172,6 +172,7 @@ export async function acceptInvite(formData: FormData) {
     type: "invite_accepted",
     title: `${joinerName} joined your journey.`,
     body: "They can now support and pray for you each week.",
+    plain: { title: `${joinerName} joined your journey.`, body: "They can now support you each week." },
     href: "/circle",
     email: true,
   });

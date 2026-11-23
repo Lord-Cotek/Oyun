@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { stageIn } from "@/lib/voice-content";
+import { isGeneral } from "@/lib/voice";
 import { appointmentTitle } from "@/lib/appointments";
 import { moodVisibleTo } from "@/lib/data";
 import { prisma } from "@/lib/prisma";
@@ -51,7 +53,7 @@ async function runWeekly(budget: Budget) {
       memberships: {
         include: {
           user: {
-            select: { id: true, name: true, email: true, weeklyDigest: true, suspendedAt: true },
+            select: { id: true, name: true, email: true, weeklyDigest: true, suspendedAt: true, voice: true },
           },
         },
       },
@@ -62,11 +64,10 @@ async function runWeekly(budget: Budget) {
 
   every: for (const journey of journeys) {
     const position = computePosition(journey.dueDate);
-    const stage = position.stage;
     const motherName = journey.owner.name ?? "her";
 
     const weekAhead = new Date(Date.now() + 7 * 86_400_000);
-    const [prayedCount, latestMood, weeklyEncouragements, wallPrayers, answered, coming, photosAll, photosCircle] =
+    const [prayedCount, latestMood, weeklyEncouragements, wallPrayers, answered, coming, photosAll, photosCircle, heldDays, heldWall] =
       await Promise.all([
         prisma.supportDay.count({
           where: { journeyId: journey.id, prayed: true, day: { gte: weekAgo } },
@@ -100,6 +101,15 @@ async function runWeekly(budget: Budget) {
           .then((ps) => ps.reduce((n, p) => n + p.mediaUrls.length, 0)),
         prisma.post.findMany({ where: { journeyId: journey.id, createdAt: { gte: weekAgo }, householdOnly: false }, select: { mediaUrls: true } })
           .then((ps) => ps.reduce((n, p) => n + p.mediaUrls.length, 0)),
+        // Of those, the ones marked by somebody who chose Oyun without
+        // religious content: they held her in mind rather than prayed, and
+        // the email says so (lib/voice.ts).
+        prisma.supportDay.count({
+          where: { journeyId: journey.id, prayed: true, day: { gte: weekAgo }, user: { voice: "GENERAL" } },
+        }),
+        prisma.prayerPray.count({
+          where: { request: { journeyId: journey.id }, createdAt: { gte: weekAgo }, user: { voice: "GENERAL" } },
+        }),
       ]);
     const day = (d: Date) => d.toLocaleDateString("en-GB", { weekday: "long", timeZone: "UTC" });
     const comingLines = coming.map((a) => `${appointmentTitle(a.kind, a.title)} — ${day(a.at)}`);
@@ -114,6 +124,10 @@ async function runWeekly(budget: Budget) {
       let subject: string;
       let intro: string;
       const sections: DigestSection[] = [];
+      // Each reader in their own voice — lib/voice.ts. The stage, and every
+      // line of ours about it, is chosen per person, not per journey.
+      const general = isGeneral(u.voice);
+      const stage = stageIn(position.stage, u.voice);
 
       if (m.role === "MOTHER") {
         subject = `This week on your journey — ${stage.title}`;
@@ -123,11 +137,15 @@ async function runWeekly(budget: Budget) {
           lines: [stage.body, stage.reflection, `One thing to do: ${stage.action}`],
         });
         const circle: string[] = [];
-        const prayers = prayedCount + wallPrayers;
-        if (prayers > 0) {
-          circle.push(
-            `Your circle prayed for you ${prayers} time${prayers === 1 ? "" : "s"} this week.`,
-          );
+        const all = prayedCount + wallPrayers;
+        const held = Math.min(all, heldDays + heldWall);
+        const prayed = all - held;
+        const times = (n: number) => `${n} time${n === 1 ? "" : "s"}`;
+        if (general && all > 0) {
+          circle.push(`Your circle held you in mind ${times(all)} this week.`);
+        } else if (!general) {
+          if (prayed > 0) circle.push(`Your circle prayed for you ${times(prayed)} this week.`);
+          if (held > 0) circle.push(`Your circle held you in mind ${times(held)} this week.`);
         }
         if (weeklyEncouragements > 0) {
           circle.push(
@@ -143,7 +161,7 @@ async function runWeekly(budget: Budget) {
         subject = `Walking with ${motherName} this week`;
         intro = `Here's how to carry ${motherName} in the days ahead.`;
         sections.push({ heading: "How to carry her", lines: [stage.partnerFocus] });
-        sections.push({ heading: "Pray for her", lines: [stage.prayerPoint] });
+        sections.push({ heading: general ? "Hold her in mind" : "Pray for her", lines: [stage.prayerPoint] });
         if (comingLines.length) sections.push({ heading: "Coming this week", lines: comingLines });
         // Her mood only to those she has chosen — see Journey.moodAudience.
         if (latestMood && moodVisibleTo(journey.moodAudience, "PARTNER")) {
@@ -154,9 +172,9 @@ async function runWeekly(budget: Budget) {
         }
       } else {
         // The wider circle: not the husband's words, and no appointments.
-        subject = `Praying for ${motherName} this week`;
+        subject = general ? `Walking with ${motherName} this week` : `Praying for ${motherName} this week`;
         intro = `A word for walking alongside ${motherName} in the days ahead.`;
-        sections.push({ heading: "Pray for her", lines: [stage.prayerPoint] });
+        sections.push({ heading: general ? "Hold her in mind" : "Pray for her", lines: [stage.prayerPoint] });
         if (latestMood && moodVisibleTo(journey.moodAudience, "CIRCLE")) {
           sections.push({
             heading: "Her heart, lately",
@@ -166,7 +184,7 @@ async function runWeekly(budget: Budget) {
       }
 
       // For everybody: what God answered, and what was shared.
-      if (answeredLines.length) sections.push({ heading: "Answered this week", lines: answeredLines });
+      if (answeredLines.length) sections.push({ heading: general ? "Resolved this week" : "Answered this week", lines: answeredLines });
       const photos = m.role === "MOTHER" || m.role === "PARTNER" ? photosAll : photosCircle;
       if (photos > 0) {
         sections.push({
@@ -188,6 +206,7 @@ async function runWeekly(budget: Budget) {
         sections,
         ctaLabel: "Open your journey",
         ctaHref: "/journey",
+        voice: u.voice,
       });
       if (ok) sent += 1;
       else await releaseWeekly(u.id, week, journey.id);

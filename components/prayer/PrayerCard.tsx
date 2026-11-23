@@ -17,6 +17,8 @@ export type PrayerItem = {
   answeredAt: string | null;
   createdAt: string;
   prayerCount: number;
+  /** Of prayerCount, those who chose Oyun without religious content. */
+  heldCount?: number;
   didIPray: boolean;
   canManage: boolean;
   /** The viewer asked it — the only one who may change its words. */
@@ -24,7 +26,32 @@ export type PrayerItem = {
   reactions: ReactionData;
 };
 
-export function PrayerCard({ item }: { item: PrayerItem }) {
+/** The same request in plain words — for a reader who chose Oyun without
+ *  religious content (lib/voice.ts). The request itself is shown as written. */
+const PLAIN_HOLD = {
+  hold: "Hold to send love",
+  holding: "Sending…",
+  done: "Thinking of you",
+  doneAria: "You are holding this in mind",
+};
+
+/**
+ * Who is carrying it, said truthfully for this reader. Somebody who chose
+ * Oyun without religious content held it rather than prayed it; a reader in
+ * that voice sees everybody as "thinking of you", a reader in the faith voice
+ * sees the two apart.
+ */
+function countLine(item: PrayerItem, general: boolean): string {
+  const total = item.prayerCount;
+  if (total <= 0) return "";
+  if (general) return ` · ${total} thinking of you`;
+  const held = Math.min(total, item.heldCount ?? 0);
+  const praying = total - held;
+  return [praying > 0 ? ` · ${praying} praying` : "", held > 0 ? ` · ${held} thinking of you` : ""].join("");
+}
+
+export function PrayerCard({ item, general = false }: { item: PrayerItem; general?: boolean }) {
+  const what = general ? "this request" : "this prayer request";
   return (
     <Card
       id={`prayer-${item.id}`}
@@ -33,7 +60,7 @@ export function PrayerCard({ item }: { item: PrayerItem }) {
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           {item.answered && (
-            <p className="eyebrow mb-1 text-positive">Answered</p>
+            <p className="eyebrow mb-1 text-positive">{general ? "Resolved" : "Answered"}</p>
           )}
           <p className="font-serif text-lg leading-snug text-ink">{item.title}</p>
           {item.body && (
@@ -47,7 +74,7 @@ export function PrayerCard({ item }: { item: PrayerItem }) {
               month: "short",
               day: "numeric",
             })}
-            {item.prayerCount > 0 && ` · ${item.prayerCount} praying`}
+            {countLine(item, general)}
           </p>
         </div>
       </div>
@@ -65,6 +92,7 @@ export function PrayerCard({ item }: { item: PrayerItem }) {
             prayed={item.didIPray}
             count={item.prayerCount}
             action={() => prayForRequest(item.id)}
+            words={general ? PLAIN_HOLD : undefined}
           />
         )}
         {item.canManage && !item.answered && (
@@ -74,13 +102,13 @@ export function PrayerCard({ item }: { item: PrayerItem }) {
               type="submit"
               className="font-mono text-xs text-muted hover:text-positive"
             >
-              Mark answered
+              {general ? "Mark resolved" : "Mark answered"}
             </button>
           </form>
         )}
         {item.mine && !item.answered && (
           <EditInPlace
-            describe={`this prayer request: ${item.title}`}
+            describe={`${what}: ${item.title}`}
             action={editPrayerRequest}
             hidden={{ id: item.id }}
             fields={[
@@ -93,7 +121,7 @@ export function PrayerCard({ item }: { item: PrayerItem }) {
           <div className="ml-auto">
             {/* Was a bare submit: one tap and the request was gone. */}
             <ConfirmButton
-              describe={`this prayer request: ${item.title}`}
+              describe={`${what}: ${item.title}`}
               press="none"
               onConfirm={async () => {
                 const fd = new FormData();

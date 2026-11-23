@@ -24,12 +24,22 @@ export function HoldToPray({
   count,
   action,
   holdMs = 1100,
+  words,
 }: {
   prayed: boolean;
   count: number;
   action: () => Promise<Attempted>;
   holdMs?: number;
+  /** The same gesture in other words — for someone who chose an app voice
+   *  without prayer (Oyun's lib/voice.ts). Prayer's own words otherwise. */
+  words?: { hold: string; holding: string; done: string; doneAria: string };
 }) {
+  const say = words ?? {
+    hold: "Hold to pray",
+    holding: "Praying…",
+    done: "Praying",
+    doneAria: "You are praying for this",
+  };
   const [progress, setProgress] = useState(prayed ? 1 : 0);
   const [done, setDone] = useState(prayed);
   const [holding, setHolding] = useState(false);
@@ -116,7 +126,7 @@ export function HoldToPray({
           }
         }}
         aria-pressed={done}
-        aria-label={done ? "You are praying for this" : "Hold to pray"}
+        aria-label={done ? say.doneAria : say.hold}
         style={{ touchAction: "none" }}
         // min-h-11 because this is the signature gesture of the app and it was
         // 34px tall — you have to hold it for over a second, so a target the
@@ -147,10 +157,10 @@ export function HoldToPray({
           <Flame lit={done || progress > 0.02} />
           <span>
             {done
-              ? `Praying${c > 0 ? ` · ${c}` : ""}`
+              ? `${say.done}${c > 0 ? ` · ${c}` : ""}`
               : holding
-                ? "Praying…"
-                : "Hold to pray"}
+                ? say.holding
+                : say.hold}
           </span>
         </span>
 

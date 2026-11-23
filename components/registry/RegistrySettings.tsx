@@ -116,7 +116,7 @@ export function RegistrySettings({
                 defaultValue={message ?? ""}
                 rows={3}
                 maxLength={MESSAGE_MAX}
-                placeholder="Thank you for thinking of us. Nothing here is expected — your prayers are the gift."
+                placeholder="Thank you for thinking of us. Nothing here is expected — your love is the gift."
                 className={`${field} resize-none`}
               />
             </div>

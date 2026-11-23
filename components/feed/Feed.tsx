@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useTransition } from "react";
+import { createContext, useContext, useEffect, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import { ConfirmButton, ConfirmDialog } from "@/components/ui/Confirm";
 import {
@@ -21,6 +21,8 @@ import {
 import {
   POST_KINDS,
   KIND_LABEL,
+  PLAIN_POST_KINDS,
+  PLAIN_KIND_LABEL,
   REACTIONS,
   type PostKind,
 } from "@/lib/feed";
@@ -121,7 +123,15 @@ interface Actions {
   wall?: Wall;
 }
 
+/**
+ * Whether this reader chose the app without religious content — Oyun's
+ * lib/voice.ts. A context rather than a prop threaded through every post,
+ * because it changes only two words (the kinds), deep in the tree.
+ */
+const PlainWords = createContext(false);
+
 export function Feed({
+  plain = false,
   posts,
   canKeepToHousehold,
   composerPlaceholder = "Share something with the family…",
@@ -156,8 +166,11 @@ export function Feed({
    * No composer here, and the date is not a link to where you already are.
    */
   alone?: boolean;
+  /** The kinds in plain words — see PlainWords. */
+  plain?: boolean;
 } & Actions) {
   return (
+    <PlainWords.Provider value={plain}>
     <div className="space-y-6">
       {!alone && (
         <Composer
@@ -194,6 +207,7 @@ export function Feed({
         </ul>
       )}
     </div>
+    </PlainWords.Provider>
   );
 }
 
@@ -366,6 +380,7 @@ function Composer({
   canKeepToHousehold: boolean;
   wallName?: string;
 }) {
+  const plain = useContext(PlainWords);
   const [kind, setKind] = useState<PostKind>("UPDATE");
   /**
    * Who this one is for. It deliberately does NOT persist between posts: an
@@ -754,7 +769,7 @@ function Composer({
   return (
     <div className="surface-premium rounded-2xl border border-border p-5 md:p-6">
       <div className="mb-3 flex flex-wrap gap-1.5">
-        {POST_KINDS.map((k) => (
+        {(plain ? PLAIN_POST_KINDS : POST_KINDS).map((k) => (
           <button
             key={k.kind}
             type="button"
@@ -1248,6 +1263,7 @@ function PostItem({
   canKeepToHousehold: boolean;
   alone?: boolean;
 } & Actions) {
+  const plain = useContext(PlainWords);
   const [pending, start] = useTransition();
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(post.body);
@@ -1296,7 +1312,7 @@ function PostItem({
             // The chip says "Praise" or "Prayer"; the word is the marker.
             // A hue per kind meant four colours in one row of metadata.
           >
-            {KIND_LABEL[post.kind] ?? "Update"}
+            {(plain ? PLAIN_KIND_LABEL : KIND_LABEL)[post.kind] ?? "Update"}
           </span>
           {/* Who this one is for, said on the post itself rather than only in
               the composer that is long since gone. Somebody who chose a

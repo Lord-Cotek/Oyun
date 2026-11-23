@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { stageIn } from "@/lib/voice-content";
 import { anthropic, modelChain, isModelError } from "@/lib/anthropic";
 import { buildAgbebiSystem } from "@/lib/agbebi";
 import { auth } from "@/lib/auth";
@@ -69,7 +70,9 @@ export async function POST(req: Request) {
   await recordAssistantUse(session.user.id);
 
   // Build authoritative context server-side from the session — never trust the client.
-  let system = buildAgbebiSystem({ name: session.user.name });
+  // How Oyun speaks to this person — lib/voice.ts. Agbebi follows it.
+  const voice = session.user.voice;
+  let system = buildAgbebiSystem({ name: session.user.name, voice });
 
   const active = await getActiveMembership(session.user.id);
   const me = await prisma.user.findUnique({
@@ -81,7 +84,8 @@ export async function POST(req: Request) {
     system = buildAgbebiSystem({
       name: me?.name ?? session.user.name,
       role: active.role,
-      stage: position.stage,
+      stage: stageIn(position.stage, voice),
+      voice,
       babyName: active.journey.babyName,
       babyCount: active.journey.babyCount,
       grieving: active.journey.status === "LOSS",

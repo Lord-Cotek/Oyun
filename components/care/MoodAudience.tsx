@@ -12,7 +12,7 @@ const CHOICES = [
   {
     value: "CIRCLE",
     label: "My partner and my circle",
-    hint: "Everyone walking with you sees your mood, so they know when to pray or check in.",
+    hint: "Everyone walking with you sees your mood, so they know when to reach out or check in.",
   },
   {
     value: "ME",

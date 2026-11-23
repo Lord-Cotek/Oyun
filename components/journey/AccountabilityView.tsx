@@ -7,12 +7,9 @@ import {
 import { getReactionsFor } from "@/lib/reactions";
 import { prisma } from "@/lib/prisma";
 import { Reactions } from "@/components/Reactions";
-import {
-  walkStage,
-  dailyWalk,
-  weeklyWalk,
-  STAGE_LABEL,
-} from "@/lib/accountability";
+import { walkStage, STAGE_LABEL } from "@/lib/accountability";
+import { circleDailyIn, circleWeeklyIn } from "@/lib/voice-content";
+import { isGeneral } from "@/lib/voice";
 import { type Stage } from "@/lib/journey";
 import { MOOD_META } from "@/lib/moods";
 import { Card } from "@/components/ui/Card";
@@ -61,6 +58,7 @@ export async function AccountabilityView({
   month,
   familyPosts = [],
   todayLabel,
+  voice,
 }: {
   journeyId: string;
   userId: string;
@@ -74,7 +72,11 @@ export async function AccountabilityView({
   month?: number;
   familyPosts?: FeedPost[];
   todayLabel?: string;
+  /** How Oyun speaks to this reader — see lib/voice.ts. `stage` arrives
+   *  already in this voice; the circle's own guidance is chosen here. */
+  voice?: string | null;
 }) {
+  const general = isGeneral(voice);
   const [herMood, nudges, support, me, hasOwnJourney] = await Promise.all([
     getLatestMotherCheckIn(journeyId, "CIRCLE"),
     getOpenNudges(journeyId, userId),
@@ -91,10 +93,10 @@ export async function AccountabilityView({
     ? (await getReactionsFor("CHECKIN", [latest.id], userId))[latest.id]
     : null;
   const stageKey = walkStage({ born, week, month });
-  const today = dailyWalk(stageKey);
-  const thisWeek = weeklyWalk(stageKey);
+  const today = circleDailyIn(voice, stageKey);
+  const thisWeek = circleWeeklyIn(voice, stageKey);
   const firstName = me?.name?.trim().split(/\s+/)[0] ?? null;
-  const framing = supporterFraming(role, motherName);
+  const framing = supporterFraming(role, motherName, voice);
 
   return (
     <main className="mx-auto max-w-shell px-6 pb-10">
@@ -131,7 +133,9 @@ export async function AccountabilityView({
             ) : (
               <p className="prose-serif-xs text-muted">
                 {moodHidden
-                  ? `${motherName} keeps how she is close to home for now. A word or a prayer from you is always welcome.`
+                  ? general
+                    ? `${motherName} keeps how she is close to home for now. A word from you is always welcome.`
+                    : `${motherName} keeps how she is close to home for now. A word or a prayer from you is always welcome.`
                   : <>{motherName} hasn&rsquo;t shared a check-in yet. When she does, you&rsquo;ll see it here — a cue to reach out.</>}
               </p>
             )}
@@ -145,10 +149,16 @@ export async function AccountabilityView({
               {today.text}
             </p>
             <p className="mt-3 border-t border-accent/20 pt-3 font-mono text-[0.68rem] leading-relaxed text-muted">
-              “{today.verse.text}”
-              <span className="mt-1 block uppercase tracking-widest text-accent">
-                {today.verse.ref}
-              </span>
+              {general ? (
+                today.verse.text
+              ) : (
+                <>
+                  “{today.verse.text}”
+                  <span className="mt-1 block uppercase tracking-widest text-accent">
+                    {today.verse.ref}
+                  </span>
+                </>
+              )}
             </p>
           </div>
         </div>
@@ -170,7 +180,7 @@ export async function AccountabilityView({
 
       {/* Life as the family shares it — the reason most people are here. */}
       <div className="mt-6">
-        <LatestFromFamily posts={familyPosts} greeting={todayLabel} />
+        <LatestFromFamily posts={familyPosts} greeting={todayLabel} plain={general} />
       </div>
 
       <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -193,7 +203,7 @@ export async function AccountabilityView({
           className="surface-premium flex items-center justify-between rounded-2xl border border-border p-5 hover:border-accent/50"
         >
           <div>
-            <p className="font-serif text-lg text-ink">Prayer wall</p>
+            <p className="font-serif text-lg text-ink">{general ? "Support wall" : "Prayer wall"}</p>
             <p className="font-mono text-[0.66rem] uppercase tracking-widest text-muted">
               What to carry for them
             </p>
@@ -207,14 +217,15 @@ export async function AccountabilityView({
           <Card className="p-8">
             <Eyebrow className="mb-3">Send them a word</Eyebrow>
             <p className="mb-4 prose-serif-xs text-muted">
-              A sentence of Scripture or encouragement, sent to {motherName}. Keep
-              pointing them past yourself, to the Lord.
+              {general
+                ? `A sentence of encouragement, sent to ${motherName}. Short and real is better than long and perfect.`
+                : `A sentence of Scripture or encouragement, sent to ${motherName}. Keep pointing them past yourself, to the Lord.`}
             </p>
-            <EncouragementBox toName={motherName} verseRef={stage.verse.ref} />
+            <EncouragementBox toName={motherName} verseRef={general ? undefined : stage.verse.ref} />
           </Card>
 
           <Card className="p-8">
-            <Eyebrow className="mb-3">Pray for them</Eyebrow>
+            <Eyebrow className="mb-3">{general ? "Hold them in mind" : "Pray for them"}</Eyebrow>
             <p className="prose-serif-sm text-muted">
               {stage.prayerPoint}
             </p>
@@ -232,6 +243,7 @@ export async function AccountabilityView({
               streak={support.streak}
               prayedLast7={support.prayedLast7}
               motherName={motherName}
+              voice={voice}
             />
           </Card>
 
@@ -247,7 +259,7 @@ export async function AccountabilityView({
             />
           </Card>
 
-          {(idileUrl || !hasOwnJourney) && (
+          {((idileUrl && !general) || !hasOwnJourney) && (
             <Card className="border-accent2/30 bg-accent2/[0.05]">
               <Eyebrow className="mb-3">And your own home</Eyebrow>
               <p className="mb-4 prose-serif-xs text-muted">
@@ -255,7 +267,9 @@ export async function AccountabilityView({
                 family is worth tending too.
               </p>
               <div className="space-y-2">
-                {idileUrl && (
+                {/* Ìdílé is written for families of faith — offered to the
+                    faith voice only until it has the same choice. */}
+                {idileUrl && !general && (
                   <a
                     href={idileUrl}
                     target="_blank"
@@ -300,17 +314,30 @@ export async function AccountabilityView({
             </Card>
           )}
 
-          <Card>
-            <div className="mb-3 flex items-center gap-2 text-accent">
-              <Icon name="church" size={16} />
-              <span className="eyebrow">Point them to the Body</span>
-            </div>
-            <p className="prose-serif-xs text-muted">
-              {born ? "This family" : "This couple"} was made for the church, not
-              just for you. Keep encouraging them towards their local congregation,
-              their pastor, and the ordinary means of grace.
-            </p>
-          </Card>
+          {general ? (
+            <Card>
+              <div className="mb-3 flex items-center gap-2 text-accent">
+                <Icon name="users" size={16} />
+                <span className="eyebrow">Point them to their people</span>
+              </div>
+              <p className="prose-serif-xs text-muted">
+                No one person can carry a family. Keep encouraging {born ? "them" : "the two of them"} towards
+                the wider circle — other friends, family, and the parents around them — not only towards you.
+              </p>
+            </Card>
+          ) : (
+            <Card>
+              <div className="mb-3 flex items-center gap-2 text-accent">
+                <Icon name="church" size={16} />
+                <span className="eyebrow">Point them to the Body</span>
+              </div>
+              <p className="prose-serif-xs text-muted">
+                {born ? "This family" : "This couple"} was made for the church, not
+                just for you. Keep encouraging them towards their local congregation,
+                their pastor, and the ordinary means of grace.
+              </p>
+            </Card>
+          )}
         </div>
       </div>
     </main>

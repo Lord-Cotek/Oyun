@@ -22,7 +22,7 @@ import { type StorySoFar as Story } from "@/lib/story";
  *    is the opposite of the point — so `worthTelling` keeps this hidden until
  *    there is something worth saying.
  */
-export function StorySoFar({ story }: { story: Story }) {
+export function StorySoFar({ story, general = false }: { story: Story; general?: boolean }) {
   if (!story.worthTelling) return null;
 
   const since = story.since.toLocaleDateString("en-GB", {
@@ -33,9 +33,19 @@ export function StorySoFar({ story }: { story: Story }) {
   // Only the lines that have something in them. A house without letters is not
   // shown a zero and reminded of it.
   const lines: { n: number; label: string }[] = [
-    { n: story.worshipDays, label: story.worshipDays === 1 ? "evening of worship kept" : "evenings of worship kept" },
+    // Without religious content there is no worship room to count — lib/voice.ts.
+    { n: general ? 0 : story.worshipDays, label: story.worshipDays === 1 ? "evening of worship kept" : "evenings of worship kept" },
     { n: story.posts, label: story.posts === 1 ? "entry in the diary" : "entries in the diary" },
-    { n: story.prayersAnswered, label: story.prayersAnswered === 1 ? "prayer followed to its answer" : "prayers followed to their answer" },
+    {
+      n: story.prayersAnswered,
+      label: general
+        ? story.prayersAnswered === 1
+          ? "request followed to its end"
+          : "requests followed to their end"
+        : story.prayersAnswered === 1
+          ? "prayer followed to its answer"
+          : "prayers followed to their answer",
+    },
     { n: story.letters, label: story.letters === 1 ? "letter written to keep" : "letters written to keep" },
     { n: story.milestones, label: story.milestones === 1 ? "milestone marked" : "milestones marked" },
     {

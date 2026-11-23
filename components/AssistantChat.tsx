@@ -14,6 +14,8 @@ type Ctx = {
   name?: string | null;
   role?: string | null;
   stageTitle?: string | null;
+  /** How Oyun speaks to them — see lib/voice.ts. */
+  voice?: string | null;
 };
 
 /**
@@ -107,9 +109,9 @@ export function AssistantChat() {
   /** Known to be signed out — not merely "not yet asked". */
   const signedOut = ctx !== null && !ctx.authenticated;
 
-  const greeting = ctx?.name
-    ? `Peace to you, ${ctx.name}.`
-    : "Peace to you.";
+  const general = ctx?.voice === "GENERAL";
+  const hello = general ? "Hello" : "Peace to you";
+  const greeting = ctx?.name ? `${hello}, ${ctx.name}.` : `${hello}.`;
   const subgreeting = ctx?.stageTitle
     ? ctx.stageTitle
     : "I'm Agbebi. I'll walk with you.";
@@ -188,7 +190,7 @@ export function AssistantChat() {
             </div>
           </header>
 
-          {crisis && <CrisisBanner kind={crisis} onDismiss={() => setCrisis(null)} />}
+          {crisis && <CrisisBanner kind={crisis} general={general} onDismiss={() => setCrisis(null)} />}
 
           <div ref={scrollRef} className="flex-1 space-y-4 overflow-y-auto px-4 py-4">
             {signedOut && <SignedOut />}
@@ -196,9 +198,9 @@ export function AssistantChat() {
               <div className="space-y-3 pt-2">
                 <p className="font-serif text-lg text-ink">{greeting}</p>
                 <p className="prose-serif-xs text-muted">
-                  Ask for a prayer, a word of Scripture, or just tell me how you
-                  are. I'm here for the whole journey — but I'm not a doctor. For
-                  anything medical, always turn to your care provider.
+                  {general
+                    ? "Ask for a word of encouragement, or just tell me how you are. I'm here for the whole journey — but I'm not a doctor. For anything medical, always turn to your care provider."
+                    : "Ask for a prayer, a word of Scripture, or just tell me how you are. I'm here for the whole journey — but I'm not a doctor. For anything medical, always turn to your care provider."}
                 </p>
               </div>
             )}
@@ -270,9 +272,9 @@ export function AssistantChat() {
 function SignedOut() {
   return (
     <div className="space-y-3 pt-2">
-      <p className="font-serif text-lg text-ink">Peace to you.</p>
+      <p className="font-serif text-lg text-ink">Hello.</p>
       <p className="prose-serif-xs text-muted">
-        I'm Agbebi. I walk with families inside Oyun — Scripture, prayer and a
+        I'm Agbebi. I walk with families inside Oyun — with a
         word for whatever week you are in. Sign in and I'll know where you are
         in the journey, and we can talk properly.
       </p>
@@ -379,9 +381,12 @@ function TypingDots() {
 function CrisisBanner({
   kind,
   onDismiss,
+  general = false,
 }: {
   kind: CrisisKind;
   onDismiss: () => void;
+  /** Without religious content — see lib/voice.ts. */
+  general?: boolean;
 }) {
   const isLoss = kind === "loss";
   return (
@@ -392,15 +397,15 @@ function CrisisBanner({
       <p className="font-mono text-[0.72rem] leading-relaxed text-ink">
         {isLoss ? (
           <>
-            I am so sorry. God is near to the brokenhearted (Psalm 34:18). Please
-            reach out to your doctor or midwife, and lean on your church family.
-            I can sit with you and pray, but you should not carry this alone.
+            {general
+              ? "I am so sorry. Please reach out to your doctor or midwife, and lean on the people who love you. I can sit with you, but you should not carry this alone."
+              : "I am so sorry. God is near to the brokenhearted (Psalm 34:18). Please reach out to your doctor or midwife, and lean on your church family. I can sit with you and pray, but you should not carry this alone."}
           </>
         ) : (
           <>
             What you're describing may need care right away. Please contact your
-            doctor, midwife, or emergency services now — don't wait. I'm here to
-            pray with you, but I can't take the place of your care provider.
+            doctor, midwife, or emergency services now — don&rsquo;t wait.{" "}
+            {general ? "I'm here with you" : "I'm here to pray with you"}, but I can&rsquo;t take the place of your care provider.
           </>
         )}
       </p>

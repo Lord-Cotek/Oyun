@@ -61,11 +61,38 @@ export function isRole(v: string): v is Role {
  * spiritual friendship; a grandmother came to see the baby. Same access, and
  * the same call to pray — different welcome.
  */
-export function supporterFraming(role: Role | string, motherName: string): {
+export function supporterFraming(
+  role: Role | string,
+  motherName: string,
+  /** How Oyun speaks to the reader — see lib/voice.ts. */
+  voice?: string | null,
+): {
   eyebrow: string;
   title: string;
   blurb: string;
 } {
+  if (voice === "GENERAL") {
+    switch (role) {
+      case "FAMILY":
+        return {
+          eyebrow: "Family",
+          title: `Close to ${motherName}, wherever you are.`,
+          blurb: `Life as it happens — and a standing invitation to stay close to ${motherName} and the little one.`,
+        };
+      case "FRIEND":
+        return {
+          eyebrow: "Friend",
+          title: `Walking with ${motherName}.`,
+          blurb: `The updates that matter, shared with the few — celebrate, check in, and send a word.`,
+        };
+      default:
+        return {
+          eyebrow: "Accountability partner",
+          title: `Walking steadily alongside ${motherName}.`,
+          blurb: `Encourage, show up, and keep them connected to the wider circle of people who love them.`,
+        };
+    }
+  }
   switch (role) {
     case "FAMILY":
       return {

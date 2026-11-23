@@ -10,14 +10,19 @@ export function SupportActions({
   streak,
   prayedLast7,
   motherName,
+  voice,
 }: {
   prayedToday: boolean;
   reachedOutToday: boolean;
   streak: number;
   prayedLast7: number;
   motherName: string;
+  /** How Oyun speaks to whoever is reading — see lib/voice.ts. The record
+   *  underneath is the same either way; only the words for it change. */
+  voice?: string | null;
 }) {
   const [pending, start] = useTransition();
+  const general = voice === "GENERAL";
 
   return (
     <div>
@@ -26,8 +31,8 @@ export function SupportActions({
         <ActionButton
           done={prayedToday}
           disabled={pending}
-          label="I prayed for her"
-          doneLabel="Prayed today"
+          label={general ? "I held her in mind" : "I prayed for her"}
+          doneLabel={general ? "Held in mind" : "Prayed today"}
           onClick={() => start(() => markSupport("prayed"))}
         />
         <ActionButton
@@ -50,9 +55,13 @@ export function SupportActions({
         </div>
         <div className="h-8 w-px bg-border" aria-hidden />
         <p className="prose-serif-xs text-muted">
-          {prayedLast7 > 0
-            ? `You've prayed for ${motherName} ${prayedLast7} of the last 7 days. Steady presence is the gift; there is no run here to keep up.`
-            : `Begin today. A single faithful prayer for ${motherName} is not small in God's eyes.`}
+          {general
+            ? prayedLast7 > 0
+              ? `You've held ${motherName} in mind ${prayedLast7} of the last 7 days. Steady presence is the gift; there is no run here to keep up.`
+              : `Begin today. Stopping to think of ${motherName} on purpose — what she's carrying, what might help — is not a small thing.`
+            : prayedLast7 > 0
+              ? `You've prayed for ${motherName} ${prayedLast7} of the last 7 days. Steady presence is the gift; there is no run here to keep up.`
+              : `Begin today. A single faithful prayer for ${motherName} is not small in God's eyes.`}
         </p>
       </div>
     </div>

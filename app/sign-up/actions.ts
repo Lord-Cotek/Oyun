@@ -15,6 +15,14 @@ export async function registerUser(
   const name = String(formData.get("name") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const password = String(formData.get("password") ?? "");
+  // How Oyun will speak to them — see lib/voice.ts. Asked of everyone at
+  // sign-up; anything but the two real answers is refused rather than
+  // guessed, so nobody lands in a voice they did not pick.
+  const voiceRaw = String(formData.get("voice") ?? "");
+  if (voiceRaw !== "FAITH" && voiceRaw !== "GENERAL") {
+    return { ok: false, error: "Choose how Oyun should speak to you." };
+  }
+  const voice = voiceRaw;
 
   if (!email || !email.includes("@")) {
     return { ok: false, error: "Please enter a valid email address." };
@@ -43,6 +51,7 @@ export async function registerUser(
       email,
       name: name || null,
       passwordHash: await hashPassword(password),
+      voice,
     },
     select: { id: true },
   });
@@ -56,7 +65,7 @@ export async function registerUser(
     .then((link) => sendConfirmEmail({ to: email, name, link }))
     .catch(() => {});
 
-  await sendWelcomeEmail({ to: email, name }).catch(() => {});
+  await sendWelcomeEmail({ to: email, name, voice }).catch(() => {});
 
   return { ok: true };
 }

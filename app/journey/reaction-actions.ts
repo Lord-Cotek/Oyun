@@ -144,6 +144,7 @@ export async function toggleReaction(
         userId: authorId,
         type: "prayer",
         title: `${who} responded with ${word} ${emoji} to your prayer request.`,
+        plain: { title: `${who} responded with ${word} ${emoji} to your request.` },
         href: prayerPath(targetId),
       });
     } else if (targetType === "ENCOURAGEMENT" && authorId && authorId !== userId) {

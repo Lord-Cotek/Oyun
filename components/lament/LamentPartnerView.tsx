@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
-import { dailyLament } from "@/lib/lament";
+import { griefWordIn } from "@/lib/voice-content";
+import { isGeneral } from "@/lib/voice";
 import { Card } from "@/components/ui/Card";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { OyunMark } from "@/components/ui/OyunMark";
@@ -14,15 +15,25 @@ const HOW_TO_COME_NEAR = [
   "Pray with her and for her — out loud when she wants it, quietly when she doesn't.",
 ];
 
+/** The same counsel without religious content — see lib/voice.ts. */
+const HOW_TO_COME_NEAR_GENERAL = [
+  ...HOW_TO_COME_NEAR.slice(0, 4),
+  "Remember the dates with her — the due date, the day it happened. Those days are heavy, and a message that says you remembered matters.",
+];
+
 /** The circle's view — how to grieve *with* her, not fall silent. */
 export async function LamentPartnerView({
   journeyId,
   motherName,
+  voice,
 }: {
   journeyId: string;
   motherName: string;
+  /** How Oyun speaks to this reader — see lib/voice.ts. */
+  voice?: string | null;
 }) {
-  const lament = dailyLament();
+  const general = isGeneral(voice);
+  const lament = griefWordIn(voice);
   const remembrances = await prisma.remembrance.findMany({
     where: { journeyId },
     orderBy: { createdAt: "desc" },
@@ -40,8 +51,8 @@ export async function LamentPartnerView({
         </h1>
         <p className="mt-4 max-w-prose prose-serif-sm text-muted">
           This is one of the hardest roads. She does not need you to have answers
-          — she needs you not to disappear. Come near, stay near, and let God&rsquo;s
-          comfort reach her through you.
+          — she needs you not to disappear. Come near, stay near,{" "}
+          {general ? "and let her feel how much she is loved." : "and let God’s comfort reach her through you."}
         </p>
       </div>
 
@@ -50,7 +61,7 @@ export async function LamentPartnerView({
           <Card className="p-8">
             <Eyebrow className="mb-4 text-accent2">How to come near</Eyebrow>
             <ul className="space-y-3">
-              {HOW_TO_COME_NEAR.map((line, i) => (
+              {(general ? HOW_TO_COME_NEAR_GENERAL : HOW_TO_COME_NEAR).map((line, i) => (
                 <li key={i} className="flex gap-3">
                   <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-accent2" />
                   <span className="prose-serif-sm text-ink/90">
@@ -64,8 +75,8 @@ export async function LamentPartnerView({
           <Card className="p-8">
             <Eyebrow className="mb-4">Leave a word of remembrance</Eyebrow>
             <p className="mb-5 prose-serif-xs text-muted">
-              Write something for {motherName} to keep — a memory, a promise to
-              pray, the baby&rsquo;s name spoken with love. She will see it in her
+              Write something for {motherName} to keep — a memory,{" "}
+              {general ? "a promise to keep showing up," : "a promise to pray,"} the baby&rsquo;s name spoken with love. She will see it in her
               own space.
             </p>
             <RemembranceForm
@@ -92,8 +103,10 @@ export async function LamentPartnerView({
 
         <div className="space-y-4">
           <Card className="p-8">
-            <Eyebrow className="mb-4 text-accent2">Pray this today</Eyebrow>
-            <Verse text={lament.text} reference={lament.ref} />
+            <Eyebrow className="mb-4 text-accent2">
+              {general ? `For today · ${lament.ref}` : "Pray this today"}
+            </Eyebrow>
+            <Verse text={lament.text} reference={general ? "" : lament.ref} />
             <p className="mt-6 border-t border-border pt-6 prose-serif-sm text-muted">
               {lament.reflection}
             </p>
@@ -102,7 +115,7 @@ export async function LamentPartnerView({
             <Eyebrow className="mb-3 text-accent2">The simplest step</Eyebrow>
             <p className="prose-serif-xs text-muted">
               You don&rsquo;t need the right words. Send {motherName} a message right
-              now — &ldquo;I&rsquo;m so sorry. I&rsquo;m here. I&rsquo;m praying for you.&rdquo; That
+              now — &ldquo;I&rsquo;m so sorry. I&rsquo;m here.{general ? " I’m thinking of you." : " I’m praying for you."}&rdquo; That
               is enough. Then send another next week.
             </p>
           </Card>

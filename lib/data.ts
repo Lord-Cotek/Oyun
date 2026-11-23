@@ -219,7 +219,10 @@ export async function getOnePrayer(
   });
   if (!r) return null;
 
-  const reactions = await getReactionsFor("PRAYER", [r.id], viewerId);
+  const [reactions, held] = await Promise.all([
+    getReactionsFor("PRAYER", [r.id], viewerId),
+    heldCounts([r.id]),
+  ]);
   return {
     id: r.id,
     title: r.title,
@@ -230,6 +233,7 @@ export async function getOnePrayer(
     answeredAt: r.answeredAt ? r.answeredAt.toISOString() : null,
     createdAt: r.createdAt.toISOString(),
     prayerCount: r._count.prayers,
+    heldCount: held.get(r.id) ?? 0,
     didIPray: r.prayers.length > 0,
     // The same two people as in the room: whoever asked, and the mother.
     canManage: r.authorId === viewerId || canManageAny,
@@ -641,6 +645,7 @@ export async function getPrayerRequests(journeyId: string, viewerId: string) {
     },
     take: 50,
   });
+  const held = await heldCounts(requests.map((r) => r.id));
   return requests.map((r) => ({
     id: r.id,
     title: r.title,
@@ -650,8 +655,27 @@ export async function getPrayerRequests(journeyId: string, viewerId: string) {
     answeredAt: r.answeredAt,
     createdAt: r.createdAt,
     prayerCount: r._count.prayers,
+    heldCount: held.get(r.id) ?? 0,
     didIPray: r.prayers.length > 0,
   }));
+}
+
+/**
+ * Of the people who held each request, how many chose Oyun without religious
+ * content (lib/voice.ts). They pressed "Hold to send love", not "Hold to
+ * pray", so a reader who chose faith is told "2 praying · 1 thinking of you"
+ * rather than "3 praying" — the count says what each person actually did.
+ */
+async function heldCounts(requestIds: string[]): Promise<Map<string, number>> {
+  const out = new Map<string, number>();
+  if (!requestIds.length) return out;
+  const rows = await prisma.prayerPray.groupBy({
+    by: ["requestId"],
+    where: { requestId: { in: requestIds }, user: { voice: "GENERAL" } },
+    _count: { _all: true },
+  });
+  for (const r of rows) out.set(r.requestId, r._count._all);
+  return out;
 }
 
 export type WorshipStreak = {

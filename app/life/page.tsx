@@ -116,7 +116,9 @@ export default async function LifePage({
               Shared, as it happens.
             </h1>
             <p className="mt-2.5 max-w-prose prose-serif-sm opacity-80 on-band">
-              A quiet place for the ones walking with you — how you are, a praise, a prayer to be carried, a small moment worth keeping.
+              {session.user.voice === "GENERAL"
+                ? "A quiet place for the ones walking with you — how you are, some good news, something to be carried, a small moment worth keeping."
+                : "A quiet place for the ones walking with you — how you are, a praise, a prayer to be carried, a small moment worth keeping."}
             </p>
           </div>
         </section>
@@ -144,7 +146,7 @@ export default async function LifePage({
 
         {story?.worthTelling && (
           <div className="mt-5 max-w-2xl">
-            <StorySoFar story={story} />
+            <StorySoFar story={story} general={session.user.voice === "GENERAL"} />
           </div>
         )}
 
@@ -188,6 +190,7 @@ export default async function LifePage({
             />
           ) : (
           <Feed
+            plain={session.user.voice === "GENERAL"}
             posts={posts}
             onCreate={createPost}
             onEdit={editPost}

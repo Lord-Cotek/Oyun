@@ -180,3 +180,25 @@ export async function resendConfirm(): Promise<Result> {
     ? { ok: true, message: `Sent to ${to}. The link works for three days.` }
     : { ok: false, error: "That did not send just now. Try again in a few minutes." };
 }
+
+/**
+ * How Oyun speaks to this person — see lib/voice.ts. Theirs alone: the rest
+ * of the family keep whatever they chose. Nothing they or anyone wrote is
+ * touched; only the app's own words change, from the next page they open.
+ */
+export async function updateVoice(voice: string): Promise<Result> {
+  const userId = await requireUser();
+  if (voice !== "FAITH" && voice !== "GENERAL") {
+    return { ok: false, error: "Choose one of the two." };
+  }
+  await prisma.user.update({ where: { id: userId }, data: { voice } });
+  // The menu, the home page and every room read it, so every page is stale.
+  revalidatePath("/", "layout");
+  return {
+    ok: true,
+    message:
+      voice === "GENERAL"
+        ? "Saved. Oyun will speak to you without religious content."
+        : "Saved. Oyun will speak to you with Christian faith.",
+  };
+}

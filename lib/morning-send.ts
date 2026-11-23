@@ -87,6 +87,7 @@ export async function sendMorningNotes(now = new Date()): Promise<MorningRun> {
       id: true,
       timeZone: true,
       morningHour: true,
+      voice: true,
       memberships: {
         // Oldest first, as the journey switcher orders them.
         orderBy: { createdAt: "asc" },
@@ -125,6 +126,7 @@ export async function sendMorningNotes(now = new Date()): Promise<MorningRun> {
       seat: seatFor(membership.role),
       dueDate: membership.journey.dueDate,
       status: membership.journey.status,
+      voice: person.voice,
       now,
     });
     // Silence is an answer — see lib/morning.ts on what happens after a loss.

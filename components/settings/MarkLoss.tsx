@@ -7,7 +7,7 @@ import { Eyebrow } from "@/components/ui/Eyebrow";
 const inputClass =
   "w-full rounded-lg border border-border bg-bg px-3.5 py-2.5 font-mono text-sm text-ink focus:border-accent focus:outline-none";
 
-export function MarkLoss() {
+export function MarkLoss({ general = false }: { general?: boolean }) {
   const [open, setOpen] = useState(false);
 
   if (!open) {
@@ -15,8 +15,8 @@ export function MarkLoss() {
       <div>
         <p className="mb-4 max-w-prose prose-serif-xs text-muted">
           If you have lost your baby, we are so deeply sorry. Whenever you are
-          ready, Oyun can gently become a place of lament and remembrance instead
-          — with Scripture for grief, a space to remember, and your circle drawn
+          ready, Oyun can gently become a place of {general ? "remembrance" : "lament and remembrance"} instead
+          — {general ? "with words for the hardest days" : "with Scripture for grief"}, a space to remember, and your circle drawn
           near. There is no hurry.
         </p>
         <button

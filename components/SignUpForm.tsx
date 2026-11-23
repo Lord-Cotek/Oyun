@@ -5,6 +5,8 @@ import { sayIn, type Words } from "@/lib/i18n";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { registerUser } from "@/app/sign-up/actions";
+import { VoicePicker } from "@/components/VoicePicker";
+import type { Voice } from "@/lib/voice";
 
 export function SignUpForm({
   callbackUrl,
@@ -20,12 +22,18 @@ export function SignUpForm({
   const [name, setName] = useState("");
   const [email, setEmail] = useState(initialEmail ?? "");
   const [password, setPassword] = useState("");
+  // Nothing chosen until they choose — see components/VoicePicker.tsx.
+  const [voice, setVoice] = useState<Voice | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (busy) return;
+    if (!voice) {
+      setError(w("Choose how Oyun should speak to you."));
+      return;
+    }
     setBusy(true);
     setError(null);
 
@@ -33,6 +41,7 @@ export function SignUpForm({
     fd.set("name", name);
     fd.set("email", email);
     fd.set("password", password);
+    fd.set("voice", voice);
 
     const res = await registerUser(null, fd);
     if (!res.ok) {
@@ -103,6 +112,9 @@ export function SignUpForm({
           className="prose-serif-sm w-full rounded-lg border border-border bg-bg px-4 py-3 text-ink placeholder:text-muted focus:border-accent focus:outline-none"
         />
       </label>
+      <div className="pt-2">
+        <VoicePicker value={voice} onChange={setVoice} words={words} />
+      </div>
       {error && <p className="font-mono text-xs text-negative">{error}</p>}
       <button
         type="submit"

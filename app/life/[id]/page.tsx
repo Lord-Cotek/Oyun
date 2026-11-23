@@ -122,6 +122,7 @@ export default async function OnePost({
 
         <div className="mt-4">
           <Feed
+            plain={session.user.voice === "GENERAL"}
             alone
             posts={[post]}
             onCreate={createPost}

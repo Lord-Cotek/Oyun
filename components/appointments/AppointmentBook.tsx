@@ -53,9 +53,12 @@ const TONE: Record<string, string> = {
 export function AppointmentBook({
   upcoming,
   past,
+  general = false,
 }: {
   upcoming: Appt[];
   past: Appt[];
+  /** Without religious content — see lib/voice.ts. */
+  general?: boolean;
 }) {
   const [adding, setAdding] = useState(false);
   /** Pre-chosen kind when the blank book opened the form for her. */
@@ -122,7 +125,7 @@ export function AppointmentBook({
         ) : (
           <ul className="space-y-3">
             {upcoming.map((a) => (
-              <Row key={a.id} a={a} run={run} />
+              <Row key={a.id} a={a} run={run} general={general} />
             ))}
           </ul>
         )}
@@ -135,7 +138,7 @@ export function AppointmentBook({
           </p>
           <ul className="space-y-3">
             {past.map((a) => (
-              <Row key={a.id} a={a} run={run} past />
+              <Row key={a.id} a={a} run={run} past general={general} />
             ))}
           </ul>
         </section>
@@ -155,7 +158,7 @@ export function AppointmentBook({
  * a second thing to keep in step. So the row is lent out rather than
  * reimplemented, and it lives in this file because that is where Row lives.
  */
-export function OneAppointment({ a }: { a: Appt }) {
+export function OneAppointment({ a, general = false }: { a: Appt; general?: boolean }) {
   const [error, setError] = useState<string | null>(null);
   const [, start] = useTransition();
 
@@ -185,7 +188,7 @@ export function OneAppointment({ a }: { a: Appt }) {
         </p>
       )}
       <ul>
-        <Row a={a} run={run} past={past} />
+        <Row a={a} run={run} past={past} general={general} />
       </ul>
     </>
   );
@@ -195,10 +198,12 @@ function Row({
   a,
   run,
   past = false,
+  general = false,
 }: {
   a: Appt;
   run: (fn: () => Promise<Res>) => void;
   past?: boolean;
+  general?: boolean;
 }) {
   const [editing, setEditing] = useState(false);
   const [closing, setClosing] = useState(false);
@@ -423,7 +428,7 @@ function Row({
                   onClick={() => run(() => askCircleToPray(a.id))}
                   className="rounded-lg border border-border px-3 py-1.5 font-mono text-[0.68rem] text-ink transition-colors hover:border-accent hover:text-accent"
                 >
-                  Ask the circle to pray
+                  {general ? "Ask the circle for support" : "Ask the circle to pray"}
                 </button>
               </>
             )}

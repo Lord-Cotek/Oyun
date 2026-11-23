@@ -12,10 +12,31 @@ export const POST_KINDS = [
 
 export type PostKind = (typeof POST_KINDS)[number]["kind"];
 
+/**
+ * The same four kinds in plain words, for a reader who chose the app without
+ * religious content (Oyun's lib/voice.ts). Only the words: a post written as
+ * a praise is still stored as one, and a reader who chose faith still sees
+ * "Praise" on it.
+ */
+export const PLAIN_POST_KINDS: readonly { kind: PostKind; label: string; hint: string }[] = [
+  { kind: "UPDATE", label: "An update", hint: "How you are, what's been happening." },
+  { kind: "PRAISE", label: "Good news", hint: "Something to celebrate." },
+  { kind: "PRAYER", label: "A request", hint: "Something for the family to carry." },
+  { kind: "MILESTONE", label: "A milestone", hint: "A moment worth keeping." },
+];
+
 export const KIND_LABEL: Record<string, string> = {
   UPDATE: "Update",
   PRAISE: "Praise",
   PRAYER: "Prayer",
+  MILESTONE: "Milestone",
+};
+
+/** The chip on a post, in plain words — see PLAIN_POST_KINDS. */
+export const PLAIN_KIND_LABEL: Record<string, string> = {
+  UPDATE: "Update",
+  PRAISE: "Good news",
+  PRAYER: "Request",
   MILESTONE: "Milestone",
 };
 

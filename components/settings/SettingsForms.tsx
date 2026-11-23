@@ -241,7 +241,7 @@ export function NotificationForm({
           name="weeklyDigest"
           defaultChecked={weeklyDigest}
           title="One quiet summary each week"
-          hint="This stage, a verse, and how your circle prayed. Sent whatever the rows above say — it is a look back, not an interruption."
+          hint="This stage, a word for the week, and how your circle showed up. Sent whatever the rows above say — it is a look back, not an interruption."
         />
       </div>
 

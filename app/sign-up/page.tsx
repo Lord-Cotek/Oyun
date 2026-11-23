@@ -5,7 +5,6 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { OyunMark } from "@/components/ui/OyunMark";
-import { Verse } from "@/components/ui/Verse";
 import { SignUpForm } from "@/components/SignUpForm";
 import { LanguageSwitch } from "@/components/LanguageSwitch";
 import { getLang, yorubaOffered } from "@/lib/lang";
@@ -35,18 +34,17 @@ export default async function SignUpPage({
     <main className="md:grid md:min-h-[100dvh] md:grid-cols-2">
       <ThemeToggle className="fixed right-5 top-5 z-30" />
 
-      {/* Brand & Scripture — desktop */}
+      {/* Brand — desktop. Neutral on purpose: nobody has chosen how Oyun
+          should speak to them yet, and that choice is on this very page. */}
       <aside className="relative hidden overflow-hidden bg-surface p-12 md:flex md:flex-col md:justify-between">
         <Link href="/" className="inline-flex items-center gap-3">
           <OyunMark size={44} className="animate-breathe text-ink" />
           <span className="font-serif text-xl text-ink">Oyun</span>
         </Link>
         <div className="max-w-sm">
-          <Verse
-            size="lg"
-            text="For you formed my inmost being. You knit me together in my mother’s womb."
-            reference="Psalm 139:13"
-          />
+          <p className="font-serif text-3xl leading-snug text-ink">
+            Every week of it, with the people who love you close by.
+          </p>
         </div>
         <p className="prose-serif-xs max-w-xs text-muted">
           {PROMISE_SHORT}
@@ -70,7 +68,7 @@ export default async function SignUpPage({
             </h1>
             <p className="mt-3 prose-serif-sm text-muted">
               {invited
-                ? w("Set a name and password below. Once you're in, you'll accept the invitation and step into how to support and pray for her.")
+                ? w("Set a name and password below. Once you're in, you'll accept the invitation and see how to stand with her.")
                 : w("We'll send you a warm welcome, then set you where you are on the journey. No account is ever a promise of outcome — only a companion for the road.")}
             </p>
             <SignUpForm

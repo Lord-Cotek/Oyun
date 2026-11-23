@@ -60,8 +60,8 @@ export const YORUBA: Words = {
   "You've been invited": "A ti pè ọ́",
   "Begin the journey": "Bẹ̀rẹ̀ ìrìn-àjò náà",
   "Begin at home": "Bẹ̀rẹ̀ nílé",
-  "Set a name and password below. Once you're in, you'll accept the invitation and step into how to support and pray for her.":
-    "Fi orúkọ àti ọ̀rọ̀ aṣínà sí ìsàlẹ̀. Nígbà tí o bá wọlé, ìwọ yóò gba ìpè náà, ìwọ yóò sì kọ́ bí o ṣe lè ṣe àtìlẹ́yìn fún un àti bí o ṣe lè gbàdúrà fún un.",
+  "Set a name and password below. Once you're in, you'll accept the invitation and see how to stand with her.":
+    "Fi orúkọ àti ọ̀rọ̀ aṣínà sí ìsàlẹ̀. Nígbà tí o bá wọlé, ìwọ yóò gba ìpè náà, ìwọ yóò sì rí bí o ṣe lè dúró tì í.",
   "We'll send you a warm welcome, then set you where you are on the journey. No account is ever a promise of outcome — only a companion for the road.":
     "A ó kí ọ káàbọ̀ tọ̀yàyàtọ̀yàyà, lẹ́yìn náà a ó fi ọ́ sí ibi tí o wà nínú ìrìn-àjò náà. Kò sí àkáǹtì tí ó jẹ́ ìlérí àbájáde — alábàárìn ọ̀nà nìkan ni.",
   "Set a name and password below. Once you're in, you'll accept the invitation and step into the household you were invited to.":

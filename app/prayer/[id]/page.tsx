@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { isGeneral } from "@/lib/voice";
 import { notFound, redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { getActiveMembership, getOnePrayer } from "@/lib/data";
@@ -31,7 +32,7 @@ export const dynamic = "force-dynamic";
 export function generateMetadata(): Metadata {
   // No title from the request itself. "Please pray — the bleeding is back"
   // has no business in a phone's tab list or a browser's history.
-  return { title: "A prayer", robots: { index: false, follow: false } };
+  return { title: "A request", robots: { index: false, follow: false } };
 }
 
 export default async function OnePrayer({
@@ -58,12 +59,12 @@ export default async function OnePrayer({
     <>
       <SiteHeader active="prayer" />
       <main className="mx-auto max-w-shell px-6 pb-10">
-        <BackLink href="/prayer">All prayer</BackLink>
+        <BackLink href="/prayer">{isGeneral(session.user.voice) ? "All requests" : "All prayer"}</BackLink>
         <div className="mt-4 max-w-2xl">
           {/* The same card as the room, with the same hold-to-pray and the
               same controls — so somebody who arrived from a notification can
               pray for it right here rather than go looking for it again. */}
-          <PrayerCard item={item} />
+          <PrayerCard item={item} general={isGeneral(session.user.voice)} />
         </div>
       </main>
     </>

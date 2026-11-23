@@ -26,18 +26,18 @@ export default function TermsPage() {
 
       <LegalSection heading="Not medical, legal, or professional advice">
         <p>
-          Oyun and the Agbebi guide offer Scripture, prayer, and encouragement
-          — they are <span className="text-ink">not</span> medical, clinical,
+          Oyun and the Agbebi guide offer encouragement — with Christian faith or
+          without religious content, as you choose — and they are <span className="text-ink">not</span> medical, clinical,
           legal, or professional advice, and are not a substitute for your
           doctor or midwife. Take anything to do with your health, or your
           baby&rsquo;s, to them, and call your local emergency services in an
-          emergency. Oyun is likewise never a replacement for your church,
-          those who shepherd you, or the friends who keep you honest.
+          emergency. Oyun is likewise never a replacement for the people around
+          you — your family, your friends, and your faith community if you have
+          one.
         </p>
         <p>
           Agbebi is an AI companion. Its replies may be imperfect or inaccurate;
-          use discernment, and weigh everything against Scripture and wise
-          counsel.
+          use discernment, and weigh everything against wise counsel.
         </p>
       </LegalSection>
 

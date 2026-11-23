@@ -1,0 +1,73 @@
+/**
+ * The daily word for people who chose "without religious content" — standing
+ * in for the daily verse in lib/daily.ts. Each `text` is short enough to be
+ * the body of a morning notification; `theme` sits where the verse reference
+ * would ("This morning · On rest"); `reflection` deepens it in one sentence.
+ *
+ * Written for every stage the app covers, from early pregnancy to the first
+ * years, and ordered so that neighbouring days differ in theme.
+ */
+import type { GeneralWord } from "./types";
+
+export const GENERAL_DAILY: GeneralWord[] = [
+  { text: "You do not have to earn a rest. Being tired is reason enough to stop.", theme: "On rest", reflection: "Lying down for twenty minutes is not falling behind; it is part of the work your body is doing." },
+  { text: "Name one thing someone could take off your hands this week, and let them.", theme: "On asking for help", reflection: "People who care about you often want a task far more than they want to be told you are coping." },
+  { text: "Fear is not a forecast. It is a measure of how much this matters to you.", theme: "On fear", reflection: "You can feel it fully and still take the next step, and if a worry is about your body, it is always fair to ring and ask." },
+  { text: "Your body is doing something enormous, and it is allowed to look and feel like it.", theme: "On your changing body", reflection: "Stretch marks, swelling and softness are traces of hard work, not flaws to apologise for." },
+  { text: "Some days the whole achievement is that everyone was fed and nobody was left alone. That counts.", theme: "On small days", reflection: "Most of a life is made of small days, and none of them are wasted." },
+  { text: "Anger can arrive alongside love without cancelling it out. Both can be true at once.", theme: "On anger", reflection: "Noticing what the anger is pointing at — tiredness, unfairness, fear — is more useful than being ashamed of it." },
+  { text: "Someone else’s pregnancy or baby is not a measure of yours. You are only seeing their best angle.", theme: "On comparison", reflection: "Every family has hard hours that never get photographed." },
+  { text: "Waiting is not empty time. Things are happening, even when nothing seems to change.", theme: "On waiting", reflection: "You are allowed to fill the space between news with ordinary things — a walk, a film, a long phone call." },
+  { text: "Let yourself enjoy the good moments without bracing for the next worry.", theme: "On joy", reflection: "Delight does not make you careless; it gives you something to hold on to through the harder stretches." },
+  { text: "If you are sharing this with someone, you are both learning at once. Neither of you was given the manual.", theme: "On the partnership", reflection: "Assume good intent on the tired days, and say plainly what you need on all the others." },
+  { text: "You are still the person you were before, with your own humour, opinions and appetite for things.", theme: "On being more than a mother", reflection: "Ten minutes spent on something that is only yours is not taken from your child." },
+  { text: "Write your questions down before your next appointment. No question is too small to ask.", theme: "On appointments", reflection: "The people caring for you would rather hear the worry than have you carry it home unasked." },
+  { text: "You do not need to know how everything turns out to get through today well.", theme: "On uncertainty", reflection: "Not knowing is easier to carry in day-sized pieces than all at once." },
+  { text: "Notice one ordinary thing that went right today, however small.", theme: "On gratitude", reflection: "Gratitude is not pretending the hard parts away; it is making sure the good parts get counted too." },
+  { text: "Speak to yourself the way you would speak to a friend in exactly your position.", theme: "On self-compassion", reflection: "You would never tell her she was failing; you would tell her she was tired and doing well." },
+  { text: "Broken nights make everything feel heavier. That is the tiredness talking, not the truth about you.", theme: "On broken sleep", reflection: "Hard conclusions about yourself can wait until you have slept." },
+  { text: "There is no correct way to feel about this. Mixed, flat, overjoyed — all of it is allowed.", theme: "On mixed feelings", reflection: "Feelings that don’t match the pictures in your head are common, and if a low mood lingers, telling someone who can help is a strength." },
+  { text: "You are not behind. Bodies, babies and feelings all keep their own time.", theme: "On your own pace", reflection: "Milestones are a rough map, not a deadline you can fail." },
+  { text: "You can say no to visitors, advice and plans without owing anyone a reason.", theme: "On saying no", reflection: "Protecting your energy now is a way of looking after your family, not of shutting people out." },
+  { text: "Reach for one friend today, even with a two-line message. Contact does not need to be long to count.", theme: "On friendship", reflection: "Isolation is one of the quietest strains of this season, and small contact wears it down." },
+  { text: "Hunger, thirst and tiredness are information, not inconveniences. Listen to them early.", theme: "On the basics", reflection: "Looking after the basics is not indulgent; it is the floor everything else stands on." },
+  { text: "Plans change. You can grieve the version you hoped for while meeting the one in front of you.", theme: "On changed plans", reflection: "Disappointment about how things went says nothing about how much you love." },
+  { text: "Some of this is genuinely funny. Let yourself laugh at the absurd parts.", theme: "On laughter", reflection: "Shared laughter is one of the quickest ways back to each other after a hard week." },
+  { text: "Guilt often turns up wherever love is. It is not proof you are doing it wrong.", theme: "On guilt", reflection: "Ask whether the guilt is pointing at something to change, or simply at how much you care." },
+  { text: "Right now, in this minute, what do you need? Start there.", theme: "On this minute", reflection: "Big worries often shrink a little once you have met the next small need." },
+  { text: "Children do not need a perfect parent. A present, imperfect one is what they actually grow with.", theme: "On being enough", reflection: "Putting things right after a hard moment teaches more than never having one." },
+  { text: "Pace yourself as if this were a long walk, not a sprint. Stopping to breathe is part of the route.", theme: "On pacing yourself", reflection: "Energy you save today is energy that will be there when you need it later." },
+  { text: "However this began and whatever it has involved, your story is yours. You owe no one an explanation.", theme: "On your own story", reflection: "Some parts you may want to share widely and some with only one person, and both are fine." },
+  { text: "Crying is not a sign you are coping badly. Sometimes it is just how pressure finds its way out.", theme: "On tears", reflection: "You do not need a good reason for tears; tiredness, hormones and love are reasons enough." },
+  { text: "If you are awake in the small hours, you are not the only one. Many others are up with you right now.", theme: "On the small hours", reflection: "The night feels longest when you think you are alone in it." },
+  { text: "You know more than you think. Your sense of your own body and child deserves to be heard.", theme: "On trusting yourself", reflection: "If something feels off, saying so to the people caring for you is never making a fuss." },
+  { text: "Advice is free and plentiful. Keep what helps, and let the rest pass you by.", theme: "On other people’s advice", reflection: "You can thank someone warmly and still do it your own way." },
+  { text: "Pause for one minute today to notice how strange and remarkable all of this is.", theme: "On wonder", reflection: "Wonder sits alongside the tiredness and the worry, and it deserves some room." },
+  { text: "Worry speaks in what-ifs. Try answering one of them with what is true right now.", theme: "On worry", reflection: "Coming back to the present does not dismiss the fear; it gives you somewhere steady to stand." },
+  { text: "A messy home is often the sign of a family being looked after, not neglected.", theme: "On mess", reflection: "The washing will wait; rest is much harder to get back." },
+  { text: "Talk to someone close today about something other than babies, bodies or plans.", theme: "On staying connected", reflection: "Being known as a whole person by the people around you is part of staying well." },
+  { text: "Caring for a baby is a skill, and skills come slowly. Nobody starts out fluent.", theme: "On learning slowly", reflection: "The clumsiness of the first weeks is not a verdict on the parent you will be." },
+  { text: "If you can, step outside for a few minutes today. Light and air change how a day feels.", theme: "On fresh air", reflection: "Even the doorstep counts; it does not have to be a walk to help." },
+  { text: "Alongside all you gain, it is normal to miss things: sleep, freedom, spontaneity, your old routines.", theme: "On what you miss", reflection: "Missing your old life does not mean you regret this one." },
+  { text: "Eat something warm today, sitting down, if you possibly can.", theme: "On feeding yourself", reflection: "Food is not a reward for getting things done; it is how you keep going." },
+  { text: "Courage here rarely looks dramatic. Usually it is just turning up for the next thing.", theme: "On quiet courage", reflection: "Every appointment attended and every long night got through is its own kind of bravery." },
+  { text: "You can keep what was good in how you were raised and leave behind what was not.", theme: "On your own way", reflection: "The parent you become is shaped gradually, in thousands of small choices." },
+  { text: "If the help you hoped for has not come, it is fair to feel let down, and fair to ask again.", theme: "On being let down", reflection: "Needing more than you are getting is not a flaw in you; it is information worth sharing." },
+  { text: "You are allowed to hope, even if you have been hurt before.", theme: "On hope", reflection: "Hope does not promise how things will go; it simply keeps a light on while you wait." },
+  { text: "What one thing would make today ten per cent easier? Do it, or ask for it.", theme: "On easing the day", reflection: "Small adjustments tend to add up to more than heroic efforts." },
+  { text: "The work nobody sees — the planning, the remembering, the worrying — is still work.", theme: "On invisible work", reflection: "Saying it out loud lets others share it, instead of it all living in your head." },
+  { text: "You are allowed to move more slowly than you used to. Slower is not lesser.", theme: "On slowing down", reflection: "Doing fewer things with more care is a fair trade in this season." },
+  { text: "Every first — the first scan, the first night home, the first bad cold — is new to you too.", theme: "On first times", reflection: "Nobody gets things right on the first attempt, and you are attempting a great many things at once." },
+  { text: "Love is mostly ordinary acts repeated: a cup of tea, a clean nappy, a hand held in the dark.", theme: "On ordinary love", reflection: "If today was all small tasks, it was still full of love." },
+  { text: "You can feel lonely even when you are never alone. It is common, and worth saying out loud.", theme: "On loneliness", reflection: "Telling one person how isolated you feel is often the first step to feeling less so." },
+  { text: "Look back over the last month. You have learned and carried more than you give yourself credit for.", theme: "On progress", reflection: "Progress is hard to see from inside a single day." },
+  { text: "Your body has carried you through every hard day so far. It deserves some thanks today.", theme: "On your body’s work", reflection: "Kindness towards your body, rather than criticism, gets easier with practice." },
+  { text: "Two tired people will disagree. What matters is finding your way back afterwards.", theme: "On disagreeing well", reflection: "A sincere sorry and a hug can undo more than a perfectly argued point." },
+  { text: "Prepare what you can, then let the rest stay unknown. Not everything can be planned.", theme: "On preparing", reflection: "A packed bag or a meal in the freezer is a kindness to your future self, not a guarantee of anything." },
+  { text: "You do not have to be strong every minute. Let yourself be looked after for a while.", theme: "On being looked after", reflection: "Accepting care is not weakness; it is how people get through seasons like this one." },
+  { text: "Talk, sing or read aloud, badly if you like. Your voice is a comfort, not a performance.", theme: "On your voice", reflection: "Children are not listening for perfect pitch; they are listening for you." },
+  { text: "When the list is long, choose the three things that truly matter today and let the rest wait.", theme: "On a long list", reflection: "Most things on a list survive being moved to tomorrow." },
+  { text: "It is fine to answer ‘I don’t know yet’ about your plans, your feelings or what comes next.", theme: "On not knowing yet", reflection: "You are allowed to work things out as you go." },
+  { text: "You do not have to love every hour of this. Getting through some of them is enough.", theme: "On the hard hours", reflection: "Finding a stretch hard says nothing about how much you love the person you are doing it for." },
+  { text: "Think of one person who has made this easier, and let them know today.", theme: "On thanking your people", reflection: "Thanks given freely strengthens the circle you will lean on later." },
+];

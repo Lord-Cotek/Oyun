@@ -72,6 +72,8 @@ export default async function HelpPage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/sign-in?callbackUrl=/help");
   const active = await getActiveMembership(session.user.id);
+  // The guide describes the Oyun this reader chose — lib/voice.ts.
+  const general = session.user.voice === "GENERAL";
   if (!active) redirect("/onboarding");
 
   const home = isHousehold(active.role);
@@ -118,8 +120,8 @@ export default async function HelpPage() {
               The family feed — a photo, a word, a small thing worth keeping.
               Everyone invited to the journey sees it.
             </Room>
-            <Room name="Prayer" href="/prayer">
-              The prayer wall. She names what she wants carried; the circle
+            <Room name={general ? "Support" : "Prayer"} href="/prayer">
+              {general ? "The support wall" : "The prayer wall"}. She names what she wants carried; the circle
               holds it. Nothing reaches it unless she puts it there.
             </Room>
             {home && !inLoss && (
@@ -130,7 +132,7 @@ export default async function HelpPage() {
                 morning.
               </Room>
             )}
-            {home && !inLoss && (
+            {home && !inLoss && !general && (
               <Room name="Worship" href="/worship">
                 The daily rhythm for the two of you — read, reflect, pray — and
                 the people you pray for by name (a long list folds after a few
@@ -138,11 +140,13 @@ export default async function HelpPage() {
                 your Scripture Journey.
               </Room>
             )}
-            <Room name="Scripture" href="/scripture">
-              Your Scripture Journey through the Bible, a chapter a day — on
-              your own or together — with the chapter to read, what you wrote
-              about it, and the way into your reflection journal.
-            </Room>
+            {!general && (
+              <Room name="Scripture" href="/scripture">
+                Your Scripture Journey through the Bible, a chapter a day — on
+                your own or together — with the chapter to read, what you wrote
+                about it, and the way into your reflection journal.
+              </Room>
+            )}
             {home && (
               <Room name="Letters" href="/letters">
                 Letters to each other, and letters to the little one to be read
@@ -205,7 +209,7 @@ export default async function HelpPage() {
               </p>
               <ul className="mt-3 space-y-1.5 prose-serif-xs text-muted">
                 <li>The appointment book, and its reminders.</li>
-                <li>Letters, family worship, the nursery, the firsts.</li>
+                <li>Letters{general ? "" : ", family worship"}, the nursery, the firsts.</li>
                 <li>
                   He is not a visitor to any of it. He adds a scan date, names a
                   child, writes down the first kick — and she sees it as the
@@ -223,7 +227,7 @@ export default async function HelpPage() {
               </p>
               <ul className="mt-3 space-y-1.5 prose-serif-xs text-muted">
                 <li>
-                  Life, the prayer wall, and a home page of their own about how
+                  Life, the {general ? "support" : "prayer"} wall, and a home page of their own about how
                   to stand with her.
                 </li>
                 <li>
@@ -231,7 +235,7 @@ export default async function HelpPage() {
                   journal.
                 </li>
                 <li>
-                  They see a date only if she names it herself on the prayer
+                  They see a date only if she names it herself on the {general ? "support" : "prayer"}{" "}
                   wall — and then only the name and the day, never her note.
                 </li>
               </ul>
@@ -300,8 +304,8 @@ export default async function HelpPage() {
             No. A scan date is health information. Everyone outside the two of
             you is redirected away from the page, sees nothing of it on their
             home page, and is not even offered it in the menu. If she wants the
-            circle praying about one, there is an{" "}
-            <span className="text-ink">Ask the circle to pray</span> on the
+            circle {general ? "holding one in mind" : "praying about one"}, there is an{" "}
+            <span className="text-ink">{general ? "Ask the circle for support" : "Ask the circle to pray"}</span> on the
             appointment itself — that shares the name and the day, and never the
             private note.
           </Q>
@@ -370,6 +374,7 @@ export default async function HelpPage() {
             the person who wrote something can change its words.
           </Q>
 
+          {!general && (
           <Q q="Can we pray for someone by name — even outside the family?">
             Yes. On{" "}
             <Link href="/worship#praying-for" className="text-accent underline underline-offset-4">Worship</Link>
@@ -380,6 +385,16 @@ export default async function HelpPage() {
             Mark a prayer answered and it is given thanks for in worship for a
             week. The list is kept by the two of you; a name reaches the circle only if
             you tick <span className="text-ink">Share this name with the circle</span>.
+          </Q>
+          )}
+          <Q q="How does Oyun speak to me — with faith, or without?">
+            You chose when you signed up, and you can change it any time in{" "}
+            <Link href="/settings#voice" className="text-accent underline underline-offset-4">Settings</Link>.
+            With Christian faith, each day brings a Bible verse, there is prayer with your circle, family
+            worship and a Scripture reading plan. Without religious content, every feature is the same but
+            the verses, prayers and worship are replaced by words of encouragement written for the same
+            week. It is your choice alone: the people in your circle each keep their own, and nothing anyone
+            has written is ever changed.
           </Q>
 
           <Q q="Can I tag someone in a post?">
@@ -565,7 +580,7 @@ export default async function HelpPage() {
                 is kept, so each child&rsquo;s page can say how early or late
                 they came. Then the page offers to make the announcement: a card
                 with their names and what each one means, the day, your
-                photographs, a verse and your own words — in Life for your
+                photographs and your own words — in Life for your
                 circle, and a private link for everyone else, where they can
                 send a word of welcome and ask to join your circle.
               </Q>
@@ -590,7 +605,7 @@ export default async function HelpPage() {
             </>
           )}
 
-          {isMother && !inLoss && (
+          {isMother && !inLoss && !general && (
             <Q q="How do we carry on in Ìdílé?">
               Once the little one has arrived, your journey page offers{" "}
               <span className="text-ink">Bring the family to Ìdílé</span>.
@@ -614,8 +629,7 @@ export default async function HelpPage() {
           </Q>
 
           <Q q="Is this medical advice?">
-            No, and it never will be. Oyun and Agbebi offer spiritual
-            companionship. Every health decision belongs with your doctor or
+            No, and it never will be. Oyun and Agbebi offer {general ? "companionship and encouragement" : "spiritual companionship"}. Every health decision belongs with your doctor or
             midwife.
           </Q>
 
@@ -646,12 +660,14 @@ export default async function HelpPage() {
           </Q>
         </Card>
 
-        <div className="mt-8">
-          <Verse
-            text="For you formed my inmost being. You knit me together in my mother’s womb."
-            reference="Psalm 139:13"
-          />
-        </div>
+        {!general && (
+          <div className="mt-8">
+            <Verse
+              text="For you formed my inmost being. You knit me together in my mother’s womb."
+              reference="Psalm 139:13"
+            />
+          </div>
+        )}
 
         <p className="mt-8 text-center prose-serif-xs text-muted">
           Something here not answered?{" "}

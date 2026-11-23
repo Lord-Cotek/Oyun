@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { isGeneral } from "@/lib/voice";
 import { openRegistryUrl } from "@/lib/registry-db";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
@@ -102,7 +103,9 @@ export default async function AppointmentsPage() {
     orderBy: { occurredAt: "desc" },
     select: { occurredAt: true },
   });
-  const preset = { babyName: active.journey.babyName, birthISO: birth?.occurredAt.toISOString() ?? null };
+  // How Oyun speaks to this reader — see lib/voice.ts.
+  const general = isGeneral(session.user.voice);
+  const preset = { babyName: active.journey.babyName, birthISO: birth?.occurredAt.toISOString() ?? null, general };
 
   return (
     <>
@@ -130,7 +133,7 @@ export default async function AppointmentsPage() {
             Scans, checks, tests and clinics — the days somebody else set, with
             the questions you mean to ask written down before you walk in.
           </p>
-          <AppointmentBook upcoming={upcoming} past={past} />
+          <AppointmentBook upcoming={upcoming} past={past} general={general} />
         </Card>
 
         <Card className="mt-6 p-8">
@@ -168,12 +171,14 @@ export default async function AppointmentsPage() {
           </ul>
         </div>
 
-        <div className="mt-8">
-          <Verse
-            text="Commit your deeds to the LORD, and your plans shall succeed."
-            reference="Proverbs 16:3"
-          />
-        </div>
+        {!general && (
+          <div className="mt-8">
+            <Verse
+              text="Commit your deeds to the LORD, and your plans shall succeed."
+              reference="Proverbs 16:3"
+            />
+          </div>
+        )}
       </main>
     </>
   );

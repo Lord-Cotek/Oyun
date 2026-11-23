@@ -13,9 +13,12 @@ import { Eyebrow } from "@/components/ui/Eyebrow";
 export function InvitePanel({
   hasSupporter,
   isMother = true,
+  general = false,
 }: {
   hasSupporter: boolean;
   isMother?: boolean;
+  /** Without religious content — see lib/voice.ts. */
+  general?: boolean;
 }) {
   const [link, setLink] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -32,7 +35,20 @@ export function InvitePanel({
             : "Invite someone"}
       </Eyebrow>
       <p className="mb-4 prose-serif-xs text-muted">
-        {isMother ? (
+        {general ? (
+          isMother ? (
+            <>
+              Bring your partner, family or a close friend alongside.
+              They&rsquo;ll get their own view — how to support you, right where
+              you are.
+            </>
+          ) : (
+            <>
+              Bring family or a close friend alongside. They&rsquo;ll get their
+              own view — how to support the two of you.
+            </>
+          )
+        ) : isMother ? (
           <>
             Bring your husband or an accountability partner alongside.
             They&rsquo;ll get their own view — how to support and pray for you,

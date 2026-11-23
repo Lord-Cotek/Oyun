@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Pressable } from "@/components/ui/Pressable";
 import { mediaAlt } from "@/lib/alt";
 import { Eyebrow } from "@/components/ui/Eyebrow";
-import { KIND_LABEL } from "@/lib/feed";
+import { KIND_LABEL, PLAIN_KIND_LABEL } from "@/lib/feed";
 import type { FeedPost } from "@/lib/feed-query";
 
 /**
@@ -13,9 +13,12 @@ import type { FeedPost } from "@/lib/feed-query";
 export function LatestFromFamily({
   posts,
   greeting,
+  plain = false,
 }: {
   posts: FeedPost[];
   greeting?: string;
+  /** The kinds in plain words — see PLAIN_KIND_LABEL in lib/feed.ts. */
+  plain?: boolean;
 }) {
   return (
     <div className="surface-premium rounded-2xl border border-border p-6 md:p-7">
@@ -64,7 +67,7 @@ export function LatestFromFamily({
                   {/* The word already says which kind this is. Accent here put a
                       third colour in a line of metadata that is meant to be
                       skimmed past, not read. */}
-                  <span className="text-ink/70">{KIND_LABEL[p.kind] ?? ""}</span>
+                  <span className="text-ink/70">{(plain ? PLAIN_KIND_LABEL : KIND_LABEL)[p.kind] ?? ""}</span>
                 </div>
                 <div className="flex items-start gap-3">
                   <p className="line-clamp-2 flex-1 prose-serif-sm text-ink/90">

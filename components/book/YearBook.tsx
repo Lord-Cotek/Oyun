@@ -27,6 +27,7 @@ export function YearBook({
   firsts,
   backHref,
   backLabel,
+  general = false,
 }: {
   title: string;
   year: number;
@@ -35,6 +36,8 @@ export function YearBook({
   firsts: BookFirst[];
   backHref: string;
   backLabel: string;
+  /** Without religious content — see lib/voice.ts. */
+  general?: boolean;
 }) {
   const byMonth = MONTHS.map((name, m) => ({
     name,
@@ -134,11 +137,20 @@ export function YearBook({
       )}
 
       <section className="book-page book-keep mt-12 flex min-h-[30vh] flex-col items-center justify-center text-center">
-        <p className="max-w-md font-serif text-xl italic leading-relaxed text-ink">
-          “It is because of the LORD’s loving kindnesses that we are not consumed, because his compassion doesn’t
-          fail. They are new every morning. Great is your faithfulness.”
-        </p>
-        <p className="mt-3 font-mono text-xs text-muted">Lamentations 3:22-23</p>
+        {general ? (
+          // The last page in Oyun's own words — lib/voice.ts.
+          <p className="max-w-md font-serif text-xl italic leading-relaxed text-ink">
+            A year of ordinary days, kept. One day these pages will be the way back to them.
+          </p>
+        ) : (
+          <>
+            <p className="max-w-md font-serif text-xl italic leading-relaxed text-ink">
+              “It is because of the LORD’s loving kindnesses that we are not consumed, because his compassion doesn’t
+              fail. They are new every morning. Great is your faithfulness.”
+            </p>
+            <p className="mt-3 font-mono text-xs text-muted">Lamentations 3:22-23</p>
+          </>
+        )}
       </section>
     </div>
   );

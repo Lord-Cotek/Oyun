@@ -26,7 +26,7 @@ export function LeaveCircle({ motherName }: { motherName: string }) {
       <ConfirmDialog
         open={open}
         title={`Leave ${motherName}’s circle?`}
-        body="You will stop seeing the updates, photographs and prayer list straight away, and stop being told about them. What you wrote stays where it is. To come back, they would invite you again."
+        body="You will stop seeing the updates, photographs and requests straight away, and stop being told about them. What you wrote stays where it is. To come back, they would invite you again."
         confirmWord="Leave"
         busy={pending}
         onCancel={() => setOpen(false)}

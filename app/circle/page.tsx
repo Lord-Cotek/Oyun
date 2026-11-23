@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { isGeneral } from "@/lib/voice";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -27,6 +28,8 @@ export const metadata: Metadata = {
 
 export default async function CirclePage() {
   const session = await auth();
+  // How Oyun speaks to this reader — see lib/voice.ts.
+  const general = isGeneral(session?.user?.voice);
   if (!session?.user?.id) redirect("/sign-in?callbackUrl=/circle");
 
   const active = await getActiveMembership(session.user.id);
@@ -103,9 +106,13 @@ export default async function CirclePage() {
           eyebrow="Your circle"
           title="The people walking with you."
           lede={
-            isMother
-              ? "You were never meant to carry this alone. Invite a husband or an accountability partner, and they'll see how to support and pray for you each week."
-              : "Neither of you was meant to carry this alone. Invite family, a friend from church, or an accountability partner, and they'll see how to support and pray for you both each week."
+            general
+              ? isMother
+                ? "You were never meant to carry this alone. Invite your partner, family or a close friend, and they'll see how to support you each week."
+                : "Neither of you was meant to carry this alone. Invite family or a close friend, and they'll see how to support you both each week."
+              : isMother
+                ? "You were never meant to carry this alone. Invite a husband or an accountability partner, and they'll see how to support and pray for you each week."
+                : "Neither of you was meant to carry this alone. Invite family, a friend from church, or an accountability partner, and they'll see how to support and pray for you both each week."
           }
           aside={
             <StatCard
@@ -194,9 +201,13 @@ export default async function CirclePage() {
                   <li className="flex flex-col items-center gap-3 rounded-lg border border-dashed border-border px-4 py-8 text-center">
                     <Icon name="users" size={28} className="text-accent2" />
                     <p className="max-w-xs prose-serif-xs text-muted">
-                      {isMother
-                        ? "No one else yet. Invite a spouse, or a friend from church who will pray — you were never meant to carry this alone."
-                        : "No one else yet. Invite family, or a friend from church who will pray — neither of you was meant to carry this alone."}
+                      {general
+                        ? isMother
+                          ? "No one else yet. Invite your partner, or a friend who will show up — you were never meant to carry this alone."
+                          : "No one else yet. Invite family, or a friend who will show up — neither of you was meant to carry this alone."
+                        : isMother
+                          ? "No one else yet. Invite a spouse, or a friend from church who will pray — you were never meant to carry this alone."
+                          : "No one else yet. Invite family, or a friend from church who will pray — neither of you was meant to carry this alone."}
                     </p>
                   </li>
                 )}
@@ -242,7 +253,7 @@ export default async function CirclePage() {
           </div>
 
           <Card className="min-w-0">
-            <InvitePanel hasSupporter={supporters.length > 0} isMother={isMother} />
+            <InvitePanel hasSupporter={supporters.length > 0} isMother={isMother} general={general} />
           </Card>
         </div>
       </main>
@@ -298,7 +309,7 @@ function MemberRow({
           describe={`${name} from the circle`}
           dialog={{
             title: `Remove ${name} from the circle?`,
-            body: "They lose everything they can see here — the updates, the photographs, the prayer list — straight away. You can invite them back, but what they wrote stays where it is.",
+            body: "They lose everything they can see here — the updates, the photographs, the requests — straight away. You can invite them back, but what they wrote stays where it is.",
             confirmWord: "Remove them",
           }}
           className="shrink-0 font-mono text-[0.7rem] text-muted underline underline-offset-2 hover:text-negative"

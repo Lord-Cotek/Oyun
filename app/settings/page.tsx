@@ -31,6 +31,8 @@ import { RaiseConcern } from "@/components/settings/RaiseConcern";
 import { LanguageSwitch } from "@/components/LanguageSwitch";
 import { getLang, yorubaOffered } from "@/lib/lang";
 import { isOn } from "@/lib/flags";
+import { VoiceForm } from "@/components/settings/VoiceForm";
+import { voiceOf } from "@/lib/voice";
 
 export const metadata: Metadata = {
   title: "Settings",
@@ -113,6 +115,12 @@ export default async function SettingsPage() {
             <PasswordForm />
           </Card>
 
+          {/* How Oyun speaks to them — see lib/voice.ts. */}
+          <Card className="p-8" id="voice">
+            <Eyebrow className="mb-4">How Oyun speaks to you</Eyebrow>
+            <VoiceForm current={voiceOf(user.voice)} />
+          </Card>
+
           {/* Offered only while the "yoruba" switch is on — see lib/i18n.ts. */}
           {offered && (
             <Card className="p-8">
@@ -155,7 +163,7 @@ export default async function SettingsPage() {
 
           {isMother && active && active.journey.status === "ACTIVE" && (
             <Card className="p-8">
-              <InvitePanel hasSupporter={supporterCount > 0} />
+              <InvitePanel hasSupporter={supporterCount > 0} general={voiceOf(user.voice) === "GENERAL"} />
               <div className="mt-5 border-t border-border pt-4">
                 <Link
                   href="/circle"
@@ -190,7 +198,7 @@ export default async function SettingsPage() {
           {isMother && active?.journey.status === "ACTIVE" && (
             <Card className="border-accent2/20 p-8">
               <Eyebrow className="mb-4 text-accent2">If the road turns hard</Eyebrow>
-              <MarkLoss />
+              <MarkLoss general={voiceOf(user.voice) === "GENERAL"} />
             </Card>
           )}
 
@@ -205,7 +213,7 @@ export default async function SettingsPage() {
             <Eyebrow className="mb-3">Take everything with you</Eyebrow>
             <p className="mb-5 prose-serif-xs text-muted">
               These months are your family&rsquo;s, not ours. Download the lot —
-              letters, prayers, firsts, the appointments and what came of them —
+              letters, requests, firsts, the appointments and what came of them —
               as one file: a page you can read or print without any app, and the
               same records again as data. Photographs are linked, not packed in.
             </p>

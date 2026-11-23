@@ -62,6 +62,10 @@ export async function markLoss(formData: FormData) {
           type: "encouragement",
           title: `${motherName} is walking through the loss of her baby.`,
           body: "Come near. Don't wait for the right words — a message, a prayer, your presence is enough.",
+          plain: {
+            title: `${motherName} is walking through the loss of her baby.`,
+            body: "Come near. Don't wait for the right words — a message, a visit, your presence is enough.",
+          },
           href: "/journey",
           email: true,
         }),

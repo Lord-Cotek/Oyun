@@ -12,6 +12,7 @@ import { getActiveMembership, getMyJourneys } from "@/lib/data";
 import { circleSeesRegistry } from "@/lib/registry";
 import { getLang } from "@/lib/lang";
 import { sayIn, wordsFor } from "@/lib/i18n";
+import { isGeneral, wordsForVoice } from "@/lib/voice";
 
 type ActiveKey =
   | "journey"
@@ -68,6 +69,11 @@ export async function SiteHeader({
     activeJourneyId = membership?.journey.id ?? null;
   }
   const ownsJourney = journeys.some((j) => j.isOwner);
+  // How Oyun speaks to this reader — see lib/voice.ts. Without religious
+  // content, the two rooms that are only worship are not offered, and the
+  // prayer room is the same room under its plain name.
+  const general = isGeneral(session?.user?.voice);
+  const vw = wordsForVoice(session?.user?.voice);
 
   // The full nav, used inline on desktop and inside the mobile menu.
   const links: { href: string; label: string; current: boolean }[] = [
@@ -85,11 +91,16 @@ export async function SiteHeader({
     // circle get a grief liturgy in this room rather than being shut out of
     // it: grief is not a reason to stop drawing near to God, and the words
     // change rather than the door.
-    { href: "/worship", label: "Worship", current: active === "worship" },
-    // The reading plan, today's chapter and the reflection journal: a room
-    // of its own, so a long prayer list on Worship never pushes it down.
-    { href: "/scripture", label: "Scripture", current: active === "scripture" },
-    { href: "/prayer", label: "Prayer", current: active === "prayer" },
+    ...(general
+      ? []
+      : [
+          { href: "/worship", label: "Worship", current: active === "worship" },
+          // The reading plan, today's chapter and the reflection journal: a
+          // room of its own, so a long prayer list on Worship never pushes it
+          // down.
+          { href: "/scripture", label: "Scripture", current: active === "scripture" },
+        ]),
+    { href: "/prayer", label: vw.prayerRoom, current: active === "prayer" },
     ...(isHousehold && !inLoss
       ? [
           {
