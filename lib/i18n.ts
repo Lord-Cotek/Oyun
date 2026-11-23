@@ -75,6 +75,7 @@ export const YORUBA: Words = {
   Life: "Ìgbésí ayé",
   Letters: "Lẹ́tà",
   Worship: "Ìjọsìn",
+  Scripture: "Ìwé Mímọ́",
   Prayer: "Àdúrà",
   Appointments: "Ìpàdé",
   Care: "Ìtọ́jú",

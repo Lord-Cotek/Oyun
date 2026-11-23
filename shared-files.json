@@ -292,6 +292,7 @@
       ]
     },
     "app/admintc/storage-actions.ts",
-    "app/admintc/StorageCheckButton.tsx"
+    "app/admintc/StorageCheckButton.tsx",
+    "components/worship/ScriptureCard.tsx"
   ]
 }

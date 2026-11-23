@@ -45,6 +45,11 @@ export function PrayingFor({
   const [pending, start] = useTransition();
   const [formKey, setFormKey] = useState(0);
   const active = items.filter((i) => !i.stoppedAt && !i.answeredAt);
+  // A long list folds after a few names, so it never pushes the rest of
+  // worship down the page. Opening it is one tap, and stays open.
+  const FOLD = 4;
+  const [showAll, setShowAll] = useState(false);
+  const shown = showAll ? active : active.slice(0, FOLD);
   const finished = items.filter((i) => i.stoppedAt || i.answeredAt);
   const input =
     "w-full rounded-lg border border-border bg-bg px-3 py-2 font-mono text-sm text-ink focus:border-accent focus:outline-none";
@@ -71,7 +76,7 @@ export function PrayingFor({
         </p>
       ) : (
         <ul className="mt-4 space-y-3">
-          {active.map((p) => (
+          {shown.map((p) => (
             <li key={p.id} className="rounded-xl border border-border bg-bg/50 p-4">
               <p className="font-serif text-base text-ink">{p.name}</p>
               {p.request && <p className="mt-0.5 prose-serif-xs text-muted">{p.request}</p>}
@@ -128,6 +133,16 @@ export function PrayingFor({
             </li>
           ))}
         </ul>
+      )}
+      {active.length > FOLD && (
+        <button
+          type="button"
+          onClick={() => setShowAll((v) => !v)}
+          aria-expanded={showAll}
+          className="mt-3 inline-flex min-h-10 items-center rounded-full border border-border px-4 font-mono text-xs text-accent hover:border-accent"
+        >
+          {showAll ? "Show fewer" : `Show all ${active.length} names`}
+        </button>
       )}
 
       {canKeep && (

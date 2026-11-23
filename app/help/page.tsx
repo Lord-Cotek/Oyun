@@ -132,10 +132,17 @@ export default async function HelpPage() {
             )}
             {home && !inLoss && (
               <Room name="Worship" href="/worship">
-                The daily rhythm for the two of you — read, reflect, pray. The
-                reflection journal is linked from here.
+                The daily rhythm for the two of you — read, reflect, pray — and
+                the people you pray for by name (a long list folds after a few
+                names). A small card under the liturgy shows where you are in
+                your Scripture Journey.
               </Room>
             )}
+            <Room name="Scripture" href="/scripture">
+              Your Scripture Journey through the Bible, a chapter a day — on
+              your own or together — with the chapter to read, what you wrote
+              about it, and the way into your reflection journal.
+            </Room>
             {home && (
               <Room name="Letters" href="/letters">
                 Letters to each other, and letters to the little one to be read

@@ -11,36 +11,18 @@ import {
 import { computePosition } from "@/lib/stage";
 import { familyWorship, hymnaryUrl } from "@/lib/worship";
 import { griefWorship } from "@/lib/grief-liturgy";
-import {
-  READING_PLANS,
-  planById,
-  planState,
-  planPace,
-} from "@/lib/reading-plans";
-import { getChapter } from "@/lib/bible";
+import { planById, planState } from "@/lib/reading-plans";
 import { shareSlug } from "@/lib/share";
 import { hymnSlug } from "@/lib/hymns";
 import { isHousehold } from "@/lib/roles";
 import {
   markWorship,
   markOwnWorship,
-  chooseReadingPlan,
-  markReadingRead,
-  undoReadingRead,
-  addReflection,
-  updateReflection,
-  deleteReflection,
 } from "@/app/worship/actions";
-import {
-  ScriptureJourney,
-  type JourneyState,
-  type ChapterPayload,
-} from "@/components/worship/ScriptureJourney";
-import { Reflections, type NoteView } from "@/components/worship/Reflections";
+import { ScriptureCard } from "@/components/worship/ScriptureCard";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Verse } from "@/components/ui/Verse";
-import { Pressable } from "@/components/ui/Pressable";
 import { Arches, Rays } from "@/components/ui/Marks";
 import { ProgressRing } from "@/components/ui/ProgressRing";
 import { AnimatedNumber } from "@/components/ui/AnimatedNumber";
@@ -56,8 +38,6 @@ import {
   resumePrayingFor,
   stopPrayingFor,
 } from "@/app/worship/praying-actions";
-import { bookBySlug } from "@/lib/bible";
-import { bookIntro } from "@/lib/book-intros";
 
 export const metadata: Metadata = {
   title: "Family worship",
@@ -72,14 +52,6 @@ function isSameUtcDay(a: Date | null | undefined, b: Date): boolean {
     a.getUTCMonth() === b.getUTCMonth() &&
     a.getUTCDate() === b.getUTCDate()
   );
-}
-
-function formatWhen(d: Date): string {
-  return d.toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
 }
 
 export default async function WorshipPage({
@@ -212,81 +184,10 @@ export default async function WorshipPage({
     track === "me" ? membership.readingUpdatedAt : journey.readingUpdatedAt;
 
   const st = plan ? planState(plan, activeProgress) : null;
-  const chapterText =
-    st && st.next ? await getChapter(st.next.slug, st.next.chapter) : null;
   const readToday = isSameUtcDay(activeUpdatedAt, new Date());
-
-  const otherExists = track === "me" ? !!sharedPlan : !!myPlan;
-  const switchTo = otherExists
-    ? {
-        label:
-          track === "me" ? "Follow the shared journey" : "Go to my own journey",
-        href: track === "me" ? "/worship?track=shared" : "/worship?track=me",
-      }
-    : undefined;
-
-  const journeyState: JourneyState | null =
-    plan && st
-      ? {
-          planId: plan.id,
-          title: plan.title,
-          scope: plan.scope,
-          done: st.done,
-          total: st.total,
-          pct: st.pct,
-          finished: st.finished,
-          nextRef: st.nextRef,
-          readToday,
-        }
-      : null;
-  const chapterPayload: ChapterPayload | null =
-    chapterText && st?.nextRef && st.next
-      ? {
-          ref: st.nextRef,
-          verses: chapterText.verses,
-          bookName: bookBySlug(st.next.slug)?.name ?? st.next.slug,
-          intro: bookIntro(st.next.slug),
-        }
-      : null;
-  const planOptions = READING_PLANS.map((p) => ({
-    id: p.id,
-    title: p.title,
-    blurb: p.blurb,
-    scope: p.scope,
-    total: p.readings.length,
-    pace: planPace(p.readings.length),
-  }));
-
-  // Reflections on the current reading — shared with the journey, plus my own
-  // private notes.
-  const noteViews: NoteView[] =
-    st && st.next
-      ? (
-          await prisma.readingNote.findMany({
-            where: {
-              journeyId: active.journey.id,
-              bookSlug: st.next.slug,
-              chapter: st.next.chapter,
-              // A keeper sees the household's shared notes and their own. The
-              // circle sees their own and nothing else — the family's shared
-              // reflections are shared *with the household*, which is not the
-              // same thing as public to everyone who can see the nursery.
-              ...(keeper
-                ? { OR: [{ isPrivate: false }, { authorId: session.user.id }] }
-                : { authorId: session.user.id }),
-            },
-            include: { author: { select: { id: true, name: true } } },
-            orderBy: { createdAt: "asc" },
-          })
-        ).map((n) => ({
-          id: n.id,
-          authorName: n.author.name ?? "Someone",
-          mine: n.authorId === session.user!.id,
-          isPrivate: n.isPrivate,
-          body: n.body,
-          when: formatWhen(n.createdAt),
-        }))
-      : [];
+  // The Scripture Journey itself lives on its own page now (app/scripture);
+  // here it is a small card after the liturgy — see ScriptureCard.
+  const myReflections = await prisma.readingNote.count({ where: { journeyId: active.journey.id, authorId: session.user.id } });
 
   const readSlug = shareSlug(liturgy.read.ref);
   const readShare = readSlug
@@ -535,6 +436,21 @@ export default async function WorshipPage({
           />
         </section>
 
+        {/* Scripture Journey has its own page; this keeps it one tap away,
+            above the prayer list so a long list never pushes it down. */}
+        <div className="mt-6">
+          <ScriptureCard
+            plan={plan?.title ?? null}
+            nextRef={st?.nextRef ?? null}
+            pct={st?.pct ?? 0}
+            done={st?.done ?? 0}
+            total={st?.total ?? 0}
+            readToday={readToday}
+            finished={!!st?.finished}
+            reflections={myReflections}
+          />
+        </div>
+
         {praying && scope && (scope.canKeep || praying.views.length > 0) && (
           <section className="mt-6" id="praying-for">
             <PrayingFor
@@ -548,61 +464,6 @@ export default async function WorshipPage({
               onStop={stopPrayingFor}
               onResume={resumePrayingFor}
               onRemove={removePrayingFor}
-            />
-          </section>
-        )}
-
-        <section className="mt-10">
-          <ScriptureJourney
-            state={journeyState}
-            chapter={chapterPayload}
-            plans={planOptions}
-            onChoose={chooseReadingPlan}
-            onRead={markReadingRead}
-            onUndo={undoReadingRead}
-            track={track}
-            canChooseShared={keeper}
-            scopeLabels={{
-              shared: {
-                label: "Together",
-                blurb: "You and the one beside you, on the same plan.",
-              },
-              me: {
-                label: keeper ? "Just me" : "Your journey",
-                blurb: "Your own journey, at your own pace.",
-              },
-            }}
-            switchTo={switchTo}
-            sharePath={
-              st?.next ? `/v/${st.next.slug}-${st.next.chapter}` : undefined
-            }
-          />
-        </section>
-
-        {/* The journal is reachable from here whatever is being read — a
-            journey between plans must never be locked out of reflections it
-            has already written. */}
-        <div className="mt-4 flex justify-end">
-          <Pressable
-            href="/journal"
-            press="control"
-            className="inline-flex min-h-11 items-center rounded-full border border-border px-4 font-serif text-sm text-accent hover:border-accent"
-          >
-            The reflection journal →
-          </Pressable>
-        </div>
-
-        {st?.next && st.nextRef && (
-          <section className="mt-4">
-            <Reflections
-              passageRef={st.nextRef}
-              bookSlug={st.next.slug}
-              chapter={st.next.chapter}
-              notes={noteViews}
-              privateOnly={!keeper}
-              onAdd={addReflection}
-              onUpdate={updateReflection}
-              onDelete={deleteReflection}
             />
           </section>
         )}

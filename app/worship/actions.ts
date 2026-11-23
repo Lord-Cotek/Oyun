@@ -38,6 +38,7 @@ export async function markWorship() {
     });
   }
   revalidatePath("/worship");
+  revalidatePath("/scripture");
   revalidatePath("/journey");
 }
 
@@ -67,6 +68,7 @@ export async function markOwnWorship() {
     });
   }
   revalidatePath("/worship");
+  revalidatePath("/scripture");
   revalidatePath("/journey");
 }
 
@@ -121,6 +123,7 @@ export async function chooseReadingPlan(
     });
   }
   revalidatePath("/worship");
+  revalidatePath("/scripture");
   revalidatePath("/journey");
 }
 
@@ -153,6 +156,7 @@ export async function markReadingRead(track: ReadingTrack = "shared") {
     });
   }
   revalidatePath("/worship");
+  revalidatePath("/scripture");
   revalidatePath("/journey");
 }
 
@@ -236,6 +240,7 @@ export async function addReflection(input: {
     }
   }
   revalidatePath("/worship");
+  revalidatePath("/scripture");
 }
 
 /** Edit one of your own reflections. */
@@ -261,6 +266,7 @@ export async function updateReflection(input: {
     data: { body: body.slice(0, 4000), isPrivate },
   });
   revalidatePath("/worship");
+  revalidatePath("/scripture");
 }
 
 /** Delete one of your own reflections. */
@@ -271,6 +277,7 @@ export async function deleteReflection(id: string) {
     where: { id, authorId: session.user.id },
   });
   revalidatePath("/worship");
+  revalidatePath("/scripture");
 }
 
 /** Undo the most recent reading on the given track — a fix for a mistap. */
@@ -298,5 +305,6 @@ export async function undoReadingRead(track: ReadingTrack = "shared") {
     });
   }
   revalidatePath("/worship");
+  revalidatePath("/scripture");
   revalidatePath("/journey");
 }

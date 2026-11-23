@@ -96,7 +96,7 @@ export default async function JournalPage() {
               <p className="prose-serif-sm text-muted">
                 No reflections yet. Open{" "}
                 <Link
-                  href="/worship"
+                  href="/scripture"
                   className="text-accent underline underline-offset-4"
                 >
                   today&rsquo;s reading

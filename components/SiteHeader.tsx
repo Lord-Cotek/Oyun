@@ -26,6 +26,7 @@ type ActiveKey =
   | "help"
   | "nursery"
   | "worship"
+  | "scripture"
   | "registry"
   | "shared"
   | "health";
@@ -85,6 +86,9 @@ export async function SiteHeader({
     // it: grief is not a reason to stop drawing near to God, and the words
     // change rather than the door.
     { href: "/worship", label: "Worship", current: active === "worship" },
+    // The reading plan, today's chapter and the reflection journal: a room
+    // of its own, so a long prayer list on Worship never pushes it down.
+    { href: "/scripture", label: "Scripture", current: active === "scripture" },
     { href: "/prayer", label: "Prayer", current: active === "prayer" },
     ...(isHousehold && !inLoss
       ? [
@@ -157,6 +161,7 @@ export async function SiteHeader({
     "/letters": "message",
     "/prayer": "hands",
     "/worship": "flame",
+    "/scripture": "book",
     "/appointments": "calendar",
     "/care": "heart",
     "/health": "pulse",
