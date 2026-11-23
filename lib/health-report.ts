@@ -98,7 +98,15 @@ export async function buildReport(journeyId: string, period: Period, opts: { pho
   /* ── Daily grids ── */
   const byDay = new Map<string, ReadingView[]>();
   for (const r of readings) byDay.set(r.day, [...(byDay.get(r.day) ?? []), r]);
-  const cell = (rs: ReadingView[]) => (rs.length ? rs.map((r) => ({ text: r.kind === "BP" ? `${r.raw.valueA}/${r.raw.valueB}${r.raw.valueC ? ` (${r.raw.valueC})` : ""}` : r.main.replace(/ mg\/dL| mmol\/L/, ""), level: r.level })) : []);
+  // Each value carries its own note, if it was given one; the tables number
+  // them as footnotes so a note sits with its reading, not among symptoms.
+  type Cell = { text: string; level: string; note: string | null; when: string; n: number | null };
+  const cell = (rs: ReadingView[]): Cell[] => rs.map((r) => ({ text: r.kind === "BP" ? `${r.raw.valueA}/${r.raw.valueB}${r.raw.valueC ? ` (${r.raw.valueC})` : ""}` : r.main.replace(/ mg\/dL| mmol\/L/, ""), level: r.level, note: r.note?.trim() || null, when: `${r.day} ${r.time}`, n: null }));
+  const footnotes = (cells: Cell[]) => {
+    const out: { n: number; when: string; what: string; note: string }[] = [];
+    for (const c of cells) if (c.note) { c.n = out.length + 1; out.push({ n: c.n, when: c.when, what: c.text, note: c.note }); }
+    return out;
+  };
   const glucoseGrid = days
     .map((day) => {
       const rs = (byDay.get(day) ?? []).filter((r) => r.kind === "GLUCOSE");
@@ -111,6 +119,8 @@ export async function buildReport(journeyId: string, period: Period, opts: { pho
       return { day, ga: gaOf(day), morning: cell(rs.filter((r) => r.slot === "MORNING")), evening: cell(rs.filter((r) => r.slot !== "MORNING")) };
     })
     .filter((row) => row.morning.length || row.evening.length);
+  const glucoseNotes = footnotes(glucoseGrid.flatMap((r) => [...r.fasting, ...r.breakfast, ...r.lunch, ...r.dinner, ...r.other]));
+  const bpNotes = footnotes(bpGrid.flatMap((r) => [...r.morning, ...r.evening]));
 
   /* ── Trends ── */
   const trends = {
@@ -153,15 +163,22 @@ export async function buildReport(journeyId: string, period: Period, opts: { pho
   const checklist = await loadChecklist(a);
   const testsDone = [...checklist.items, ...checklist.hidden].filter((i) => i.doneOn && i.doneOn >= period.from && i.doneOn <= period.to).map((i) => ({ title: i.title, doneOn: i.doneOn!, result: [i.resultValue, i.result].filter(Boolean).join(" — ") || null }));
 
-  /* ── Symptoms and notes ── */
+  /* ── Symptoms ── */
+  // Only what was logged as a symptom. A note on a glucose or blood pressure
+  // reading is a footnote in its own table (above); a note on anything else
+  // is in otherNotes below.
   const notes = readings
-    .filter((r) => r.kind === "SYMPTOMS" || r.note)
+    .filter((r) => r.kind === "SYMPTOMS")
     .map((r) => ({
       when: `${r.day} ${r.time}`,
       what: r.kind === "SYMPTOMS" ? `${((r.raw.detail as { list?: string[] })?.list ?? []).map(symptomLabel).join(", ")}${(r.raw.detail as { severity?: string })?.severity ? ` (${String((r.raw.detail as { severity?: string }).severity).toLowerCase()})` : ""}` : `${r.kindLabel} ${r.main}`,
       note: r.note,
       urgent: r.level === "urgent",
     }));
+
+  const otherNotes = readings
+    .filter((r) => r.note?.trim() && r.kind !== "SYMPTOMS" && r.kind !== "GLUCOSE" && r.kind !== "BP")
+    .map((r) => ({ when: `${r.day} ${r.time}`, what: `${r.kindLabel} ${r.main}`, note: r.note!.trim(), urgent: r.level === "urgent" }));
 
   /* ── Photos ── */
   let photos: { id: string; contentType: string; label: string }[] = [];
@@ -196,6 +213,9 @@ export async function buildReport(journeyId: string, period: Period, opts: { pho
     stats,
     glucoseGrid,
     bpGrid,
+    glucoseNotes,
+    bpNotes,
+    otherNotes,
     trends,
     medicines,
     testsDone,

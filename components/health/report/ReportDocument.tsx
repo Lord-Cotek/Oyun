@@ -124,6 +124,7 @@ export function ReportDocument({ r, fileBase }: { r: Report; fileBase: string })
               ))}
             </tbody>
           </table>
+          <Footnotes list={r.glucoseNotes} />
         </Section>
       )}
 
@@ -143,6 +144,7 @@ export function ReportDocument({ r, fileBase }: { r: Report; fileBase: string })
               ))}
             </tbody>
           </table>
+          <Footnotes list={r.bpNotes} />
         </Section>
       )}
 
@@ -242,8 +244,8 @@ export function ReportDocument({ r, fileBase }: { r: Report; fileBase: string })
       )}
 
       {r.notes.length > 0 && (
-        <Section title="Symptoms and notes">
-          <p className="mb-2 text-[11px] text-neutral-600">Symptoms that were logged, and any reading that was given a note when it was entered.</p>
+        <Section title="Symptoms">
+          <p className="mb-2 text-[11px] text-neutral-600">Symptoms as they were logged. Notes on glucose and blood pressure readings are under their own tables.</p>
           <table>
             <thead>
               <tr><th>When</th><th>What</th><th>Note</th></tr>
@@ -251,9 +253,28 @@ export function ReportDocument({ r, fileBase }: { r: Report; fileBase: string })
             <tbody>
               {r.notes.map((n, i) => (
                 <tr key={i}>
-                  <td>{n.when}</td>
+                  <td>{whenText(n.when)}</td>
                   <td className={n.urgent ? "hr-urgent" : ""}>{n.urgent ? "‼ " : ""}{n.what}</td>
                   <td>{n.note ?? "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </Section>
+      )}
+
+      {r.otherNotes.length > 0 && (
+        <Section title="Notes on other readings">
+          <table>
+            <thead>
+              <tr><th>When</th><th>Reading</th><th>Note</th></tr>
+            </thead>
+            <tbody>
+              {r.otherNotes.map((n, i) => (
+                <tr key={i}>
+                  <td>{whenText(n.when)}</td>
+                  <td className={n.urgent ? "hr-urgent" : ""}>{n.urgent ? "‼ " : ""}{n.what}</td>
+                  <td>{n.note}</td>
                 </tr>
               ))}
             </tbody>
@@ -321,7 +342,30 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
-function Cells({ c }: { c: { text: string; level: string }[] }) {
+/** "18 Nov, 19:55" from "2026-11-18 19:55". */
+function whenText(w: string): string {
+  const [d, t] = w.split(" ");
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) return w;
+  const day = new Date(`${d}T12:00:00Z`).toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "UTC" });
+  return t ? `${day}, ${t}` : day;
+}
+
+/** The notes on a table's readings, numbered as they are marked in it. */
+function Footnotes({ list }: { list: { n: number; when: string; what: string; note: string }[] }) {
+  if (!list.length) return null;
+  return (
+    <ol className="mt-2 space-y-0.5 text-[11px] text-neutral-700">
+      {list.map((f) => (
+        <li key={f.n}>
+          <sup className="mr-1 font-semibold">{f.n}</sup>
+          {whenText(f.when)} · {f.what} — {f.note}
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+function Cells({ c }: { c: { text: string; level: string; n?: number | null }[] }) {
   return (
     <td>
       {c.length === 0
@@ -331,6 +375,7 @@ function Cells({ c }: { c: { text: string; level: string }[] }) {
               {i > 0 && ", "}
               {x.text}
               {MARK[x.level] ? ` ${MARK[x.level]}` : ""}
+              {x.n ? <sup className="ml-0.5 font-semibold text-neutral-700">{x.n}</sup> : null}
             </span>
           ))}
     </td>

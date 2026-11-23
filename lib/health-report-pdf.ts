@@ -192,10 +192,18 @@ export async function renderReportPdf(r: Report, opts: { siteHost: string }): Pr
     );
   }
 
-  const cellText = (cs: { text: string; level: string }[]): Cell => {
+  const cellText = (cs: { text: string; level: string; n?: number | null }[]): Cell => {
     if (!cs.length) return { t: "-" };
     const out = cs.some((c) => c.level !== "ok" && c.level !== "none");
-    return { t: cs.map((c) => `${c.level === "urgent" ? "!! " : c.level !== "ok" && c.level !== "none" ? "*" : ""}${c.text}`).join(", "), out };
+    return { t: cs.map((c) => `${c.level === "urgent" ? "!! " : c.level !== "ok" && c.level !== "none" ? "*" : ""}${c.text}${c.n ? ` [${c.n}]` : ""}`).join(", "), out };
+  };
+  const whenText = (w: string) => {
+    const [d, t] = w.split(" ");
+    return /^\d{4}-\d{2}-\d{2}$/.test(d) ? `${new Date(`${d}T12:00:00Z`).toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "UTC" })}${t ? `, ${t}` : ""}` : w;
+  };
+  // A table's notes, numbered as they are marked in it.
+  const footnotes = (list: { n: number; when: string; what: string; note: string }[]) => {
+    for (const f of list) para(`[${f.n}] ${whenText(f.when)} - ${f.what}: ${f.note}`, 8, MUTED);
   };
 
   if (r.glucoseGrid.length) {
@@ -205,6 +213,7 @@ export async function renderReportPdf(r: Report, opts: { siteHost: string }): Pr
       [1.5, 0.9, 1.4, 1.5, 1.4, 1.4, 1.3],
       r.glucoseGrid.map((g) => [{ t: fmtDay(g.day) }, { t: g.ga ? `${g.ga.week}+${g.ga.day}` : "-" }, cellText(g.fasting), cellText(g.breakfast), cellText(g.lunch), cellText(g.dinner), cellText(g.other)]),
     );
+    footnotes(r.glucoseNotes);
   }
 
   if (r.bpGrid.length) {
@@ -214,6 +223,7 @@ export async function renderReportPdf(r: Report, opts: { siteHost: string }): Pr
       [1.5, 0.9, 2.5, 2.5],
       r.bpGrid.map((b) => [{ t: fmtDay(b.day) }, { t: b.ga ? `${b.ga.week}+${b.ga.day}` : "-" }, cellText(b.morning), cellText(b.evening)]),
     );
+    footnotes(r.bpNotes);
   }
 
   if (r.medicines.length) {
@@ -239,12 +249,13 @@ export async function renderReportPdf(r: Report, opts: { siteHost: string }): Pr
   }
 
   if (r.notes.length) {
-    section("Symptoms and notes");
-    const when = (w: string) => {
-      const [d, t] = w.split(" ");
-      return /^\d{4}-\d{2}-\d{2}$/.test(d) ? `${new Date(`${d}T12:00:00Z`).toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "UTC" })}${t ? `, ${t}` : ""}` : w;
-    };
-    table(["When", "What", "Note"], [1.6, 2.6, 3.2], r.notes.map((n) => [{ t: when(n.when) }, { t: `${n.urgent ? "!! " : ""}${n.what}`, out: n.urgent }, { t: n.note ?? "-" }]));
+    section("Symptoms");
+    table(["When", "What", "Note"], [1.6, 2.6, 3.2], r.notes.map((n) => [{ t: whenText(n.when) }, { t: `${n.urgent ? "!! " : ""}${n.what}`, out: n.urgent }, { t: n.note ?? "-" }]));
+  }
+
+  if (r.otherNotes.length) {
+    section("Notes on other readings");
+    table(["When", "Reading", "Note"], [1.6, 2.6, 3.2], r.otherNotes.map((n) => [{ t: whenText(n.when) }, { t: `${n.urgent ? "!! " : ""}${n.what}`, out: n.urgent }, { t: n.note }]));
   }
 
   /* ── About this record ── */
