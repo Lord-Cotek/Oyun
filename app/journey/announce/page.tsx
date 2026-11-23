@@ -73,8 +73,8 @@ export default async function AnnouncePage() {
     place: null,
     message: null,
     signedAs,
-    // No verse unless they add one, for someone who chose Oyun without
-    // religious content — lib/voice.ts. Theirs to add if they want one.
+    // No verse for someone who chose Oyun without religious content —
+    // lib/voice.ts. The editor does not offer one to them either.
     verseRef: session.user.voice === "GENERAL" ? null : BIRTH_VERSES[0].ref,
     photoUrls: [],
     style: "dawn",

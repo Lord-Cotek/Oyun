@@ -9,6 +9,7 @@ import { cleanAnnouncement, lifeBody } from "@/lib/announcement";
 import { liveShareToken } from "@/lib/announcement-db";
 import { newShareToken } from "@/lib/post-share-db";
 import { sharePath } from "@/lib/post-share";
+import { isGeneral } from "@/lib/voice";
 
 type Result = { ok: true; path: string } | { ok: false; error: string };
 
@@ -39,7 +40,14 @@ export async function saveAnnouncement(payload: unknown): Promise<Result> {
 
   const clean = cleanAnnouncement(payload);
   if (!clean.ok) return clean;
-  const d = clean.data;
+  const existing = await prisma.birthAnnouncement.findUnique({ where: { journeyId }, select: { postId: true, verseRef: true } });
+  // Somebody who chose Oyun without religious content is not offered a verse
+  // (lib/voice.ts), so one cannot arrive from them either. The card may
+  // already carry the other parent's choice: that they may keep, or take
+  // off — never add, and never swap for another.
+  const d = isGeneral(session.user.voice)
+    ? { ...clean.data, verseRef: clean.data.verseRef && clean.data.verseRef === existing?.verseRef ? clean.data.verseRef : null }
+    : clean.data;
   const fields = {
     babies: d.babies,
     bornOn: new Date(`${d.bornOn}T00:00:00.000Z`),
@@ -53,7 +61,6 @@ export async function saveAnnouncement(payload: unknown): Promise<Result> {
     style: d.style,
   };
 
-  const existing = await prisma.birthAnnouncement.findUnique({ where: { journeyId }, select: { postId: true } });
   // The post it belongs to: its own, or the one the birth was announced with
   // before cards existed — as long as it is still there and still this family's.
   const candidate = existing?.postId ?? birth.postId;

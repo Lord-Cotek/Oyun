@@ -143,6 +143,20 @@ check(/held you in mind 5 times/.test(circleLines("GENERAL")) && !/pray/i.test(c
 const circleSees = WD.weeklyDigestFor({ role: "CIRCLE", voice: "GENERAL" }, s0, week).sections;
 check(!circleSees.some((x) => x.heading === "Coming this week") && circleSees.some((x) => /2 new photographs/.test(x.lines.join(" "))), "the circle still gets no appointments, and only the photographs shared with them");
 
+console.log("The birth announcement");
+// The one place a person picks a verse themselves. Without religious content
+// the list is not offered, and the server will not take one from them.
+const annEditor = readFileSync(path.join(root, "components/announce/AnnouncementEditor.tsx"), "utf8");
+const picker = annEditor.indexOf('id="ann-verse"');
+const branch = annEditor.lastIndexOf("{general ? (", picker);
+check(picker > 0 && branch > 0 && /\) : \(\s*<label htmlFor="ann-verse"/.test(annEditor) && (annEditor.match(/BIRTH_VERSES\.map/g) ?? []).length === 1,
+  "the list of verses is drawn only for someone who chose Oyun with Christian faith");
+const annSave = readFileSync(path.join(root, "app/journey/announce/actions.ts"), "utf8");
+check(/isGeneral\(session\.user\.voice\)/.test(annSave) && /verseRef === existing\?\.verseRef \? clean\.data\.verseRef : null/.test(annSave),
+  "saving without religious content can keep or remove a verse already on the card, never add one");
+const annPage = readFileSync(path.join(root, "app/journey/announce/page.tsx"), "utf8");
+check(/verseRef: session\.user\.voice === "GENERAL" \? null : BIRTH_VERSES\[0\]\.ref/.test(annPage), "a new card starts with no verse for them");
+
 if (failed) {
   console.error(`\n${failed} check(s) failed — Oyun without religious content would break a promise.`);
   process.exit(1);

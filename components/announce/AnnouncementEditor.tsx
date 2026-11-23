@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { AnnouncementCard } from "@/components/announce/AnnouncementCard";
 import { uploadToBlob } from "@/lib/blob-client";
 import {
@@ -31,7 +31,7 @@ export function AnnouncementEditor({
 }: {
   initial: AnnouncementData;
   link: string | null;
-  /** Without religious content — lib/voice.ts. A verse stays possible, just not the default. */
+  /** Without religious content — lib/voice.ts. No verse is offered; one already on the card can only be taken off. */
   general?: boolean;
 }) {
   const [d, setD] = useState<AnnouncementData>(initial);
@@ -80,7 +80,13 @@ export function AnnouncementEditor({
     }
   }
 
-  const fullLink = path ? (typeof window === "undefined" ? path : `${window.location.origin}${path}`) : null;
+  // The site's address is only known in the browser. Read after the page has
+  // loaded, not while drawing: the server drew the bare path, and a first
+  // draw in the browser that differed made React throw the page away and
+  // start again (a visible flicker, and an error in the log).
+  const [origin, setOrigin] = useState("");
+  useEffect(() => setOrigin(window.location.origin), []);
+  const fullLink = path ? `${origin}${path}` : null;
 
   return (
     <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,27rem)]">
@@ -273,18 +279,39 @@ export function AnnouncementEditor({
         {/* Words */}
         <section className="rounded-2xl border border-border bg-surface p-5">
           <p className="font-serif text-lg text-ink">Your words</p>
-          <label htmlFor="ann-verse" className="mt-3 block">
-            <span className={label}>A verse</span>
-            <select id="ann-verse" className={input} value={d.verseRef ?? ""} onChange={(e) => set("verseRef", e.target.value || null)}>
-              {general && <option value="">No verse</option>}
-              {BIRTH_VERSES.map((v) => (
-                <option key={v.ref} value={v.ref}>
-                  {v.ref} — {v.text.length > 52 ? `${v.text.slice(0, 52)}…` : v.text}
-                </option>
-              ))}
-              {!general && <option value="">No verse</option>}
-            </select>
-          </label>
+          {general ? (
+            // Without religious content (lib/voice.ts) no verse is offered:
+            // the list is not here to choose from. The one case left is a
+            // card that already carries a verse — chosen by the other parent,
+            // or before this choice was made. It is their card too, so it is
+            // named plainly and can be taken off; it cannot be added here.
+            d.verseRef && (
+              <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-bg p-3">
+                <p className="prose-serif-xs text-muted">
+                  This card carries a verse chosen earlier: <span className="text-ink">{d.verseRef}</span>.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => set("verseRef", null)}
+                  className="font-mono text-xs text-accent underline underline-offset-4"
+                >
+                  Take it off the card
+                </button>
+              </div>
+            )
+          ) : (
+            <label htmlFor="ann-verse" className="mt-3 block">
+              <span className={label}>A verse</span>
+              <select id="ann-verse" className={input} value={d.verseRef ?? ""} onChange={(e) => set("verseRef", e.target.value || null)}>
+                {BIRTH_VERSES.map((v) => (
+                  <option key={v.ref} value={v.ref}>
+                    {v.ref} — {v.text.length > 52 ? `${v.text.slice(0, 52)}…` : v.text}
+                  </option>
+                ))}
+                <option value="">No verse</option>
+              </select>
+            </label>
+          )}
           <label htmlFor="ann-message" className="mt-3 block">
             <span className={label}>A few words from you (optional)</span>
             <textarea
