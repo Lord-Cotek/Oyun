@@ -494,7 +494,13 @@ export default async function HelpPage() {
               and nothing else, needs no login, is never listed by search
               engines, works for the days you choose (3 to 30) and stops the
               moment it is closed. You can see each time it was opened, and a
-              QR code for it prints at the top of the report. Photos are
+              QR code for it prints at the top of the report. Or type the
+              doctor&rsquo;s email under <span className="text-ink">Or email it
+              to the doctor</span>, with a message if you like: they get the
+              link, and their reply comes straight to your own email. Tick the
+              box to attach the PDF and the two spreadsheets as well — but
+              attachments stay in their inbox for good, where the link can be
+              closed, so that is off unless you choose it. Photos are
               included only if you tick the photo appendix. Mum can make a
               link, and so can her partner while she shares the log: both see
               every link and who made it, either can close one, and Mum is

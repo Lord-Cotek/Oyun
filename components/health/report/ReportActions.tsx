@@ -3,7 +3,7 @@
 import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import QRCode from "qrcode";
-import { createReportLink, revokeReportLink } from "@/app/health/report/actions";
+import { createReportLink, emailReportToDoctor, revokeReportLink } from "@/app/health/report/actions";
 import { isNativeShell } from "@/lib/shell";
 
 export type LinkRow = { id: string; label: string | null; period: string; expires: string; views: number; lastView: string | null; live: boolean; photos: boolean; /** Who made it, when it was not the viewer. */ by: string | null };
@@ -26,6 +26,7 @@ export function ReportActions({
   isMother,
   motherName,
   links,
+  extras = {},
 }: {
   period: { from: string; to: string };
   withPhotos: boolean;
@@ -33,6 +34,8 @@ export function ReportActions({
   /** Her first name, for telling her partner who can make a link. */
   motherName: string;
   links: LinkRow[];
+  /** Date of birth and clinic, as typed on the page — carried into the attached PDF. */
+  extras?: { dob?: string; clinic?: string };
 }) {
   const router = useRouter();
   const [made, setMade] = useState<{ url: string; qr: string; expires: string } | null>(null);
@@ -42,6 +45,26 @@ export function ReportActions({
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
   const q = `from=${period.from}&to=${period.to}`;
+  // Emailing it to the doctor.
+  const [docEmail, setDocEmail] = useState("");
+  const [docNote, setDocNote] = useState("");
+  const [attach, setAttach] = useState(false);
+  const [sent, setSent] = useState<{ to: string; expires: string; attached: boolean } | null>(null);
+  const [mailError, setMailError] = useState<string | null>(null);
+  const [sending, startSending] = useTransition();
+
+  function sendEmail() {
+    setMailError(null);
+    startSending(async () => {
+      const r = await emailReportToDoctor({ ...period, withPhotos, email: docEmail, label, note: docNote, days, attach, dob: extras.dob, clinic: extras.clinic });
+      if (!r.ok) return setMailError(r.error);
+      setSent({ to: r.sentTo, expires: r.expires, attached: r.attached });
+      setDocEmail("");
+      setDocNote("");
+      setAttach(false);
+      router.refresh();
+    });
+  }
   const [inShell, setInShell] = useState(false);
   // After mounting: the server cannot know which shell this is.
   useEffect(() => setInShell(isNativeShell()), []);
@@ -152,6 +175,54 @@ export function ReportActions({
             </div>
           )}
           {error && <p role="alert" className="mt-2 font-mono text-xs text-negative">{error}</p>}
+
+          {/* ── Or send it by email ─────────────────────────────────────
+              A link made the same way, emailed straight to the doctor, with
+              replies coming back to whoever sent it. The files are only
+              attached when ticked — they stay in an inbox for good, where a
+              link can be closed. */}
+          <div className="mt-5 border-t border-border pt-4">
+            <p className="font-serif text-base text-ink">Or email it to the doctor</p>
+            {sent ? (
+              <div role="status" className="mt-2 rounded-xl border border-accent/40 bg-accent/[0.05] p-4">
+                <p className="font-mono text-xs text-accent">Sent to {sent.to}.</p>
+                <p className="mt-1 prose-serif-xs text-muted">
+                  The link works until {sent.expires}{sent.attached ? ", and the PDF and spreadsheets are attached" : ""}. Replies come to your email. You&rsquo;ll see it in the list below, and can close the link at any time.
+                </p>
+                <button type="button" onClick={() => setSent(null)} className="mt-2 min-h-9 font-mono text-xs text-accent underline underline-offset-4">
+                  Send to someone else
+                </button>
+              </div>
+            ) : (
+              <div className="mt-2 space-y-3">
+                <label className="block">
+                  <span className="mb-1 block font-mono text-[0.6rem] uppercase tracking-widest text-muted">Doctor&rsquo;s email</span>
+                  <input id="rl-email" type="email" inputMode="email" autoComplete="email" value={docEmail} onChange={(e) => setDocEmail(e.target.value)} placeholder="doctor@clinic.com" className="w-full max-w-sm rounded-lg border border-border bg-bg px-3 py-2 font-mono text-sm text-ink" />
+                </label>
+                <label className="block">
+                  <span className="mb-1 block font-mono text-[0.6rem] uppercase tracking-widest text-muted">A message (optional)</span>
+                  <textarea id="rl-note" rows={3} maxLength={1500} value={docNote} onChange={(e) => setDocNote(e.target.value)} placeholder="Ahead of Thursday's appointment — my fasting readings have been higher this week." className="w-full rounded-lg border border-border bg-bg px-3 py-2 prose-serif-xs text-ink" />
+                </label>
+                <label className="flex cursor-pointer items-start gap-2.5">
+                  <input id="rl-attach" type="checkbox" checked={attach} onChange={(e) => setAttach(e.target.checked)} className="mt-1 h-4 w-4 accent-[var(--accent)]" />
+                  <span className="prose-serif-xs text-ink">
+                    Also attach the PDF and the readings and doses spreadsheets
+                    <span className="block text-muted">
+                      Off unless you tick it. Attachments go through our email service and stay in the doctor&rsquo;s inbox for good &mdash; unlike the link, they can&rsquo;t be closed or expire.
+                    </span>
+                  </span>
+                </label>
+                <p className="font-mono text-[0.62rem] text-muted">
+                  Uses &ldquo;For&rdquo; and &ldquo;Works for&rdquo; above. Replies go to your own email.
+                </p>
+                <button type="button" onClick={sendEmail} disabled={sending || !docEmail.trim()} className="min-h-11 rounded-lg bg-accent px-4 font-mono text-xs font-medium text-on-accent disabled:opacity-60">
+                  {sending ? (attach ? "Preparing and sending…" : "Sending…") : "Email it"}
+                </button>
+                {mailError && <p role="alert" className="font-mono text-xs text-negative">{mailError}</p>}
+              </div>
+            )}
+          </div>
+
           {links.length > 0 && (
             <div className="mt-4 border-t border-border pt-3">
               <p className="mb-2 font-mono text-[0.6rem] uppercase tracking-widest text-muted">Links to this report</p>

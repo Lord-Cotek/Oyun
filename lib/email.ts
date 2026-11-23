@@ -63,6 +63,10 @@ async function sendEmail(opts: {
    * the one-click headers and a line at the foot — see lib/unsubscribe.ts.
    */
   unsubscribe?: { userId: string; kind: UnsubKind };
+  /** Where a reply should go, when it is somebody's own message. */
+  replyTo?: string;
+  /** Files, already base64. Only the doctor's report uses these. */
+  attachments?: { filename: string; content: string; contentType: string }[];
 }): Promise<boolean> {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
@@ -106,6 +110,8 @@ Stop ${what}: ${page}`;
         html,
         text,
         ...(headers ? { headers } : {}),
+        ...(opts.replyTo ? { reply_to: opts.replyTo } : {}),
+        ...(opts.attachments?.length ? { attachments: opts.attachments.map((a) => ({ filename: a.filename, content: a.content, content_type: a.contentType })) } : {}),
       }),
     });
     if (!res.ok) {
@@ -763,6 +769,83 @@ export async function sendExportLinkEmail({
   ].join("\n");
 
   return sendEmail({ to, subject: "Your own copy of everything in Oyun", html, text, kind: "export-link" });
+}
+
+/**
+ * The health report, sent to a doctor at the patient's (or her partner's)
+ * request.
+ *
+ * The link is the report: view-only, for its period only, and it stops when
+ * it expires or she closes it. Attachments come only when she ticked for
+ * them, and the email says plainly that those, unlike the link, stay in the
+ * inbox. Replies go to whoever sent it — this is their message, not Oyun's.
+ * The message she typed is escaped and kept as paragraphs.
+ */
+export async function sendDoctorReportEmail({
+  to,
+  senderName,
+  senderEmail,
+  patientName,
+  periodText,
+  link,
+  expires,
+  note,
+  attachments,
+}: {
+  to: string;
+  senderName: string;
+  senderEmail: string;
+  patientName: string;
+  periodText: string;
+  link: string;
+  expires: string;
+  note: string | null;
+  attachments: { filename: string; content: string; contentType: string }[];
+}): Promise<boolean> {
+  const who = escapeHtml(senderName);
+  const patient = escapeHtml(patientName);
+  const paras = (note ?? "").split(/\n{2,}/).map((p) => p.trim()).filter(Boolean);
+  const files = attachments.map((a) => a.filename);
+  const html = shell(`
+    <p style="font-size:16px;line-height:1.6;color:#ECE8DE;">Hello,</p>
+    <p style="font-size:14px;line-height:1.7;color:#ECE8DE;">
+      ${who} has shared ${patient === who ? "her" : `${patient}&rsquo;s`} home health record with you, for ${escapeHtml(periodText)} — the readings, medicines and notes kept in the Oyun app.
+    </p>
+    ${paras.map((p) => `<p style="font-size:14px;line-height:1.7;color:#ECE8DE;border-left:2px solid #C9A227;padding-left:10px;">${escapeHtml(p).replace(/\n/g, "<br/>")}</p>`).join("")}
+    <p style="font-size:14px;line-height:1.7;">
+      <a href="${escapeHtml(link)}" style="display:inline-block;background:#C9A227;color:#1a1208;text-decoration:none;padding:10px 18px;border-radius:8px;font-weight:600;">Open the report</a>
+    </p>
+    <p style="font-size:12px;line-height:1.6;color:#8A9099;">
+      View-only, no login needed. The link works until ${escapeHtml(expires)}, and ${who} can close it at any time. You can print it or save it as a PDF from there.
+      ${files.length ? `<br/><br/>Attached at their request: ${files.map(escapeHtml).join(", ")}. Unlike the link, these stay in your inbox.` : ""}
+    </p>
+    <p style="font-size:12px;line-height:1.6;color:#8A9099;">
+      Replying to this email goes to ${who}. Everything in the record was entered at home by the family; Oyun does not measure or verify any value. It is a home record to support your conversation, not a clinical record.
+    </p>
+    <p style="font-size:11px;line-height:1.6;color:#8A9099;">If the button does not work, paste this into your browser:<br/>${escapeHtml(link)}</p>
+  `);
+  const text = [
+    "Hello,",
+    "",
+    `${senderName} has shared ${patientName === senderName ? "her" : `${patientName}'s`} home health record with you, for ${periodText} — the readings, medicines and notes kept in the Oyun app.`,
+    ...(paras.length ? ["", ...paras] : []),
+    "",
+    `Open the report: ${link}`,
+    "",
+    `View-only, no login needed. The link works until ${expires}, and ${senderName} can close it at any time.`,
+    ...(files.length ? ["", `Attached at their request: ${files.join(", ")}. Unlike the link, these stay in your inbox.`] : []),
+    "",
+    `Replying goes to ${senderName}. Everything in the record was entered at home by the family; Oyun does not measure or verify any value.`,
+  ].join("\n");
+  return sendEmail({
+    to,
+    subject: `Home health record for ${patientName} — ${periodText}`,
+    html,
+    text,
+    kind: "doctor-report",
+    replyTo: senderEmail,
+    attachments,
+  });
 }
 
 /**
