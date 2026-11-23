@@ -87,6 +87,9 @@ check(/user\.email\.toLowerCase\(\) !== invite\.email/.test(inviteLib), "only th
 check(/inviteState\(invite\) !== "open"/.test(inviteLib), "accepting checks the invitation is still open, inside the transaction");
 check(/if \(!input\.agreed\)/.test(actions.split("inviteClinicianByEmail")[1] ?? ""), "she agrees to what is shared before an invitation is sent");
 check(/clinic-invite:/.test(actions), "invitations are limited, so the app cannot be used to pester anybody");
+check(/via === "app" && !user\.emailVerified/.test(inviteLib), "accepting inside the app needs a confirmed address");
+check(/emailVerified: \{ not: null \}/.test(inviteLib) && /!u\.emailVerified\) return \[\]/.test(inviteLib), "an invitation is shown in the app only to a confirmed account");
+check(/href: "\/doctor\/invitations"/.test(actions) && !/href: `[^`]*\$\{raw/.test(actions), "the in-app notice never carries the emailed link");
 const invitePage = readFileSync(path.join(root, "app/doctor/invite/[token]/page.tsx"), "utf8");
 check(/ownerId === me\.id/.test(invitePage) && /toLowerCase\(\) !== invite\.email/.test(invitePage), "the page never attaches an invitation to her own account or a different address");
 

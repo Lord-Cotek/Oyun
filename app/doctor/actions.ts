@@ -10,7 +10,7 @@ import { sendConfirmEmail } from "@/lib/email";
 import { makeConfirmLink } from "@/lib/email-confirm";
 import { notify } from "@/lib/notify";
 import { cleanField, clinicianOf, newClinicCode } from "@/lib/clinician";
-import { acceptInvite, inviteByToken, inviteState } from "@/lib/clinician-invite";
+import { acceptInvite, inviteByToken, inviteState, invitesWaitingFor } from "@/lib/clinician-invite";
 
 const SITE_DEFAULT = "https://oyun.cotek.app";
 type Result = { ok: boolean; error?: string };
@@ -205,4 +205,56 @@ export async function acceptInviteSignedIn(token: string, fd: FormData | null): 
   await tellPatient(invite, res.clinicianName);
   revalidatePath("/doctor");
   return { ok: true, linkId: res.linkId };
+}
+
+
+/**
+ * Accept from inside the app — the invitation on their patients page, not
+ * the emailed link. Only an invitation actually addressed to this confirmed
+ * account can be named here; any other id is simply not theirs.
+ */
+export async function acceptInviteInApp(inviteId: string, fd: FormData | null): Promise<Accepted> {
+  const session = await auth();
+  if (!session?.user?.id) return { ok: false, error: "Please sign in first." };
+  const mine = (await invitesWaitingFor(session.user.id)).find((i) => i.id === String(inviteId));
+  if (!mine) return { ok: false, error: "That invitation is no longer waiting for you." };
+  const has = await clinicianOf(session.user.id);
+  let profile: { displayName: string; title: string | null; practice: string | null } | null = null;
+  if (!has) {
+    const p = fd ? readProfile(fd) : null;
+    if (!p?.displayName) return { ok: false, error: "Please enter your name as patients will see it." };
+    if (!p.declared) return { ok: false, error: DECLARE };
+    profile = { displayName: p.displayName, title: p.title, practice: p.practice };
+  }
+  const res = await acceptInvite(mine.id, session.user.id, profile, "app");
+  if (!res.ok) return res;
+  const invite = await prisma.clinicianInvite.findUnique({ where: { id: mine.id }, select: { invitedById: true } });
+  if (invite) await tellPatient(invite, res.clinicianName);
+  revalidatePath("/doctor");
+  return { ok: true, linkId: res.linkId };
+}
+
+/**
+ * "Not my patient." The invitation closes and nothing is shared; she is
+ * told plainly, so she is not left waiting on a doctor who will not answer.
+ */
+export async function declineInviteInApp(inviteId: string): Promise<Result> {
+  const session = await auth();
+  if (!session?.user?.id) return { ok: false, error: "Please sign in first." };
+  const mine = (await invitesWaitingFor(session.user.id)).find((i) => i.id === String(inviteId));
+  if (!mine) return { ok: true };
+  const invite = await prisma.clinicianInvite.update({
+    where: { id: mine.id },
+    data: { cancelledAt: new Date() },
+    select: { invitedById: true, email: true, doctorName: true },
+  });
+  await notify({
+    userId: invite.invitedById,
+    type: "health_shared",
+    title: `${invite.doctorName?.trim() || invite.email} declined your invitation.`,
+    body: "Nothing was shared. You can invite another doctor, or ask them for their clinic code, under Health → Your doctor.",
+    href: "/health/doctor",
+  });
+  revalidatePath("/doctor");
+  return { ok: true };
 }

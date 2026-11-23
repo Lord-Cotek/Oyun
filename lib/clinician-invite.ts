@@ -27,6 +27,14 @@ import { newClinicCode } from "@/lib/clinician";
  *    confirms the account's address.
  * 4. Fourteen days, then it lapses. She can cancel it or send it again
  *    (which makes a new link and ends the old one) until it is accepted.
+ * 6. A doctor who already has an Oyun account is told in the app as well —
+ *    the bell, a push, and "Invitations waiting" on their patients page —
+ *    so they need not go looking for an email. But ONLY if that account's
+ *    address is confirmed. Typing a doctor's address at sign-up proves
+ *    nothing about owning it, and an invitation shown to an unconfirmed
+ *    account would hand a patient's records to whoever typed it. An
+ *    unconfirmed account can still use the emailed link, which is itself
+ *    the proof.
  * 5. Accepting makes an ordinary ClinicianLink — the same sharing, the same
  *    viewing log, the same "stop at any time" as one made with a code.
  */
@@ -88,16 +96,26 @@ export async function acceptInvite(
   inviteId: string,
   userId: string,
   profile: { displayName: string; title: string | null; practice: string | null } | null,
+  /**
+   * How they came: by the emailed link (which proves the mailbox), or from
+   * inside the app — where the account's address must already be confirmed,
+   * because nothing else has proved it. See rule 6.
+   */
+  via: "link" | "app" = "link",
 ): Promise<{ ok: true; linkId: string; clinicianName: string } | { ok: false; error: string }> {
   // Made outside the transaction: it reads to find a free code.
   const spareCode = await newClinicCode();
   return prisma.$transaction(async (tx) => {
     const invite = await tx.clinicianInvite.findUnique({ where: { id: inviteId } });
     if (!invite || inviteState(invite) !== "open") return { ok: false as const, error: "This invitation is no longer open." };
-    const user = await tx.user.findUnique({ where: { id: userId }, select: { email: true, clinician: true } });
+    const user = await tx.user.findUnique({ where: { id: userId }, select: { email: true, emailVerified: true, clinician: true } });
     if (!user?.email || user.email.toLowerCase() !== invite.email) {
       return { ok: false as const, error: `This invitation was sent to ${invite.email}. Please sign in with that address.` };
     }
+    if (via === "app" && !user.emailVerified) {
+      return { ok: false as const, error: "Please confirm your email address first, or open the link in the invitation email." };
+    }
+    if (invite.invitedById === userId) return { ok: false as const, error: "This is your own invitation." };
     let clinician = user.clinician;
     if (!clinician) {
       if (!profile?.displayName) return { ok: false as const, error: "Please enter your name as patients will see it." };
@@ -115,5 +133,46 @@ export async function acceptInvite(
     // The link came by email to this very address: the address is theirs.
     await tx.user.updateMany({ where: { id: userId, emailVerified: null }, data: { emailVerified: new Date() } });
     return { ok: true as const, linkId: link.id, clinicianName: clinician.displayName };
+  });
+}
+
+
+/**
+ * The account an invitation can be shown to inside the app: one with this
+ * address, CONFIRMED. Null otherwise — see rule 6.
+ */
+export async function confirmedAccountFor(email: string): Promise<{ id: string } | null> {
+  return prisma.user.findFirst({
+    where: { email, emailVerified: { not: null }, suspendedAt: null },
+    select: { id: true },
+  });
+}
+
+/**
+ * The open invitations addressed to this person — shown on their patients
+ * page. Empty unless their address is confirmed.
+ */
+export async function invitesWaitingFor(userId: string) {
+  const u = await prisma.user.findUnique({ where: { id: userId }, select: { email: true, emailVerified: true } });
+  if (!u?.email || !u.emailVerified) return [];
+  return prisma.clinicianInvite.findMany({
+    where: {
+      email: u.email.toLowerCase(),
+      acceptedAt: null,
+      cancelledAt: null,
+      expiresAt: { gt: new Date() },
+      invitedById: { not: userId },
+    },
+    orderBy: { sentAt: "desc" },
+    take: 20,
+    select: {
+      id: true,
+      note: true,
+      sentAt: true,
+      expiresAt: true,
+      withPhotos: true,
+      withAppointments: true,
+      journey: { select: { owner: { select: { name: true } } } },
+    },
   });
 }

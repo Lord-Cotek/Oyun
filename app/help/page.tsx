@@ -541,7 +541,8 @@ export default async function HelpPage() {
               <Link href="/health/doctor" className="text-accent underline underline-offset-4">Health &rarr; Your doctor</Link>.
               If your doctor isn&rsquo;t on Oyun yet, choose <span className="text-ink">Invite by email</span>: type
               their email address and Oyun writes to them. They create a free account (or sign in) from that email
-              and can see your records straight away. Only the address you typed can accept; the invitation lasts
+              and can see your records straight away. If they already use Oyun with that address, the invitation also
+              shows in their app, where they can accept or decline. Only the address you typed can accept; the invitation lasts
               fourteen days, and until it is accepted you can send it again or cancel it. If they already use Oyun,
               choose <span className="text-ink">I have their clinic code</span> and type the code they give you.
               Either way you see exactly what they will see before anything is shared: your

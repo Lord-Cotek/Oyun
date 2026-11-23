@@ -7,6 +7,7 @@ import { patientList } from "@/lib/clinician-db";
 import { CopyText } from "@/components/doctor/CopyText";
 import { ClinicianProfileForm } from "@/components/doctor/ClinicianForms";
 import { SignOutButton } from "@/components/SignOutButton";
+import { InvitationsWaiting } from "@/components/doctor/InvitationsWaiting";
 import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = { title: "Your patients" };
@@ -52,6 +53,12 @@ export default async function DoctorHome() {
         clinic code, or by inviting you by email. Oyun does not monitor anyone or alert you — open a patient&rsquo;s
         records when you need them.
       </p>
+
+      {/* Patients who invited them by email — also here, so a doctor who
+          already uses Oyun need not go looking for the message. */}
+      <div className="mt-8 empty:hidden">
+        <InvitationsWaiting userId={session.user.id} />
+      </div>
 
       <div className="mt-8 grid gap-5 lg:grid-cols-[1.5fr_1fr]">
         <section aria-labelledby="patients-h" className="min-w-0">

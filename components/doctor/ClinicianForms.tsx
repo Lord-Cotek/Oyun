@@ -8,7 +8,10 @@ import {
   updateClinicianProfile,
   acceptInviteWithNewAccount,
   acceptInviteSignedIn,
+  acceptInviteInApp,
+  declineInviteInApp,
 } from "@/app/doctor/actions";
+import { ConfirmButton } from "@/components/ui/Confirm";
 
 const input =
   "prose-serif-sm w-full rounded-lg border border-border bg-bg px-4 py-3 text-ink placeholder:text-muted focus:border-accent focus:outline-none";
@@ -234,5 +237,94 @@ export function SignOutToInvite({ token }: { token: string }) {
     >
       Sign out and use the invited address
     </button>
+  );
+}
+
+
+/**
+ * An invitation shown inside the app to a doctor who already has an account
+ * (lib/clinician-invite.ts, rule 6): who is asking, what they would see,
+ * Accept — and Decline, for the patient who is not theirs.
+ */
+export function InAppInvite({
+  inviteId,
+  patient,
+  note,
+  sent,
+  until,
+  sees,
+  needsProfile,
+  name,
+}: {
+  inviteId: string;
+  patient: string;
+  note: string | null;
+  sent: string;
+  until: string;
+  sees: string;
+  needsProfile: boolean;
+  name: string;
+}) {
+  const [error, setError] = useState<string | null>(null);
+  const [gone, setGone] = useState(false);
+  const [pending, start] = useTransition();
+  if (gone) {
+    return (
+      <p className="rounded-2xl border border-border bg-surface p-5 prose-serif-sm text-muted" role="status">
+        Declined. Nothing was shared, and {patient} has been told.
+      </p>
+    );
+  }
+  return (
+    <form
+      className="rounded-2xl border border-accent/40 bg-accent/[0.06] p-5"
+      action={(fd) =>
+        start(async () => {
+          setError(null);
+          const res = await acceptInviteInApp(inviteId, needsProfile ? fd : null);
+          if (!res.ok) setError(res.error);
+          else window.location.href = `/doctor/p/${res.linkId}`;
+        })
+      }
+    >
+      <p className="eyebrow text-accent">Invitation</p>
+      <p className="mt-1 font-serif text-xl leading-snug text-ink">{patient} invited you to see her health records.</p>
+      <p className="mt-1 font-mono text-xs text-muted">
+        Sent {sent} · open until {until}
+      </p>
+      {note?.trim() && (
+        <blockquote className="mt-3 border-l-2 border-accent pl-3 prose-serif-sm text-ink">
+          <span className="whitespace-pre-wrap">{note}</span>
+        </blockquote>
+      )}
+      <p className="mt-3 prose-serif-xs text-muted">You would see {sees}. Nothing else of hers, and nothing until you accept.</p>
+      {needsProfile && (
+        <div className="mt-4 space-y-3">
+          <p className="prose-serif-xs text-ink">
+            You don&rsquo;t have a clinician account yet. Add how patients should see you — it sits beside your own Oyun account.
+          </p>
+          <ProfileFields name={name} />
+          <Declaration />
+        </div>
+      )}
+      {error && <p className="mt-3 font-mono text-xs text-negative" role="alert">{error}</p>}
+      <div className="mt-4 flex flex-wrap items-center gap-4">
+        <button type="submit" disabled={pending} className="inline-flex min-h-11 items-center rounded-lg bg-accent px-5 font-mono text-xs font-medium text-on-accent hover:bg-accent-deep disabled:opacity-50">
+          {pending ? "Opening her records…" : `Accept and see ${patient}’s records`}
+        </button>
+        <ConfirmButton
+          describe={`the invitation from ${patient} — she will be told you declined`}
+          word="Decline"
+          sure="Decline — sure?"
+          press="none"
+          onConfirm={async () => {
+            const r = await declineInviteInApp(inviteId);
+            if (r.ok) setGone(true);
+            return r;
+          }}
+          className="font-mono text-xs text-muted underline-offset-2 hover:text-negative hover:underline"
+        />
+      </div>
+    </form>
   );
 }

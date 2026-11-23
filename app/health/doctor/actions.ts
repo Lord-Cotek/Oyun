@@ -8,7 +8,7 @@ import { getActiveMembership } from "@/lib/data";
 import { allowAll, HOUR, MINUTE } from "@/lib/rate-limit";
 import { notify } from "@/lib/notify";
 import { clinicianLine, normaliseCode, cleanField } from "@/lib/clinician";
-import { cleanEmail, inviteExpiry, inviteState, newInviteToken } from "@/lib/clinician-invite";
+import { cleanEmail, confirmedAccountFor, inviteExpiry, inviteState, newInviteToken } from "@/lib/clinician-invite";
 import { sendClinicianInviteEmail } from "@/lib/email";
 
 type Found = { ok: true; code: string; line: string; displayName: string } | { ok: false; error: string };
@@ -135,6 +135,20 @@ async function sendInvite(
   rawToken: string,
 ): Promise<boolean> {
   const site = process.env.NEXT_PUBLIC_SITE_URL ?? SITE_DEFAULT;
+  // A doctor who already has an Oyun account with this address — confirmed —
+  // is told in the app too: the bell, a push, and their patients page. It
+  // points at their own invitations, never at the emailed link, so the link
+  // is still stored nowhere. lib/clinician-invite.ts, rule 6.
+  const account = await confirmedAccountFor(invite.email).catch(() => null);
+  if (account) {
+    await notify({
+      userId: account.id,
+      type: "health_shared",
+      title: `${me.name?.trim() || "A patient"} invited you to see her health records.`,
+      body: "Open your invitations to accept. Nothing is shared until you do.",
+      href: "/doctor/invitations",
+    });
+  }
   return sendClinicianInviteEmail({
     to: invite.email,
     doctorName: invite.doctorName,

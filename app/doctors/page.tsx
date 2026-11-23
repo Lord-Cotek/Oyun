@@ -89,7 +89,8 @@ export default function ForClinicians() {
           <p className="mt-2 prose-serif-xs text-muted">
             A patient can invite you by email from her own Oyun. Open the link in that email: you create your account
             there (or sign in) and her records open straight away — no code needed. The invitation is for the address
-            it was sent to. Afterwards you still get a clinic code of your own to give other patients.
+            it was sent to. If you already have an Oyun account with that address, it is also waiting in the app, on
+            your patients page. Afterwards you still get a clinic code of your own to give other patients.
           </p>
         </div>
         <div className="rounded-2xl border border-border bg-surface p-6">

@@ -391,7 +391,8 @@ export function ShareChooser({ initialCode = "" }: { initialCode?: string }) {
         <>
           <p className="mb-4 prose-serif-xs text-muted">
             Oyun emails your doctor or midwife an invitation. They create a free account (or sign in) and can see your
-            records straight away — no code needed.
+            records straight away — no code needed. If they already use Oyun with that address, it also appears in
+            their app.
           </p>
           <InviteDoctorByEmail />
         </>
