@@ -13,6 +13,9 @@ const TABS = [
   { key: "report", label: "Report", href: "/health/report" },
   // Sharing with her own doctor or midwife — lib/clinician.ts.
   { key: "doctor", label: "Your doctor", href: "/health/doctor" },
+  // The signs that should not wait — lib/when-to-call.ts. Marked apart from
+  // the rest, because it is the one tab somebody opens frightened.
+  { key: "call", label: "When to call", href: "/health/when-to-call" },
 ] as const;
 
 export type HealthTab = (typeof TABS)[number]["key"];
@@ -26,7 +29,13 @@ export function HealthTabs({ active }: { active: HealthTab }) {
           href={t.href}
           aria-current={active === t.key ? "page" : undefined}
           className={`inline-flex min-h-11 items-center rounded-full border px-4 font-mono text-xs transition-colors ${
-            active === t.key ? "border-accent bg-accent/[0.1] text-accent" : "border-border text-muted hover:border-accent hover:text-accent"
+            t.key === "call"
+              ? active === "call"
+                ? "border-negative bg-negative/[0.1] text-negative"
+                : "border-negative/50 text-negative hover:bg-negative/[0.06]"
+              : active === t.key
+                ? "border-accent bg-accent/[0.1] text-accent"
+                : "border-border text-muted hover:border-accent hover:text-accent"
           }`}
         >
           {t.label}

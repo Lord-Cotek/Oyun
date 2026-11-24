@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && npm run -s verify && tsc --noEmit && node scripts/db-sync.mjs scripts/move-classes.mjs && next build",
-    "verify": "npm run -s verify:scripture && npm run -s verify:links && npm run -s verify:admin && npm run -s verify:surprise && npm run -s verify:health && npm run -s verify:voice && npm run -s verify:clinician && npm run -s verify:line && npm run -s verify:recovery",
+    "verify": "npm run -s verify:scripture && npm run -s verify:links && npm run -s verify:admin && npm run -s verify:surprise && npm run -s verify:health && npm run -s verify:voice && npm run -s verify:clinician && npm run -s verify:line && npm run -s verify:recovery && npm run -s verify:care",
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
@@ -25,7 +25,8 @@
     "verify:voice": "node scripts/verify-voice.mjs",
     "verify:clinician": "node scripts/verify-clinician.mjs",
     "verify:line": "node scripts/verify-journey-line.mjs",
-    "verify:recovery": "node scripts/verify-recovery.mjs"
+    "verify:recovery": "node scripts/verify-recovery.mjs",
+    "verify:care": "node scripts/verify-care.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.1",

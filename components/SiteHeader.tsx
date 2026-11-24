@@ -4,6 +4,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { NavMoreMenu } from "@/components/NavMoreMenu";
 import { NotificationBell } from "@/components/NotificationBell";
 import { TabBar, type Tab } from "@/components/TabBar";
+import { pickTabs } from "@/lib/nav-tabs";
 import { Icon, type IconName } from "@/components/ui/Icon";
 import { JourneySwitcher } from "@/components/JourneySwitcher";
 import { auth } from "@/lib/auth";
@@ -204,11 +205,18 @@ export async function SiteHeader({
   // Keep Settings in the More sheet (never a primary tab) so the sheet — and
   // its Install / Sign out controls — is always reachable, even for roles with
   // only a few sections.
+  //
+  // Which four: lib/nav-tabs.ts. For the two of them Health is one, because
+  // it is opened several times a day; Letters is first under More.
   const settingsTab = navTabs.find((t) => t.href === "/settings");
-  const primaryPool = navTabs.filter((t) => t.href !== "/settings");
-  const tabs = primaryPool.slice(0, 4);
+  const picked = pickTabs(
+    navTabs.map((t) => t.href),
+    { household: isHousehold, general },
+  );
+  const tabOf = (href: string) => navTabs.find((t) => t.href === href)!;
+  const tabs = picked.primary.map(tabOf);
   const moreItems = [
-    ...primaryPool.slice(4),
+    ...picked.rest.map(tabOf),
     ...(settingsTab ? [settingsTab] : []),
   ];
 
