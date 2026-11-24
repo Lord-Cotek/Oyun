@@ -15,6 +15,8 @@ import { SharedMedia } from "@/components/share/SharedMedia";
 import { ReportDocument } from "@/components/health/report/ReportDocument";
 import { PrintButton } from "@/components/health/report/PrintButton";
 import { EndLinkButton } from "@/components/doctor/EndLinkButton";
+import { hasPreferences, preferenceSheet, readPreferences } from "@/lib/birth-prep";
+import { PreferenceSheet } from "@/components/health/birth/PreferenceSheet";
 
 export const dynamic = "force-dynamic";
 // No title from the patient's name: a browser tab or a history list is not
@@ -31,6 +33,8 @@ const TABS = [
   { key: "report", label: "Health report" },
   { key: "appointments", label: "Appointments & scans" },
   { key: "posts", label: "Shared posts" },
+  // Her birth preferences, only once she has switched on showing them.
+  { key: "birth", label: "Birth preferences" },
 ] as const;
 
 function fmt(d: Date, tz: string, time = false): string {
@@ -130,6 +134,7 @@ export default async function DoctorPatient({
         {tab === "report" && <ReportTab linkId={link.id} journeyId={j.id} dueDate={j.dueDate} tz={tz} photos={link.withPhotos} p={searchParams.p} href={href} />}
         {tab === "appointments" && <AppointmentsTab journeyId={j.id} tz={tz} shared={link.withAppointments} />}
         {tab === "posts" && <PostsTab journeyId={j.id} tz={tz} />}
+        {tab === "birth" && <BirthTab journeyId={j.id} name={j.owner.name?.trim() || "Your patient"} />}
       </div>
     </main>
   );
@@ -228,6 +233,35 @@ async function AppointmentsTab({ journeyId, tz, shared }: { journeyId: string; t
         <h2 className="mb-3 font-serif text-xl text-ink">Before</h2>
         {past.length ? <ul className="space-y-3">{past.map((r) => <Row key={r.id} r={r} />)}</ul> : <p className="prose-serif-xs text-muted">Nothing yet.</p>}
       </section>
+    </div>
+  );
+}
+
+/**
+ * Her birth preferences, as she wrote them — and only if she chose to show
+ * them (BirthPrep.forDoctorAt). Read with that condition in the query, so a
+ * sheet she has not shared is never fetched for a doctor at all.
+ */
+async function BirthTab({ journeyId, name }: { journeyId: string; name: string }) {
+  const prep = await prisma.birthPrep.findFirst({
+    where: { journeyId, forDoctorAt: { not: null } },
+    select: { preferences: true, preferencesAt: true },
+  });
+  const prefs = readPreferences(prep?.preferences);
+  if (!prep || !hasPreferences(prefs)) {
+    return (
+      <p className="prose-serif-sm text-muted">
+        She hasn&rsquo;t shared her birth preferences with you. They stay with her unless she chooses to show them.
+      </p>
+    );
+  }
+  return (
+    <div className="max-w-2xl">
+      <PreferenceSheet
+        name={name}
+        lines={preferenceSheet(prefs)}
+        updated={prep.preferencesAt ? prep.preferencesAt.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }) : null}
+      />
     </div>
   );
 }

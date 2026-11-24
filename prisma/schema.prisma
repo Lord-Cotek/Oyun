@@ -363,6 +363,7 @@ model Journey {
   healthLog         HealthLogSettings?
   healthReadings    HealthReading[]
   contractions      Contraction[]
+  birthPrep         BirthPrep?
   healthFiles       HealthFile[]
   medicationPlans   MedicationPlan[]
   medicationDoses   MedicationDose[]
@@ -2014,6 +2015,32 @@ model HealthReading {
   updatedAt    DateTime @updatedAt
 
   @@index([journeyId, takenAt])
+}
+
+/// Getting ready for the birth: what has been packed, and what she would
+/// like on the day. One row for a journey, made the first time either is
+/// used. See lib/birth-prep.ts.
+///
+/// The bag is the two of theirs to pack. The preferences are hers: only she
+/// can change them, her partner reads them (he is often the one who has to
+/// say them for her in the room), and her doctor sees them only if she
+/// switches that on — `forDoctorAt`, off until she does.
+model BirthPrep {
+  id            String    @id @default(cuid())
+  journeyId     String    @unique
+  journey       Journey   @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  /// The suggested items ticked as packed, by key.
+  bagDone       String[]  @default([])
+  /// Things the family added themselves: [{ id, label, done }].
+  bagExtras     Json?
+  /// Her answers, by field — validated on the way in by cleanPreferences.
+  preferences   Json?
+  preferencesAt DateTime?
+  /// When she chose to show her preferences to her linked doctor. Null: not shown.
+  forDoctorAt   DateTime?
+  updatedById   String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 }
 
 /// One contraction, timed at home: when it began and when it eased.

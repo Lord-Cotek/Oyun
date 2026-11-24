@@ -250,6 +250,54 @@ const LB = jiti(path.join(root, "lib/labour.ts"));
   check(/MovementCounter/.test(read("components/health/log/ReadingSheet.tsx")) && /onDone=\{\(count, minutes\)/.test(read("components/health/log/ReadingSheet.tsx")), "it fills in the existing movements entry, which she saves as before");
 }
 
+// ── The hospital bag and birth preferences ─────────────────────────────────
+console.log("Hospital bag and birth preferences");
+const BP = jiti(path.join(root, "lib/birth-prep.ts"));
+{
+  const bagF = BP.bagFor("FAITH", 1), bagG = BP.bagFor("GENERAL", 1);
+  const keysOf = (b) => b.flatMap((s) => s.items.map((i) => i.key));
+  check(!BANNED.test(JSON.stringify(bagG)), "the bag has no religious language for somebody who chose Oyun without");
+  check(keysOf(bagF).includes("y-bible") && !keysOf(bagG).includes("y-bible"), "with faith, a Bible is on the list; without, it is not");
+  check(JSON.stringify(keysOf(bagF).filter((k) => k !== "y-bible")) === JSON.stringify(keysOf(bagG)), "every other line is the same for both");
+  check(new Set(keysOf(bagF)).size === keysOf(bagF).length && keysOf(bagF).every((k) => BP.ALL_BAG_KEYS.has(k)), "every line has its own key, and all can be ticked");
+  check(/for each baby/.test(JSON.stringify(BP.bagFor("FAITH", 2))) && !/for each baby/.test(JSON.stringify(bagF)), "twins are packed for one each");
+  check(!/\b(pampers|huggies|johnson|dettol|vaseline)\b/i.test(JSON.stringify(bagF)), "no brand is named");
+  const pr = BP.bagProgress(bagG, ["p-id", "y-pads", "y-bible", "nonsense"], [{ id: "1", label: "Gloves", done: true }, { id: "2", label: "Wrapper", done: false }]);
+  check(pr.packed === 3 && pr.total === keysOf(bagG).length + 2, "progress counts only what this reader is shown, plus their own lines");
+  check(BP.readBagExtras([{ id: "a", label: "  Gloves  ", done: true }, { id: "", label: "x" }, "junk", { id: "b" }]).length === 1 && BP.readBagExtras("junk").length === 0, "stored extras are read safely");
+
+  const F = BP.PREF_FIELDS;
+  const forGeneral = F.filter((f) => !f.faithOnly);
+  check(!BANNED.test(JSON.stringify(forGeneral)), "the preference questions have no religious language for somebody who chose Oyun without");
+  check(F.filter((f) => f.faithOnly).map((f) => f.key).join() === "prayer", "'Prayer in the room' is the one question asked only with faith");
+  check(!/\b(should|recommend|safest|safer|best|advis|risk)\b/i.test(JSON.stringify(F.map((f) => f.options ?? []))), "no option she can choose gives advice");
+  check(/not demands/.test(BP.PREF_PREAMBLE) && /does not always go to plan/.test(BP.PREF_PREAMBLE), "the sheet opens by saying these are preferences, and that plans change");
+
+  const dirty = { companions: "  Tayo  ", pain: "nonsense", room: ["dim", "bogus", "music"], feeding: "breast", prayer: "Pastor Ade will pray", evil: "x", other: "y".repeat(900) };
+  const cf = BP.cleanPreferences(dirty, "FAITH", null);
+  check(cf.companions === "Tayo" && cf.pain === undefined && JSON.stringify(cf.room) === JSON.stringify(["dim", "music"]) && cf.feeding === "breast" && cf.evil === undefined && cf.other.length === 500, "answers are cleaned: known questions, known options, within their length");
+  check(cf.prayer === "Pastor Ade will pray", "with faith she can write a line about prayer");
+  const cg = BP.cleanPreferences(dirty, "GENERAL", null);
+  check(cg.prayer === undefined, "without, a new line about prayer is not accepted");
+  check(BP.cleanPreferences({ prayer: "Pastor Ade will pray" }, "GENERAL", { prayer: "Pastor Ade will pray" }).prayer === "Pastor Ade will pray", "a line she wrote earlier is kept exactly as it was");
+  check(BP.cleanPreferences({ prayer: "Something new" }, "GENERAL", { prayer: "Pastor Ade will pray" }).prayer === undefined && BP.cleanPreferences({ prayer: "" }, "GENERAL", { prayer: "x" }).prayer === undefined, "it can be taken off, but not rewritten");
+  check(!BP.fieldsFor("GENERAL", {}).some((f) => f.key === "prayer") && BP.fieldsFor("GENERAL", { prayer: "x" }).some((f) => f.key === "prayer") && BP.fieldsFor("FAITH", {}).some((f) => f.key === "prayer"), "she is offered the question only with faith, or to manage a line already there");
+  const sheet = BP.preferenceSheet(cf);
+  check(sheet.map((l) => l.label).join("|") === "Who will be with me|The room|Feeding|Prayer in the room|Anything else" && sheet[1].list.length === 2, "the sheet shows only what she answered, in order, in her words");
+  check(BP.preferenceSheet({}).length === 0 && !BP.hasPreferences({}) && BP.hasPreferences(cf), "an empty form makes no sheet");
+  check(JSON.stringify(BP.readPreferences(cf)) === JSON.stringify(cf), "what is saved is read back whole, whoever reads it");
+
+  const pa = read("app/health/birth/prep-actions.ts");
+  const fn = (name) => pa.slice(pa.indexOf(`export async function ${name}`), pa.indexOf("\nexport async function", pa.indexOf(`export async function ${name}`) + 10) > 0 ? pa.indexOf("\nexport async function", pa.indexOf(`export async function ${name}`) + 10) : undefined);
+  check(/if \(!a\.isMother\) return HERS;/.test(fn("savePreferences")) && /if \(!a\.isMother\) return HERS;/.test(fn("setPreferencesForDoctor")), "only she can change her preferences, or show them to her doctor");
+  check(["toggleBagItem", "addBagExtra", "toggleBagExtra", "removeBagExtra", "savePreferences", "setPreferencesForDoctor"].every((n) => /const a = await household\(\);\n  if \(!a\) return NOPE;/.test(fn(n))), "every action is the two of theirs only");
+  check(/ALL_BAG_KEYS\.has\(key\)/.test(fn("toggleBagItem")), "only a line that exists can be ticked");
+  const doc = read("app/doctor/p/[link]/page.tsx");
+  check(/where: \{ journeyId, forDoctorAt: \{ not: null \} \}/.test(doc.slice(doc.indexOf("async function BirthTab"), doc.indexOf("async function PostsTab"))), "her doctor is given her preferences only once she has switched that on");
+  const schema2 = read("prisma/schema.prisma");
+  check(/forDoctorAt\s+DateTime\?/.test(schema2.slice(schema2.indexOf("model BirthPrep {"), schema2.indexOf("model Contraction {"))), "and it is off until she does");
+}
+
 // ── The registry's essentials ──────────────────────────────────────────────
 console.log("The registry's essentials");
 const E = jiti(path.join(root, "lib/registry-essentials.ts"));

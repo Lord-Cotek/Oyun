@@ -22,6 +22,16 @@ const TOOLS: { href: string; title: string; body: string }[] = [
     title: "Contraction timer",
     body: "Press when one starts and when it eases. It works out how long they last and how far apart they are, in the words a midwife asks for.",
   },
+  {
+    href: "/health/birth/bag",
+    title: "Hospital bag",
+    body: "What to pack: for her, for the baby, for whoever goes with her, and the papers. Tick things off as they go in.",
+  },
+  {
+    href: "/health/birth/preferences",
+    title: "Birth preferences",
+    body: "One page to show the midwife: who will be there, how she would like pain handled, and what she hopes for straight after.",
+  },
 ];
 
 /**
