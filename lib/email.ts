@@ -52,6 +52,51 @@ async function recordDelivery(kind: string, to: string, ok: boolean, error?: str
   }
 }
 
+/**
+ * One request to the mail provider, kept inside its speed limit.
+ *
+ * ── Why ──────────────────────────────────────────────────────────────────
+ * The provider takes ten requests a second and answers the eleventh with
+ * 429 "Too many requests". The weekly email goes to everybody one after
+ * another, and on a fast day three of forty were refused that way: nothing
+ * was wrong with the emails or the addresses, they were simply sent too
+ * quickly. (The second sweep half an hour later picks such people up, but
+ * the log said "refused" and an email that should have gone at one went at
+ * half past.)
+ *
+ * So two things, both small. Sends from this server are spaced a little
+ * apart, which keeps a long run under the limit by itself. And if the
+ * provider still says slow down — another job may be sending at the same
+ * moment — the same request is tried again after the pause it asks for,
+ * twice at most. Only 429 is retried: it means "not yet", so nothing was
+ * sent and there is nothing to send twice. Any other refusal is final.
+ */
+const MAIL_GAP_MS = 130;
+let nextMailSlot = 0;
+const pause = (ms: number) => new Promise((r) => setTimeout(r, ms));
+async function postMail(url: string, apiKey: string, body: string): Promise<Response> {
+  for (let attempt = 0; ; attempt++) {
+    const now = Date.now();
+    const wait = Math.max(0, nextMailSlot - now);
+    nextMailSlot = Math.max(now, nextMailSlot) + MAIL_GAP_MS;
+    if (wait) await pause(wait);
+    const res = await fetch(url, {
+      // Never cached. Next.js caches fetch() by default, and two identical
+      // emails used to come back as the first one's "sent" without a
+      // request leaving the building — a resend, or a retry after the
+      // provider refused, was silently swallowed.
+      cache: "no-store",
+      method: "POST",
+      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+      body,
+    });
+    if (res.status !== 429 || attempt >= 2) return res;
+    const asked = Number(res.headers.get("retry-after"));
+    await res.text().catch(() => "");
+    await pause(Math.min(2500, Number.isFinite(asked) && asked > 0 ? asked * 1000 : 700 * (attempt + 1)));
+  }
+}
+
 async function sendEmail(opts: {
   to: string;
   subject: string;
@@ -93,18 +138,10 @@ async function sendEmail(opts: {
 Stop ${what}: ${page}`;
   }
   try {
-    const res = await fetch(RESEND_ENDPOINT, {
-      // Never cached. Next.js caches fetch() by default, and two identical
-      // emails used to come back as the first one's "sent" without a
-      // request leaving the building — a resend, or a retry after the
-      // provider refused, was silently swallowed.
-      cache: "no-store",
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
+    const res = await postMail(
+      RESEND_ENDPOINT,
+      apiKey,
+      JSON.stringify({
         from: fromAddress(),
         to: [opts.to],
         subject: opts.subject,
@@ -114,7 +151,7 @@ Stop ${what}: ${page}`;
         ...(opts.replyTo ? { reply_to: opts.replyTo } : {}),
         ...(opts.attachments?.length ? { attachments: opts.attachments.map((a) => ({ filename: a.filename, content: a.content, content_type: a.contentType })) } : {}),
       }),
-    });
+    );
     if (!res.ok) {
       const said = await res.text();
       console.error("[email] Resend error", res.status, said);
@@ -158,15 +195,10 @@ async function sendEmailBatch(
   for (let at = 0; at < items.length; at += BATCH_MAX) {
     const chunk = items.slice(at, at + BATCH_MAX);
     try {
-      const res = await fetch(`${RESEND_ENDPOINT.replace(/\/+$/, "")}/batch`, {
-      // Never cached. Next.js caches fetch() by default, and two identical
-      // emails used to come back as the first one's "sent" without a
-      // request leaving the building — a resend, or a retry after the
-      // provider refused, was silently swallowed.
-      cache: "no-store",
-        method: "POST",
-        headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-        body: JSON.stringify(
+      const res = await postMail(
+        `${RESEND_ENDPOINT.replace(/\/+$/, "")}/batch`,
+        apiKey,
+        JSON.stringify(
           chunk.map((i) => ({
             from: fromAddress(),
             to: [i.to],
@@ -175,7 +207,7 @@ async function sendEmailBatch(
             text: i.text,
           })),
         ),
-      });
+      );
       if (!res.ok) {
         const said = await res.text();
         console.error("[email] Resend batch error", res.status, said);

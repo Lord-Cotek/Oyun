@@ -5,8 +5,9 @@ import { HOUR, allow } from "@/lib/rate-limit";
  * Knowing something is wrong before a family says so.
  *
  * Three things feed this:
- *  - the error screens, which report what broke (a message and a page — the
- *    message is cut short and never anybody's words; see /api/errors);
+ *  - the error screens, which report what broke (a message, a page and
+ *    where in the code — cut short and never anybody's words; see
+ *    /api/errors);
  *  - every scheduled job, through lib/cron-run.ts, which reports a run that
  *    threw;
  *  - and the health page, which reads all of it together with the email
@@ -18,6 +19,7 @@ import { HOUR, allow } from "@/lib/rate-limit";
  */
 
 export const MESSAGE_MAX = 300;
+export const DETAIL_MAX = 900;
 export const PATH_MAX = 200;
 
 /** The jobs and how long a gap between runs means something is wrong. */
@@ -38,9 +40,20 @@ export async function recordError(input: {
   message: string;
   path?: string | null;
   digest?: string | null;
+  /** Where in the code — file names and positions. Kept with the message. */
+  detail?: string | null;
+  /**
+   * The page recovered by reloading itself (lib/report-error.ts). Written
+   * down like any other, so the health page shows how often it happens, but
+   * no alert is sent: nobody saw a broken page, and an email an hour about a
+   * fault that mends itself teaches people to ignore the emails.
+   */
+  recovered?: boolean;
 }): Promise<void> {
   try {
-    const message = clip(input.message, MESSAGE_MAX) ?? "(no message)";
+    const headline = clip(input.message, MESSAGE_MAX) ?? "(no message)";
+    const detail = clip(input.detail, DETAIL_MAX);
+    const message = `${input.recovered ? "[recovered by reloading] " : ""}${headline}${detail ? ` — at: ${detail}` : ""}`;
     await prisma.errorEvent.create({
       data: {
         where: input.where,
@@ -49,8 +62,8 @@ export async function recordError(input: {
         digest: clip(input.digest, 64),
       },
     });
-    if (await allow("alert:errors", 1, HOUR)) {
-      await alertAdmins(`Something broke: ${message.slice(0, 80)}`, [
+    if (!input.recovered && (await allow("alert:errors", 1, HOUR))) {
+      await alertAdmins(`Something broke: ${headline.slice(0, 80)}`, [
         `Where: ${input.where}${input.path ? ` — ${clip(input.path, PATH_MAX)}` : ""}`,
         `What: ${message}`,
         input.digest ? `Digest (to find it in the server logs): ${input.digest}` : "",

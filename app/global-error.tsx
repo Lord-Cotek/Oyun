@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
-import { reportError } from "@/lib/report-error";
+import { useEffect, useRef, useState } from "react";
+import { claimReload, isRouterFault, reportError } from "@/lib/report-error";
 
 /**
  * The last screen: shown only when the layout itself has failed, so nothing
@@ -15,10 +15,32 @@ export default function GlobalError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  // The same one reload as app/error.tsx, for the framework's router fault.
+  const fault = isRouterFault(error);
+  const [stuck, setStuck] = useState(false);
+  const handled = useRef<unknown>(null);
   useEffect(() => {
+    if (handled.current === error) return;
+    handled.current = error;
     console.error(error);
+    if (fault && claimReload()) {
+      reportError(error, { recovered: true });
+      window.location.reload();
+      return;
+    }
     reportError(error);
-  }, [error]);
+    if (fault) setStuck(true);
+  }, [error, fault]);
+
+  if (fault && !stuck) {
+    return (
+      <html lang="en">
+        <body style={{ margin: 0, minHeight: "100dvh", display: "flex", alignItems: "center", justifyContent: "center", background: "#111", color: "#bbb", fontFamily: "ui-monospace, Menlo, monospace", fontSize: 12 }}>
+          <p>One moment…</p>
+        </body>
+      </html>
+    );
+  }
 
   return (
     <html lang="en">

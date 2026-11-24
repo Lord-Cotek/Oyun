@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ErrorNav } from "@/components/ErrorNav";
-import { reportError } from "@/lib/report-error";
+import { claimReload, isRouterFault, reportError } from "@/lib/report-error";
 import { Button } from "@/components/ui/Button";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { OyunMark } from "@/components/ui/OyunMark";
@@ -19,12 +19,35 @@ export default function Error({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  // The framework's router fault is cured by reloading the page, so that is
+  // done for the person, once — see lib/report-error.ts. Until we know
+  // whether a reload is allowed, a quiet "one moment" is shown and not the
+  // stumble page, which would only flash before the page came back.
+  const fault = isRouterFault(error);
+  const [stuck, setStuck] = useState(false);
+  const handled = useRef<unknown>(null);
   useEffect(() => {
+    if (handled.current === error) return;
+    handled.current = error;
     // Surface for logs without leaking details to the reader, and tell the
     // server so somebody knows before a family has to say so.
     console.error(error);
+    if (fault && claimReload()) {
+      reportError(error, { recovered: true });
+      window.location.reload();
+      return;
+    }
     reportError(error);
-  }, [error]);
+    if (fault) setStuck(true);
+  }, [error, fault]);
+
+  if (fault && !stuck) {
+    return (
+      <main className="flex min-h-[86dvh] items-center justify-center px-6" aria-live="polite">
+        <p className="font-mono text-xs text-muted">One moment…</p>
+      </main>
+    );
+  }
 
   return (
     <main className="relative flex min-h-[86dvh] items-center justify-center overflow-hidden px-6">

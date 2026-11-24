@@ -140,7 +140,11 @@ export default async function HealthPage() {
                   {g.where} · ×{g.count} · last {ago(g.lastAt, now)}
                   {g.path ? ` · ${g.path}` : ""}
                 </p>
-                <p className="mt-1 break-words font-mono text-xs text-white/75">{g.message}</p>
+                {/* The message, then — after "— at:" — where in the code, dimmer. */}
+                <p className="mt-1 break-words font-mono text-xs text-white/75">{g.message.split(" — at: ")[0]}</p>
+                {g.message.includes(" — at: ") && (
+                  <p className="mt-1 break-all font-mono text-[0.62rem] leading-relaxed text-white/35">{g.message.split(" — at: ")[1]}</p>
+                )}
               </li>
             ))}
           </ul>
