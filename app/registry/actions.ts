@@ -31,6 +31,7 @@ import {
   TITLE_MAX,
   readRota,
 } from "@/lib/registry";
+import { cleanCategory, essentialsFor } from "@/lib/registry-essentials";
 
 type Result = { ok: true } | { ok: false; error: string };
 
@@ -48,7 +49,13 @@ async function keeper() {
   const active = await getActiveMembership(session.user.id);
   if (!active) redirect("/onboarding");
   if (!canKeepRegistry(active.role)) redirect("/journey");
-  return { userId: session.user.id, journeyId: active.journey.id };
+  return {
+    userId: session.user.id,
+    journeyId: active.journey.id,
+    // For the starter list, which follows the reader — lib/registry-essentials.ts.
+    voice: session.user.voice,
+    babyCount: active.journey.babyCount,
+  };
 }
 
 /** The registry for this journey, or nothing — never somebody else's. */
@@ -365,6 +372,8 @@ export async function addItem(input: {
   /** A rota's first day (yyyy-mm-dd) and how many days — a hand only. */
   rotaStart?: string;
   rotaDays?: number;
+  /** Which shelf — things only. Optional, and anything unknown is no shelf. */
+  category?: string | null;
 }): Promise<Result> {
   const { journeyId } = await keeper();
   const r = await mine(journeyId);
@@ -415,7 +424,94 @@ export async function addItem(input: {
       rotaDays: rota?.days ?? null,
       mostNeeded: input.mostNeeded === true,
       position: count,
+      category: kind === "THING" ? cleanCategory(input.category) : null,
     },
+  });
+  refresh();
+  return { ok: true };
+}
+
+/**
+ * Adding from the starter list — lib/registry-essentials.ts.
+ *
+ * `add` are wanted; `have` are things the family already owns, kept on their
+ * own list ticked and never shown to a guest. Only entries on the list this
+ * reader was shown are accepted, so the address bar cannot add anything the
+ * picker did not offer. An entry already on the registry is passed over
+ * rather than added twice. Nothing here touches an item that already exists.
+ */
+export async function addEssentials(input: {
+  add: string[];
+  have: string[];
+}): Promise<{ ok: true; added: number; skipped: number } | { ok: false; error: string }> {
+  const { journeyId, voice, babyCount } = await keeper();
+  const r = await mine(journeyId);
+  if (!r) return { ok: false, error: "There is no registry yet." };
+  if (r.closedAt) return { ok: false, error: "This registry is finished. Open it again to add to it." };
+
+  const offered = new Map(
+    essentialsFor(voice, babyCount).flatMap((s) => s.items.map((i) => [i.key, { item: i, category: s.category }] as const)),
+  );
+  const add = [...new Set(Array.isArray(input.add) ? input.add : [])].filter((k) => offered.has(k));
+  const have = [...new Set(Array.isArray(input.have) ? input.have : [])].filter((k) => offered.has(k) && !add.includes(k));
+  if (add.length + have.length === 0) return { ok: false, error: "Nothing chosen yet." };
+
+  const existing = await prisma.registryItem.findMany({
+    where: { registryId: r.id },
+    select: { essential: true },
+  });
+  const onList = new Set(existing.map((e) => e.essential).filter(Boolean));
+  const room = ITEMS_MAX - existing.length;
+  const wanted = [...add.map((k) => ({ k, have: false })), ...have.map((k) => ({ k, have: true }))].filter((w) => !onList.has(w.k));
+  if (wanted.length === 0) return { ok: true, added: 0, skipped: add.length + have.length };
+  if (room <= 0) {
+    return { ok: false, error: `A registry holds ${ITEMS_MAX} things. Take something off first?` };
+  }
+  const taking = wanted.slice(0, room);
+  const now = new Date();
+  await prisma.registryItem.createMany({
+    data: taking.map((w, i) => {
+      const e = offered.get(w.k)!;
+      return {
+        registryId: r.id,
+        kind: e.item.kind ?? "THING",
+        title: e.item.title.slice(0, TITLE_MAX),
+        note: e.item.note?.slice(0, NOTE_MAX) ?? null,
+        quantity: clampQuantity(e.item.quantity),
+        mostNeeded: !w.have && e.item.mostNeeded === true,
+        position: existing.length + i,
+        category: (e.item.kind ?? "THING") === "THING" ? e.category : null,
+        essential: w.k,
+        haveAt: w.have ? now : null,
+      };
+    }),
+  });
+  refresh();
+  return { ok: true, added: taking.length, skipped: add.length + have.length - taking.length };
+}
+
+/**
+ * "We already have this", and taking that back.
+ *
+ * A thing the family has is not shown to guests. So it is refused once
+ * somebody has said they are getting it: hiding it then would leave a person
+ * holding a cot nobody is expecting — the same reason removeItem refuses.
+ */
+export async function setHave(id: string, have: boolean): Promise<Result> {
+  const { journeyId } = await keeper();
+  const r = await mine(journeyId);
+  if (!r) return { ok: false, error: "There is no registry yet." };
+  const item = await prisma.registryItem.findFirst({
+    where: { id, registryId: r.id },
+    select: { id: true, kind: true, _count: { select: { claims: true } } },
+  });
+  if (!item) return { ok: false, error: "That is not on this list." };
+  if (have && item._count.claims > 0) {
+    return { ok: false, error: "Somebody is already getting this. Have a word with them first." };
+  }
+  await prisma.registryItem.update({
+    where: { id: item.id },
+    data: { haveAt: have ? new Date() : null, ...(have ? { mostNeeded: false } : {}) },
   });
   refresh();
   return { ok: true };
@@ -445,6 +541,8 @@ export async function updateItem(input: {
   quantity?: number;
   url?: string;
   imageUrl?: string;
+  /** Left out entirely by anything that does not know about shelves: then the shelf is not touched. */
+  category?: string | null;
 }): Promise<Result> {
   const { journeyId } = await keeper();
   const r = await mine(journeyId);
@@ -470,6 +568,7 @@ export async function updateItem(input: {
       quantity: clampQuantity(input.quantity),
       url,
       imageUrl: safeUrl(input.imageUrl),
+      ...(input.category !== undefined ? { category: cleanCategory(input.category) } : {}),
     },
   });
   refresh();
@@ -530,12 +629,28 @@ export async function moveItem(id: string, dir: "up" | "down"): Promise<Result> 
   const items = await prisma.registryItem.findMany({
     where: { registryId: r.id },
     orderBy: [{ position: "asc" }, { createdAt: "asc" }],
-    select: { id: true },
+    select: { id: true, kind: true, category: true, mostNeeded: true, haveAt: true },
   });
   const at = items.findIndex((i) => i.id === id);
   if (at < 0) return { ok: false, error: "That is not on this list." };
-  const to = dir === "up" ? at - 1 : at + 1;
-  if (to < 0 || to >= items.length) return { ok: true };
+  // It changes places with the nearest thing shown beside it: on the same
+  // shelf, and marked "most needed" or not as it is. Swapping with whatever
+  // came next in the whole list could move it past something drawn in a
+  // different part of the page, and nothing would be seen to happen.
+  const shelf = (i: (typeof items)[number]) => (i.kind === "THING" ? cleanCategory(i.category) ?? "" : "~");
+  const beside = (a: (typeof items)[number], b: (typeof items)[number]) =>
+    a.mostNeeded === b.mostNeeded && (a.haveAt === null) === (b.haveAt === null) && (!shelved || shelf(a) === shelf(b));
+  // Shelves only count once the family has used one: a list with none is one
+  // list, as it always was.
+  const shelved = items.some((i) => i.kind === "THING" && cleanCategory(i.category) !== null);
+  let to = -1;
+  for (let i = dir === "up" ? at - 1 : at + 1; i >= 0 && i < items.length; i += dir === "up" ? -1 : 1) {
+    if (beside(items[at], items[i])) {
+      to = i;
+      break;
+    }
+  }
+  if (to < 0) return { ok: true };
 
   const reordered = [...items];
   [reordered[at], reordered[to]] = [reordered[to], reordered[at]];

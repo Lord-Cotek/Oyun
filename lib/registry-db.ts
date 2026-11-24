@@ -60,6 +60,8 @@ export interface PublicItem {
   price: string | null;
   quantity: number;
   mostNeeded: boolean;
+  /** Its shelf, or null — lib/registry-essentials.ts. */
+  category: string | null;
   /** How many are spoken for. Never who by — see below. */
   claimed: number;
   /** How many this guest has taken, recognised by their own token. */
@@ -319,6 +321,9 @@ export async function getPublicRegistry(
       shipAddress: true,
       shipReach: true,
       items: {
+        // What the family has said it already owns is theirs to keep track
+        // of. It never reaches a guest: not the page, not the counts.
+        where: { haveAt: null },
         orderBy: [
           { mostNeeded: "desc" },
           { position: "asc" },
@@ -334,6 +339,7 @@ export async function getPublicRegistry(
           price: true,
           quantity: true,
           mostNeeded: true,
+          category: true,
           rotaStart: true,
           rotaDays: true,
           // Read to work out "just added" and dropped immediately after —
@@ -367,6 +373,7 @@ export async function getPublicRegistry(
       price: i.price,
       quantity: i.quantity,
       mostNeeded: i.mostNeeded,
+      category: i.category,
       claimed: i.claims.reduce((n, c) => n + c.quantity, 0),
       mine: guestToken
         ? i.claims

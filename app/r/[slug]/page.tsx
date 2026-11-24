@@ -14,6 +14,7 @@ import { Eyebrow } from "@/components/ui/Eyebrow";
 import { GuestItem } from "@/components/registry/GuestItem";
 import { ShipReveal } from "@/components/registry/ShipReveal";
 import { ListControls } from "@/components/registry/ListControls";
+import { groupThings } from "@/lib/registry-essentials";
 import { priceValue, remaining } from "@/lib/registry";
 import type { PublicItem } from "@/lib/registry-db";
 
@@ -299,11 +300,16 @@ export default async function PublicRegistryPage({
         </p>
       )}
 
-      {things.length > 0 && (
-        <section className="reg-section mt-10">
-          <Eyebrow className="mb-4">Things</Eyebrow>
-          <ul className={listClass(things)}>
-            {things.map((i) => (
+      {/* ── Things, by shelf ──────────────────────────────────────────────
+          One section called "Things" when the family has sorted nothing —
+          which is every registry made before shelves existed, drawn exactly
+          as it was. Once they have, each shelf is a section of its own, so an
+          aunt who wants to buy clothes finds the clothes. See groupThings. */}
+      {groupThings(things).map((g) => (
+        <section key={g.key} className="reg-section mt-10">
+          <Eyebrow className="mb-4">{g.label ?? "Things"}</Eyebrow>
+          <ul className={listClass(g.items)}>
+            {g.items.map((i) => (
               <li key={i.id} {...rowProps(i)}>
                 <GuestItem
                   slug={r.slug}
@@ -316,7 +322,7 @@ export default async function PublicRegistryPage({
             ))}
           </ul>
         </section>
-      )}
+      ))}
 
       {help.length > 0 && (
         <section className="reg-section mt-10">

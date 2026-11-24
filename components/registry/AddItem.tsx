@@ -14,6 +14,7 @@ import {
   type ItemKind,
   ROTA_DAYS_MAX,
 } from "@/lib/registry";
+import { CATEGORIES } from "@/lib/registry-essentials";
 
 const field =
   "w-full rounded-lg border border-border bg-bg px-3.5 py-2.5 prose-serif-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none";
@@ -58,6 +59,7 @@ export function AddItem({ takesMoney }: { takesMoney: boolean }) {
   const [note, setNote] = useState("");
   const [price, setPrice] = useState("");
   const [quantity, setQuantity] = useState(1);
+  const [category, setCategory] = useState("");
   // A hand can be a rota: a first day, and how many days.
   const [rotaOn, setRotaOn] = useState(false);
   const [rotaStart, setRotaStart] = useState("");
@@ -78,6 +80,7 @@ export function AddItem({ takesMoney }: { takesMoney: boolean }) {
     setNote("");
     setPrice("");
     setQuantity(1);
+    setCategory("");
     setRotaOn(false);
     setRotaStart("");
     setRotaDays(7);
@@ -127,6 +130,7 @@ export function AddItem({ takesMoney }: { takesMoney: boolean }) {
         price,
         quantity,
         mostNeeded,
+        ...(kind === "THING" && category ? { category } : {}),
         ...(kind === "HELP" && rotaOn ? { rotaStart, rotaDays } : {}),
         url: readUrl ?? link.trim() ?? undefined,
         imageUrl: imageUrl ?? undefined,
@@ -296,6 +300,29 @@ export function AddItem({ takesMoney }: { takesMoney: boolean }) {
                 className={field}
               />
             </div>
+          </div>
+        )}
+
+        {/* Which shelf — things only, and never asked for. Left alone, the
+            thing simply sits with everything else, as it always did. */}
+        {kind === "THING" && (
+          <div>
+            <label htmlFor="registry-category" className={label}>
+              Where it belongs (optional)
+            </label>
+            <select
+              id="registry-category"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className={field}
+            >
+              <option value="">Not sorted</option>
+              {CATEGORIES.map((c) => (
+                <option key={c.key} value={c.key}>
+                  {c.label}
+                </option>
+              ))}
+            </select>
           </div>
         )}
 

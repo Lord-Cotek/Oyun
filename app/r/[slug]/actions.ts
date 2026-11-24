@@ -113,6 +113,7 @@ export async function claim(formData: FormData): Promise<Result> {
       quantity: true,
       rotaStart: true,
       rotaDays: true,
+      haveAt: true,
       registry: {
         select: {
           id: true,
@@ -127,6 +128,9 @@ export async function claim(formData: FormData): Promise<Result> {
     },
   });
   if (!item) return { ok: false, error: "That is no longer on the list." };
+  // The family marked it as something they already have while this page was
+  // open. It is off the list for guests; said as kindly as "gone" is.
+  if (item.haveAt) return { ok: false, error: "The family has this one already now. Thank you all the same." };
   if (item.registry.closedAt) {
     return { ok: false, error: "This registry is finished. Thank you all the same." };
   }

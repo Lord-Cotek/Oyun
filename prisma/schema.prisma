@@ -994,6 +994,19 @@ model RegistryItem {
   rotaStart  DateTime? @db.Date
   rotaDays   Int?
   createdAt  DateTime  @default(now())
+  /// Which shelf a thing sits on — "SLEEP", "FEED" and so on, the keys in
+  /// lib/registry-essentials.ts. Null on everything added before shelves
+  /// existed and on anything she has not sorted: those are simply shown
+  /// together, as the whole list always was. Never required.
+  category   String?
+  /// The entry in the starter list this was picked from, if it was — so the
+  /// picker can say "on your list" rather than offering it twice. Hers to
+  /// rename and edit afterwards like any other item.
+  essential  String?
+  /// "We already have this." Set by the family, never by a guest. A thing
+  /// they have is kept on their own list, ticked, and is not shown to
+  /// guests or offered to be bought. Null means it is still wanted.
+  haveAt     DateTime?
 
   claims RegistryClaim[]
 

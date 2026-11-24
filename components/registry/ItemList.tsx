@@ -8,9 +8,11 @@ import {
   moveItem,
   previewLink,
   removeItem,
+  setHave,
   setMostNeeded,
   updateItem,
 } from "@/app/registry/actions";
+import { CATEGORIES, cleanCategory, groupThings } from "@/lib/registry-essentials";
 import {
   KIND_COPY,
   NOTE_MAX,
@@ -33,6 +35,10 @@ export interface HostItem {
   price: string | null;
   quantity: number;
   mostNeeded: boolean;
+  /** Its shelf, or null — lib/registry-essentials.ts. */
+  category: string | null;
+  /** "We already have this": kept on their list, not shown to guests. */
+  have: boolean;
   claimed: number;
   /** Who has taken it, or null while she has asked to be surprised. */
   takers: { id: string; name: string | null; note: string | null }[] | null;
@@ -68,9 +74,20 @@ export function ItemList({
   closed: boolean;
 }) {
   if (items.length === 0) return null;
-  return (
+
+  // What they still want, and what they have said they already own.
+  const wanted = items.filter((i) => !i.have);
+  const have = items.filter((i) => i.have);
+  const things = wanted.filter((i) => i.kind === "THING");
+  const others = wanted.filter((i) => i.kind !== "THING");
+  const shelves = groupThings(things);
+  // A list where nothing has been put on a shelf is one list, in the family's
+  // own order, exactly as it was before shelves existed.
+  const shelved = shelves.some((g) => g.label !== null);
+
+  const rows = (list: HostItem[]) => (
     <ul className="space-y-3">
-      {items.map((item, i) => (
+      {list.map((item, i) => (
         // The anchor a notification lands on — "somebody is getting the
         // cot" should arrive at the cot. notif-target gives it the same
         // quiet pulse every other arrival in the app gets.
@@ -79,12 +96,50 @@ export function ItemList({
             item={item}
             showClaims={showClaims}
             closed={closed}
-            first={i === 0}
-            last={i === items.length - 1}
+            // Up and Down change places with the nearest row of the same
+            // standing in this part of the page — see moveItem.
+            first={!list.slice(0, i).some((x) => x.mostNeeded === item.mostNeeded)}
+            last={!list.slice(i + 1).some((x) => x.mostNeeded === item.mostNeeded)}
           />
         </li>
       ))}
     </ul>
+  );
+
+  return (
+    <div className="space-y-6">
+      {!shelved && wanted.length > 0 && rows(wanted)}
+      {shelved &&
+        shelves.map((g) => (
+          <section key={g.key} aria-label={g.label ?? undefined}>
+            <h3 className="mb-2.5 flex items-baseline justify-between gap-3 font-mono text-[0.62rem] uppercase tracking-widest text-muted">
+              <span>{g.label}</span>
+              <span>{g.items.length}</span>
+            </h3>
+            {rows(g.items)}
+          </section>
+        ))}
+      {shelved && others.length > 0 && (
+        <section aria-label="A hand, money and other lists">
+          <h3 className="mb-2.5 flex items-baseline justify-between gap-3 font-mono text-[0.62rem] uppercase tracking-widest text-muted">
+            <span>A hand, money and other lists</span>
+            <span>{others.length}</span>
+          </h3>
+          {rows(others)}
+        </section>
+      )}
+      {have.length > 0 && (
+        <details className="rounded-2xl border border-border bg-surface/60 p-4" open={wanted.length === 0}>
+          <summary className="cursor-pointer font-mono text-[0.62rem] uppercase tracking-widest text-muted">
+            We already have · {have.length}
+          </summary>
+          <p className="mb-3 mt-2 prose-serif-xs text-muted">
+            Kept here for you. Nobody opening the registry sees these or is asked for them.
+          </p>
+          {rows(have)}
+        </details>
+      )}
+    </div>
   );
 }
 
@@ -108,6 +163,7 @@ function Row({
   const [quantity, setQuantity] = useState(item.quantity);
   const [url, setUrl] = useState(item.url ?? "");
   const [imageUrl, setImageUrl] = useState(item.imageUrl ?? "");
+  const [category, setCategory] = useState(cleanCategory(item.category) ?? "");
   const [error, setError] = useState<string | null>(null);
   const [said, setSaid] = useState<string | null>(null);
   const [pending, start] = useTransition();
@@ -316,12 +372,38 @@ function Row({
                 )}
               </div>
 
+              {item.kind === "THING" && (
+                <div>
+                  <label htmlFor={`cat-${item.id}`} className={label}>
+                    Where it belongs (optional)
+                  </label>
+                  <select
+                    id={`cat-${item.id}`}
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                    className={field}
+                  >
+                    <option value="">Not sorted</option>
+                    {CATEGORIES.map((c) => (
+                      <option key={c.key} value={c.key}>
+                        {c.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
               {said && <p className="prose-serif-xs text-muted">{said}</p>}
             </div>
           ) : (
             <>
               <div className="flex flex-wrap items-center gap-2">
                 <p className="prose-serif-sm font-medium text-ink">{item.title}</p>
+                {item.have && (
+                  <span className="rounded-full border border-border px-2 py-0.5 font-mono text-[0.56rem] uppercase tracking-widest text-muted">
+                    ✓ Have it
+                  </span>
+                )}
                 {item.mostNeeded && (
                   <span className="rounded-full border border-accent/40 bg-accent/[0.08] px-2 py-0.5 font-mono text-[0.56rem] uppercase tracking-widest text-accent">
                     Most needed
@@ -386,6 +468,8 @@ function Row({
                     quantity,
                     url,
                     imageUrl,
+                    // Things only; anything else keeps no shelf.
+                    ...(item.kind === "THING" ? { category: category || null } : {}),
                   });
                   if (res.ok) setEditing(false);
                   else setError(res.error);
@@ -406,6 +490,7 @@ function Row({
                 setQuantity(item.quantity);
                 setUrl(item.url ?? "");
                 setImageUrl(item.imageUrl ?? "");
+                setCategory(cleanCategory(item.category) ?? "");
                 setError(null);
                 setSaid(null);
               }}
@@ -425,17 +510,38 @@ function Row({
               >
                 Edit
               </Pressable>
-              <Pressable
-                press="none"
-                type="button"
-                disabled={pending}
-                onClick={() =>
-                  start(() => setMostNeeded(item.id, !item.mostNeeded).then(() => {}))
-                }
-                className="py-2 underline underline-offset-4 hover:text-accent disabled:opacity-50"
-              >
-                {item.mostNeeded ? "Not urgent" : "Most needed"}
-              </Pressable>
+              {!item.have && (
+                <Pressable
+                  press="none"
+                  type="button"
+                  disabled={pending}
+                  onClick={() =>
+                    start(() => setMostNeeded(item.id, !item.mostNeeded).then(() => {}))
+                  }
+                  className="py-2 underline underline-offset-4 hover:text-accent disabled:opacity-50"
+                >
+                  {item.mostNeeded ? "Not urgent" : "Most needed"}
+                </Pressable>
+              )}
+              {/* Things only, and only while nobody is getting it — setHave
+                  refuses otherwise, so the button is not offered. */}
+              {item.kind === "THING" && (item.have || item.claimed === 0) && (
+                <Pressable
+                  press="none"
+                  type="button"
+                  disabled={pending}
+                  onClick={() =>
+                    start(async () => {
+                      setError(null);
+                      const res = await setHave(item.id, !item.have);
+                      if (!res.ok) setError(res.error);
+                    })
+                  }
+                  className="py-2 underline underline-offset-4 hover:text-accent disabled:opacity-50"
+                >
+                  {item.have ? "Still need it" : "We have this"}
+                </Pressable>
+              )}
               {!first && (
                 <Pressable
                   press="none"

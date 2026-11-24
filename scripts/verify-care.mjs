@@ -144,6 +144,58 @@ const textOf = (p) => JSON.stringify(p);
   check(/key: "call"/.test(read("components/health/HealthTabs.tsx")), "it is one tap away from every page in Health");
 }
 
+// ── The registry's essentials ──────────────────────────────────────────────
+console.log("The registry's essentials");
+const E = jiti(path.join(root, "lib/registry-essentials.ts"));
+{
+  const faith = E.essentialsFor("FAITH", 1);
+  const general = E.essentialsFor("GENERAL", 1);
+  const flat = (secs) => secs.flatMap((s) => s.items);
+  const keys = (secs) => flat(secs).map((i) => i.key);
+  check(new Set(keys(faith)).size === keys(faith).length && new Set(keys(general)).size === keys(general).length, "no starter entry is offered twice");
+  check(!BANNED.test(JSON.stringify(general)), "no religious language in the list for somebody who chose Oyun without");
+  check(/Bible/.test(JSON.stringify(faith)) && /dedication/i.test(JSON.stringify(faith)), "with faith, a children's Bible and a dedication outfit are offered");
+  check(/Naming-day/.test(JSON.stringify(general)) && !/Naming-day/.test(JSON.stringify(faith)), "without, a naming-day outfit is offered in their place");
+  const sameElsewhere = (a, b) => JSON.stringify(a.filter((s) => s.key !== "KEEPSAKES")) === JSON.stringify(b.filter((s) => s.key !== "KEEPSAKES"));
+  check(sameElsewhere(faith, general), "every other shelf is the same for both");
+  check(faith.every((s) => s.category === null || E.isCategory(s.category)), "every section lands on a shelf that exists");
+  check(faith.at(-1).key === "HELP" && faith.at(-1).items.every((i) => i.kind === "HELP"), "help is last, and is help, not things");
+  check(flat(faith).filter((i) => i.kind !== "HELP").every((i) => i.kind === undefined || i.kind === "THING"), "everything else is a thing");
+  check(!/formula/i.test(JSON.stringify(faith)), "infant formula is not suggested");
+  check(!/\b(amazon|ikea|pampers|huggies|johnson|chicco|graco|mumzworld|noon)\b/i.test(JSON.stringify(faith)), "no brand or shop is named");
+  check(!/[$£€₦]|\b(AED|USD|GBP|NGN)\b/.test(JSON.stringify(faith)), "no price is given");
+  check(flat(faith).every((i) => i.quantity >= 1 && i.quantity <= 20 && i.title.length <= 120), "every quantity and title fits the registry's own limits");
+  const twins = E.essentialsFor("FAITH", 2);
+  const q = (secs, k) => flat(secs).find((i) => i.key === k).quantity;
+  check(q(twins, "cot") === 2 && q(twins, "sleepsuits") === 14 && q(twins, "thermometer") === 1, "twins are asked for in twos where it is one each, and not where it is not");
+  check(flat(E.essentialsFor("FAITH", 6)).every((i) => i.quantity <= 20), "and never past the limit, however many babies");
+  check(flat(faith).filter((i) => i.forgotten).length >= 5 && flat(faith).filter((i) => i.mostNeeded).length <= 14, "a handful are marked essential and a handful often forgotten, not everything");
+
+  // Existing registries: nothing has a shelf, and nothing changes.
+  const old = [{ id: "a", category: null }, { id: "b", category: null }, { id: "c", category: null }];
+  const g0 = E.groupThings(old);
+  check(g0.length === 1 && g0[0].label === null && g0[0].items.map((i) => i.id).join("") === "abc", "a registry with no shelves is one list with no heading, in its own order");
+  check(E.groupThings([]).length === 0, "and an empty one is nothing at all");
+  const g1 = E.groupThings([{ id: "a", category: null }, { id: "b", category: "FEED" }, { id: "c", category: "SLEEP" }, { id: "d", category: "nonsense" }]);
+  check(g1.map((g) => g.key).join(",") === "SLEEP,FEED,OTHER" && g1[2].label === "Everything else" && g1[2].items.map((i) => i.id).join("") === "ad", "with shelves, they come in order and the unsorted are gathered last");
+  check(E.cleanCategory("FEED") === "FEED" && E.cleanCategory("x") === null && E.cleanCategory(undefined) === null, "an unknown shelf is no shelf");
+
+  const schema = read("prisma/schema.prisma");
+  const model = schema.slice(schema.indexOf("model RegistryItem {"), schema.indexOf("model RegistryClaim {"));
+  check(/\n  category\s+String\?/.test(model) && /\n  essential\s+String\?/.test(model) && /\n  haveAt\s+DateTime\?/.test(model), "the three new fields are optional, so every existing item is untouched");
+  const db = read("lib/registry-db.ts");
+  check(/where: \{ haveAt: null \}/.test(db), "a thing the family already has never reaches a guest");
+  const guest = read("app/r/[slug]/actions.ts");
+  check(/if \(item\.haveAt\) return \{ ok: false/.test(guest), "and cannot be claimed by one");
+  const acts = read("app/registry/actions.ts");
+  const setHave = acts.slice(acts.indexOf("export async function setHave"));
+  check(/have && item\._count\.claims > 0/.test(setHave), "a thing somebody is already getting cannot be marked as had");
+  const addE = acts.slice(acts.indexOf("export async function addEssentials"), acts.indexOf("export async function setHave"));
+  check(/essentialsFor\(voice, babyCount\)/.test(addE) && /offered\.has\(k\)/.test(addE), "only entries this reader was offered can be added");
+  check(/createMany/.test(addE) && !/update|delete/.test(addE.replace(/\/\*[\s\S]*?\*\//g, "")), "adding from the starter list creates items and changes none");
+  check(/input\.category !== undefined/.test(acts), "editing an item without naming a shelf leaves its shelf alone");
+}
+
 if (failed) {
   console.error(`\n${failed} check(s) failed — a care page would break a promise.`);
   process.exit(1);

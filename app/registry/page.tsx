@@ -24,6 +24,9 @@ import { Eyebrow } from "@/components/ui/Eyebrow";
 import { FirstStep } from "@/components/ui/FirstStep";
 import { StartRegistry } from "@/components/registry/StartRegistry";
 import { AddItem } from "@/components/registry/AddItem";
+import { Essentials } from "@/components/registry/Essentials";
+import { essentialsFor } from "@/lib/registry-essentials";
+import { ITEMS_MAX } from "@/lib/registry";
 import { ItemList, type HostItem } from "@/components/registry/ItemList";
 import { ShareRegistry } from "@/components/registry/ShareRegistry";
 import { RegistrySettings } from "@/components/registry/RegistrySettings";
@@ -107,6 +110,9 @@ export default async function RegistryPage() {
           mostNeeded: true,
           rotaStart: true,
           rotaDays: true,
+          category: true,
+          essential: true,
+          haveAt: true,
           claims: {
             orderBy: { createdAt: "asc" },
             select: {
@@ -149,6 +155,12 @@ export default async function RegistryPage() {
                   meals, an evening of cooking, a lift to the 34-week
                   appointment, somebody to hold the baby while you sleep. Those
                   are usually the ones people remember.
+                </p>
+                <p>
+                  Not sure what a baby needs? Once it is started there is a
+                  list of essentials to pick from, shelf by shelf — and you can
+                  mark what you already have, so it works as your own checklist
+                  even if you never share it.
                 </p>
                 <p>
                   Nobody needs an account to give. Nobody pays through this app
@@ -194,6 +206,8 @@ export default async function RegistryPage() {
     price: i.price,
     quantity: i.quantity,
     mostNeeded: i.mostNeeded,
+    category: i.category,
+    have: i.haveAt !== null,
     claimed: i.claims.reduce((n, c) => n + c.quantity, 0),
     // Null, not an empty array, while she has asked to be surprised: the
     // names never leave the server in that case rather than being hidden by
@@ -231,11 +245,19 @@ export default async function RegistryPage() {
     : [];
   const unthanked = thanks.filter((t) => !t.thanked).map((t) => t.id);
 
-  const taken = items.reduce((n, i) => n + i.claimed, 0);
-  const wanted = items.reduce(
+  // What is being asked for. A thing they already have is theirs to keep
+  // track of, and is neither counted here nor shown to a guest.
+  const asked = items.filter((i) => !i.have);
+  const taken = asked.reduce((n, i) => n + i.claimed, 0);
+  const wanted = asked.reduce(
     (n, i) => n + (i.kind === "LIST" ? 0 : i.quantity),
     0,
   );
+
+  // The starter list, in this reader's own words — lib/registry-essentials.ts.
+  const starter = essentialsFor(session.user.voice, journey.babyCount);
+  const onList: Record<string, "want" | "have"> = {};
+  for (const i of registry.items) if (i.essential) onList[i.essential] = i.haveAt ? "have" : "want";
 
   return (
     <>
@@ -252,7 +274,7 @@ export default async function RegistryPage() {
           aside={
             <div className="font-mono text-[0.62rem] uppercase tracking-widest text-muted">
               <p>
-                {items.length} {items.length === 1 ? "thing" : "things"} on the
+                {asked.length} {asked.length === 1 ? "thing" : "things"} on the
                 list
               </p>
               {wanted > 0 && (
@@ -300,6 +322,9 @@ export default async function RegistryPage() {
           {!closed && (
             <div>
               <Eyebrow className="mb-4">Add something</Eyebrow>
+              <div className="mb-4">
+                <Essentials sections={starter} onList={onList} roomLeft={ITEMS_MAX - items.length} />
+              </div>
               <AddItem takesMoney={takesMoney} />
             </div>
           )}
@@ -309,9 +334,9 @@ export default async function RegistryPage() {
             {items.length === 0 ? (
               <Card className="p-8">
                 <FirstStep>
-                  Nothing on it yet. Paste a link from whichever shop you were
-                  looking at — or write down one thing that is not in a shop at
-                  all, like a week of meals.
+                  Nothing on it yet. Pick from the essentials above, paste a
+                  link from whichever shop you were looking at — or write down
+                  one thing that is not in a shop at all, like a week of meals.
                 </FirstStep>
               </Card>
             ) : (
