@@ -12,7 +12,7 @@
  */
 import createJiti from "jiti";
 import { fileURLToPath } from "node:url";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -296,6 +296,68 @@ const BP = jiti(path.join(root, "lib/birth-prep.ts"));
   check(/where: \{ journeyId, forDoctorAt: \{ not: null \} \}/.test(doc.slice(doc.indexOf("async function BirthTab"), doc.indexOf("async function PostsTab"))), "her doctor is given her preferences only once she has switched that on");
   const schema2 = read("prisma/schema.prisma");
   check(/forDoctorAt\s+DateTime\?/.test(schema2.slice(schema2.indexOf("model BirthPrep {"), schema2.indexOf("model Contraction {"))), "and it is off until she does");
+}
+
+// ── The mood check ─────────────────────────────────────────────────────────
+console.log("Mood check");
+const MC = jiti(path.join(root, "lib/mood-check.ts"));
+{
+  const Q = MC.MOOD_QUESTIONS;
+  check(Q.length === 11 && MC.MOOD_OPTIONS.length === 4 && MC.SELF_HARM_AT === 8, "eleven questions, four answers each, and the ninth asks about self-harm");
+  check(Q[0] === "Little interest or pleasure in doing things" && Q[1] === "Feeling down, depressed, or hopeless" && Q[8] === "Thoughts that you would be better off dead or of hurting yourself in some way" && Q[9] === "Feeling nervous, anxious or on edge" && Q[10] === "Not being able to stop or control worrying", "the questions are the published wording, unchanged");
+  check(MC.MOOD_OPTIONS.join("|") === "Not at all|Several days|More than half the days|Nearly every day" && /Over the last two weeks/.test(MC.MOOD_STEM), "and so are the answers and the stem");
+  check(/Spitzer/.test(MC.MOOD_ATTRIBUTION) && /not a diagnosis/.test(MC.MOOD_ATTRIBUTION), "the authors are credited, and it is called a screening questionnaire");
+  const all = (n) => Array(11).fill(n);
+  check(MC.cleanAnswers(all(0)) && MC.cleanAnswers(all(3)) && !MC.cleanAnswers(all(4)) && !MC.cleanAnswers(Array(10).fill(0)) && !MC.cleanAnswers([...Array(10).fill(0), 1.5]) && !MC.cleanAnswers("x") && !MC.cleanAnswers([...Array(10).fill(0), null]), "only eleven whole answers from 0 to 3 are accepted");
+  const sc = MC.scoreMood([1, 2, 3, 0, 1, 2, 3, 0, 1, 2, 3]);
+  check(sc.low === 13 && sc.worry === 5 && sc.selfHarm === 1, "the nine and the two are added separately, and the ninth is kept by itself");
+  check(MC.moodLevel(0) === "clear" && MC.moodLevel(4) === "clear" && MC.moodLevel(5) === "watch" && MC.moodLevel(9) === "watch" && MC.moodLevel(10) === "talk" && MC.moodLevel(14) === "talk" && MC.moodLevel(15) === "soon" && MC.moodLevel(27) === "soon", "the bands are the published ones: 5, 10 and 15");
+  check(!MC.worryRaised(2) && MC.worryRaised(3), "worry is raised from 3, as published");
+
+  const PHS = ["pregnancy", "after-birth", "after-loss"];
+  let clean = true, sameFacts = true, noDiagnosis = true, helpFirst = true, urgentRight = true, faithRight = true;
+  for (const ph of PHS) for (const low of [0, 3, 5, 9, 10, 14, 15, 27]) for (const worry of [0, 3, 6]) for (const selfHarm of [0, 1, 3]) {
+    const g = MC.moodResult({ low, worry, selfHarm }, ph, "GENERAL");
+    const f = MC.moodResult({ low, worry, selfHarm }, ph, "FAITH");
+    const shown = (r) => [r.title, ...r.body, r.figures, r.faithLine ?? "", r.room.label, r.urgent ? r.urgent.title + r.urgent.body.join(" ") : ""].join(" ");
+    if (BANNED.test(shown(g))) clean = false;
+    if (g.faithLine !== null) clean = false;
+    if (JSON.stringify({ ...g, faithLine: null, room: null }) !== JSON.stringify({ ...f, faithLine: null, room: null })) sameFacts = false;
+    if (/\b(you have|diagnos|you are depressed|depression|disorder|(?<!not )an illness|psychosis)\b/i.test(shown(f).replace(/You said you have had thoughts/, ""))) noDiagnosis = false;
+    if ((selfHarm > 0) !== (f.urgent !== null)) urgentRight = false;
+    if (f.urgent && !/tell somebody today/i.test(f.urgent.body.join(" ")) ) urgentRight = false;
+    if (f.urgent && !/local emergency number/.test(f.urgent.body.join(" "))) urgentRight = false;
+    if (low >= 10 && !/midwife or doctor/.test(f.title + f.body.join(" "))) helpFirst = false;
+    const acts = low >= 5 || selfHarm > 0 || worry >= 3;
+    if ((f.faithLine !== null) !== acts) faithRight = false;
+    if (f.faithLine && !/not a lack of faith/.test(f.faithLine)) faithRight = false;
+    if (/pray/i.test(f.title + f.body.join(" ") + (f.urgent ? f.urgent.body.join(" ") : ""))) helpFirst = false;
+  }
+  check(clean, "without faith: no religious language in any result, and no line about faith");
+  check(sameFacts, "what her answers come to, and what to do, is word for word the same for both");
+  check(noDiagnosis, "no result names an illness or says she has one");
+  check(urgentRight, "any answer but 'not at all' about self-harm puts 'tell somebody today' and the emergency number first");
+  check(helpFirst, "from 10 upwards every result sends her to her midwife or doctor, and prayer is never offered in its place");
+  check(faithRight, "with faith, whenever there is something to act on, she is told asking for help is not a lack of faith");
+  check(MC.moodResult({ low: 12, worry: 0, selfHarm: 0 }, "pregnancy", "FAITH").room.label === "Ask your circle to pray" && MC.moodResult({ low: 12, worry: 0, selfHarm: 0 }, "pregnancy", "GENERAL").room.label === "Ask your circle for support", "the door to her circle is named for each reader");
+  check(/grief looks like this/.test(MC.moodResult({ low: 16, worry: 0, selfHarm: 0 }, "after-loss", "FAITH").body.join(" ")), "after a loss it says grief looks like this, and that the check cannot tell the two apart");
+  check(PHS.every((ph) => !BANNED.test(MC.moodIntro(ph).join(" "))) && /Your partner cannot see them/.test(MC.moodIntro("pregnancy").join(" ")), "the introduction is the same for everybody and says who cannot see her answers");
+
+  const ma = read("app/health/mood/actions.ts");
+  check(/active\.role !== "MOTHER"\) return null/.test(ma) && (ma.match(/const a = await her\(\);\n  if \(!a\) return NOPE;/g) || []).length === 3, "every mood action is the mother's alone");
+  check((ma.match(/userId: a\.userId/g) || []).length >= 4, "and only ever on her own results");
+  check(/scoreMood\(clean\)/.test(ma), "a kept score is worked out on the server from her answers, never taken from the phone");
+  const form = read("components/health/mood/MoodCheckForm.tsx").replace(/\/\*[\s\S]*?\*\//g, "");
+  check((form.match(/keepMoodCheck\(/g) || []).length === 1 && /Keep this result/.test(form) && !/fetch\(|localStorage|sendBeacon/.test(form), "nothing leaves her phone unless she presses 'Keep this result'");
+  const mp = read("app/health/mood/page.tsx");
+  check(/if \(active\.role !== "MOTHER"\) \{/.test(mp) && mp.indexOf("prisma.moodCheck") > mp.indexOf('if (active.role !== "MOTHER") {'), "her partner's page reads nothing of hers from the database");
+  check(/userId: session\.user\.id/.test(mp), "her page reads only her own results");
+  const doc2 = read("app/doctor/p/[link]/page.tsx");
+  check(/where: \{ journeyId, forDoctorAt: \{ not: null \} \}/.test(doc2.slice(doc2.indexOf("async function MoodTab"), doc2.indexOf("async function PostsTab"))), "her doctor is given a result only once she has switched that on for it");
+  const users = (dir) => { const out = []; const walk = (d) => { for (const e of readdirSync(path.join(root, d), { withFileTypes: true })) { const f = path.join(d, e.name); if (e.isDirectory()) walk(f); else if (/\.tsx?$/.test(e.name) && /moodCheck\b/.test(read(f))) out.push(f); } }; walk(dir); return out; };
+  const touching = [...users("app"), ...users("lib"), ...users("components")].sort();
+  check(JSON.stringify(touching) === JSON.stringify(["app/doctor/p/[link]/page.tsx", "app/health/mood/actions.ts", "app/health/mood/page.tsx", "lib/health-export.ts"]), "nothing else in the app reads mood checks — not the assistant, not an email, not a notification: " + touching.join(", "));
+  check(!/mood/i.test(read("vercel.json")), "and no scheduled job reminds her to take one");
 }
 
 // ── The registry's essentials ──────────────────────────────────────────────

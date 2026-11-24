@@ -1,0 +1,136 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
+import { getActiveMembership } from "@/lib/data";
+import { isHousehold } from "@/lib/roles";
+import { computePosition } from "@/lib/stage";
+import { MOOD_ATTRIBUTION, moodIntro, moodResult, type MoodPhase } from "@/lib/mood-check";
+import { SiteHeader } from "@/components/SiteHeader";
+import { PageHero } from "@/components/ui/PageHero";
+import { HealthTabs } from "@/components/health/HealthTabs";
+import { MoodCheckForm } from "@/components/health/mood/MoodCheckForm";
+import { KeptMoodControls } from "@/components/health/mood/KeptMood";
+
+export const metadata: Metadata = {
+  title: "Mood check",
+  description: "Eleven questions about the last two weeks, for her alone.",
+  robots: { index: false },
+};
+
+const day = (d: Date) => d.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
+
+/**
+ * The mood check — lib/mood-check.ts.
+ *
+ * Hers alone. Her partner is told that plainly and shown nothing of hers;
+ * nobody else can reach the page at all. Nothing here reminds her to take
+ * it, and nothing is kept unless she presses "Keep this result".
+ */
+export default async function MoodPage() {
+  const session = await auth();
+  if (!session?.user?.id) redirect("/sign-in?callbackUrl=/health/mood");
+  const active = await getActiveMembership(session.user.id);
+  if (!active) redirect("/onboarding");
+  if (!isHousehold(active.role)) redirect("/journey");
+
+  const journey = active.journey;
+  const first = journey.owner.name?.trim().split(/\s+/)[0] || "her";
+
+  if (active.role !== "MOTHER") {
+    return (
+      <>
+        <SiteHeader active="health" />
+        <main className="mx-auto max-w-3xl px-6 pb-14">
+          <PageHero eyebrow="Health" title="Mood check." lede={`A few private questions for ${first}, about how the last two weeks have been.`} compact />
+          <HealthTabs active="mood" />
+          <div className="mt-8 max-w-prose space-y-3 prose-serif-sm text-muted">
+            <p>
+              This one is {first}&rsquo;s alone. Whether she has taken it, and anything she answered, is not shown to you or to
+              anybody else unless she chooses to tell you.
+            </p>
+            <p>
+              If you are worried about how she is,{" "}
+              <Link href="/health/when-to-call" className="text-accent underline underline-offset-4">
+                When to call
+              </Link>{" "}
+              lists what to look for and what to do. Asking her, and listening, is the best thing on that list.
+            </p>
+          </div>
+        </main>
+      </>
+    );
+  }
+
+  const pos = computePosition(journey.dueDate);
+  const phase: MoodPhase = journey.status === "LOSS" ? "after-loss" : pos.born ? "after-birth" : "pregnancy";
+  const [kept, doctors] = await Promise.all([
+    prisma.moodCheck.findMany({
+      where: { journeyId: journey.id, userId: session.user.id },
+      orderBy: { takenAt: "desc" },
+      select: { id: true, low: true, worry: true, selfHarm: true, takenAt: true, forDoctorAt: true },
+    }),
+    prisma.clinicianLink.count({ where: { journeyId: journey.id, endedAt: null } }),
+  ]);
+
+  return (
+    <>
+      <SiteHeader active="health" />
+      <main className="mx-auto max-w-3xl px-6 pb-14">
+        <PageHero eyebrow="Health" title="Mood check." lede="How the last two weeks have been, for you alone." compact />
+        <HealthTabs active="mood" />
+
+        <div className="mt-6 max-w-prose space-y-2">
+          {moodIntro(phase).map((p) => (
+            <p key={p} className="prose-serif-sm text-ink/90">
+              {p}
+            </p>
+          ))}
+        </div>
+
+        <section aria-label="The questions" className="mt-6 rounded-2xl border border-border bg-surface p-5">
+          <MoodCheckForm phase={phase} voice={session.user.voice ?? null} />
+        </section>
+
+        {kept.length > 0 && (
+          <section aria-labelledby="kept" className="mt-8">
+            <h2 id="kept" className="eyebrow mb-3 text-muted">
+              Results you kept
+            </h2>
+            <ul className="space-y-3">
+              {kept.map((k) => {
+                const r = moodResult({ low: k.low, worry: k.worry, selfHarm: k.selfHarm }, phase, session.user.voice);
+                return (
+                  <li key={k.id} className="rounded-2xl border border-border bg-surface p-4">
+                    <p className="font-mono text-[0.62rem] uppercase tracking-widest text-muted">{day(k.takenAt)}</p>
+                    <p className="mt-1 prose-serif-sm font-medium text-ink">{r.title}</p>
+                    <p className="mt-1 font-mono text-[0.62rem] uppercase tracking-widest text-muted">{r.figures}</p>
+                    <KeptMoodControls id={k.id} shared={k.forDoctorAt !== null} hasDoctor={doctors > 0} />
+                  </li>
+                );
+              })}
+            </ul>
+            {doctors === 0 && (
+              <p className="mt-2 prose-serif-xs text-muted">
+                You have not linked a doctor or midwife in Oyun, so there is nobody to show these to here. You can link one under
+                Your doctor.
+              </p>
+            )}
+          </section>
+        )}
+
+        <div className="mt-10 space-y-2 border-t border-border pt-4">
+          <p className="max-w-prose prose-serif-xs text-muted">{MOOD_ATTRIBUTION}</p>
+          <p className="max-w-prose prose-serif-xs text-muted">
+            If you are in danger of harming yourself, do not wait for a questionnaire:{" "}
+            <Link href="/health/when-to-call" className="underline underline-offset-4 hover:text-accent">
+              When to call
+            </Link>
+            .
+          </p>
+        </div>
+      </main>
+    </>
+  );
+}

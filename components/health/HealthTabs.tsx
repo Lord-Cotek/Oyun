@@ -27,6 +27,8 @@ const GUIDES = [
   { key: "eating", label: "Eating", href: "/health/eating" },
   // The contraction timer and getting ready — lib/labour.ts.
   { key: "birth", label: "Birth", href: "/health/birth" },
+  // Eleven private questions, hers alone — lib/mood-check.ts.
+  { key: "mood", label: "Mood", href: "/health/mood" },
   // The signs that should not wait — lib/when-to-call.ts. Marked apart from
   // the rest, because it is the one tab somebody opens frightened.
   { key: "call", label: "When to call", href: "/health/when-to-call" },

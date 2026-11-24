@@ -17,6 +17,7 @@ import { PrintButton } from "@/components/health/report/PrintButton";
 import { EndLinkButton } from "@/components/doctor/EndLinkButton";
 import { hasPreferences, preferenceSheet, readPreferences } from "@/lib/birth-prep";
 import { PreferenceSheet } from "@/components/health/birth/PreferenceSheet";
+import { MOOD_OPTIONS } from "@/lib/mood-check";
 
 export const dynamic = "force-dynamic";
 // No title from the patient's name: a browser tab or a history list is not
@@ -35,6 +36,8 @@ const TABS = [
   { key: "posts", label: "Shared posts" },
   // Her birth preferences, only once she has switched on showing them.
   { key: "birth", label: "Birth preferences" },
+  // Mood-check results, one at a time, only those she chose to show.
+  { key: "mood", label: "Mood checks" },
 ] as const;
 
 function fmt(d: Date, tz: string, time = false): string {
@@ -135,6 +138,7 @@ export default async function DoctorPatient({
         {tab === "appointments" && <AppointmentsTab journeyId={j.id} tz={tz} shared={link.withAppointments} />}
         {tab === "posts" && <PostsTab journeyId={j.id} tz={tz} />}
         {tab === "birth" && <BirthTab journeyId={j.id} name={j.owner.name?.trim() || "Your patient"} />}
+        {tab === "mood" && <MoodTab journeyId={j.id} />}
       </div>
     </main>
   );
@@ -262,6 +266,48 @@ async function BirthTab({ journeyId, name }: { journeyId: string; name: string }
         lines={preferenceSheet(prefs)}
         updated={prep.preferencesAt ? prep.preferencesAt.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }) : null}
       />
+    </div>
+  );
+}
+
+/**
+ * Mood-check results she chose to show (MoodCheck.forDoctorAt), newest
+ * first. The condition is in the query: a result she has not shared is never
+ * fetched for a doctor. Shown as the two totals a clinician reads, with her
+ * answer to the question about self-harm said in words.
+ */
+async function MoodTab({ journeyId }: { journeyId: string }) {
+  const rows = await prisma.moodCheck.findMany({
+    where: { journeyId, forDoctorAt: { not: null } },
+    orderBy: { takenAt: "desc" },
+    take: 24,
+    select: { id: true, low: true, worry: true, selfHarm: true, takenAt: true },
+  });
+  if (!rows.length) {
+    return (
+      <p className="prose-serif-sm text-muted">
+        She hasn&rsquo;t shared a mood check with you. Each result stays with her unless she chooses to show it.
+      </p>
+    );
+  }
+  return (
+    <div className="max-w-2xl">
+      <ul className="space-y-3">
+        {rows.map((r) => (
+          <li key={r.id} className={`rounded-xl border p-4 ${r.selfHarm > 0 ? "border-negative/60 bg-negative/[0.05]" : "border-border bg-surface"}`}>
+            <p className="font-mono text-[0.68rem] uppercase tracking-widest text-muted">
+              {r.takenAt.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" })}
+            </p>
+            <p className="mt-1 font-serif text-lg text-ink">
+              PHQ-9: {r.low} of 27 · GAD-2: {r.worry} of 6
+            </p>
+            <p className={`mt-1 prose-serif-sm ${r.selfHarm > 0 ? "text-negative" : "text-muted"}`}>
+              Thoughts of self-harm (PHQ-9 item 9): {MOOD_OPTIONS[r.selfHarm] ?? "Not at all"}
+            </p>
+          </li>
+        ))}
+      </ul>
+      <p className="mt-3 prose-serif-xs text-muted">Self-reported at home on the dates shown. A screening questionnaire, not a diagnosis.</p>
     </div>
   );
 }

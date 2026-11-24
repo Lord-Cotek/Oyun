@@ -27,11 +27,13 @@ export async function buildHealthExport(journeyId: string): Promise<{ filename: 
   const readingsFrom = fromOf(first?.takenAt);
   const dosesFrom = fromOf(firstDose?.dueAt);
 
-  const [plans, checklist, files, contractions] = await Promise.all([
+  const [plans, checklist, files, contractions, moods] = await Promise.all([
     prisma.medicationPlan.findMany({ where: { journeyId }, orderBy: { createdAt: "asc" } }),
     loadChecklist(a),
     prisma.healthFile.findMany({ where: { journeyId, entryId: { not: null } }, orderBy: { createdAt: "asc" } }),
     prisma.contraction.findMany({ where: { journeyId }, orderBy: { startedAt: "asc" } }),
+    // Hers alone: only the mother can make this download (asMother above).
+    prisma.moodCheck.findMany({ where: { journeyId, userId: a.userId }, orderBy: { takenAt: "asc" } }),
   ]);
   const ymd = (d: Date | null) => (d ? d.toISOString().slice(0, 10) : "");
 
@@ -75,6 +77,18 @@ export async function buildHealthExport(journeyId: string): Promise<{ filename: 
     });
   }
 
+  if (moods.length > 0) {
+    entries.push({
+      name: "mood-checks.csv",
+      data:
+        "﻿" +
+        toCsv([
+          ["Taken (UTC)", "Low mood (PHQ-9, of 27)", "Worry (GAD-2, of 6)", "Thoughts of self-harm (0 to 3)", "Shown to my doctor"],
+          ...moods.map((m) => [m.takenAt.toISOString(), String(m.low), String(m.worry), String(m.selfHarm), m.forDoctorAt ? "yes" : "no"]),
+        ]),
+    });
+  }
+
   let bytes = 0, kept = 0, missing = 0, skipped = 0;
   for (const f of files) {
     if (kept >= MAX_FILES || bytes + f.size > MAX_BYTES) {
@@ -103,6 +117,7 @@ export async function buildHealthExport(journeyId: string): Promise<{ filename: 
       "medicines.csv  the medicines you added, with their schedules",
       "tests.csv      the tests and vaccines checklist, with dates and results",
       ...(contractions.length > 0 ? ["contractions.csv  each contraction you timed: when it began, when it eased, how long it lasted"] : []),
+      ...(moods.length > 0 ? ["mood-checks.csv  the mood check results you chose to keep"] : []),
       `files/         ${kept === 1 ? "1 photo or PDF" : `${kept} photos and PDFs`} you kept with your entries (named by date and what they belong to)`,
       ...(missing ? ["", `${missing} file${missing === 1 ? " was" : "s were"} no longer in storage and could not be included.`] : []),
       ...(skipped ? ["", `${skipped} file${skipped === 1 ? " was" : "s were"} left out to keep this download a manageable size. Open each entry in the app to see them.`] : []),
@@ -137,6 +152,8 @@ export async function deleteHealthLog(journeyId: string) {
     prisma.healthFile.deleteMany({ where: { journeyId } }),
     prisma.healthReading.deleteMany({ where: { journeyId } }),
     prisma.contraction.deleteMany({ where: { journeyId } }),
+    // Her kept mood checks are hers and are part of what she is asking to be gone.
+    prisma.moodCheck.deleteMany({ where: { journeyId } }),
     prisma.medicationDose.deleteMany({ where: { journeyId } }),
     prisma.medicationPlan.deleteMany({ where: { journeyId } }),
     prisma.prenatalCheck.deleteMany({ where: { journeyId } }),

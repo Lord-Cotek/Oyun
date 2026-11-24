@@ -364,6 +364,7 @@ model Journey {
   healthReadings    HealthReading[]
   contractions      Contraction[]
   birthPrep         BirthPrep?
+  moodChecks        MoodCheck[]
   healthFiles       HealthFile[]
   medicationPlans   MedicationPlan[]
   medicationDoses   MedicationDose[]
@@ -2015,6 +2016,37 @@ model HealthReading {
   updatedAt    DateTime @updatedAt
 
   @@index([journeyId, takenAt])
+}
+
+/// One mood check she chose to keep — lib/mood-check.ts.
+///
+/// Hers alone. Only the mother can take one, and only she can ever read one:
+/// not her partner, not her circle, not the assistant, and not her doctor
+/// unless she switches that on for this one result (`forDoctorAt`). Keeping
+/// a result at all is her choice each time; one she does not keep is worked
+/// out on her phone and never reaches the server.
+///
+/// It is a screening questionnaire, not a diagnosis, and the page says so.
+model MoodCheck {
+  id          String    @id @default(cuid())
+  journeyId   String
+  journey     Journey   @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  /// Whose answers these are. Not a relation, so they are never reached by
+  /// way of somebody else's query on the user.
+  userId      String
+  /// Her eleven answers, each 0 to 3, in the order of the questions.
+  answers     Int[]
+  /// The nine low-mood answers added up (0 to 27).
+  low         Int
+  /// The two worry answers added up (0 to 6).
+  worry       Int
+  /// Her answer to the question about thoughts of self-harm (0 to 3).
+  selfHarm    Int
+  takenAt     DateTime  @default(now())
+  /// When she chose to show this result to her linked doctor. Null: not shown.
+  forDoctorAt DateTime?
+
+  @@index([journeyId, userId, takenAt])
 }
 
 /// Getting ready for the birth: what has been packed, and what she would
