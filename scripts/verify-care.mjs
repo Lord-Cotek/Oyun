@@ -144,6 +144,66 @@ const textOf = (p) => JSON.stringify(p);
   check(/key: "call"/.test(read("components/health/HealthTabs.tsx")), "it is one tap away from every page in Health");
 }
 
+// ── Eating well ────────────────────────────────────────────────────────────
+console.log("Eating well");
+const EAT = jiti(path.join(root, "lib/eating.ts"));
+{
+  const EPH = ["t1", "t2", "t3", "after-birth", "after-loss"];
+  const g = (ph, r, v) => EAT.eatingGuide(ph, r, v, "Amara Okafor");
+  let cleanGeneral = true;
+  let sameFacts = true;
+  let fastingRight = true;
+  for (const ph of EPH) {
+    for (const r of ["MOTHER", "PARTNER"]) {
+      const gen = g(ph, r, "GENERAL");
+      const fai = g(ph, r, "FAITH");
+      if (BANNED.test(JSON.stringify(gen))) cleanGeneral = false;
+      if (gen.fasting !== null) fastingRight = false;
+      const pregnant = ph.startsWith("t");
+      if (pregnant !== (fai.fasting !== null)) fastingRight = false;
+      const strip = (x) => JSON.stringify({ ...x, fasting: null });
+      if (strip(gen) !== strip(fai)) sameFacts = false;
+    }
+  }
+  check(cleanGeneral, "no religious language for somebody who chose Oyun without, in any phase");
+  check(BANNED.test(JSON.stringify(EAT.FOODS)) === false, "and none anywhere in 'Can I eat this?'");
+  check(sameFacts, "apart from fasting, the page is word for word the same with and without faith");
+  check(fastingRight, "fasting is shown only with faith, and only while she is expecting");
+  const fast = JSON.stringify(g("t2", "MOTHER", "FAITH").fasting);
+  check(/doctor or midwife before any fast/.test(fast) && /Do not go without water/.test(fast) && /Stop, eat and drink at once/.test(fast), "it says: ask the doctor first, never without water, and what ends a fast at once");
+  check(/never asks you to fast/.test(fast), "and that Oyun never asks her to fast");
+  check(!/\b(fasting|fasted|fasts|a fast|to fast)\b/i.test(read("lib/worship.ts").split("\n").filter((l) => /^\s*(talk|pray|do|act):/.test(l)).join("\n")), "nothing in worship asks anybody to fast");
+
+  check(EAT.phaseForWeek(1) === "t1" && EAT.phaseForWeek(13) === "t1" && EAT.phaseForWeek(14) === "t2" && EAT.phaseForWeek(27) === "t2" && EAT.phaseForWeek(28) === "t3" && EAT.phaseForWeek(41) === "t3", "weeks fall into the right trimester");
+  check(/Folate/.test(JSON.stringify(g("t1", "MOTHER", "FAITH").focus)) && /Iron/.test(JSON.stringify(g("t2", "MOTHER", "FAITH").focus)), "folate leads the first trimester and iron the second");
+  const loss = g("after-loss", "MOTHER", "FAITH");
+  check(!loss.showFoods && loss.troubles.length === 0 && !/\bbaby\b/i.test(JSON.stringify(loss)), "after a loss: no pregnancy food list, and no talk of the baby");
+  check(!g("after-birth", "MOTHER", "FAITH").showFoods, "after the birth the pregnancy food list is put away");
+  check(/Amara/.test(g("t2", "PARTNER", "GENERAL").partnerNote) && g("t2", "MOTHER", "GENERAL").partnerNote === null, "her partner is told the page is written to her");
+
+  const F = EAT.FOODS;
+  const by = (k) => F.find((f) => f.key === k);
+  check(new Set(F.map((f) => f.key)).size === F.length && F.every((f) => f.why.length > 20 && ["ok", "care", "avoid"].includes(f.verdict)), "every food has one answer and a reason");
+  for (const k of ["alcohol", "raw-meat", "raw-shellfish", "mercury-fish", "raw-milk", "pate", "clay"]) check(by(k)?.verdict === "avoid", `${by(k)?.name}: best avoided`);
+  // Where health services differ, nothing is called fine.
+  for (const k of ["liver", "eggs-raw", "raw-fish", "soft-cheese-mould", "smoked-fish", "cured-meat", "tuna", "herbal-medicine", "vitamin-a", "caffeine"]) check(by(k)?.verdict === "care", `${by(k)?.name}: with care, never plain 'fine'`);
+  check(/differ|Some health services|many health services/i.test(by("liver").why + by("raw-fish").why + by("soft-cheese-mould").why), "and says that services differ where they do");
+  const all = JSON.stringify(F) + JSON.stringify(EPH.map((ph) => g(ph, "MOTHER", "FAITH")));
+  check(!/\b\d+(\.\d+)?\s?(mg|mcg|µg|iu|g|kcal|calories)\b/i.test(all), "no dose of anything, and no calories");
+  check(/what your midwife or doctor advised/.test(all), "supplements are 'what your midwife or doctor advised', nothing more");
+  const names = (q, v) => EAT.searchFoods(q, v).map((f) => f.key);
+  check(names("sushi").includes("raw-fish") && names("pate").includes("pate") && names("Pâté").includes("pate"), "typing 'sushi' or 'Pâté' finds the answer");
+  check(names("garri").includes("staples") && names("nzu").includes("clay") && names("agbo").includes("herbal-medicine") && names("paneer").includes("soft-cheese-plain"), "so do the words of other kitchens");
+  check(names("").length === F.length && names("zzzz").length === 0 && names("", "avoid").every((k) => by(k).verdict === "avoid"), "an empty search is the whole list; a filter keeps only its answer");
+
+  const page = read("app/health/eating/page.tsx");
+  check(/isHousehold\(active\.role\)\) redirect/.test(page), "only the two of them can open it");
+  check(!/prisma|healthReading|logAccess/.test(page), "the page reads nothing from the database or the health log");
+  const finder = read("components/health/eating/FoodFinder.tsx");
+  check(!/fetch\(|action|sendBeacon|localStorage/.test(finder.replace(/\/\*[\s\S]*?\*\//g, "").replace(/aria-[a-z]+/g, "")), "what she types is not sent or kept anywhere");
+  check(!/eating|FOODS|searchFoods/.test(read("app/api/agbebi/route.ts")), "the assistant is not given the page");
+}
+
 // ── The registry's essentials ──────────────────────────────────────────────
 console.log("The registry's essentials");
 const E = jiti(path.join(root, "lib/registry-essentials.ts"));

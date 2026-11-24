@@ -10,6 +10,8 @@ const TABS = [
   { key: "log", label: "Log", href: "/health/log" },
   { key: "medicines", label: "Medicines", href: "/health/medicines" },
   { key: "tests", label: "Tests", href: "/health/tests" },
+  // What to eat and what to leave — lib/eating.ts.
+  { key: "eating", label: "Eating", href: "/health/eating" },
   { key: "report", label: "Report", href: "/health/report" },
   // Sharing with her own doctor or midwife — lib/clinician.ts.
   { key: "doctor", label: "Your doctor", href: "/health/doctor" },
