@@ -6,6 +6,7 @@ import { healthCsv } from "@/lib/health-csv";
 import { loadChecklist } from "@/lib/prenatal-db";
 import { localDay, scheduleSummary } from "@/lib/medication";
 import { readHealthFile } from "@/lib/health-file-stream";
+import { PREF_PREAMBLE, preferenceSheet, readPreferences } from "@/lib/birth-prep";
 
 /** Enough for a pregnancy's photos of reports; more than this and the README says so. */
 const MAX_FILES = 300;
@@ -27,14 +28,17 @@ export async function buildHealthExport(journeyId: string): Promise<{ filename: 
   const readingsFrom = fromOf(first?.takenAt);
   const dosesFrom = fromOf(firstDose?.dueAt);
 
-  const [plans, checklist, files, contractions, moods] = await Promise.all([
+  const [plans, checklist, files, contractions, moods, prep, babyLog] = await Promise.all([
     prisma.medicationPlan.findMany({ where: { journeyId }, orderBy: { createdAt: "asc" } }),
     loadChecklist(a),
     prisma.healthFile.findMany({ where: { journeyId, entryId: { not: null } }, orderBy: { createdAt: "asc" } }),
     prisma.contraction.findMany({ where: { journeyId }, orderBy: { startedAt: "asc" } }),
     // Hers alone: only the mother can make this download (asMother above).
     prisma.moodCheck.findMany({ where: { journeyId, userId: a.userId }, orderBy: { takenAt: "asc" } }),
+    prisma.birthPrep.findUnique({ where: { journeyId }, select: { preferences: true } }),
+    prisma.babyLog.findMany({ where: { journeyId }, orderBy: { at: "asc" } }),
   ]);
+  const prefLines = preferenceSheet(readPreferences(prep?.preferences));
   const ymd = (d: Date | null) => (d ? d.toISOString().slice(0, 10) : "");
 
   const entries: ZipEntry[] = [
@@ -89,6 +93,30 @@ export async function buildHealthExport(journeyId: string): Promise<{ filename: 
     });
   }
 
+  if (prefLines.length > 0) {
+    entries.push({
+      name: "birth-preferences.txt",
+      data: [
+        "Birth preferences",
+        "",
+        PREF_PREAMBLE,
+        "",
+        ...prefLines.flatMap((l) => [l.label.toUpperCase(), ...(l.text ? [l.text] : (l.list ?? []).map((x) => `- ${x}`)), ""]),
+      ].join("\r\n"),
+    });
+  }
+  if (babyLog.length > 0) {
+    entries.push({
+      name: "baby-log.csv",
+      data:
+        "﻿" +
+        toCsv([
+          ["When (UTC)", "What", "How"],
+          ...babyLog.map((b) => [b.at.toISOString(), b.kind === "FEED" ? "Feed" : b.kind === "WET" ? "Wet nappy" : "Dirty nappy", b.how ? b.how.toLowerCase() : ""]),
+        ]),
+    });
+  }
+
   let bytes = 0, kept = 0, missing = 0, skipped = 0;
   for (const f of files) {
     if (kept >= MAX_FILES || bytes + f.size > MAX_BYTES) {
@@ -118,6 +146,8 @@ export async function buildHealthExport(journeyId: string): Promise<{ filename: 
       "tests.csv      the tests and vaccines checklist, with dates and results",
       ...(contractions.length > 0 ? ["contractions.csv  each contraction you timed: when it began, when it eased, how long it lasted"] : []),
       ...(moods.length > 0 ? ["mood-checks.csv  the mood check results you chose to keep"] : []),
+      ...(prefLines.length > 0 ? ["birth-preferences.txt  your birth preferences, as you wrote them"] : []),
+      ...(babyLog.length > 0 ? ["baby-log.csv   the baby's feeds and nappies"] : []),
       `files/         ${kept === 1 ? "1 photo or PDF" : `${kept} photos and PDFs`} you kept with your entries (named by date and what they belong to)`,
       ...(missing ? ["", `${missing} file${missing === 1 ? " was" : "s were"} no longer in storage and could not be included.`] : []),
       ...(skipped ? ["", `${skipped} file${skipped === 1 ? " was" : "s were"} left out to keep this download a manageable size. Open each entry in the app to see them.`] : []),

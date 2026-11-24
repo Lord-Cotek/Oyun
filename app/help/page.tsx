@@ -549,7 +549,8 @@ export default async function HelpPage() {
               health log, medicines and doses, tests and vaccines, your stage and due date — and, unless you untick
               them, your appointments and scans and the photographs and PDFs on your readings and tests. A Life post
               reaches them only if you share that one post, from the same page, and its photos and videos go with it. They never see your other posts, letters,
-              moods, journal or circle. You can see each time they opened your records, change what they see, or
+              moods, journal or circle. Your birth preferences, and a mood check result, reach them only if you
+              switch that on, on those pages. You can see each time they opened your records, change what they see, or
               stop sharing at any time, and it ends at once. Only Mum can share; her partner can see who she shares
               with. Oyun does not watch your readings or alert your doctor — for anything urgent, contact your
               maternity unit yourself.
@@ -574,13 +575,68 @@ export default async function HelpPage() {
               open <span className="text-ink">Units and privacy</span>.{" "}
               <span className="text-ink">Download everything</span> gives you
               one ZIP with your readings, doses, medicines and tests as
-              spreadsheets, and every photo and PDF you kept.{" "}
+              spreadsheets, every photo and PDF you kept, and, where there
+              are any, the contractions you timed, the mood checks you chose
+              to keep, your birth preferences and the baby&rsquo;s log.{" "}
               <span className="text-ink">Delete my whole health log</span>{" "}
               removes all of it for good — from storage too — and closes any
-              report links; your health card stays. You can also ask for a
+              report links; your health card, your hospital bag and your birth
+              preferences stay. You can also ask for a
               short email on Sunday evenings when your week&rsquo;s report is
               ready: it is off unless you turn it on, and it is only a link —
               no reading is ever put in an email. These are Mum&rsquo;s alone.
+            </Q>
+          )}
+
+          {home && (
+            <Q q="When should we ring the midwife or go to hospital?">
+              <Link href="/health/when-to-call" className="text-accent underline underline-offset-4">Health &rarr; When to call</Link>{" "}
+              lists the signs that should not wait, in pregnancy and in the weeks after a birth, sorted into call now,
+              call today and tell somebody this week. It changes by itself once the birth is recorded, to cover Mum and
+              the baby. The numbers written on her health card are at the top, and can be tapped to call. Her partner
+              reads the same signs. It is not a diagnosis, and if you are worried about something that is not on it,
+              call anyway.
+            </Q>
+          )}
+
+          {home && (
+            <Q q="Is there anything about food, the birth, or the weeks after?">
+              Yes, under <span className="text-ink">Guides</span> in{" "}
+              <Link href="/health" className="text-accent underline underline-offset-4">Health</Link>.{" "}
+              <Link href="/health/eating" className="text-accent underline underline-offset-4">Eating</Link> says what
+              matters at the table this trimester, with a <span className="text-ink">Can I eat this?</span> list you can
+              search; what you type stays on your phone.{" "}
+              <Link href="/health/birth" className="text-accent underline underline-offset-4">Birth</Link> has a
+              contraction timer, a hospital bag checklist either of you can tick, and Mum&rsquo;s birth preferences on one
+              page to print. The timer measures how long contractions last and how far apart they are; it never says
+              when to go in, and shows what your own hospital told you instead.{" "}
+              <Link href="/health/after" className="text-accent underline underline-offset-4">After birth</Link> covers
+              her recovery and keeps a simple log of the baby&rsquo;s feeds and nappies. These pages are general: your
+              own midwife or doctor&rsquo;s advice comes first, and none of them gives a dose of anything.
+            </Q>
+          )}
+
+          {home && !inLoss && (
+            <Q q="We don&rsquo;t know what a baby needs. Where do we start?">
+              In <Link href="/registry" className="text-accent underline underline-offset-4">Registry</Link>, open{" "}
+              <span className="text-ink">Pick from the essentials</span>. It is a starter list by shelf (sleeping,
+              feeding, nappies, clothing and so on) with how many of each. Mark a thing{" "}
+              <span className="text-ink">Want</span> to put it on the list for the people you share it with, or{" "}
+              <span className="text-ink">Have</span> to keep it on your own list, ticked, where nobody else sees it.
+              Nothing is added until you say, and everything added is yours to rename, link to a shop or take off.
+              You never have to share the registry: it works as your own checklist too. A registry made before
+              shelves existed looks exactly as it did.
+            </Q>
+          )}
+
+          {isMother && (
+            <Q q="Is there a private way to check how I am feeling?">
+              <Link href="/health/mood" className="text-accent underline underline-offset-4">Health &rarr; Mood</Link>{" "}
+              asks eleven questions about the last two weeks, the ones health services use. It is yours alone: your
+              partner and your circle cannot see that you took it or what you answered. Your answers are added up on
+              your phone, and nothing is saved unless you press <span className="text-ink">Keep this result</span>. A
+              kept result can be removed, and reaches your doctor only if you switch that on for that one result. It is
+              a screening questionnaire, not a diagnosis, and Oyun never reminds you to take it.
             </Q>
           )}
 
