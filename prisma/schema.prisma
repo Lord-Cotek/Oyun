@@ -365,6 +365,7 @@ model Journey {
   contractions      Contraction[]
   birthPrep         BirthPrep?
   moodChecks        MoodCheck[]
+  babyLogs          BabyLog[]
   healthFiles       HealthFile[]
   medicationPlans   MedicationPlan[]
   medicationDoses   MedicationDose[]
@@ -2016,6 +2017,31 @@ model HealthReading {
   updatedAt    DateTime @updatedAt
 
   @@index([journeyId, takenAt])
+}
+
+/// One line in the baby's log for the first weeks: a feed, a wet nappy or a
+/// dirty one — lib/after-birth.ts.
+///
+/// The two of theirs to keep: whoever is up at three in the morning is the
+/// one who writes it down. Never interpreted. The page counts them and says
+/// what health services generally expect; it does not say the baby is or is
+/// not feeding enough.
+model BabyLog {
+  id           String   @id @default(cuid())
+  journeyId    String
+  journey      Journey  @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  /// Which baby, where there is more than one. Not a relation: a line is
+  /// kept even if a child's record is later changed.
+  childId      String?
+  /// FEED | WET | DIRTY
+  kind         String
+  /// For a feed: LEFT | RIGHT | BOTH | BOTTLE. Null on a nappy.
+  how          String?
+  at           DateTime
+  recordedById String?
+  createdAt    DateTime @default(now())
+
+  @@index([journeyId, at])
 }
 
 /// One mood check she chose to keep — lib/mood-check.ts.

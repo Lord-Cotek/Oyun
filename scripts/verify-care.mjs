@@ -360,6 +360,53 @@ const MC = jiti(path.join(root, "lib/mood-check.ts"));
   check(!/mood/i.test(read("vercel.json")), "and no scheduled job reminds her to take one");
 }
 
+// ── After the birth ────────────────────────────────────────────────────────
+console.log("After the birth");
+const AB = jiti(path.join(root, "lib/after-birth.ts"));
+{
+  const APH = ["before", "after-birth", "after-loss"];
+  const g = (ph, r, v) => AB.afterGuide(ph, r, v, "Amara Okafor");
+  let cleanG = true, same = true;
+  for (const ph of APH) for (const r of ["MOTHER", "PARTNER"]) {
+    const gen = g(ph, r, "GENERAL"), fai = g(ph, r, "FAITH");
+    if (BANNED.test(JSON.stringify(gen))) cleanG = false;
+    if (JSON.stringify({ ...gen, welcome: null }) !== JSON.stringify({ ...fai, welcome: null })) same = false;
+  }
+  check(cleanG, "no religious language for somebody who chose Oyun without, at any time");
+  check(same, "apart from one card, the page is word for word the same with and without faith");
+  const wf = g("after-birth", "MOTHER", "FAITH").welcome, wg = g("after-birth", "MOTHER", "GENERAL").welcome;
+  check(wf.title === "Giving thanks" && wf.verse && wf.verse.ref === "Psalm 127:3" && /dedication/.test(wf.body), "with faith the card is 'Giving thanks', with a verse and a dedication");
+  check(wg.title === "Welcoming the baby" && wg.verse === null && /naming day/.test(wg.body), "without, it is 'Welcoming the baby', a naming day, and no verse");
+  const loss = g("after-loss", "MOTHER", "FAITH");
+  check(loss.welcome === null && !/\bbaby\b|\bnappy|feed/i.test(JSON.stringify(loss)) && /Milk may come in/.test(JSON.stringify(loss)), "after a loss: her recovery only, the milk nobody warns of, and no word of a baby");
+  check(/why/.test(JSON.stringify(loss.check)), "and the follow-up questions include the ones about why");
+  const pg = g("after-birth", "PARTNER", "GENERAL");
+  check(pg.partner && /Amara/.test(pg.partner.title) && !/Okafor/.test(pg.partner.title) && /Guard her sleep/.test(JSON.stringify(pg.partner)) && g("after-birth", "MOTHER", "GENERAL").partner === null, "her partner gets his own list, by her first name");
+  const every = JSON.stringify(APH.map((ph) => g(ph, "MOTHER", "FAITH"))) + AB.LOG_EXPECT;
+  check(!/\b\d+\s?(ml|oz|ounces|grams|g|kg|lb)\b/i.test(every), "no amount of milk and no weight is given anywhere");
+  check(!/breast is best|better than (the )?bottle|formula is/i.test(every) && /either way/.test(every), "it does not rank the breast against the bottle");
+  check(/at least eight feeds and at least six wet nappies/.test(AB.LOG_EXPECT) && /ring your midwife today/.test(AB.LOG_EXPECT) && !/your baby/i.test(AB.LOG_EXPECT), "what is generally expected is said once, about no baby in particular");
+  check(/When to call/.test(g("after-birth", "MOTHER", "FAITH").closing), "what is not usual is left to 'When to call', not listed twice");
+
+  const T = Date.parse("2026-11-24T12:00:00Z");
+  const e = (id, kind, how, minsAgo, childId = null) => ({ id, kind, how, childId, at: new Date(T - minsAgo * 60_000).toISOString() });
+  const list = [e("1", "FEED", "LEFT", 200), e("2", "WET", null, 190), e("3", "FEED", "RIGHT", 70), e("4", "DIRTY", null, 60), e("5", "FEED", "BOTTLE", 60 * 30), e("6", "NONSENSE", null, 5)];
+  const c = AB.countBetween(list, T - 24 * 3600_000, T);
+  check(c.feeds === 2 && c.wet === 1 && c.dirty === 1, "today's feeds, wet and dirty nappies are counted, and nothing else");
+  check(AB.lastFeed(list).id === "3" && AB.lastFeed([e("x", "WET", null, 5)]) === null, "the last feed is found, and its side with it");
+  check(AB.ago(0) === "just now" && AB.ago(35 * 60_000) === "35 min" && AB.ago(130 * 60_000) === "2 h 10 min" && AB.ago(120 * 60_000) === "2 h", "'how long ago' reads plainly");
+  const now = new Date(T);
+  check(AB.cleanLogTime(new Date(T - 3 * 3600_000).toISOString(), now).getTime() === T - 3 * 3600_000 && AB.cleanLogTime(new Date(T + 3600_000).toISOString(), now).getTime() === T && AB.cleanLogTime(new Date(T - 72 * 3600_000).toISOString(), now).getTime() === T && AB.cleanLogTime("x", now).getTime() === T, "a line can be for earlier today, never the future or a made-up date");
+  check(AB.isLogKind("FEED") && !AB.isLogKind("SLEEP") && AB.isFeedHow("LEFT") && !AB.isFeedHow("ml"), "only feeds and nappies are kept");
+
+  const aa = read("app/health/after/actions.ts");
+  check((aa.match(/const a = await household\(\);\n  if \(!a\) return NOPE;/g) || []).length === 3 && /isHousehold\(active\.role\)/.test(aa), "the log is the two of theirs only");
+  check(/status === "LOSS"\) return null/.test(aa), "and after a loss there is no log to write in");
+  check(/where: \{ id: input\.childId, journeyId: a\.journeyId \}/.test(aa), "a line can only be for one of this family's own children");
+  const ap = read("app/health/after/page.tsx");
+  check(/const showLog = phase === "after-birth";/.test(ap), "the log is shown only once the baby is here");
+}
+
 // ── The registry's essentials ──────────────────────────────────────────────
 console.log("The registry's essentials");
 const E = jiti(path.join(root, "lib/registry-essentials.ts"));
