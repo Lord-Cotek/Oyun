@@ -21,6 +21,7 @@ import {
 } from "@/lib/health-log";
 import { discardHealthFile, saveReading } from "@/app/health/log/actions";
 import { HealthPhotoPicker } from "@/components/health/HealthPhotoPicker";
+import { MovementCounter } from "@/components/health/log/MovementCounter";
 
 export type EditReading = {
   id: string;
@@ -232,6 +233,13 @@ export function ReadingSheet({
                 <p className="prose-serif-xs text-muted">
                   Get to know your baby&rsquo;s own pattern. There is no number to reach — what matters is a change from what is usual for your baby.
                 </p>
+                {/* A tap for each one, and a clock: it fills in the two boxes below. */}
+                <MovementCounter
+                  onDone={(count, minutes) => {
+                    setA(String(count));
+                    setB(String(minutes));
+                  }}
+                />
                 <div className="grid grid-cols-2 gap-3">
                   <label className="block">
                     <span className="mb-1.5 block font-mono text-[0.62rem] uppercase tracking-widest text-muted">Movements felt (optional)</span>

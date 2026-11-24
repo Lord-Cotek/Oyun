@@ -204,6 +204,52 @@ const EAT = jiti(path.join(root, "lib/eating.ts"));
   check(!/eating|FOODS|searchFoods/.test(read("app/api/agbebi/route.ts")), "the assistant is not given the page");
 }
 
+// ── The contraction timer and the movement counter ─────────────────────────
+console.log("Contraction timer and movement counter");
+const LB = jiti(path.join(root, "lib/labour.ts"));
+{
+  const T0 = Date.parse("2026-11-24T02:00:00Z");
+  const mk = (i, startMin, lenSec) => ({ id: "c" + i, startedAt: new Date(T0 + startMin * 60_000).toISOString(), endedAt: lenSec === null ? null : new Date(T0 + startMin * 60_000 + lenSec * 1000).toISOString() });
+  const rows = LB.contractionRows([mk(3, 12, 60), mk(1, 0, 50), mk(2, 6, 55), mk(4, 18, null)]);
+  check(rows.map((r) => r.id).join("") === "c1c2c3c4", "contractions are put in order whatever order they arrive in");
+  check(rows[0].gapSec === null && rows[1].gapSec === 360 && rows[2].gapSec === 360, "'apart' is start to start, and the first has none");
+  check(rows[1].lengthSec === 55 && rows[3].lengthSec === null && rows[3].end === null, "one still going has no length yet");
+  const s = LB.summarise(rows, T0 + 20 * 60_000);
+  check(s && s.count === 3 && s.avgLengthSec === 55 && s.avgGapSec === 360, "the last hour: three finished, about 55 seconds, six minutes apart");
+  check(LB.spoken(s) === "3 contractions in the last hour, lasting about 55 seconds each, about 6 minutes apart, start to start.", "said the way a midwife asks for it");
+  check(LB.summarise(rows.slice(0, 1), T0 + 5 * 60_000) === null, "one contraction alone has no 'how far apart', so nothing is claimed");
+  check(LB.summarise(rows, T0 + 5 * 3600_000) === null, "yesterday's are not in today's average");
+  const far = LB.contractionRows([mk(1, 0, 50), mk(2, 180, 50)]);
+  check(far[1].gapSec === null, "a gap of hours is a new start, not an interval");
+  check(LB.clock(75) === "1:15" && LB.clock(5) === "0:05" && LB.inWords(360) === "6 minutes" && LB.inWords(75) === "1 minute 15 seconds", "times read correctly");
+  const now = new Date(T0);
+  check(LB.cleanTapTime(new Date(T0 - 3000).toISOString(), now).getTime() === T0 - 3000, "a tap is timed on the phone");
+  check(LB.cleanTapTime(new Date(T0 + 3600_000).toISOString(), now).getTime() === T0 && LB.cleanTapTime(new Date(T0 - 3600_000).toISOString(), now).getTime() === T0 && LB.cleanTapTime("nonsense", now).getTime() === T0 && LB.cleanTapTime(undefined, now).getTime() === T0, "a wrong clock or a made-up time falls back to the server's");
+
+  const gM = LB.labourWords("GENERAL", "MOTHER"), fM = LB.labourWords("FAITH", "MOTHER"), fP = LB.labourWords("FAITH", "PARTNER"), gP = LB.labourWords("GENERAL", "PARTNER");
+  const shownTo = (w) => [w.heading, ...w.breathing, ...w.lines.map((l) => l.text + " " + l.ref), ...w.prayers].join(" ");
+  check(!BANNED.test(shownTo(gM)) && !BANNED.test(shownTo(gP)), "without faith: breathing and plain encouragement, no religious language");
+  check(gM.lines.every((l) => l.ref === "") && gM.prayers.length === 0, "and no verse or prayer");
+  check(fM.lines.length >= 6 && fM.lines.every((l) => l.ref !== "") && fM.prayers.length >= 3, "with faith: Scripture with its reference, and short prayers");
+  check(JSON.stringify(gM.breathing) === JSON.stringify(fM.breathing), "the breathing is the same for everybody");
+  check(/her/.test(fP.prayers.join(" ")) && !/\bme\b/.test(fP.prayers.join(" ")) && /say to her/i.test(fP.heading), "her partner's prayers are for her, to say aloud");
+
+  // It measures. It never advises.
+  const strip = (x) => x.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "").replace(/\{\/\*[\s\S]*?\*\/\}/g, "");
+  const timerSrc = strip(read("components/health/birth/ContractionTimer.tsx")) + strip(read("app/health/birth/timer/page.tsx")) + JSON.stringify([gM, fM, LB.LABOUR_ALWAYS]);
+  check(!/go (in|to (the )?hospital) now|time to go|5-1-1|511 rule|stay (at )?home|too early|active labou?r|you are in labou?r/i.test(timerSrc), "the timer never says when to go in, or what stage she is in");
+  check(/What your hospital told you/.test(timerSrc) && /saveLabourNote/.test(timerSrc), "it shows what her own hospital told her instead");
+  check(/before 37 weeks/.test(LB.LABOUR_ALWAYS) && /call now/.test(LB.LABOUR_ALWAYS), "and always says which signs do not wait for a timer");
+  const tact = read("app/health/birth/timer/actions.ts");
+  check((tact.match(/const a = await access\(\);\n  if \(!a\) return NOPE;/g) || []).length === 5 && /logAccess\(/.test(tact), "every timer action is open only to those the health log is open to");
+  check(/journeyId: a\.journeyId/.test(tact) && !/where: \{ id \}/.test(tact), "and only ever touches this journey's own contractions");
+  const exp = read("lib/health-export.ts");
+  check(/contraction\.deleteMany/.test(exp) && /contractions\.csv/.test(exp), "contractions are in her download, and go when she deletes her health log");
+  const mc = strip(read("components/health/log/MovementCounter.tsx"));
+  check(!/enough|target|goal|\b10\b|well done|normal/i.test(mc), "the movement counter has no number to reach and passes no judgement");
+  check(/MovementCounter/.test(read("components/health/log/ReadingSheet.tsx")) && /onDone=\{\(count, minutes\)/.test(read("components/health/log/ReadingSheet.tsx")), "it fills in the existing movements entry, which she saves as before");
+}
+
 // ── The registry's essentials ──────────────────────────────────────────────
 console.log("The registry's essentials");
 const E = jiti(path.join(root, "lib/registry-essentials.ts"));

@@ -362,6 +362,7 @@ model Journey {
   healthRecords     HealthRecord[]
   healthLog         HealthLogSettings?
   healthReadings    HealthReading[]
+  contractions      Contraction[]
   healthFiles       HealthFile[]
   medicationPlans   MedicationPlan[]
   medicationDoses   MedicationDose[]
@@ -1962,6 +1963,10 @@ model HealthLogSettings {
   /// Her choice, off unless she turns it on: a Sunday-evening email saying
   /// the week's report is ready. A link only — never a reading in the email.
   weeklyEmail Boolean  @default(false)
+  /// What her own hospital or midwife told her about when to come in, in
+  /// their words, typed by the family ahead of time and shown beside the
+  /// contraction timer. The app gives no rule of its own for this.
+  labourNote  String?
   updatedById String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -2009,6 +2014,31 @@ model HealthReading {
   updatedAt    DateTime @updatedAt
 
   @@index([journeyId, takenAt])
+}
+
+/// One contraction, timed at home: when it began and when it eased.
+///
+/// Kept with the health log and open to the same people (lib/health-log-db.ts
+/// logAccess): her, and her partner unless she keeps the log to herself. He
+/// is often the one holding the phone.
+///
+/// Never interpreted. The page shows how long each lasted and how far apart
+/// they are, and beside them what her own hospital told her (labourNote).
+/// It never says "go in now" or "wait": that depends on her history, how far
+/// away she lives, and what her unit asks for — none of which this knows.
+model Contraction {
+  id           String    @id @default(cuid())
+  journeyId    String
+  journey      Journey   @relation(fields: [journeyId], references: [id], onDelete: Cascade)
+  /// Who pressed the button. Not a relation: the record is hers whoever
+  /// timed it, and is not lost if that person ever leaves.
+  recordedById String?
+  startedAt    DateTime
+  /// Null while it is still going.
+  endedAt      DateTime?
+  createdAt    DateTime  @default(now())
+
+  @@index([journeyId, startedAt])
 }
 
 /// A photograph or PDF kept as proof of a health entry — a meter's screen, a

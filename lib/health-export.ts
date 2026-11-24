@@ -27,10 +27,11 @@ export async function buildHealthExport(journeyId: string): Promise<{ filename: 
   const readingsFrom = fromOf(first?.takenAt);
   const dosesFrom = fromOf(firstDose?.dueAt);
 
-  const [plans, checklist, files] = await Promise.all([
+  const [plans, checklist, files, contractions] = await Promise.all([
     prisma.medicationPlan.findMany({ where: { journeyId }, orderBy: { createdAt: "asc" } }),
     loadChecklist(a),
     prisma.healthFile.findMany({ where: { journeyId, entryId: { not: null } }, orderBy: { createdAt: "asc" } }),
+    prisma.contraction.findMany({ where: { journeyId }, orderBy: { startedAt: "asc" } }),
   ]);
   const ymd = (d: Date | null) => (d ? d.toISOString().slice(0, 10) : "");
 
@@ -56,6 +57,23 @@ export async function buildHealthExport(journeyId: string): Promise<{ filename: 
         ]),
     },
   ];
+
+  // Only when there is something in it: most downloads are made long before labour.
+  if (contractions.length > 0) {
+    entries.push({
+      name: "contractions.csv",
+      data:
+        "﻿" +
+        toCsv([
+          ["Began (UTC)", "Eased (UTC)", "Lasted (seconds)"],
+          ...contractions.map((c) => [
+            c.startedAt.toISOString(),
+            c.endedAt?.toISOString() ?? "",
+            c.endedAt ? String(Math.round((c.endedAt.getTime() - c.startedAt.getTime()) / 1000)) : "",
+          ]),
+        ]),
+    });
+  }
 
   let bytes = 0, kept = 0, missing = 0, skipped = 0;
   for (const f of files) {
@@ -84,6 +102,7 @@ export async function buildHealthExport(journeyId: string): Promise<{ filename: 
       "doses.csv      every scheduled or logged dose, and whether it was taken",
       "medicines.csv  the medicines you added, with their schedules",
       "tests.csv      the tests and vaccines checklist, with dates and results",
+      ...(contractions.length > 0 ? ["contractions.csv  each contraction you timed: when it began, when it eased, how long it lasted"] : []),
       `files/         ${kept === 1 ? "1 photo or PDF" : `${kept} photos and PDFs`} you kept with your entries (named by date and what they belong to)`,
       ...(missing ? ["", `${missing} file${missing === 1 ? " was" : "s were"} no longer in storage and could not be included.`] : []),
       ...(skipped ? ["", `${skipped} file${skipped === 1 ? " was" : "s were"} left out to keep this download a manageable size. Open each entry in the app to see them.`] : []),
@@ -117,6 +136,7 @@ export async function deleteHealthLog(journeyId: string) {
   await prisma.$transaction([
     prisma.healthFile.deleteMany({ where: { journeyId } }),
     prisma.healthReading.deleteMany({ where: { journeyId } }),
+    prisma.contraction.deleteMany({ where: { journeyId } }),
     prisma.medicationDose.deleteMany({ where: { journeyId } }),
     prisma.medicationPlan.deleteMany({ where: { journeyId } }),
     prisma.prenatalCheck.deleteMany({ where: { journeyId } }),
