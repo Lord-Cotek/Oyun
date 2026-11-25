@@ -21,9 +21,11 @@
  * questionnaire is only what it was tested as if its words are left alone.
  *
  * ── What it is careful about ─────────────────────────────────────────────
- * • It is hers alone. Only the mother can take it or read a result — never
- *   her partner, her circle or the assistant. Her doctor sees a result only
- *   if she switches that on for that one result.
+ * • It is hers alone. Only the mother can take it. Her circle and the
+ *   assistant never see anything of it. Her doctor, and her partner, each
+ *   see a result only if she switches that on for that one result. Her
+ *   partner is then shown what it comes to and what helps her, in words
+ *   written to him — never her answers one by one.
  * • Keeping a result is her choice each time. One she does not keep is
  *   worked out on her phone by the functions in this file and never reaches
  *   the server. That is why this file has no database in it.
@@ -215,6 +217,84 @@ export function moodIntro(phase: MoodPhase): string[] {
       : phase === "after-birth"
         ? "Eleven questions about the last two weeks. Many mothers feel low or anxious in the year after a birth. It is common, and it is treatable."
         : "Eleven questions about the last two weeks. Many women feel low or anxious in pregnancy. It is common, and it is treatable.",
-    "It takes about two minutes. Nobody is sent your answers. Your partner cannot see them, and neither can anybody in your circle.",
+    "It takes about two minutes. Nobody is sent your answers. Nobody in your circle can ever see them, and your partner sees a result only if you choose to show him that one.",
   ];
+}
+
+/**
+ * One result she chose to show her partner, in words written to him.
+ *
+ * The same reading of the same numbers, and the same order: anything urgent
+ * first, then what her answers come to, then what helps. It is about what he
+ * can do, because that is the reason she showed him. It never lists her
+ * answers, and it never asks him to fix her.
+ *
+ * @param voice his own choice. With faith he is told that praying with her
+ *   and getting her to a doctor are not rivals — the doctor first.
+ */
+export function moodResultForPartner(
+  score: MoodScore,
+  phase: MoodPhase,
+  voice: string | null | undefined,
+  motherName: string,
+): MoodResult {
+  const level = moodLevel(score.low);
+  const name = motherName.trim().split(/\s+/)[0] || "She";
+  const body: string[] = [];
+  let title: string;
+
+  if (level === "clear") {
+    title = `Nothing in ${name}'s answers points to low mood just now.`;
+    body.push("She chose to show you this. That is worth a thank-you by itself.");
+  } else if (level === "watch") {
+    title = `${name} has had some low days in the last two weeks.`;
+    body.push(
+      "That is common, and it often lifts. What helps is plain: guard her sleep, take something off her hands, ask how she is and listen to the answer.",
+      "If it is no better in two weeks, help her tell her midwife or doctor.",
+    );
+  } else if (level === "talk") {
+    title = `${name}'s answers are in the range worth a conversation with her midwife or doctor.`;
+    body.push(
+      "Showing you this was not easy. Do not try to fix it or talk her out of it. Ask what would help, and offer to go with her to the appointment.",
+      "It does not mean something is wrong with her, or between the two of you.",
+    );
+  } else {
+    title = `${name}'s answers say the last two weeks have been heavy.`;
+    body.push(
+      "This is common in pregnancy and after a birth. It is not a failing, and it is treatable.",
+      "Help her ring her midwife or doctor this week rather than waiting, and go with her if she will let you.",
+    );
+  }
+
+  if (worryRaised(score.worry)) {
+    body.push(level === "clear" ? "Her answers about worry, though, are in the range worth mentioning to her midwife or doctor." : "Her answers about worry are in that range too.");
+  }
+  if (level !== "clear" && phase === "after-loss") {
+    body.push("After a loss, feeling like this is not an illness in itself; grief looks like this. You are grieving too. Neither of you should carry it alone.");
+  }
+
+  const urgent =
+    score.selfHarm > 0
+      ? {
+          title: `${name} said she has had thoughts of being better off dead, or of hurting herself.`,
+          body: [
+            "She has told you. Take it seriously, stay calm, and thank her for saying it.",
+            "Help her tell her midwife or doctor today. If she might act on these thoughts, stay with her, and call your local emergency number or take her to the nearest hospital now.",
+            "These thoughts are a symptom. They pass with help.",
+          ],
+        }
+      : null;
+
+  return {
+    level,
+    urgent,
+    title,
+    body,
+    figures: `Low mood ${score.low} of 27 · Worry ${score.worry} of 6`,
+    faithLine:
+      !isGeneral(voice) && (level !== "clear" || urgent !== null || worryRaised(score.worry))
+        ? "Praying with her and getting her to a doctor are not rivals. Do both, and the doctor first."
+        : null,
+    room: { href: "/health/when-to-call", label: "What to look for, and who to call" },
+  };
 }

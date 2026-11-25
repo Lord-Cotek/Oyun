@@ -635,7 +635,10 @@ export default async function HelpPage() {
               asks eleven questions about the last two weeks, the ones health services use. It is yours alone: your
               partner and your circle cannot see that you took it or what you answered. Your answers are added up on
               your phone, and nothing is saved unless you press <span className="text-ink">Keep this result</span>. A
-              kept result can be removed, and reaches your doctor only if you switch that on for that one result. It is
+              kept result can be removed, and reaches your partner or your doctor only if you tick that for that one
+              result; untick it and it is gone from their page. Your partner is shown what it comes to and what
+              helps, not your answers one by one. This is separate from the quick daily check-in in Care, which has
+              its own choice of who sees it. It is
               a screening questionnaire, not a diagnosis, and Oyun never reminds you to take it.
             </Q>
           )}

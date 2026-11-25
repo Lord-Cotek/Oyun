@@ -6,7 +6,8 @@ import { prisma } from "@/lib/prisma";
 import { getActiveMembership } from "@/lib/data";
 import { isHousehold } from "@/lib/roles";
 import { computePosition } from "@/lib/stage";
-import { MOOD_ATTRIBUTION, moodIntro, moodResult, type MoodPhase } from "@/lib/mood-check";
+import { MOOD_ATTRIBUTION, moodIntro, moodResult, moodResultForPartner, type MoodPhase } from "@/lib/mood-check";
+import { MoodResultView } from "@/components/health/mood/MoodResultView";
 import { SiteHeader } from "@/components/SiteHeader";
 import { PageHero } from "@/components/ui/PageHero";
 import { HealthTabs } from "@/components/health/HealthTabs";
@@ -24,9 +25,10 @@ const day = (d: Date) => d.toLocaleDateString("en-GB", { day: "numeric", month: 
 /**
  * The mood check — lib/mood-check.ts.
  *
- * Hers alone. Her partner is told that plainly and shown nothing of hers;
- * nobody else can reach the page at all. Nothing here reminds her to take
- * it, and nothing is kept unless she presses "Keep this result".
+ * Hers alone. Her partner is told that plainly, and is shown only a result
+ * she has chosen to show him, in words written to him; nobody else can reach
+ * the page at all. Nothing here reminds her to take it, and nothing is kept
+ * unless she presses "Keep this result".
  */
 export default async function MoodPage() {
   const session = await auth();
@@ -38,7 +40,17 @@ export default async function MoodPage() {
   const journey = active.journey;
   const first = journey.owner.name?.trim().split(/\s+/)[0] || "her";
 
+  const pos = computePosition(journey.dueDate);
+  const phase: MoodPhase = journey.status === "LOSS" ? "after-loss" : pos.born ? "after-birth" : "pregnancy";
+
   if (active.role !== "MOTHER") {
+    // Only what she chose to show him. The condition is in the query, so a
+    // result she has not shared is never fetched for his page at all.
+    const shown = await prisma.moodCheck.findMany({
+      where: { journeyId: journey.id, forPartnerAt: { not: null } },
+      orderBy: { takenAt: "desc" },
+      select: { id: true, low: true, worry: true, selfHarm: true, takenAt: true },
+    });
     return (
       <>
         <SiteHeader active="health" />
@@ -48,31 +60,53 @@ export default async function MoodPage() {
           <div className="mt-8 max-w-prose space-y-3 prose-serif-sm text-muted">
             <p>
               This one is {first}&rsquo;s alone. Whether she has taken it, and anything she answered, is not shown to you or to
-              anybody else unless she chooses to tell you.
+              anybody else unless she chooses to show you a result.
             </p>
-            <p>
-              If you are worried about how she is,{" "}
-              <Link href="/health/when-to-call" className="text-accent underline underline-offset-4">
-                When to call
-              </Link>{" "}
-              lists what to look for and what to do. Asking her, and listening, is the best thing on that list.
-            </p>
+            {shown.length === 0 && (
+              <p>
+                If you are worried about how she is,{" "}
+                <Link href="/health/when-to-call" className="text-accent underline underline-offset-4">
+                  When to call
+                </Link>{" "}
+                lists what to look for and what to do. Asking her, and listening, is the best thing on that list.
+              </p>
+            )}
           </div>
+
+          {shown.length > 0 && (
+            <section aria-labelledby="shown" className="mt-8">
+              <h2 id="shown" className="eyebrow mb-3 text-muted">
+                What {first} chose to show you
+              </h2>
+              <ul className="space-y-6">
+                {shown.map((k) => (
+                  <li key={k.id}>
+                    <p className="mb-2 font-mono text-[0.62rem] uppercase tracking-widest text-muted">{day(k.takenAt)}</p>
+                    <MoodResultView r={moodResultForPartner({ low: k.low, worry: k.worry, selfHarm: k.selfHarm }, phase, session.user.voice, first)} />
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-4 max-w-prose prose-serif-xs text-muted">
+                A screening questionnaire, not a diagnosis. You see what her answers came to, not the answers themselves, and
+                only for as long as she leaves it shown.
+              </p>
+            </section>
+          )}
         </main>
       </>
     );
   }
 
-  const pos = computePosition(journey.dueDate);
-  const phase: MoodPhase = journey.status === "LOSS" ? "after-loss" : pos.born ? "after-birth" : "pregnancy";
-  const [kept, doctors] = await Promise.all([
+  const [kept, doctors, partner] = await Promise.all([
     prisma.moodCheck.findMany({
       where: { journeyId: journey.id, userId: session.user.id },
       orderBy: { takenAt: "desc" },
-      select: { id: true, low: true, worry: true, selfHarm: true, takenAt: true, forDoctorAt: true },
+      select: { id: true, low: true, worry: true, selfHarm: true, takenAt: true, forDoctorAt: true, forPartnerAt: true },
     }),
     prisma.clinicianLink.count({ where: { journeyId: journey.id, endedAt: null } }),
+    prisma.membership.findFirst({ where: { journeyId: journey.id, role: "PARTNER" }, select: { user: { select: { name: true } } } }),
   ]);
+  const partnerName = partner ? partner.user.name?.trim().split(/\s+/)[0] || "my partner" : null;
 
   return (
     <>
@@ -106,15 +140,21 @@ export default async function MoodPage() {
                     <p className="font-mono text-[0.62rem] uppercase tracking-widest text-muted">{day(k.takenAt)}</p>
                     <p className="mt-1 prose-serif-sm font-medium text-ink">{r.title}</p>
                     <p className="mt-1 font-mono text-[0.62rem] uppercase tracking-widest text-muted">{r.figures}</p>
-                    <KeptMoodControls id={k.id} shared={k.forDoctorAt !== null} hasDoctor={doctors > 0} />
+                    <KeptMoodControls
+                      id={k.id}
+                      forDoctor={k.forDoctorAt !== null}
+                      forPartner={k.forPartnerAt !== null}
+                      hasDoctor={doctors > 0}
+                      partnerName={partnerName}
+                    />
                   </li>
                 );
               })}
             </ul>
             {doctors === 0 && (
               <p className="mt-2 prose-serif-xs text-muted">
-                You have not linked a doctor or midwife in Oyun, so there is nobody to show these to here. You can link one under
-                Your doctor.
+                You have not linked a doctor or midwife in Oyun. If you would like to show one a result, link them under Your
+                doctor.
               </p>
             )}
           </section>

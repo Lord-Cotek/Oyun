@@ -87,8 +87,8 @@ export async function buildHealthExport(journeyId: string): Promise<{ filename: 
       data:
         "﻿" +
         toCsv([
-          ["Taken (UTC)", "Low mood (PHQ-9, of 27)", "Worry (GAD-2, of 6)", "Thoughts of self-harm (0 to 3)", "Shown to my doctor"],
-          ...moods.map((m) => [m.takenAt.toISOString(), String(m.low), String(m.worry), String(m.selfHarm), m.forDoctorAt ? "yes" : "no"]),
+          ["Taken (UTC)", "Low mood (PHQ-9, of 27)", "Worry (GAD-2, of 6)", "Thoughts of self-harm (0 to 3)", "Shown to my doctor", "Shown to my partner"],
+          ...moods.map((m) => [m.takenAt.toISOString(), String(m.low), String(m.worry), String(m.selfHarm), m.forDoctorAt ? "yes" : "no", m.forPartnerAt ? "yes" : "no"]),
         ]),
     });
   }

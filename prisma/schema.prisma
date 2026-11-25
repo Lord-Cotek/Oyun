@@ -2046,9 +2046,10 @@ model BabyLog {
 
 /// One mood check she chose to keep — lib/mood-check.ts.
 ///
-/// Hers alone. Only the mother can take one, and only she can ever read one:
-/// not her partner, not her circle, not the assistant, and not her doctor
-/// unless she switches that on for this one result (`forDoctorAt`). Keeping
+/// Hers alone. Only the mother can take one, and only she can read one. Her
+/// circle and the assistant never can. Her doctor and her partner each see
+/// a result only if she switches that on for that one result (`forDoctorAt`,
+/// `forPartnerAt`), and stop seeing it when she switches it off. Keeping
 /// a result at all is her choice each time; one she does not keep is worked
 /// out on her phone and never reaches the server.
 ///
@@ -2070,7 +2071,10 @@ model MoodCheck {
   selfHarm    Int
   takenAt     DateTime  @default(now())
   /// When she chose to show this result to her linked doctor. Null: not shown.
-  forDoctorAt DateTime?
+  forDoctorAt  DateTime?
+  /// When she chose to show this one result to her partner. Null: not shown.
+  /// He is shown what it comes to and what helps, never her answers one by one.
+  forPartnerAt DateTime?
 
   @@index([journeyId, userId, takenAt])
 }

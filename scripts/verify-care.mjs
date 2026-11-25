@@ -341,17 +341,43 @@ const MC = jiti(path.join(root, "lib/mood-check.ts"));
   check(faithRight, "with faith, whenever there is something to act on, she is told asking for help is not a lack of faith");
   check(MC.moodResult({ low: 12, worry: 0, selfHarm: 0 }, "pregnancy", "FAITH").room.label === "Ask your circle to pray" && MC.moodResult({ low: 12, worry: 0, selfHarm: 0 }, "pregnancy", "GENERAL").room.label === "Ask your circle for support", "the door to her circle is named for each reader");
   check(/grief looks like this/.test(MC.moodResult({ low: 16, worry: 0, selfHarm: 0 }, "after-loss", "FAITH").body.join(" ")), "after a loss it says grief looks like this, and that the check cannot tell the two apart");
-  check(PHS.every((ph) => !BANNED.test(MC.moodIntro(ph).join(" "))) && /Your partner cannot see them/.test(MC.moodIntro("pregnancy").join(" ")), "the introduction is the same for everybody and says who cannot see her answers");
+  check(PHS.every((ph) => !BANNED.test(MC.moodIntro(ph).join(" "))) && /your partner sees a result only if you choose to show him that one/.test(MC.moodIntro("pregnancy").join(" ")) && /Nobody in your circle can ever see them/.test(MC.moodIntro("pregnancy").join(" ")), "the introduction is the same for everybody and says who can and cannot see her answers");
 
   const ma = read("app/health/mood/actions.ts");
-  check(/active\.role !== "MOTHER"\) return null/.test(ma) && (ma.match(/const a = await her\(\);\n  if \(!a\) return NOPE;/g) || []).length === 3, "every mood action is the mother's alone");
+  check(/active\.role !== "MOTHER"\) return null/.test(ma) && (ma.match(/const a = await her\(\);\n  if \(!a\) return NOPE;/g) || []).length === 4, "every mood action is the mother's alone");
   check((ma.match(/userId: a\.userId/g) || []).length >= 4, "and only ever on her own results");
   check(/scoreMood\(clean\)/.test(ma), "a kept score is worked out on the server from her answers, never taken from the phone");
   const form = read("components/health/mood/MoodCheckForm.tsx").replace(/\/\*[\s\S]*?\*\//g, "");
   check((form.match(/keepMoodCheck\(/g) || []).length === 1 && /Keep this result/.test(form) && !/fetch\(|localStorage|sendBeacon/.test(form), "nothing leaves her phone unless she presses 'Keep this result'");
   const mp = read("app/health/mood/page.tsx");
-  check(/if \(active\.role !== "MOTHER"\) \{/.test(mp) && mp.indexOf("prisma.moodCheck") > mp.indexOf('if (active.role !== "MOTHER") {'), "her partner's page reads nothing of hers from the database");
-  check(/userId: session\.user\.id/.test(mp), "her page reads only her own results");
+  const hisPage = mp.slice(mp.indexOf('if (active.role !== "MOTHER") {'), mp.indexOf("const [kept, doctors, partner]"));
+  check((hisPage.match(/prisma\.moodCheck/g) || []).length === 1 && /where: \{ journeyId: journey\.id, forPartnerAt: \{ not: null \} \}/.test(hisPage), "her partner's page is given a result only once she has switched that on for it");
+  check(!/answers: true/.test(hisPage) && /moodResultForPartner\(/.test(hisPage) && !/MoodCheckForm/.test(hisPage), "and never her answers one by one, nor the questions");
+  check(/userId: session\.user\.id/.test(mp.slice(mp.indexOf("const [kept, doctors, partner]"))), "her page reads only her own results");
+  const sp = ma.slice(ma.indexOf("export async function setMoodForPartner"), ma.indexOf("export async function removeMoodCheck"));
+  check(/share && !row\.forPartnerAt/.test(sp) && /type: "health_shared"/.test(sp) && !/low|worry|selfHarm|answers/.test(sp.slice(sp.indexOf("await notify("))), "he is told she has shared something, once, and the bell never says what");
+  {
+    let cleanP = true, urgentP = true, doctorP = true, noAnswers = true, faithP = true;
+    for (const ph of PHS) for (const low of [0, 5, 10, 15, 27]) for (const worry of [0, 3]) for (const selfHarm of [0, 2]) {
+      const g = MC.moodResultForPartner({ low, worry, selfHarm }, ph, "GENERAL", "Amara Okafor");
+      const f = MC.moodResultForPartner({ low, worry, selfHarm }, ph, "FAITH", "Amara Okafor");
+      const shown = (r) => [r.title, ...r.body, r.figures, r.faithLine ?? "", r.room.label, r.urgent ? r.urgent.title + r.urgent.body.join(" ") : ""].join(" ");
+      if (BANNED.test(shown(g)) || g.faithLine !== null) cleanP = false;
+      if ((selfHarm > 0) !== (f.urgent !== null)) urgentP = false;
+      if (f.urgent && !(/stay with her/.test(f.urgent.body.join(" ")) && /local emergency number/.test(f.urgent.body.join(" ")))) urgentP = false;
+      if (low >= 10 && !/midwife or doctor/.test(f.title + f.body.join(" "))) doctorP = false;
+      if (/Okafor/.test(shown(f)) || !/Amara/.test(f.title)) noAnswers = false;
+      if (/Little interest|Feeling down|Trouble falling|hopeless/.test(shown(f))) noAnswers = false;
+      if (f.faithLine && !/the doctor first/.test(f.faithLine)) faithP = false;
+      if (/pray/i.test(f.title + f.body.join(" "))) faithP = false;
+    }
+    check(cleanP, "what her partner is shown has no religious language if he chose Oyun without");
+    check(urgentP, "if she answered about self-harm he is told first: stay with her, and the emergency number");
+    check(doctorP, "from 10 upwards he is told to help her reach her midwife or doctor");
+    check(noAnswers, "he reads her first name and what it comes to, never a question or an answer of hers");
+    check(faithP, "with faith he is told praying with her and a doctor are not rivals, the doctor first");
+  }
+  check(/forPartnerAt\s+DateTime\?/.test(read("prisma/schema.prisma")), "showing a result to her partner is off until she turns it on");
   const doc2 = read("app/doctor/p/[link]/page.tsx");
   check(/where: \{ journeyId, forDoctorAt: \{ not: null \} \}/.test(doc2.slice(doc2.indexOf("async function MoodTab"), doc2.indexOf("async function PostsTab"))), "her doctor is given a result only once she has switched that on for it");
   const users = (dir) => { const out = []; const walk = (d) => { for (const e of readdirSync(path.join(root, d), { withFileTypes: true })) { const f = path.join(d, e.name); if (e.isDirectory()) walk(f); else if (/\.tsx?$/.test(e.name) && /moodCheck\b/.test(read(f))) out.push(f); } }; walk(dir); return out; };

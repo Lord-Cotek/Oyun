@@ -57,13 +57,15 @@ export function MoodCheckForm({ phase, voice }: { phase: MoodPhase; voice: strin
         <div className="mt-4 rounded-xl border border-border bg-bg/40 p-4">
           {kept ? (
             <p className="prose-serif-sm text-ink" role="status">
-              Kept, for you only. It is in the list below, where you can remove it or show it to your doctor.
+              Kept, for you only. It is in the list below, where you can remove it, or choose to show it to your partner or
+              your doctor.
             </p>
           ) : (
             <>
               <p className="prose-serif-sm text-ink">This result has not been saved or sent anywhere.</p>
               <p className="mt-1 prose-serif-xs text-muted">
-                Keep it if you would like to compare next time, or to show your doctor. Only you will be able to see it.
+                Keep it if you would like to compare next time, or to show your partner or your doctor. Only you will see it
+                unless you then choose to show it.
               </p>
               <div className="mt-3 flex flex-wrap items-center gap-4">
                 <button
