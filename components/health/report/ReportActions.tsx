@@ -17,8 +17,16 @@ export type LinkRow = { id: string; label: string | null; period: string; expire
  * Inside the installed app none of print, download or the share sheet
  * reaches the page (WKWebView and Android's WebView give it none of them),
  * and the phone's browser is not signed in. So there, for her, one button
- * makes a two-hour link and opens it in the phone's browser, where Print,
- * Save to Files and the CSVs all work.
+ * makes a two-hour link and then offers it to open in the phone's browser,
+ * where Print, Save to Files and the CSVs all work.
+ *
+ * ── Why it is two taps and not one ───────────────────────────────────────
+ * It used to make the link and then call window.open. The iOS app's web view
+ * only lets a page open a window during the tap itself; by the time the
+ * server had answered, that moment had passed, and iOS dropped the request
+ * without a word — the button said "Opening…" and nothing opened. So the
+ * link, once made, is a real link: tapping it IS the tap, which every shell
+ * hands to the system browser.
  */
 export function ReportActions({
   period,
@@ -39,6 +47,8 @@ export function ReportActions({
 }) {
   const router = useRouter();
   const [made, setMade] = useState<{ url: string; qr: string; expires: string } | null>(null);
+  /** The two-hour printing link, once made — opened by a real tap on a real link. */
+  const [printUrl, setPrintUrl] = useState<string | null>(null);
   const [label, setLabel] = useState("");
   const [days, setDays] = useState(7);
   const [copied, setCopied] = useState(false);
@@ -74,9 +84,8 @@ export function ReportActions({
     start(async () => {
       const r = await createReportLink({ ...period, withPhotos, forPrinting: true });
       if (!r.ok) return setError(r.error);
-      // Our own host is in the shell's allowNavigation, but a new window is
-      // handed to the system browser — which is the point.
-      window.open(`${window.location.origin}${r.path}`, "_blank", "noopener");
+      // Not window.open: see the note at the top of this file.
+      setPrintUrl(`${window.location.origin}${r.path}`);
       router.refresh();
     });
   }
@@ -97,12 +106,32 @@ export function ReportActions({
     <div className="space-y-4">
       {inShell && (
         <div className="rounded-2xl border border-border bg-surface p-4 print:hidden">
-          <button type="button" onClick={openInBrowser} disabled={pending} className="inline-flex min-h-11 items-center rounded-lg bg-accent px-4 font-mono text-xs font-medium text-on-accent disabled:opacity-60">
-            {pending ? "Opening…" : "Save as PDF or print ↗"}
-          </button>
-          <p className="mt-2 prose-serif-xs text-muted">
-            Opens this report in your phone&rsquo;s browser, where you can print it, save it to Files as a PDF, or download the numbers. It uses a private link that stops working in two hours{isMother ? "" : ` — ${motherName} sees it in her list`}.
-          </p>
+          {printUrl ? (
+            <>
+              {/* A new window from a real tap: the shell hands it to the
+                  phone's own browser. */}
+              <a
+                href={printUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex min-h-11 items-center rounded-lg bg-accent px-4 font-mono text-xs font-medium text-on-accent"
+              >
+                Open it in your browser ↗
+              </a>
+              <p className="mt-2 prose-serif-xs text-muted">
+                Ready. Tap to open the report in your phone&rsquo;s browser, then print it, save it to Files as a PDF, or download the numbers. This link stops working in two hours{isMother ? "" : ` — ${motherName} sees it in her list`}.
+              </p>
+            </>
+          ) : (
+            <>
+              <button type="button" onClick={openInBrowser} disabled={pending} className="inline-flex min-h-11 items-center rounded-lg bg-accent px-4 font-mono text-xs font-medium text-on-accent disabled:opacity-60">
+                {pending ? "Getting it ready…" : "Save as PDF or print ↗"}
+              </button>
+              <p className="mt-2 prose-serif-xs text-muted">
+                Makes a private link to this report that you can open in your phone&rsquo;s browser, where you can print it, save it to Files as a PDF, or download the numbers. It stops working in two hours{isMother ? "" : ` — ${motherName} sees it in her list`}.
+              </p>
+            </>
+          )}
           {error && <p role="alert" className="mt-2 font-mono text-xs text-negative">{error}</p>}
         </div>
       )}

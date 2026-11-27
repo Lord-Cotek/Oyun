@@ -529,9 +529,10 @@ export default async function HelpPage() {
               told when her partner makes one. If she switches her log to
               &ldquo;Only me&rdquo;, her partner&rsquo;s links close at once.
               In the installed app, which cannot print,{" "}
-              <span className="text-ink">Save as PDF or print</span> opens the
-              report in your phone&rsquo;s browser through a private link that
-              lasts two hours.
+              <span className="text-ink">Save as PDF or print</span> makes a
+              private link that lasts two hours; then tap{" "}
+              <span className="text-ink">Open it in your browser</span> to
+              print it or save it as a PDF there.
             </Q>
           )}
 
